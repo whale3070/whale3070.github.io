@@ -1,0 +1,480 @@
+
+
+  <!DOCTYPE html>
+  <html lang="en" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>云主机的提权思路-令牌伪造 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="云主机的提权思路-令牌伪造">
+                      
+                        云主机的提权思路-令牌伪造
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-11-28 15:41" pubdate>
+        November 28, 2021 pm
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      13
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">云主机的提权思路-令牌伪造</h1>
+            
+            <div class="markdown-body">
+              <p>云主机的渗透思路，为什么说云主机呢，因为云上的主机都是云服务器提供商给出的模板，一般补丁都打了，而且可以统一管理。因此不存在什么内核漏洞来提权。</p>
+<p>写这篇文章主要是想探讨一下以下几点</p>
+<ul>
+<li>什么是windows令牌</li>
+<li>windows令牌有几种类型</li>
+<li>如何利用windows令牌</li>
+<li>如何防御windows令牌窃取</li>
+</ul>
+<h2 id="什么是windows令牌"><a href="#什么是windows令牌" class="headerlink" title="什么是windows令牌"></a>什么是windows令牌</h2><p>windows access token的定义：<a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/secauthz/access-tokens">https://docs.microsoft.com/en-us/windows/win32/secauthz/access-tokens</a></p>
+<p>令牌就像网络 cookie。它们是一个临时密钥，允许您在每次访问文件时无需提供凭据即可访问系统和网络。Incognito 与 cookie 窃取的工作方式相同，通过在被要求进行身份验证时重播该临时密钥来利用这一点。</p>
+<h2 id="windows令牌有几种类型"><a href="#windows令牌有几种类型" class="headerlink" title="windows令牌有几种类型"></a>windows令牌有几种类型</h2><ul>
+<li>primary tokens 初始令牌</li>
+<li>impersonation tokens 模拟令牌<br>每个进程创建的时候，windows默认创建了primary tokens 初始令牌。</li>
+</ul>
+<p>令牌的安全级别：</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs asciidoc"><span class="hljs-bullet">. </span>Anonymous 匿名的，简称未认证令牌<br>· Identify  已认证的令牌，简称认证令牌<br>· Impersonate 代理令牌<br>· Delegate 委派令牌，简称虎符令牌<br></code></pre></div></td></tr></table></figure>
+<p>为了渗透的目的，我们要注意的是代理令牌和虎符令牌。</p>
+<p>Delegate tokens 虎符令牌是为“交互式”登录创建的，例如登录机器或通过3389 rdp 远程登录。当administrator的一次rdp远程桌面登录成功后，该机器就会获得一个虎符令牌，代表着它有administrtor的权限。</p>
+<p>Impersonate tokens 代理令牌用于“非交互式”会话，例如net use ,wmi,winrm</p>
+<p>注: 上面的这两种令牌,都会在系统重启以后被清除, 否则将会一直驻留在内存中，而虎符令牌则会在用户注销以后自动被转为代理令牌,但仍然可利用,</p>
+<h2 id="如何利用windows令牌"><a href="#如何利用windows令牌" class="headerlink" title="如何利用windows令牌"></a>如何利用windows令牌</h2><h3 id="域提权"><a href="#域提权" class="headerlink" title="域提权"></a>域提权</h3><p>虎符令牌中包含验证口令，所以通过虎符令牌就可以访问其他系统</p>
+<h3 id="本地提权"><a href="#本地提权" class="headerlink" title="本地提权"></a>本地提权</h3><p>如果攻击者拿到了低权限的账号，那么通过虎符令牌就可以得到管理员权限</p>
+<p>案例一：攻击者拿到Microsoft SQL Server 权限。如果dba账户有administrator权限，并且连接过SQL Server。那么攻击者就可以拿到administrator权限的虎符令牌。因为SQL server进程空间中存在着这个token。</p>
+<p>案例二：攻击者拿到了系统账号网络服务“NETWORK SERVICE” ，虽然该账号没有system权限那么高，可以它访问“SYSTEM”代理令牌，所以存在提权到system的可能性。</p>
+<h3 id="使用CobaltStrike-来窃取伪造当前机器指定系统进程中的用户访问令牌"><a href="#使用CobaltStrike-来窃取伪造当前机器指定系统进程中的用户访问令牌" class="headerlink" title="使用CobaltStrike 来窃取伪造当前机器指定系统进程中的用户访问令牌"></a>使用CobaltStrike 来窃取伪造当前机器指定系统进程中的用户访问令牌</h3><h3 id="使用meterpreter-incognito-模块来窃取伪造当前机器指定系统进程中的用户访问令牌"><a href="#使用meterpreter-incognito-模块来窃取伪造当前机器指定系统进程中的用户访问令牌" class="headerlink" title="使用meterpreter incognito 模块来窃取伪造当前机器指定系统进程中的用户访问令牌"></a>使用meterpreter incognito 模块来窃取伪造当前机器指定系统进程中的用户访问令牌</h3><h3 id="使用incognito-exe以任意用户身份的访问令牌去执行任意payload"><a href="#使用incognito-exe以任意用户身份的访问令牌去执行任意payload" class="headerlink" title="使用incognito.exe以任意用户身份的访问令牌去执行任意payload"></a>使用incognito.exe以任意用户身份的访问令牌去执行任意payload</h3><h3 id="利用Invoke-TokenManipulation-ps1-“无文件”窃取指定用户身份令牌执行任意payload"><a href="#利用Invoke-TokenManipulation-ps1-“无文件”窃取指定用户身份令牌执行任意payload" class="headerlink" title="利用Invoke-TokenManipulation.ps1 “无文件”窃取指定用户身份令牌执行任意payload"></a>利用Invoke-TokenManipulation.ps1 “无文件”窃取指定用户身份令牌执行任意payload</h3><h3 id="借助Invoke-TokenManipulation-ps1-窃取system-访问令牌以实现mssql-本地免密码登录"><a href="#借助Invoke-TokenManipulation-ps1-窃取system-访问令牌以实现mssql-本地免密码登录" class="headerlink" title="借助Invoke-TokenManipulation.ps1 窃取system 访问令牌以实现mssql 本地免密码登录"></a>借助Invoke-TokenManipulation.ps1 窃取system 访问令牌以实现mssql 本地免密码登录</h3><h3 id="通过Tokenvator-exe-来窃取伪造模拟指定用户的访问令牌去执行任意payload"><a href="#通过Tokenvator-exe-来窃取伪造模拟指定用户的访问令牌去执行任意payload" class="headerlink" title="通过Tokenvator.exe 来窃取伪造模拟指定用户的访问令牌去执行任意payload"></a>通过Tokenvator.exe 来窃取伪造模拟指定用户的访问令牌去执行任意payload</h3><h3 id="通过Mimikatz-来伪造指定用户的访问令牌"><a href="#通过Mimikatz-来伪造指定用户的访问令牌" class="headerlink" title="通过Mimikatz 来伪造指定用户的访问令牌"></a>通过Mimikatz 来伪造指定用户的访问令牌</h3><h2 id="如何防御windows令牌窃取"><a href="#如何防御windows令牌窃取" class="headerlink" title="如何防御windows令牌窃取"></a>如何防御windows令牌窃取</h2><p>防范本文中概述的技术并不是一项简单的任务。然而，可以采取的几种措施结合起来将大大降低风险。</p>
+<p>windows令牌窃取，它不是漏洞，也没有补丁，它是Microsoft Windows 访问控制模型的正常行为。</p>
+<p>对windows令牌窃取的防御措施主要是管理员如何使用他们的系统</p>
+<h3 id="限制高权限用户的使用"><a href="#限制高权限用户的使用" class="headerlink" title="限制高权限用户的使用"></a>限制高权限用户的使用</h3><ul>
+<li>【权限分离】确保所有具有高权限的用户（如系统管理员）拥有单独的<br>管理帐户并使用标准用户帐户登录他们的桌面。</li>
+<li>【使用RunAs 】来运行需要更高权限的进程。RunAs 还可以防止在旧系统注销后暴露令牌</li>
+<li>确保域管理员帐户仅用于管理域控制器。 分离应创建域帐户并授予其委派管理权限特定的组织单位。<br>· 分割不同组织单位之间的管理员。</li>
+<li>确保开发和测试系统的管理员帐户不同于关键的生产系统。</li>
+</ul>
+<p>总而言之，就是权限分离、限制高权限用户的使用，使用最小必要权限，而不是到处以高权限用户去登录、开启进程。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li>《第一百一十课：窃取,伪造模拟各种windows访问令牌[token利用].pdf》</li>
+<li>《13054-security-implications-of-windows-access-tokens.pdf》<br> pdf的下载地址<a target="_blank" rel="noopener" href="https://www.exploit-db.com/exploits/13054">https://www.exploit-db.com/exploits/13054</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.offensive-security.com/metasploit-unleashed/fun-incognito/">https://www.offensive-security.com/metasploit-unleashed/fun-incognito/</a></li>
+</ul>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/windows/">windows</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/11/28/%E6%8F%90%E6%9D%83%E5%B7%A5%E5%85%B7wes-%E6%97%A0%E9%9C%80%E4%B8%8A%E4%BC%A0exe%E7%9A%84windows%E6%BC%8F%E6%B4%9E%E4%BF%A1%E6%81%AF%E6%90%9C%E9%9B%86/">
+                        <span class="hidden-mobile">提权工具wes-无需上传exe的内网漏洞信息搜集</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+
+    </body>
+
+  </html>
