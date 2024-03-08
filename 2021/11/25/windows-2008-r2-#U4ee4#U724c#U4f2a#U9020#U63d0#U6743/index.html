@@ -1,0 +1,460 @@
+
+
+  <!DOCTYPE html>
+  <html lang="en" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>T1134.001 windows-2008-r2-令牌伪造提权 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.0.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="T1134.001 windows-2008-r2-令牌伪造提权">
+                      
+                        T1134.001 windows-2008-r2-令牌伪造提权
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-11-25 14:30" pubdate>
+        November 25, 2021 pm
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      6 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      1
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">T1134.001 windows-2008-r2-令牌伪造提权</h1>
+            
+            <div class="markdown-body">
+              <div class="hbe hbe-container" id="hexo-blog-encrypt" data-wpm="Oh, this is an invalid password. Check and try again, please." data-whm="Oh, these decrypted content cannot be verified, but you can still have a look.">
+  <script id="hbeData" type="hbeData" data-hmacdigest="82930d5d0a39492d6bf0e1d25a93b620d88df8e5fc78cf2c199e508cef290f9f">36a8c550e2bef3e6f6e1f965bd55bc8a65f25f6a835f7113a07caec67862e689167469238ae68f1f4017aaf2df15765323c16adccd1ad24c27b8b548e5d9c74190120234df084a4f06dfd6e5bbff032f2366dcc7f819d2ff98c337e46467db22bb9484b23c154bbc998f1337cdf3b2db2d08a9196635e0453671099530c2b545a93259baacd5acae5f628c148ac8a6c00475d563f49dd69c5f0b905e3ac0f613f5dc61046997f8243ba9c9e250c7a794e5615d1ed5e7d45a90b9f69d18f04104f6be05b48bc0aa27707f9a1aff63ea18951b2cbe135379421d6ea0b3b53623b5ad3c4090009c7f4192201f1f35fe91d7056803f0980611c190b06b29657291e48b7b6d5976133a4b57589b0b6261deee3942cb73d10887d6d0f13f74c0dabea14ac7b556f3e71ed2a68afc8f4c4b851068a75f39d30989bedcb976282ff7badf546e0157fe8ff7321e9a612b245fb46587cdd97fe59bb3e78bd24ea7fec31c724c2c9d6b9528e8b5031a061c29fd672d04340bf554fbcdddfb9b90c0cdf9f4973bd2e15b25028e3c0c91acf0d362b3369461e967d2cfb0a869f3d090d0227f69da74798d504d4c88ddf7a4959a0a3ad1db7e564033d0eaec5f16f631a73835789cef842a24af836dc273b65ae93bc2b0ef4f29044a5cffa659fd64f1de3f97bb8bda6255870185a19c371b4649239a0dc2ab9f5da493388046ef4c18b3d53f0f1cc7f7bd9bd5d1b3a10bc45af434e68d63a65c4c33fbcc1ebd428a75c34f9cded4a920efde66eba5e34d769cd0c08b31b6960bda89e78a176d548496a6519fde651e83d1b96506ca305b084b07f0d4e8455790051e52a99f21fb60b9ac51b2c6e57ae9e6263f13ce434aefe1586a939d215385c1ec8fa34ebbb51e667919442c044d9eb44b3cd9229a4bca2b3ad05f00f0338d98691e7744d7c757057500eca9a20854868ceb7de309c87855db722881d4b8a0da49653f261aecfbea94ff78187ff8eab605401f26c8e586f250b3770dfeeb5062160c01ade97f3c1d94e0a8c1a8ad9afe4690506226cd9d362b64fa9532c8203a7a6653dd0e6569d684430801cb105e54f2b05c66edff9a7bb4baa65b675fdbb45606693b59410696be5b9a61a52a80814f359f5637b0266e4108e6336c6c491043176d5cda5dd11139c97a19ec9547b23c2356a3e8c2ea045a0ee088889d3960003cd1f061f2f046c2b99df59b9ee3eceaf80f1edfba80dbc363700a62e066dec0a82f60acf4ee339e1b5f0110b43d0fc8970345d9b0b042c71d9ce56be25ea261bcee3a22cc06cd25bee7f62a98f2b755c6deb84e8f424ddf6f121a97cfed9959f490dd94b77a681cd6379b05f6778600cb420392140a6497fbf78db10f4d8dac1763c9c2291d417b7cc3e461cd8e16de7ea404064f80f226d75f8e3a3e77461e655e1cb4909dbc6241da0a6a87beb1c2ad09bee98db55d84524973e73c3b604e450d5c8583cbbf347c5ed1f3eb24787fcf08d5acf06aeffa8774c0950851836ee1c69842aa24bd6f827d7a732707566f4901886cfc34fb2bb5e6d3ba685e1b0a78e9af772b638062a7a4bb7ba1ac40b89ab83099a06f123b0308ce0fd5c530d0c6ffedc6a3e5041506f1fdacc8191ec949532ad1d17ace7962f3047334e262d995b64dcc58117d0aceb0013ff45a3d4eb00cad58daf06fa6b336e28c5b544b97bed1e5930c3cf48558fb7988f902ccce961e5ef5ca0a30fa03e3d050ed86dc3d80197157be8a28c6c94826210d12113c76b89f02a7fe391f4895691732ea7b07faf56ca85de40ff500dd3754964e6db0b741c962f6595583fb5a2d131d3c7321247d64339d1d0bca577e999f776e1ba4868cd38ff21ab3dcf3e094bf36fcb85a21468408500b5f33204545c9107ce25d2f01592adf476918bddaf5ad56a99a95fc50e4457e6a35033a4c515eaf4dbbe477afd8dc9f60c5d23e0b019512dad7b634517f44d3008a6a18e340ec851fb631dd6290f769f44e468ed37ad9a08702b091afa7ac914a6e81fa0d299266d8dc9f35ed40df25e43df47426e9</script>
+  <div class="hbe hbe-content">
+    <div class="hbe hbe-input hbe-input-default">
+      <input class="hbe hbe-input-field hbe-input-field-default" type="password" id="hbePass">
+      <label class="hbe hbe-input-label hbe-input-label-default" for="hbePass">
+        <span class="hbe hbe-input-label-content hbe-input-label-content-default">Hey, password is required here.</span>
+      </label>
+    </div>
+  </div>
+</div>
+<script data-pjax src="/lib/hbe.js"></script><link href="/css/hbe.style.css" rel="stylesheet" type="text/css">
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/record/">record</a>
+                    
+                      <a class="hover-with-bg" href="/tags/ATTCK/">ATTCK</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/11/28/#U63d0#U6743#U5de5#U5177wes-#U65e0#U9700#U4e0a#U4f20exe#U7684windows#U6f0f#U6d1e#U4fe1#U606f#U641c#U96c6/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">提权工具wes-无需上传exe的内网漏洞信息搜集</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/11/21/#U8001#U9f84#U5316#U5bf9#U672a#U6765#U4e8c#U5341#U5e74#U6559#U80b2#U884c#U4e1a#U7684#U5f71#U54cd/">
+                        <span class="hidden-mobile">老龄化对未来二十年教育行业的影响</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+
+    </body>
+
+  </html>
