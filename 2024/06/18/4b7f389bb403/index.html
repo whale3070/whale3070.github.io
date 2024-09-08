@@ -177,7 +177,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      5.3k 字
+      5.4k 字
     </span>
   
 
@@ -187,7 +187,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      65
+      58
        分钟
     </span>
   
@@ -221,119 +221,215 @@
             <h1 style="display: none">事件应急响应专家（五）</h1>
             
             <div class="markdown-body">
-              <p>在<a target="_blank" rel="noopener" href="https://whale3070.github.io/tags/Certified-Incident-Responder/">前四章</a></p>
-<p>我们介绍了事件应急响应专家、要使用的工具splunk和搜索处理语言SPL。</p>
-<p>今天，我们模拟真实环境，使用splunk来寻找攻击者的踪迹。</p>
-<h1 id="有效使用-Splunk（场景-1）"><a href="#有效使用-Splunk（场景-1）" class="headerlink" title="有效使用 Splunk（场景 1）"></a>有效使用 Splunk（场景 1）</h1><p>＃ 设想<br>您工作的组织 (<strong>Wayne Enterprises</strong>) 正在使用 <a target="_blank" rel="noopener" href="https://www.splunk.com/">Splunk</a> 作为 SIEM 解决方案来增强其入侵检测功能。 SOC 经理通知您该组织已受到 APT 组织的攻击。他要求您通过大量利用 Splunk 及其获取的所有数据来响应此事件。<br>Splunk摄取的数据包括Windows事件日志、Sysmon日志、Fortinet下一代防火墙日志、Suricata日志等。<br><strong>注</strong>：本实验基于Splunk发布的<a target="_blank" rel="noopener" href="https://github.com/splunk/botsv1">Boss Of The SOC (BOTS) v1数据集</a>。感谢 <a target="_blank" rel="noopener" href="https://twitter.com/meansec">RyanKovar</a>、<a target="_blank" rel="noopener" href="https://twitter.com/daveherrald?lang=el">Dave Herrald</a> 和 [John Stoner](<a target="_blank" rel="noopener" href="https://twitter.com/">https://twitter.com/</a> Stonerpsu）通过此数据集与公众分享本实验室介绍的 Splunk 检测技巧。 </p>
-<h1 id="学习目标"><a href="#学习目标" class="headerlink" title="学习目标"></a>学习目标</h1><p>本实验的学习目标不仅是熟悉Splunk的架构和检测功能，还要学习有效的Splunk搜索编写。<br>具体来说，您将学习如何使用 Splunk 的功能来： </p>
+              <h1 id="under-the-hood"><a href="#under-the-hood" class="headerlink" title="under the hood"></a>under the hood</h1><p>“Under the hood” 的字面意思是“在引擎盖下”，但在英语中，这个短语通常被用作一种比喻，表示查看事物的内部工作原理或了解其隐藏的细节。</p>
+<p>根据上下文，”under the hood” 可以翻译为：</p>
 <ul>
-<li>通过网络获得更好的可见性 </li>
-<li>及时有效地响应事件 </li>
-<li>主动寻找威胁 </li>
+<li><strong>幕后</strong>：用于描述表面之下的工作机制或过程。</li>
+<li><strong>内部运作</strong>：指系统或机器内部的工作原理。</li>
+<li><strong>背后的细节</strong>：指某件事或某个系统的内部细节或技术细节。</li>
 </ul>
-<h2 id="任务-1：通过-Splunk-搜索识别针对您的网络的任何侦察活动"><a href="#任务-1：通过-Splunk-搜索识别针对您的网络的任何侦察活动" class="headerlink" title="任务 1：通过 Splunk 搜索识别针对您的网络的任何侦察活动"></a>任务 1：通过 Splunk 搜索识别针对您的网络的任何侦察活动</h2><p>使用 Splunk 的功能，尝试识别 APTgroup 执行的任何侦察活动。您组织的网站是 <strong>imreallynotbatman.com。</strong><br><strong>提示</strong>： </p>
-<ul>
-<li>关注 <strong>stream:http</strong> 源类型并识别负责大部分流量的源 IP。然后，使用 <strong>suricata</strong> 源类型验证您的发现。 </li>
-<li>通过分析所有重要字段和来源类型来深入调查 ## 任务 2：识别网络上的任何武器化活动<br>使用开源情报 (OSINT)，尝试识别 APT 组织执行的任何武器化活动。 </li>
-</ul>
-<p><strong>提示</strong>： </p>
-<ul>
-<li>识别与预先准备攻击 Wayne Enterprises 的域相关的任何 IP 地址 - 尝试了解 IP 地址和域之间的关联以及其他 - 执行与上述相同的操作，将攻击者电子邮件与互联网上的基础设施关联起来 ## 任务 3 ：识别您网络上的任何交付活动<br>使用 OSINT，尝试识别 APT 组织执行的任何交付活动。具体来说，尝试识别与您之前发现的攻击者基础设施相关的恶意软件。 </li>
-</ul>
-<p><strong>提示</strong>： </p>
-<ul>
-<li>将任何与攻击者相关的 IP 地址提交给 ThreatMiner、VirusTotal 和 Hybrid Analysis 等开放源 <h2 id="任务-4：通过-Splunk-搜索识别网络上的任何利用活动-使用-Splunk-的功能，尝试识别-APT-组执行的任何利用活动。"><a href="#任务-4：通过-Splunk-搜索识别网络上的任何利用活动-使用-Splunk-的功能，尝试识别-APT-组执行的任何利用活动。" class="headerlink" title="任务 4：通过 Splunk 搜索识别网络上的任何利用活动 使用 Splunk 的功能，尝试识别 APT 组执行的任何利用活动。"></a>任务 4：通过 Splunk 搜索识别网络上的任何利用活动 使用 Splunk 的功能，尝试识别 APT 组执行的任何利用活动。</h2></li>
-</ul>
-<p><strong>提示</strong>： </p>
-<ul>
-<li>关注 <strong>stream:http</strong> 和 <strong>iis</strong> 源类型，并确定哪个服务器是目标以及它使用的内容管理系统 </li>
-<li>重点关注 <strong>stream:http</strong> 源类型并识别暴力攻击的来源 - 通过分析所有重要字段和源类型来更深入地进行调查 ## 任务 5：通过 Splunk 搜索识别网络上的任何安装活动 使用 Splunk功能，尝试识别 APT 组执行的任何安装活动。 <strong>提示</strong>： </li>
-<li>关注 <strong>stream:http</strong> 和 <strong>suricata</strong> 源类型以识别任何上传的可执行文件 </li>
-<li>利用 Sysmon 日志来识别有关任何上传的可执行文件的附加信息 <h2 id="任务-6：通过-Splunk-搜索识别网络上任何与命令和控制相关的活动"><a href="#任务-6：通过-Splunk-搜索识别网络上任何与命令和控制相关的活动" class="headerlink" title="任务 6：通过 Splunk 搜索识别网络上任何与命令和控制相关的活动"></a>任务 6：通过 Splunk 搜索识别网络上任何与命令和控制相关的活动</h2>使用 Splunk 的功能，尝试识别 APT 组执行的任何与命令和控制 (C2) 相关的活动。 </li>
-</ul>
-<p><strong>提示</strong>： </p>
-<ul>
-<li>重点关注 <strong>stream:http、</strong> <strong>fgt_utm、</strong> 和 <strong>stream:dns</strong> 源类型，以识别充当命令和控制的任何域。 <h1 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h1>您可以在下面找到本实验室每项任务的解决方案。但请记住，您可以遵循自己的策略，该策略可能与以下实验中解释的策略不同。 <h2 id="任务-1：通过-Splunk-搜索识别针对您的网络的任何侦察活动-1"><a href="#任务-1：通过-Splunk-搜索识别针对您的网络的任何侦察活动-1" class="headerlink" title="任务 1：通过 Splunk 搜索识别针对您的网络的任何侦察活动"></a>任务 1：通过 Splunk 搜索识别针对您的网络的任何侦察活动</h2>登录 Splunk 的 Web 管理界面后，单击位于左侧 <strong>应用程序</strong> 列中的<strong>搜索和报告</strong>应用程序。您应该会看到类似于下面的内容。<br>![](<a target="_blank" rel="noopener" href="https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i">https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i</a></li>
-</ul>
-<p>法师11.png)<br>为了测试 Splunk 是否可以成功访问提取/加载的数据，首先将时间范围选择器更改为<strong>所有时间</strong>，然后提交以下搜索。 </p>
-<figure class="highlight fix"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs fix"><span class="hljs-attr">索引</span>=<span class="hljs-string">“botsv1”最早= 0 </span><br></code></pre></div></td></tr></table></figure>
-<p>您应该会看到事件的数量随着时间的推移而增加。<br>![](<a target="_blank" rel="noopener" href="https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i">https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i</a> mage12.png)<br>现在我们知道一切都按预期进行，让我们确定针对韦恩企业的任何侦察活动。提醒一下，该组织的网站是 <strong>imreallynotbatman.com</strong>。<br>我们应该做的第一件事是确定要搜索的源类型。具体来说，我们应该首先确定与 <strong>imreallynotbatman.com</strong> 关联的源类型。我们可以通过将时间范围选择器更改为 <strong>所有时间</strong> 并提交以下 Splunk 搜索来实现。 </p>
-<figure class="highlight fix"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs fix"><span class="hljs-attr">索引</span>=<span class="hljs-string">botsv1 imreallynotbatman.com </span><br></code></pre></div></td></tr></table></figure>
-<p>您应该会看到类似于下面的内容。<br>![](<a target="_blank" rel="noopener" href="https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i">https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i</a> mage13.png)<br>要确定源类型，只需单击<strong>源类型</strong>（上面的红色矩形）。您应该看到以下内容。<br>![](<a target="_blank" rel="noopener" href="https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i">https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i</a> mage14.png)<br>我们还可以识别所有源地址。我们可以通过之前的搜索来做到这一点，但是这次我们将向下滚动并单击 <strong>src</strong> 字段，如下所示。<br>![](<a target="_blank" rel="noopener" href="https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i">https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i</a> mage15.png)<br>由于我们对识别侦察活动感兴趣，因此最好将重点放在</p>
-<p><strong>流：http</strong> 源类型。 （Stream 是 Splunk 的一款免费应用程序，可收集线路数据，并可关注多种不同的协议，包括 smtp、tcp、ip、http 等。） </p>
-<figure class="highlight fix"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs fix"><span class="hljs-attr">索引</span>=<span class="hljs-string">botsv1 imreallynotbatman.com 源类型=流：http </span><br></code></pre></div></td></tr></table></figure>
-<p>如果我们这样做，源将缩小到两个：<strong>40.80.148.42</strong>和<strong>23.22.63.114</strong>。 <strong>40.80.148.42</strong> 与大约 95% 的 http 流量相关，因此我们暂时关注这一点。<br>识别所有来源的另一种方法如下。 </p>
-<figure class="highlight gherkin"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs gherkin">索引=botsv1 imreallynotbatman.com 源类型=流<span class="hljs-symbol">*</span> |<span class="hljs-string">统计计数（src_ip）作为 src_ip 的请求 </span>|<span class="hljs-string">排序 - 请求 </span><br></code></pre></div></td></tr></table></figure>
-<p>到目前为止，我们只能假设 <strong>40.80.148.42</strong> 是 APT 组织执行侦察/扫描活动的 IP。我们可以通过检查 Suricata 来验证这一发现，如下所示。 </p>
-<figure class="highlight awk"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs awk">索引=botsv1 imreallynotbatman.com src=<span class="hljs-number">40.80</span>.<span class="hljs-number">148.42</span> sourcetype=suricata ``` <br>我们看到与 **<span class="hljs-number">40.80</span>.<span class="hljs-number">148.42</span>** 相关的 Suricata 日志，但没有签名字段。我们可以通过向下滚动、单击**更多字段**并选择**签名**来查看签名。如果我们这样做，签名字段将在**所选字段**列下可见。 <br>![](https:<span class="hljs-regexp">//</span>assets.ine.com<span class="hljs-regexp">/cybersecurity-lab-images/</span>b75194df-<span class="hljs-number">9</span>a04-<span class="hljs-number">4879</span>-<span class="hljs-number">95</span>c8-d88b1fc54d1b/i mage16.png) <br>从触发的 Suricata 签名中，我们可以得出结论：**<span class="hljs-number">40.80</span>.<span class="hljs-number">148.42</span>** 实际上是在扫描 **imreallynotbatman.com**。 <br>我们也有兴趣了解对手的复杂程度。那么出现的问题是，APT 组织是否使用了已知或复杂的扫描技术？让我们看一下提交的请求来回答这个问题。 <br></code></pre></div></td></tr></table></figure>
-<p>索引=botsv1 src=40.80.148.42 源类型=流:http </p>
-<figure class="highlight awk"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs awk"><br>详细的请求信息可以在 **src_headers** 字段中找到。 <br>![](https:<span class="hljs-regexp">//</span>assets.ine.com<span class="hljs-regexp">/cybersecurity-lab-images/</span>b75194df-<span class="hljs-number">9</span>a04-<span class="hljs-number">4879</span>-<span class="hljs-number">95</span>c8-d88b1fc54d1b/i mage17.png) <br>APT 组织利用了信誉良好的 [Acunetix](https:<span class="hljs-regexp">//</span>www.acunetix.com/) 漏洞扫描程序的实例。 <br>我们还可以通过寻找不常见的用户代理来识别该工具的用法。 <br>![](https:<span class="hljs-regexp">//</span>assets.ine.com<span class="hljs-regexp">/cybersecurity-lab-images/</span>b75194df-<span class="hljs-number">9</span>a04-<span class="hljs-number">4879</span>-<span class="hljs-number">95</span>c8-d88b1fc54d1b/i mage18.png) <br>我们可以通过相同的搜索和 **dest** 字段轻松识别哪个服务器是目标。 <br>![](https:<span class="hljs-regexp">//</span>assets.ine.com<span class="hljs-regexp">/cybersecurity-lab-images/</span>b75194df-<span class="hljs-number">9</span>a04-<span class="hljs-number">4879</span>-<span class="hljs-number">95</span>c8-d88b1fc54d1b/i mage19.png) <br>目标显然是**<span class="hljs-number">192.168</span>.<span class="hljs-number">250.70</span>**。 <br>如果我们想更仔细地了解 APT 组织的请求，我们可以按如下方式进行。 <br></code></pre></div></td></tr></table></figure>
-<p>索引=botsv1 dest=192.168.250.70 源类型=流:http </p>
-<figure class="highlight awk"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs awk">所请求的 URL 可以在 **uri** 字段中找到。 <br>![](https:<span class="hljs-regexp">//</span>assets.ine.com<span class="hljs-regexp">/cybersecurity-lab-images/</span>b75194df-<span class="hljs-number">9</span>a04-<span class="hljs-number">4879</span>-<span class="hljs-number">95</span>c8-d88b1fc54d1b/i mage20.png) <br>我们还对成功的页面加载感兴趣。我们可以识别它们，如下所示。 <br></code></pre></div></td></tr></table></figure>
-<p>索引=botsv1 dest=192.168.250.70 源类型=流：http 状态=200 |按 uri 统计计数 |排序-计数 </p>
-<figure class="highlight awk"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs awk">![](https:<span class="hljs-regexp">//</span>assets.ine.com<span class="hljs-regexp">/cybersecurity-lab-images/</span>b75194df-<span class="hljs-number">9</span>a04-<span class="hljs-number">4879</span>-<span class="hljs-number">95</span>c8-d88b1fc54d1b/i mage21.png) <br>我们可以通过 **iis** 源类型获得类似的结果，如下所示。 （这次我们<br>正在使用名为 **stats** 的转换搜索命令，该命令允许我们计算按 URI 分组的事件数量。） <br></code></pre></div></td></tr></table></figure>
-<p>索引=botsv1 源类型=iis sc_status=200 |统计值(cs_uri_stem) </p>
-<figure class="highlight awk"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs awk">![](https:<span class="hljs-regexp">//</span>assets.ine.com<span class="hljs-regexp">/cybersecurity-lab-images/</span>b75194df-<span class="hljs-number">9</span>a04-<span class="hljs-number">4879</span>-<span class="hljs-number">95</span>c8-d88b1fc54d1b/i mage22.png) <br>您可能想知道为什么我们不指定 **<span class="hljs-number">192.168</span>.<span class="hljs-number">250.70</span>**。这是因为，如果我们提交以下内容并检查主机字段，我们将只找到一台主机，**we1149srv**。该主机的IP地址是**<span class="hljs-number">192.168</span>.<span class="hljs-number">250.70</span>** <br></code></pre></div></td></tr></table></figure>
-<p>索引=botsv1 源类型=iis </p>
-<figure class="highlight awk"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs awk">![](https:<span class="hljs-regexp">//</span>assets.ine.com<span class="hljs-regexp">/cybersecurity-lab-images/</span>b75194df-<span class="hljs-number">9</span>a04-<span class="hljs-number">4879</span>-<span class="hljs-number">95</span>c8-d88b1fc54d1b/i mage23.png) <br>以下是我们迄今为止的发现。 <br>![](https:<span class="hljs-regexp">//</span>assets.ine.com<span class="hljs-regexp">/cybersecurity-lab-images/</span>b75194df-<span class="hljs-number">9</span>a04-<span class="hljs-number">4879</span>-<span class="hljs-number">95</span>c8-d88b1fc54d1b/i mage24.png) <br>![](https:<span class="hljs-regexp">//</span>assets.ine.com<span class="hljs-regexp">/cybersecurity-lab-images/</span>b75194df-<span class="hljs-number">9</span>a04-<span class="hljs-number">4879</span>-<span class="hljs-number">95</span>c8-d88b1fc54d1b/i mage25.png) <br><span class="hljs-comment">## 任务 2：识别网络上的任何武器化活动 </span><br>此时，我们需要明白Splunk并不是万能的。在我们的调查过程中，并非所有答案都可以在 SIEM 中找到。有时我们需要从 SIEM 转向其他内部或开源来寻找答案。 <br>我们有兴趣识别预先准备攻击 Wayne Enterprises 的域。 <br>我们通过 Splunk 仔细查看了 **<span class="hljs-number">40.80</span>.<span class="hljs-number">148.42</span>** IP 地址。让我们对 **<span class="hljs-number">23.22</span>.<span class="hljs-number">63.114</span>** 执行相同的操作，但通过开源进行，因为 Splunk 不包含太多有关它的信息。 <br>如果我们去 [http:<span class="hljs-regexp">//</span>www.robtex.com](http:<span class="hljs-regexp">//</span>www.robtex.com/) 这样的开源网站并提交 **<span class="hljs-number">23.22</span>.<span class="hljs-number">63.114</span>** IP，我们会遇到以下情况。<br>![](https:<span class="hljs-regexp">//</span>assets.ine.com<span class="hljs-regexp">/cybersecurity-lab-images/</span>b75194df-<span class="hljs-number">9</span>a04-<span class="hljs-number">4879</span>-<span class="hljs-number">95</span>c8-d88b1fc54d1b/i mage26.png) <br>正如我们所看到的，该 IP 有许多与其关联的其他域名。这些域名很可能是网络钓鱼域名，因为它们的名称与我们工作的组织 **Wayne Enterprises** 相似。 <br>[https:<span class="hljs-regexp">//</span>threatcrowd.org](https:<span class="hljs-regexp">//</span>threatcrowd.org<span class="hljs-regexp">/) 和 [https://www.virustotal.com](https:/</span><span class="hljs-regexp">/www.virustotal.com/</span>) 等开源可以为我们提供附加信息。 <br>![](https:<span class="hljs-regexp">//</span>assets.ine.com<span class="hljs-regexp">/cybersecurity-lab-images/</span>b75194df-<span class="hljs-number">9</span>a04-<span class="hljs-number">4879</span>-<span class="hljs-number">95</span>c8-d88b1fc54d1b/i mage27.png) <br>例如，通过 Threatcrowd.org，我们只需提交 **<span class="hljs-number">23.22</span>.<span class="hljs-number">63.114</span>** IP，即可识别与我们正在处理的 APTgroup 相关的其他域。 <br>还记得我们讨论过 Whois 信息以及攻击者如何利用这些信息进行有针对性的攻击吗？好吧，让我们通过检查每个关联域的 whois 信息来让攻击者尝尝自己的毒药。 <br>在检查 **wayncorpinc.com** 的 whois 信息时，我们遇到以下情况。 <br>![](https:<span class="hljs-regexp">//</span>assets.ine.com<span class="hljs-regexp">/cybersecurity-lab-images/</span>b75194df-<span class="hljs-number">9</span>a04-<span class="hljs-number">4879</span>-<span class="hljs-number">95</span>c8-d88b1fc54d1b/i mage28.png) <br>然后，我们可以继续进行反向电子邮件搜索，并可能识别与 APT 组织相关的其他基础设施。下面是反向电子邮件搜索的示例。 <br>&lt;https:<span class="hljs-regexp">//</span>www.threatcrowd.org/email.php?email=LILLIAN.ROSE@PO1S0N1VY.COM&gt; 以下是我们迄今为止的发现： <br>![](https:<span class="hljs-regexp">//</span>assets.ine.com<span class="hljs-regexp">/cybersecurity-lab-images/</span>b75194df-<span class="hljs-number">9</span>a04-<span class="hljs-number">4879</span>-<span class="hljs-number">95</span>c8-d88b1fc54d1b/i mage29.png) <br><span class="hljs-comment">## 任务 3：识别网络上的任何交付活动 </span><br>我们需要尽可能多地了解该 APT 组织的 TTP 和使用的恶意软件，因此让我们通过开源进行深入挖掘。 <br>[https:<span class="hljs-regexp">//</span>www.threatminer.org](https:<span class="hljs-regexp">//</span>www.threatminer.org/) 具有在搜索 IP 地址信息时包含相关恶意软件样本的强大功能。这是我们在搜索有关 **<span class="hljs-number">23.22</span>.<span class="hljs-number">63.114</span>** 的信息时会遇到的情况<br>**threatminer.org**。 <br>![](https:<span class="hljs-regexp">//</span>assets.ine.com<span class="hljs-regexp">/cybersecurity-lab-images/</span>b75194df-<span class="hljs-number">9</span>a04-<span class="hljs-number">4879</span>-<span class="hljs-number">95</span>c8-d88b1fc54d1b/i mage30.png) <br>然后，我们可以将这些 MD5 哈希值提交给 Threatminer、VirusTotal 或 Hybrid-analysis.com 等开放源，以识别有关样本的其他元数据。 <br>![](https:<span class="hljs-regexp">//</span>assets.ine.com<span class="hljs-regexp">/cybersecurity-lab-images/</span>b75194df-<span class="hljs-number">9</span>a04-<span class="hljs-number">4879</span>-<span class="hljs-number">95</span>c8-d88b1fc54d1b/i mage31.png) <br>APT 组织可能会制造突变体，因此哈希值可能没有用处。我们应该记下该文件名，以防他们保留该文件名。 <br>以下是我们迄今为止的发现。 <br>![](https:<span class="hljs-regexp">//</span>assets.ine.com<span class="hljs-regexp">/cybersecurity-lab-images/</span>b75194df-<span class="hljs-number">9</span>a04-<span class="hljs-number">4879</span>-<span class="hljs-number">95</span>c8-d88b1fc54d1b/i mage32.png) <br><span class="hljs-comment">## 任务 4：通过 Splunk 搜索识别网络上的任何利用活动 </span><br>现在是我们返回 Splunk 来识别任何利用活动的时候了。我们首先确定与最大数量的 http 事件关联的源 IP 地址。我们可以这样做，如下所示。 <br></code></pre></div></td></tr></table></figure>
-<p>index=botsv1 sourcetype=stream:http dest=”192.168.250.70” http_method=POST ```<br><strong>src</strong> 字段包含我们正在寻找的内容。我们指定我们对 POST 请求感兴趣，因为登录通常是通过 POST 请求执行的（稍后会详细介绍）。<br>![](<a target="_blank" rel="noopener" href="https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i">https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i</a> mage33.png)<br>我们来看看 <strong>40.80.148.42</strong> 发出的那些 POST 请求 </p>
-<figure class="highlight routeros"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs routeros"><span class="hljs-attribute">index</span>=botsv1 <span class="hljs-attribute">sourcetype</span>=stream:http <span class="hljs-attribute">dest</span>=<span class="hljs-string">&quot;192.168.250.70&quot;</span> <span class="hljs-attribute">http_method</span>=POSTsrc=&quot;40.80.148.42&quot; <br></code></pre></div></td></tr></table></figure>
-<p><strong>form_data</strong> 字段包含我们在处理 POST 请求时要检查的信息。<br>没有任何理由可以证明成功的剥削活动是合理的。让我们检查 <strong>23.22.63.114</strong>。 </p>
-<figure class="highlight routeros"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs routeros"><span class="hljs-attribute">index</span>=botsv1 <span class="hljs-attribute">sourcetype</span>=stream:http <span class="hljs-attribute">dest</span>=<span class="hljs-string">&quot;192.168.250.70&quot;</span> <span class="hljs-attribute">http_method</span>=POSTsrc=&quot;23.22.63.114&quot; <br></code></pre></div></td></tr></table></figure>
-<p>![](<a target="_blank" rel="noopener" href="https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i">https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i</a> mage34.png)<br>看起来 <strong>23.22.63.114</strong> 正在强制 Web 服务器进行身份验证。让我们确认一下，如下。 </p>
-<figure class="highlight routeros"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs routeros"><span class="hljs-attribute">index</span>=botsv1 <span class="hljs-attribute">sourcetype</span>=stream:http <span class="hljs-attribute">dest</span>=<span class="hljs-string">&quot;192.168.250.70&quot;</span> <span class="hljs-attribute">http_method</span>=POSTform_data=*用户名*passwd* |按 src 统计计数 <br></code></pre></div></td></tr></table></figure>
-<p>![](<a target="_blank" rel="noopener" href="https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i">https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i</a> mage35.png)<br>事实上 <strong>23.22.63.114</strong> 对 Web 服务器的身份验证执行了暴力攻击。<br>我们很想知道暴力攻击是否成功。我们可以确定这一点，如下所示。 </p>
-<figure class="highlight routeros"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs routeros"><span class="hljs-attribute">index</span>=botsv1 <span class="hljs-attribute">sourcetype</span>=stream:http <span class="hljs-attribute">form_data</span>=*用户名*passwd* <span class="hljs-attribute">dest_ip</span>=192.168.250.70| rex <span class="hljs-attribute">field</span>=form_data <span class="hljs-string">&quot;passwd=(?&lt;用户密码&gt;\w+)&quot;</span> |按用户密码统计计数 |排序-计数 <br></code></pre></div></td></tr></table></figure>
-<p>![](<a target="_blank" rel="noopener" href="https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i">https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i</a> mage36.png)<br>上面的搜索提取每个用户密码并计算其被看到/使用的次数。如果密码出现多次，这可能意味着攻击者受到攻击并再次使用该密码登录。这就是我们按计数排序的原因。<br>如果我们想了解妥协的时间和目标 URI，我们可以按如下方式进行。 </p>
-<figure class="highlight routeros"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs routeros"><span class="hljs-attribute">index</span>=botsv1 <span class="hljs-attribute">sourcetype</span>=stream:http <span class="hljs-attribute">form_data</span>=*用户名*passwd* <span class="hljs-attribute">dest_ip</span>=192.168.250.70<br>src = 40.80.148.42 | rex <span class="hljs-attribute">field</span>=form_data <span class="hljs-string">&quot;passwd=(?&lt;用户密码&gt;\w+)&quot;</span>|搜索用户密码=* |表 _time uri 用户密码 <br></code></pre></div></td></tr></table></figure>
-<p>![](<a target="_blank" rel="noopener" href="https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i">https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i</a> mage37.png)<br>最后，如果我们想查看两次成功的登录，我们可以这样做，如下所示。 </p>
-<figure class="highlight coq"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs coq">索引 = botsv1 源类型 = 流：http | <span class="hljs-type">rex</span> <span class="hljs-built_in">field</span>=form_data <span class="hljs-string">&quot;passwd=(?&lt;用户密码&gt;\w+)&quot;</span> |<span class="hljs-type">搜索用户密码=batman</span> |<span class="hljs-type">表 _time</span> 用户密码 src <br></code></pre></div></td></tr></table></figure>
-<p>![](<a target="_blank" rel="noopener" href="https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i">https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i</a> mage38.png)<br>以下是我们迄今为止的发现。<br>![](<a target="_blank" rel="noopener" href="https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i">https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i</a> mage39.png)<br>![](<a target="_blank" rel="noopener" href="https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i">https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i</a> mage40.png) </p>
-<h2 id="任务-5：通过-Splunk-搜索识别网络上的任何安装活动"><a href="#任务-5：通过-Splunk-搜索识别网络上的任何安装活动" class="headerlink" title="任务 5：通过 Splunk 搜索识别网络上的任何安装活动"></a>任务 5：通过 Splunk 搜索识别网络上的任何安装活动</h2><p>就网络杀伤链的安装阶段而言，我们最感兴趣的是识别正在上传的任何恶意软件。<br>我们可以通过各种源类型来识别，特别是 <strong>stream:http</strong> 和 <strong>Suricata</strong>。 </p>
-<figure class="highlight awk"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs awk">index=botsv1 sourcetype=stream:http dest=<span class="hljs-string">&quot;192.168.250.70&quot;</span> *.exe ``` <br>**part_filename&#123;&#125;** 字段包含我们要检查的信息。默认情况下它是不可见的，所以添加它。 <br>![](https:<span class="hljs-regexp">//</span>assets.ine.com<span class="hljs-regexp">/cybersecurity-lab-images/</span>b75194df-<span class="hljs-number">9</span>a04-<span class="hljs-number">4879</span>-<span class="hljs-number">95</span>c8-d88b1fc54d1b/i mage41.png) <br></code></pre></div></td></tr></table></figure>
-<p>index=botsv1 sourcetype=suricata (dest=imreallynotbatman.com OR dest=”192.168.250.70”) http.http_method=POST .exe</p>
-<figure class="highlight awk"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs awk">**fileinfo.filename** 字段包含我们要检查的信息。 <br>![](https:<span class="hljs-regexp">//</span>assets.ine.com<span class="hljs-regexp">/cybersecurity-lab-images/</span>b75194df-<span class="hljs-number">9</span>a04-<span class="hljs-number">4879</span>-<span class="hljs-number">95</span>c8-d88b1fc54d1b/i mage42.png) <br>**<span class="hljs-number">3791</span>.exe** 必须是上传的恶意软件。 <br>可以轻松识别文件上传的来源，如下所示。 <br></code></pre></div></td></tr></table></figure>
-<p>index=botsv1 sourcetype=suricata dest_ip=”192.168.250.70” http.http_method=POST .exe ```<br>![](<a target="_blank" rel="noopener" href="https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i">https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i</a> mage43.png)<br>如果我们还可以识别上传文件的哈希值，那就太好了。但是我们应该使用什么源类型呢？我们来了解一下，如下。 </p>
-<figure class="highlight fix"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs fix"><span class="hljs-attr">索引</span>=<span class="hljs-string">botsv1 3791.exe </span><br></code></pre></div></td></tr></table></figure>
-<p>![](<a target="_blank" rel="noopener" href="https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i">https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i</a> mage44.png)<br>Sysmon 是一个很好的候选者，因为它记录文件的 MD5、SHA1 和 SHA256 哈希值等信息。 </p>
-<figure class="highlight markdown"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs markdown">索引=botsv1 3791.exe 源类型=XmlWinEventLog:Microsoft-Windows-Sysmon/Operational `` <br>在本例中，重要的字段是 <span class="hljs-strong">**Hashes**</span>、<span class="hljs-strong">**CommandLine**</span> 和 <span class="hljs-strong">**ParentCommandLine**</span>。您必须添加最后两个，因为默认情况下它们不可见。 <br>在分析结果之前，让我们先缩小范围。 <br></code></pre></div></td></tr></table></figure>
-<p>索引=botsv1 3791.exe 源类型=XmlWinEventLog:Microsoft-Windows-Sysmon/Operational EventCode=1</p>
-<figure class="highlight yaml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs yaml"><span class="hljs-string">上面的搜索包括</span> <span class="hljs-string">EventCode</span> <span class="hljs-number">1</span><span class="hljs-string">，因为该</span> <span class="hljs-string">EventCode</span> <span class="hljs-string">与流程创建事件相关。不幸的是，为了获取上传文件的</span> <span class="hljs-string">MD5</span> <span class="hljs-string">哈希值，我们需要进一步缩小范围。具体来说，我们需要在命令行字段中搜索</span> <span class="hljs-number">3791.</span><span class="hljs-string">exe，因为该字段捕获进程启动。</span> <br><span class="hljs-string">所以，最终的搜索结果如下。</span> <br></code></pre></div></td></tr></table></figure>
-<p>索引=botsv1 3791.exe 命令行=3791.exe |统计值(md5) </p>
-<figure class="highlight awk"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs awk">![](https:<span class="hljs-regexp">//</span>assets.ine.com<span class="hljs-regexp">/cybersecurity-lab-images/</span>b75194df-<span class="hljs-number">9</span>a04-<span class="hljs-number">4879</span>-<span class="hljs-number">95</span>c8-d88b1fc54d1b/i mage45.png) <br>以下是我们迄今为止的发现。 <br>![](https:<span class="hljs-regexp">//</span>assets.ine.com<span class="hljs-regexp">/cybersecurity-lab-images/</span>b75194df-<span class="hljs-number">9</span>a04-<span class="hljs-number">4879</span>-<span class="hljs-number">95</span>c8-d88b1fc54d1b/i mage46.png) <br>![](https:<span class="hljs-regexp">//</span>assets.ine.com<span class="hljs-regexp">/cybersecurity-lab-images/</span>b75194df-<span class="hljs-number">9</span>a04-<span class="hljs-number">4879</span>-<span class="hljs-number">95</span>c8-d88b1fc54d1b/i mage47.png) <br><span class="hljs-comment">## 任务 6：通过 Splunk 搜索识别网络上任何与命令和控制相关的活动 </span><br>就网络杀伤链的命令和控制阶段而言，我们最感兴趣的是识别用于命令和控制目的的任何域。 <br>Splunk 内部有一个强大的盟友来帮助我们回答此类问题。这个盟友是**stream.dns** 源类型。由于我们已经知道 **<span class="hljs-number">23.22</span>.<span class="hljs-number">63.114</span>** 值得关注，因此我们可以利用 Splunk 和 **stream.dns** 源类型来识别 DNS​​ 事件，其中 **<span class="hljs-number">22.23</span>.<span class="hljs-number">63.114</span>** 是答案。 <br></code></pre></div></td></tr></table></figure>
-<p>索引=botsv1 答案=23.22.63.114 源类型=流：dns |统计值（“名称{}”）```<br>![](<a target="_blank" rel="noopener" href="https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i">https://assets.ine.com/cybersecurity-lab-images/b75194df-9a04-4879-95c8-d88b1fc54d1b/i</a> mage48.png)<br>如果您仔细观察，您会发现<strong>prankglassinebracket.jumpingcrab.com</strong>域已被攻击者用来破坏网络服务器。试一试…</p>
-<p><strong>参考：</strong> </p>
-<ol>
-<li><a target="_blank" rel="noopener" href="https://www.slideshare.net/Splunk/splunk-data-onboarding-overview-splunk-data-collection-architecture">https://www.slideshare.net/Splunk/splunk-data-onboarding-overview-splunk-data-collection-architecture</a> </li>
-<li><a target="_blank" rel="noopener" href="https://www.splunk.com/en_us/training.html">https://www.splunk.com/en_us/training.html</a></li>
+<p>例如，在技术或编程的上下文中，”Let’s look under the hood of this software” 可以翻译为“让我们看看这个软件的内部运作”。</p>
+<h1 id="encapsulation"><a href="#encapsulation" class="headerlink" title="encapsulation"></a>encapsulation</h1><p>“Encapsulation of layers” 可以翻译为 <strong>“层的封装”</strong> 或 <strong>“分层封装”</strong>。</p>
+<p>这个短语通常用于计算机科学或软件工程领域，指的是将系统或软件的不同功能层次封装起来，使每一层具有独立性和模块化，彼此之间的交互仅通过定义良好的接口进行，从而实现信息隐藏和数据保护的目的。</p>
+<h1 id="de-encapsulation"><a href="#de-encapsulation" class="headerlink" title="de-encapsulation"></a>de-encapsulation</h1><p>在网络传输中， 目的主机收到数据包，将会解开封装的数据包。</p>
+<h1 id="TCP"><a href="#TCP" class="headerlink" title="TCP"></a>TCP</h1><p>TCP（Transmission Control Protocol，传输控制协议）是互联网协议套件中的一种核心协议，用于在计算机网络中提供可靠的、有序的、数据包错误检测的传输服务。TCP确保数据在源和目的地之间的传输是可靠的，并且数据包按照发送顺序到达，不会丢失或损坏。</p>
+<h3 id="TCP的主要特点："><a href="#TCP的主要特点：" class="headerlink" title="TCP的主要特点："></a>TCP的主要特点：</h3><ol>
+<li><p><strong>可靠传输</strong>：TCP通过序列号和确认机制（ACK）来保证数据包的可靠传输。如果数据包在传输过程中丢失或损坏，TCP会重新发送这些数据包。</p>
+</li>
+<li><p><strong>有序传输</strong>：TCP确保数据包按照发送的顺序被接收。即使网络中的数据包是乱序到达的，TCP会重新排列这些数据包，使它们以正确的顺序提供给应用程序。</p>
+</li>
+<li><p><strong>流量控制</strong>：TCP通过滑动窗口机制控制数据流量，防止发送端发送的数据超过接收端的处理能力，从而避免网络拥塞。</p>
+</li>
+<li><p><strong>拥塞控制</strong>：TCP使用算法来检测网络拥塞的情况，并通过调整发送速度来减少拥塞的影响。</p>
+</li>
+<li><p><strong>全双工通信</strong>：TCP支持全双工通信，这意味着数据可以在同一连接上同时进行双向传输。</p>
+</li>
 </ol>
-<h1 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h1><h2 id="任务-1：通过Splunk搜索识别针对您网络的任何侦察活动"><a href="#任务-1：通过Splunk搜索识别针对您网络的任何侦察活动" class="headerlink" title="任务 1：通过Splunk搜索识别针对您网络的任何侦察活动"></a>任务 1：通过Splunk搜索识别针对您网络的任何侦察活动</h2><p>利用Splunk的能力，尝试识别由APT组织执行的任何侦察活动。您组织的网站是imreallynotbatman.com。</p>
-<p>提示：</p>
-<p>集中在stream:http sourcetype上，识别负责大部分流量的源IP。然后，使用suricata sourcetype验证您的发现。</p>
-<p>通过分析所有重要字段和sourcetype，深入进行调查。</p>
-<h2 id="任务一答案"><a href="#任务一答案" class="headerlink" title="任务一答案"></a>任务一答案</h2><p>要识别APT的活动，提示告诉了我们要先分析http的请求</p>
-<p>一旦您登录到Splunk的Web管理界面，请点击左侧应用栏中的“搜索与报告”应用程序。您应该看到类似以下的界面。</p>
-<p><img src="https://assets.ine.com/content/ptp/Effectively_Using_Splunk_Scenario_1/9.jpg" srcset="/img/loading.gif"></p>
-<h2 id="任务-2：在您的网络中识别任何武器化活动"><a href="#任务-2：在您的网络中识别任何武器化活动" class="headerlink" title="任务 2：在您的网络中识别任何武器化活动"></a>任务 2：在您的网络中识别任何武器化活动</h2><p>利用开源情报（OSINT），尝试识别由APT组织执行的任何武器化活动。</p>
-<p>提示：</p>
-<p>识别与预置攻击韦恩企业相关的任何域名绑定的IP地址。</p>
-<p>尝试理解IP地址与域名等之间的关联。</p>
-<p>对攻击者电子邮件与互联网基础设施之间的关联进行相同操作。</p>
-<h2 id="任务-3：通过OSINT识别您网络中的任何交付活动"><a href="#任务-3：通过OSINT识别您网络中的任何交付活动" class="headerlink" title="任务 3：通过OSINT识别您网络中的任何交付活动"></a>任务 3：通过OSINT识别您网络中的任何交付活动</h2><p>利用开源情报（OSINT），尝试识别由APT组织执行的任何交付活动。具体来说，尝试识别与您先前发现的攻击者基础设施相关联的恶意软件。</p>
-<p>提示：</p>
-<p>提交任何攻击者相关的IP地址到ThreatMiner、VirusTotal和Hybrid Analysis等开放资源。</p>
-<h2 id="任务-4：通过Splunk搜索识别您网络中的任何利用活动"><a href="#任务-4：通过Splunk搜索识别您网络中的任何利用活动" class="headerlink" title="任务 4：通过Splunk搜索识别您网络中的任何利用活动"></a>任务 4：通过Splunk搜索识别您网络中的任何利用活动</h2><p>利用Splunk的能力，尝试识别由APT组织执行的任何利用活动。</p>
-<p>提示：</p>
-<p>集中在stream:http和iis sourcetypes上，识别作为目标的您的服务器以及其使用的内容管理系统。</p>
-<p>集中在stream:http sourcetype上，识别暴力攻击的源头。</p>
-<p>通过分析所有重要字段和sourcetype，深入进行调查。</p>
-<h2 id="任务-5：通过Splunk搜索识别您网络中的任何安装活动"><a href="#任务-5：通过Splunk搜索识别您网络中的任何安装活动" class="headerlink" title="任务 5：通过Splunk搜索识别您网络中的任何安装活动"></a>任务 5：通过Splunk搜索识别您网络中的任何安装活动</h2><p>利用Splunk的能力，尝试识别由APT组织执行的任何安装活动。</p>
-<p>提示：</p>
-<p>集中在stream:http和suricata sourcetypes上，识别任何上传的可执行文件。</p>
-<p>利用Sysmon日志，获取有关任何上传的可执行文件的额外信息。</p>
-<h2 id="任务-6：通过Splunk搜索识别您网络中的任何命令与控制相关活动"><a href="#任务-6：通过Splunk搜索识别您网络中的任何命令与控制相关活动" class="headerlink" title="任务 6：通过Splunk搜索识别您网络中的任何命令与控制相关活动"></a>任务 6：通过Splunk搜索识别您网络中的任何命令与控制相关活动</h2><p>利用Splunk的能力，尝试识别由APT组织执行的任何命令与控制（C2）相关活动。</p>
-<p>提示：</p>
-<p>集中在stream:http、fgt_utm和stream:dns sourcetypes上，识别任何充当命令与控制的域名。</p>
+<p>TCP通常用于需要高可靠性和数据完整性的应用程序，例如网页浏览（HTTP/HTTPS）、电子邮件（SMTP/IMAP）、文件传输（FTP）等。相比之下，UDP（用户数据报协议）则用于那些不需要严格可靠性的应用，例如实时视频、音频流和在线游戏。</p>
+<h1 id="fixed-size"><a href="#fixed-size" class="headerlink" title="fixed size"></a>fixed size</h1><p>一些层的头部是固定大小fixed size，而一些是可变的大小。</p>
+<p>“Fixed size” 的意思是 <strong>固定大小</strong>。</p>
+<p>在计算机科学和工程领域中，“fixed size” 指的是一个对象、数据结构、缓冲区等具有不变的、预先设定的大小。无论如何操作或使用，这个大小都不会改变。</p>
+<h3 id="使用“Fixed-size”的常见场景："><a href="#使用“Fixed-size”的常见场景：" class="headerlink" title="使用“Fixed size”的常见场景："></a>使用“Fixed size”的常见场景：</h3><ol>
+<li><p><strong>数组</strong>：在许多编程语言中，数组可以是固定大小的，这意味着一旦数组的大小被定义，它的容量就不能再改变。</p>
+</li>
+<li><p><strong>缓冲区</strong>：在网络通信或文件处理等场景中，缓冲区常常被设置为固定大小，以确保数据以恒定的块进行处理。</p>
+</li>
+<li><p><strong>内存分配</strong>：某些数据结构或对象在内存中有固定的大小分配，不会根据其内容或使用情况而变化。</p>
+</li>
+<li><p><strong>固定长度字符串</strong>：一些编程环境中，字符串可以被定义为固定大小，例如用于数据库中CHAR类型的字段，它们有一个固定的长度，无论实际存储的数据长度如何。</p>
+</li>
+</ol>
+<p>在所有这些场景中，“fixed size” 都意味着对象或结构的尺寸是事先定义好的，并且不会根据应用或数据的变化而改变。</p>
+<h1 id="Ethernet-802-3"><a href="#Ethernet-802-3" class="headerlink" title="Ethernet 802.3"></a>Ethernet 802.3</h1><p><strong>Ethernet 802.3</strong> 是一种常见的有线局域网（LAN）技术标准，由电气和电子工程师协会（IEEE）制定和维护。Ethernet 802.3 定义了局域网中数据如何在物理和数据链路层上进行传输的技术规范。该协议是以太网（Ethernet）标准的基础，广泛应用于计算机网络，特别是在家庭、办公室和企业环境中。</p>
+<h3 id="Ethernet-802-3-网络协议的主要特点："><a href="#Ethernet-802-3-网络协议的主要特点：" class="headerlink" title="Ethernet 802.3 网络协议的主要特点："></a>Ethernet 802.3 网络协议的主要特点：</h3><ol>
+<li><p><strong>物理层和数据链路层</strong>：IEEE 802.3 标准规定了数据在物理介质上传输的方式（物理层）以及如何在相邻节点之间进行帧的传输（数据链路层）。这包括使用什么样的电缆（例如双绞线、光纤）、连接器类型、以及信号编码方法等。</p>
+</li>
+<li><p><strong>数据帧结构</strong>：802.3 定义了以太网帧的结构，包括前导码、起始帧定界符、目标地址、源地址、以太类型/长度字段、数据负载、填充字段（如果需要），以及帧校验序列（FCS）等。帧是以太网传输数据的基本单位。</p>
+</li>
+<li><p><strong>介质访问控制（MAC）</strong>：Ethernet 802.3 使用CSMA/CD（载波侦听多路访问/碰撞检测）作为其访问控制方法。这种方法允许多个设备共享同一物理介质，并处理数据传输中的冲突（碰撞）。现代以太网通过使用交换机（Switch）来避免大多数冲突，因为交换机允许全双工通信。</p>
+</li>
+<li><p><strong>速度和物理介质</strong>：最初的Ethernet 802.3网络速率为10 Mbps（10BASE-T），但随着技术的发展，扩展到了100 Mbps（Fast Ethernet，100BASE-TX），1 Gbps（Gigabit Ethernet，1000BASE-T），10 Gbps（10 Gigabit Ethernet），以及更高的速率如40 Gbps和100 Gbps。不同速度的以太网使用不同类型的电缆和光纤。</p>
+</li>
+<li><p><strong>全双工和半双工</strong>：以太网支持全双工和半双工通信模式。全双工模式允许同时发送和接收数据，消除了传统CSMA/CD方法中的碰撞检测需求，因此可以提高网络性能。半双工模式则限制通信双方不能同时发送和接收数据。</p>
+</li>
+<li><p><strong>拓扑结构</strong>：以太网网络通常采用星型拓扑结构（使用交换机或集线器作为中心节点），也可以采用总线型拓扑（特别是在早期使用同轴电缆的网络中）。</p>
+</li>
+</ol>
+<h3 id="以太网（Ethernet-802-3）的应用"><a href="#以太网（Ethernet-802-3）的应用" class="headerlink" title="以太网（Ethernet 802.3）的应用"></a>以太网（Ethernet 802.3）的应用</h3><p>Ethernet 802.3 是现今最流行的有线局域网标准，广泛用于家庭网络、企业网络和数据中心。由于其简单性、易用性、稳定性和高带宽传输能力，它成为了许多网络应用的首选技术。</p>
+<p>随着技术的不断发展，Ethernet 802.3 标准也在不断更新和扩展，以支持更高的带宽需求和更多的功能，如虚拟局域网（VLAN）、以太网供电（PoE）等。</p>
+<h1 id="NAC"><a href="#NAC" class="headerlink" title="NAC"></a>NAC</h1><p><strong>Network Access Card (NAC)<strong>，通常被称为</strong>网卡（NIC, Network Interface Card）</strong>，是一种硬件设备，允许计算机或其他设备连接到计算机网络。它的主要功能是为设备提供物理连接，使其能够通过有线或无线方式与其他网络设备通信。</p>
+<h3 id="网卡（NIC）的主要功能："><a href="#网卡（NIC）的主要功能：" class="headerlink" title="网卡（NIC）的主要功能："></a>网卡（NIC）的主要功能：</h3><ol>
+<li><p><strong>物理连接</strong>：NIC提供了设备与网络的物理接口。对于有线网络，这通常是一个以太网端口（例如RJ-45插口）；对于无线网络，这是无线射频模块，支持Wi-Fi连接。</p>
+</li>
+<li><p><strong>数据传输</strong>：NIC负责在计算机的主板和网络之间传输数据。它将计算机生成的数据转换成网络可以理解的信号形式，然后发送出去。接收到的数据也会通过NIC转换为计算机可以处理的形式。</p>
+</li>
+<li><p><strong>介质访问控制（MAC）</strong>：NIC包含一个唯一的硬件地址，称为MAC地址（媒体访问控制地址），用于在网络中唯一标识该设备。这对于网络通信至关重要，因为它帮助路由器和交换机识别和管理网络流量。</p>
+</li>
+<li><p><strong>协议支持</strong>：NIC支持多种网络协议（如Ethernet、Wi-Fi），这些协议定义了如何在网络上发送和接收数据。NIC的驱动程序通常会处理这些协议的具体实现，以确保网络通信的兼容性和有效性。</p>
+</li>
+<li><p><strong>速度和带宽管理</strong>：不同类型的NIC支持不同的网络速度（如10 Mbps、100 Mbps、1 Gbps、10 Gbps等）。现代的NIC可以自动检测连接速度并调整其传输速率，以最大限度地提高网络性能。</p>
+</li>
+</ol>
+<h3 id="网络接口卡的类型："><a href="#网络接口卡的类型：" class="headerlink" title="网络接口卡的类型："></a>网络接口卡的类型：</h3><ol>
+<li><p><strong>有线网络接口卡</strong>：这些卡通常用于通过以太网电缆连接到网络。它们被广泛用于台式电脑、服务器和一些笔记本电脑中。</p>
+</li>
+<li><p><strong>无线网络接口卡</strong>：这些卡使用Wi-Fi技术，通过无线信号连接到网络。它们通常用于笔记本电脑、平板电脑和其他移动设备，有时也可以安装在台式电脑中。</p>
+</li>
+<li><p><strong>光纤网络接口卡</strong>：用于需要高速数据传输的环境，例如数据中心和高性能计算机网络。它们通过光纤电缆连接，并支持更高的带宽和更远的传输距离。</p>
+</li>
+</ol>
+<h3 id="常见的应用场景："><a href="#常见的应用场景：" class="headerlink" title="常见的应用场景："></a>常见的应用场景：</h3><ul>
+<li><p><strong>个人计算机和服务器</strong>：无论是个人电脑还是企业服务器，NIC都是必不可少的组件，允许这些设备连接到局域网（LAN）或广域网（WAN）。</p>
+</li>
+<li><p><strong>网络设备和路由器</strong>：NIC在路由器、交换机和其他网络设备中也起到关键作用，帮助这些设备管理和传输网络流量。</p>
+</li>
+<li><p><strong>工业和嵌入式系统</strong>：NIC也可以用于一些特殊的应用，例如工业控制系统或嵌入式设备，以便这些设备能够连接到网络进行数据交换或远程管理。</p>
+</li>
+</ul>
+<p>总结来说，<strong>网络接口卡（NIC）</strong> 是计算机网络连接中不可或缺的硬件，支持各种类型的网络连接方式和数据传输速率。</p>
+<h1 id="wireshark"><a href="#wireshark" class="headerlink" title="wireshark"></a>wireshark</h1><p>在wireshark网络分析工具中，较低的层将会最先展示。</p>
+<p>例如，从上到下，依次是network access layer, internet layer, transport layer, application layer。</p>
+<h2 id="network-access-layer"><a href="#network-access-layer" class="headerlink" title="network access layer"></a>network access layer</h2><p>在network access layer中，wireshark会显示源和目的机器的MAC地址。</p>
+<h2 id="internet-layer"><a href="#internet-layer" class="headerlink" title="internet layer"></a>internet layer</h2><p>在internet layer中，wireshark会显示IP</p>
+<h2 id="transport-layer"><a href="#transport-layer" class="headerlink" title="transport layer"></a>transport layer</h2><p>在transport layer中，会显示源和目的端口</p>
+<h2 id="application-layer"><a href="#application-layer" class="headerlink" title="application layer"></a>application layer</h2><p>在这个应用层，有不同的协议，例如DNS协议，是专门处理域名和IP映射关系的协议。</p>
+<p>DNS协议会显示DNS的响应，查询的结果之类的数据。</p>
+<h1 id="RFC"><a href="#RFC" class="headerlink" title="RFC"></a>RFC</h1><p><strong>RFC</strong>（Request for Comments，即“征求意见稿”）是互联网工程任务组（IETF, Internet Engineering Task Force）和互联网协会（ISOC, Internet Society）用于记录网络协议、程序、过程及其概念的系列文件。这些文件详细描述了互联网协议和其他网络相关的规范、技术和最佳实践。</p>
+<h3 id="RFC的主要特点和作用："><a href="#RFC的主要特点和作用：" class="headerlink" title="RFC的主要特点和作用："></a>RFC的主要特点和作用：</h3><ol>
+<li><p><strong>标准化过程</strong>：RFC文件是互联网标准化过程中的一个重要部分。新提出的互联网技术和协议通常会先发布为RFC文档，供互联网社区和专家评审。根据反馈，这些文档可能会多次修订，直到它们被接受为互联网标准。</p>
+</li>
+<li><p><strong>内容丰富</strong>：RFC不仅仅包含网络协议的技术规范，还可能涉及网络服务的最佳实践、安全建议、协议扩展等。比如，RFC 791定义了IPv4协议，RFC 2616定义了HTTP/1.1协议。</p>
+</li>
+<li><p><strong>编号系统</strong>：每个RFC都有一个唯一的编号。例如，RFC 1122是关于互联网主机的通信层要求的文档。编号按顺序分配，一旦RFC被发布，其编号和内容都不会改变。</p>
+</li>
+<li><p><strong>公开可访问</strong>：RFC文档是公开的，可以免费获取。IETF维护着一个RFC文档库，供公众查阅和下载。</p>
+</li>
+<li><p><strong>多种状态</strong>：RFC文件可以有不同的状态，比如“建议标准”（Proposed Standard）、“草案标准”（Draft Standard）、“互联网标准”（Internet Standard）、“实验性”（Experimental）、“信息性”（Informational）等。不同的状态反映了该文档在标准化过程中的阶段。</p>
+</li>
+<li><p><strong>发展和弃用</strong>：随着技术的发展，有些RFC可能会被新的RFC取代或弃用。IETF会定期发布新的RFC来更新过时的规范和协议。</p>
+</li>
+</ol>
+<h3 id="RFC的用途："><a href="#RFC的用途：" class="headerlink" title="RFC的用途："></a>RFC的用途：</h3><ul>
+<li><p><strong>定义和描述互联网协议</strong>：许多互联网协议都是通过RFC文档首次定义的，如TCP（RFC 793）、IP（RFC 791）、SMTP（RFC 5321）、HTTP（RFC 2616）等。</p>
+</li>
+<li><p><strong>规范最佳实践</strong>：RFC文档也用于记录和建议某些网络操作的最佳实践，帮助网络管理员和开发者构建更可靠和安全的网络服务。</p>
+</li>
+<li><p><strong>记录技术讨论</strong>：RFC可以作为对某一技术领域的讨论记录，包括不同的设计方案、技术挑战和解决方法等。</p>
+</li>
+</ul>
+<p>总结来说，<strong>RFC</strong> 是记录和传播互联网技术规范和最佳实践的主要文档形式，极大地促进了互联网的标准化和互操作性。</p>
+<h1 id="IEEE-802-x-Layer"><a href="#IEEE-802-x-Layer" class="headerlink" title="IEEE 802.x Layer"></a>IEEE 802.x Layer</h1><p>802.3 ethernet<br>802.11 wireless 无线网<br>802.15.1 bluetooth 蓝牙</p>
+<h1 id="IEEE-802-x-Layer-攻击"><a href="#IEEE-802-x-Layer-攻击" class="headerlink" title="IEEE 802.x Layer 攻击"></a>IEEE 802.x Layer 攻击</h1><p><strong>IEEE 802.x Layer 攻击</strong> 通常是指针对位于网络协议栈的链路层（即数据链路层，Layer 2）的网络攻击。这一层是根据IEEE 802标准系列（如802.3以太网、802.11无线局域网等）定义的。这些攻击利用数据链路层协议的特点和漏洞，破坏网络安全、窃取数据、扰乱网络通信等。以下是一些常见的IEEE 802.x层攻击类型：</p>
+<h3 id="1-MAC地址欺骗（MAC-Spoofing）"><a href="#1-MAC地址欺骗（MAC-Spoofing）" class="headerlink" title="1. MAC地址欺骗（MAC Spoofing）"></a>1. <strong>MAC地址欺骗（MAC Spoofing）</strong></h3><ul>
+<li><strong>描述</strong>: 攻击者伪造合法用户的MAC地址，在网络中冒充该用户进行通信。这可以用来绕过基于MAC地址的访问控制，也可以用来拦截数据流量。</li>
+<li><strong>影响</strong>: 网络访问控制被绕过，可能导致未授权的网络访问，敏感数据泄露。</li>
+</ul>
+<h3 id="2-ARP欺骗（ARP-Spoofing）"><a href="#2-ARP欺骗（ARP-Spoofing）" class="headerlink" title="2. ARP欺骗（ARP Spoofing）"></a>2. <strong>ARP欺骗（ARP Spoofing）</strong></h3><ul>
+<li><strong>描述</strong>: 这是通过伪造ARP（地址解析协议）消息，使得网络中的设备将攻击者的MAC地址误认为是另一个合法设备的MAC地址。这样，攻击者可以拦截、修改或阻断通信。</li>
+<li><strong>影响</strong>: 中间人攻击（MITM）、数据泄露、网络瘫痪。</li>
+</ul>
+<h3 id="3-VLAN跳跃（VLAN-Hopping）"><a href="#3-VLAN跳跃（VLAN-Hopping）" class="headerlink" title="3. VLAN跳跃（VLAN Hopping）"></a>3. <strong>VLAN跳跃（VLAN Hopping）</strong></h3><ul>
+<li><strong>描述</strong>: 攻击者利用不安全的VLAN（虚拟局域网）配置，发送特制的数据帧，以便从一个VLAN跳跃到另一个VLAN。这可以绕过网络分段和安全措施。</li>
+<li><strong>影响</strong>: 攻击者可以访问不属于他们的VLAN中的敏感数据或资源。</li>
+</ul>
+<h3 id="4-双重标记攻击（Double-Tagging-Attack）"><a href="#4-双重标记攻击（Double-Tagging-Attack）" class="headerlink" title="4. 双重标记攻击（Double Tagging Attack）"></a>4. <strong>双重标记攻击（Double Tagging Attack）</strong></h3><ul>
+<li><strong>描述</strong>: 攻击者利用两个802.1Q标签来试图逃避VLAN的隔离。例如，攻击者可以发送带有两个VLAN标签的数据帧，第一个标签会被网络交换机移除，而第二个标签可以用来进入另一个VLAN。</li>
+<li><strong>影响</strong>: 攻击者能够在VLAN之间传输数据，可能导致未经授权的网络访问。</li>
+</ul>
+<h3 id="5-无线网络攻击（如802-11攻击）"><a href="#5-无线网络攻击（如802-11攻击）" class="headerlink" title="5. 无线网络攻击（如802.11攻击）"></a>5. <strong>无线网络攻击（如802.11攻击）</strong></h3><ul>
+<li><strong>描述</strong>: 这类攻击专门针对无线局域网（WLAN）标准（如802.11），常见的攻击包括：<ul>
+<li><strong>拒绝服务攻击（DoS）</strong>：通过干扰无线信号或发送大量的恶意数据包使无线网络无法正常工作。</li>
+<li><strong>WEP/WPA破解</strong>：利用弱加密或已知漏洞破解无线网络的加密密钥。</li>
+<li><strong>恶意AP（Rogue AP）</strong>：攻击者设置一个伪造的接入点（AP），诱导用户连接，以便窃取用户数据或进行中间人攻击。</li>
+</ul>
+</li>
+<li><strong>影响</strong>: 无线网络的安全性受到破坏，可能导致数据泄露和未经授权的网络访问。</li>
+</ul>
+<h3 id="6-STP攻击（Spanning-Tree-Protocol-Attack）"><a href="#6-STP攻击（Spanning-Tree-Protocol-Attack）" class="headerlink" title="6. STP攻击（Spanning Tree Protocol Attack）"></a>6. <strong>STP攻击（Spanning Tree Protocol Attack）</strong></h3><ul>
+<li><strong>描述</strong>: STP用于防止网络中出现环路。攻击者可以向网络中发送伪造的STP数据包，导致网络拓扑变化，可能会引发网络流量被重定向或中断。</li>
+<li><strong>影响</strong>: 网络拥塞或瘫痪，数据流量被重定向。</li>
+</ul>
+<h3 id="7-DHCP欺骗（DHCP-Spoofing）"><a href="#7-DHCP欺骗（DHCP-Spoofing）" class="headerlink" title="7. DHCP欺骗（DHCP Spoofing）"></a>7. <strong>DHCP欺骗（DHCP Spoofing）</strong></h3><ul>
+<li><strong>描述</strong>: 攻击者通过伪装成合法的DHCP服务器向客户端提供虚假的IP地址配置，从而将客户端引导至恶意网络或中间人位置。</li>
+<li><strong>影响</strong>: 客户端被误导到恶意网络，潜在的敏感信息泄露。</li>
+</ul>
+<h3 id="防范措施："><a href="#防范措施：" class="headerlink" title="防范措施："></a>防范措施：</h3><ul>
+<li><strong>启用安全协议</strong>：如在无线网络中使用WPA3加密、802.1X网络访问控制。</li>
+<li><strong>实施网络分段</strong>：使用VLAN等技术隔离不同类型的网络流量。</li>
+<li><strong>配置网络设备安全</strong>：通过禁用不必要的服务、使用交换机的安全功能（如端口安全性、DHCP Snooping、ARP检测）。</li>
+<li><strong>定期更新网络设备</strong>：确保网络设备和软件更新到最新版本，以修补已知漏洞。</li>
+<li><strong>监控网络流量</strong>：使用入侵检测系统（IDS）和防火墙监控异常行为和数据包。</li>
+</ul>
+<p>这些攻击展示了网络中数据链路层可能的安全漏洞，因此，理解和防范这些攻击对于保护网络的完整性和安全性至关重要。</p>
+<h1 id="ARP"><a href="#ARP" class="headerlink" title="ARP"></a>ARP</h1><p><strong>ARP（Address Resolution Protocol，地址解析协议）</strong> 是一种用于IPv4网络的网络协议，它的主要功能是将网络层的IP地址转换为数据链路层的MAC地址。ARP是TCP/IP协议栈中的一部分，工作在OSI模型的第二层（数据链路层）和第三层（网络层）之间。</p>
+<h3 id="ARP协议的主要功能："><a href="#ARP协议的主要功能：" class="headerlink" title="ARP协议的主要功能："></a>ARP协议的主要功能：</h3><ol>
+<li><p><strong>IP地址到MAC地址的映射</strong>：在以太网等局域网（LAN）中，数据帧的传输依赖于MAC地址。因此，当一个设备知道另一个设备的IP地址但不知道其MAC地址时，它需要使用ARP来找到这个MAC地址。</p>
+</li>
+<li><p><strong>请求和响应机制</strong>：ARP协议使用简单的请求-响应机制。主机A发送一个ARP请求来询问“谁是IP地址为X.X.X.X的设备？请告诉我你的MAC地址。”网络上的所有设备都会收到这个请求，只有目标IP地址对应的设备会回复自己的MAC地址。</p>
+</li>
+</ol>
+<h3 id="ARP的工作流程："><a href="#ARP的工作流程：" class="headerlink" title="ARP的工作流程："></a>ARP的工作流程：</h3><ol>
+<li><p><strong>ARP请求</strong>：</p>
+<ul>
+<li>当一台主机（例如A）想要与同一网络段中的另一台主机（例如B）通信时，主机A首先检查自己的ARP缓存，看看是否已经有目标主机B的IP地址和MAC地址的映射。</li>
+<li>如果缓存中没有记录，主机A会发送一个ARP请求广播到局域网，ARP请求包含目标主机B的IP地址。</li>
+<li>由于这是一个广播消息，网络上的所有设备都会接收到这个请求。</li>
+</ul>
+</li>
+<li><p><strong>ARP响应</strong>：</p>
+<ul>
+<li>目标主机B接收到ARP请求后，会检查请求中的IP地址是否与自己的IP地址匹配。</li>
+<li>如果匹配，主机B将发送一个ARP响应给主机A，ARP响应中包含自己的MAC地址。</li>
+<li>主机A收到ARP响应后，会将IP地址和MAC地址的映射关系存储到自己的ARP缓存中，以便下次直接使用而不需要再发送ARP请求。</li>
+</ul>
+</li>
+</ol>
+<h3 id="ARP缓存："><a href="#ARP缓存：" class="headerlink" title="ARP缓存："></a>ARP缓存：</h3><ul>
+<li><strong>ARP缓存</strong>是一个存储IP地址到MAC地址映射的临时表，以提高网络效率。每台设备都有自己的ARP缓存，用于记录最近访问过的IP地址的MAC地址映射。</li>
+<li><strong>缓存更新</strong>：ARP缓存中的条目会定期更新或过期，这样可以防止缓存中的信息变得过时，确保网络通信的可靠性。</li>
+</ul>
+<h3 id="ARP的常见攻击方式："><a href="#ARP的常见攻击方式：" class="headerlink" title="ARP的常见攻击方式："></a>ARP的常见攻击方式：</h3><p>ARP协议的工作机制相对简单，缺乏安全性，因此容易受到一些攻击，例如：</p>
+<ol>
+<li><p><strong>ARP欺骗（ARP Spoofing）</strong>：</p>
+<ul>
+<li>攻击者发送伪造的ARP响应，声称自己是某个IP地址的所有者。</li>
+<li>这会导致网络中的设备更新其ARP缓存，错误地将攻击者的MAC地址与目标IP地址关联。</li>
+<li>攻击者可以利用这种方法实施中间人攻击（Man-in-the-Middle Attack），拦截或篡改网络流量。</li>
+</ul>
+</li>
+<li><p><strong>ARP中毒（ARP Poisoning）</strong>：</p>
+<ul>
+<li>这是一种ARP欺骗的形式，攻击者通过发送伪造的ARP消息，使目标设备的ARP缓存中的条目被“毒化”。</li>
+<li>这种攻击可能导致网络流量被重定向、网络瘫痪或敏感信息被泄露。</li>
+</ul>
+</li>
+</ol>
+<h3 id="防范措施：-1"><a href="#防范措施：-1" class="headerlink" title="防范措施："></a>防范措施：</h3><ul>
+<li><strong>静态ARP条目</strong>：在一些关键网络设备上，配置静态ARP条目，可以防止ARP欺骗。</li>
+<li><strong>ARP防护机制</strong>：现代网络设备和防火墙通常提供ARP检测和防护功能，以监控和防止ARP攻击。</li>
+<li><strong>使用安全协议</strong>：在可能的情况下，使用更安全的网络协议（例如IPv6）以及附加的加密机制来保护网络通信。</li>
+</ul>
+<p>总结来说，<strong>ARP协议</strong>是IPv4网络中的一个基础协议，尽管其设计简单，易于实现，但由于缺乏内置的安全性，也容易受到攻击。因此，在实际应用中，采取适当的防护措施非常重要。</p>
 
             </div>
             <hr>
