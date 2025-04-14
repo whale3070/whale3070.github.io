@@ -1,0 +1,493 @@
+
+
+  <!DOCTYPE html>
+  <html lang="en" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>编写一个字幕网站（二）FastAPI 和 Uvicorn - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.0.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="编写一个字幕网站（二）FastAPI 和 Uvicorn">
+                      
+                        编写一个字幕网站（二）FastAPI 和 Uvicorn
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2025-04-13 11:22" pubdate>
+        April 13, 2025 am
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      953 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      11
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">编写一个字幕网站（二）FastAPI 和 Uvicorn</h1>
+            
+            <div class="markdown-body">
+              <p>在上一篇文章中，我们简略的学习了WebStorm, vue，Node.js 和 npm</p>
+<h1 id="Uvicorn"><a href="#Uvicorn" class="headerlink" title="Uvicorn"></a>Uvicorn</h1><p>Uvicorn 是一个 高性能 的 ASGI 服务器，专为 Python 异步框架设计，特别适用于运行 FastAPI、Starlette 等现代的异步 Web 框架。</p>
+<h2 id="为什么使用-Uvicorn？"><a href="#为什么使用-Uvicorn？" class="headerlink" title="为什么使用 Uvicorn？"></a>为什么使用 Uvicorn？</h2><p>FastAPI 和 Uvicorn 的搭配：FastAPI 和 Uvicorn 是现代 Web 开发的一个完美组合。FastAPI 本身是异步框架，能够处理并发请求，而 Uvicorn 则提供了一个能够高效运行 FastAPI 应用的服务器。</p>
+<p>简单和易用：Uvicorn 提供了一个非常简洁的命令行界面，支持热重载功能，可以快速启动和调试应用。</p>
+<p>pip install uvicorn<br><img src="Snipaste_2025-04-13_21-00-53.png" srcset="/img/loading.gif" alt="img.png"></p>
+<p>uvicorn app:app –reload –host 127.0.0.1 –port 8080</p>
+<p>这条命令用于启动 <code>Uvicorn</code> 服务器并运行一个 FastAPI 应用。下面是对各个部分的详细解释：</p>
+<h3 id="1-uvicorn"><a href="#1-uvicorn" class="headerlink" title="1. uvicorn"></a>1. <strong><code>uvicorn</code></strong></h3><ul>
+<li>这是启动 <strong>Uvicorn</strong> 服务器的命令。<code>Uvicorn</code> 是一个高性能的 <strong>ASGI</strong> 服务器，专为 Python 异步 Web 框架（如 <strong>FastAPI</strong> 和 <strong>Starlette</strong>）设计。</li>
+<li>它会将你的 FastAPI 应用加载到服务器中并开始监听请求。</li>
+</ul>
+<h3 id="2-app-app"><a href="#2-app-app" class="headerlink" title="2. app:app"></a>2. <strong><code>app:app</code></strong></h3><ul>
+<li>这是告诉 <code>Uvicorn</code> 应该运行哪个 Python 模块（应用）。</li>
+<li>**<code>app</code> (第一个)**：指的是 <strong>模块名</strong>，即你的 Python 文件名。假设你的 FastAPI 应用定义在 <code>app.py</code> 中，那么这里就写 <code>app</code>，它会从当前目录加载 <code>app.py</code> 模块。</li>
+<li>**<code>app</code> (第二个)**：指的是模块中定义的 <strong>FastAPI 应用对象</strong>。在 <code>app.py</code> 文件中，你可能会有如下代码：<br>pip install fastapi</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-keyword">from</span> fastapi <span class="hljs-keyword">import</span> FastAPI<br><br>app = FastAPI()  <span class="hljs-comment"># FastAPI 应用对象</span><br></code></pre></div></td></tr></table></figure>
+<p>  这里的第二个 <code>app</code> 就是指 <code>app</code> 这个 FastAPI 实例。</p>
+<h3 id="3-reload"><a href="#3-reload" class="headerlink" title="3. --reload"></a>3. <strong><code>--reload</code></strong></h3><ul>
+<li>启用自动重载功能，意味着每当你修改应用代码时，<code>Uvicorn</code> 会自动重新加载服务器，而不需要手动重启服务器。这对于开发过程中调试代码非常有用。</li>
+<li><strong>注意</strong>：<code>--reload</code> 仅在开发环境中使用，生产环境中应该禁用自动重载。</li>
+</ul>
+<h3 id="4-host-127-0-0-1"><a href="#4-host-127-0-0-1" class="headerlink" title="4. --host 127.0.0.1"></a>4. <strong><code>--host 127.0.0.1</code></strong></h3><ul>
+<li><code>--host</code> 参数指定了服务器监听的 IP 地址。</li>
+<li><code>127.0.0.1</code> 是 <strong>本地回环地址</strong>，表示服务器只会在本地机器上运行，外部设备无法访问。</li>
+<li>如果你希望从其他设备访问该服务，可以将 <code>127.0.0.1</code> 改为 <code>0.0.0.0</code>，表示服务器会监听所有可用的网络接口。</li>
+</ul>
+<h3 id="5-port-8080"><a href="#5-port-8080" class="headerlink" title="5. --port 8080"></a>5. <strong><code>--port 8080</code></strong></h3><ul>
+<li><code>--port</code> 参数指定了服务器监听的端口号。</li>
+<li>在这个例子中，服务器会在 <strong>8080</strong> 端口上监听请求。默认情况下，<code>Uvicorn</code> 会监听 8000 端口，但你可以通过这个参数来指定不同的端口。</li>
+</ul>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>完整的命令 <code>uvicorn app:app --reload --host 127.0.0.1 --port 8080</code> 的含义是：</p>
+<ul>
+<li>启动 <code>Uvicorn</code> 服务器。</li>
+<li>从 <code>app.py</code> 文件中加载 FastAPI 应用对象 <code>app</code>。</li>
+<li>启用自动重载，意味着每次修改代码后都会自动重新启动服务器。</li>
+<li>服务器仅在本地计算机的 <code>127.0.0.1</code>（localhost）地址上监听，并在 8080 端口上接收请求。</li>
+</ul>
+<h3 id="举个例子："><a href="#举个例子：" class="headerlink" title="举个例子："></a>举个例子：</h3><p>假设你有一个 <code>app.py</code> 文件，内容如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-keyword">from</span> fastapi <span class="hljs-keyword">import</span> FastAPI<br><br>app = FastAPI()<br><br><span class="hljs-meta">@app.get(<span class="hljs-params"><span class="hljs-string">&quot;/&quot;</span></span>)</span><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">read_root</span>():</span><br>    <span class="hljs-keyword">return</span> &#123;<span class="hljs-string">&quot;message&quot;</span>: <span class="hljs-string">&quot;Hello, World!&quot;</span>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p>然后运行命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">uvicorn app:app --reload --host 127.0.0.1 --port 8080<br></code></pre></div></td></tr></table></figure>
+
+<p>这样你的 FastAPI 应用就会在 <code>http://127.0.0.1:8080</code> 启动，可以通过浏览器或 API 客户端访问它。</p>
+<h3 id="如果你希望其他设备能够访问："><a href="#如果你希望其他设备能够访问：" class="headerlink" title="如果你希望其他设备能够访问："></a>如果你希望其他设备能够访问：</h3><p>将 <code>--host 127.0.0.1</code> 改为 <code>--host 0.0.0.0</code>，这样服务器会监听所有网络接口，其他设备可以通过你的 IP 地址访问应用。</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">uvicorn app:app --reload --host 0.0.0.0 --port 8080<br></code></pre></div></td></tr></table></figure>
+
+<h1 id="pnpm（一个-JavaScript-包管理工具）"><a href="#pnpm（一个-JavaScript-包管理工具）" class="headerlink" title="pnpm（一个 JavaScript 包管理工具）"></a>pnpm（一个 JavaScript 包管理工具）</h1><p>npm install -g pnpm<br>pnpm –version</p>
+<p>确保pnmp已经安装</p>
+<h1 id="webstorm新建项目"><a href="#webstorm新建项目" class="headerlink" title="webstorm新建项目"></a>webstorm新建项目</h1><p>vite + vue<br><img src="2025-04-13%20222635.png" srcset="/img/loading.gif" alt="2025-04-13 222635.png"></p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>pnpm install</p>
+<h2 id="运行前端代码"><a href="#运行前端代码" class="headerlink" title="运行前端代码"></a>运行前端代码</h2><p>pnpm run dev<br><img src="Snipaste_2025-04-13_22-00-32.png" srcset="/img/loading.gif"></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/04/14/5617aa056d74/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">字节跳动乔木出轨事件</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/04/13/4a74f0bf138b/">
+                        <span class="hidden-mobile">我的生平（十六）</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+
+    </body>
+
+  </html>
