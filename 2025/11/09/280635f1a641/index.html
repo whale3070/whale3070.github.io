@@ -1,0 +1,488 @@
+
+
+  <!DOCTYPE html>
+  <html lang="en" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>Remix 部署 Solidity 合约的完整标准操作步骤 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.0.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="Remix 部署 Solidity 合约的完整标准操作步骤">
+                      
+                        Remix 部署 Solidity 合约的完整标准操作步骤
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2025-11-09 14:17" pubdate>
+        November 9, 2025 pm
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      570 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      6
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Remix 部署 Solidity 合约的完整标准操作步骤</h1>
+            
+            <div class="markdown-body">
+              <p>上一篇： <a target="_blank" rel="noopener" href="https://whale3070.com/2025/08/31/1381b279ed17/">Remix IDE</a><br>在上一篇中，我们了解了solidity和remix的历史，认识了remix的功能按钮。<br>这篇我们讨论如何编译运行solidity合约</p>
+<p>这是一段sol代码：</p>
+<figure class="highlight d"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs d"><span class="hljs-comment">// SPDX-License-Identifier: MIT</span><br><span class="hljs-keyword">pragma</span> solidity ^<span class="hljs-number">0.8</span><span class="hljs-number">.20</span>;<br><br>contract Counter &#123;<br>    <span class="hljs-built_in">uint</span> <span class="hljs-keyword">public</span> count;<br><br>    <span class="hljs-built_in">function</span> increment() <span class="hljs-keyword">public</span> &#123;<br>        count += <span class="hljs-number">1</span>;<br>    &#125;<br><br>    <span class="hljs-built_in">function</span> decrement() <span class="hljs-keyword">public</span> &#123;<br>        count -= <span class="hljs-number">1</span>;<br>    &#125;<br>&#125; <br></code></pre></div></td></tr></table></figure>
+
+<p>我在remix ide中，先file explorer新建test.sol，然后点击solidity compiler，然后点击deploy &amp; run transactions，environment选择的是remix vm(shanghai)，然后点击deploy。这个流程有没有什么问题？<br><img src="1109.png" srcset="/img/loading.gif"></p>
+<p>你的整个流程 <strong>完全正确</strong>，没有任何问题；对于学习和本地测试，这是 Remix 最标准、最推荐的做法。下面我用专业方式帮你逐项验证，让你明确这个流程在技术上是正确的。</p>
+<hr>
+<h1 id="✅-1-新建文件并编译"><a href="#✅-1-新建文件并编译" class="headerlink" title="✅ 1. 新建文件并编译"></a>✅ 1. 新建文件并编译</h1><p>你在 File Explorer 新建 <code>test.sol</code><br>然后在 Solidity Compiler 中编译</p>
+<p>这两步都符合正常流程，没有问题。</p>
+<p>只要编译成功（没有红色错误），说明编译器已经确认你的 Solidity 语法有效。</p>
+<hr>
+<h1 id="✅-2-Environment-选择：Remix-VM-Shanghai"><a href="#✅-2-Environment-选择：Remix-VM-Shanghai" class="headerlink" title="✅ 2. Environment 选择：Remix VM (Shanghai)"></a>✅ 2. Environment 选择：Remix VM (Shanghai)</h1><p>选择 <strong>Remix VM (Shanghai)</strong> 完全没有问题，原因如下：</p>
+<ul>
+<li>Remix VM 是本地虚拟 EVM，不连接任何外部节点</li>
+<li>Shanghai 是以太坊的一个历史硬分叉版本</li>
+<li>对你的合约（增减计数器）没有任何兼容性影响</li>
+<li>部署不需要 ETH，不需要 RPC，不需要钱包</li>
+<li>专为学习测试设计</li>
+</ul>
+<p>这就是以前的 “JavaScript VM”，只是名字更新了。</p>
+<hr>
+<h1 id="✅-3-Deploy"><a href="#✅-3-Deploy" class="headerlink" title="✅ 3. Deploy"></a>✅ 3. Deploy</h1><p>点击 Deploy 后：</p>
+<ul>
+<li>Remix VM 会模拟一笔交易</li>
+<li>counter 合约会被部署</li>
+<li>构造函数不存在，所以立即完成</li>
+<li>你会看到左边生成一个 Counter 实例</li>
+<li>可以直接调用 <code>increment()</code>、<code>decrement()</code></li>
+</ul>
+<p>这是典型的成功路径。</p>
+<hr>
+<h1 id="✅-4-你的代码是否会出错？"><a href="#✅-4-你的代码是否会出错？" class="headerlink" title="✅ 4. 你的代码是否会出错？"></a>✅ 4. 你的代码是否会出错？</h1><p>你的代码逻辑正确，可以在 Remix VM 顺畅运行。</p>
+<p>唯一一点需要注意：</p>
+<figure class="highlight fortran"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs fortran"><span class="hljs-function"><span class="hljs-keyword">function</span></span> decrement() <span class="hljs-keyword">public</span> &#123;<br>    <span class="hljs-built_in">count</span> -= <span class="hljs-number">1</span>;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p>如果 <code>count == 0</code>，此时减法会触发 underflow，<br>在 Solidity 0.8+ 会 Revert（不是漏洞，只是会报错）。</p>
+<p>但这不会影响部署流程。</p>
+<hr>
+<h1 id="✅-最终结论"><a href="#✅-最终结论" class="headerlink" title="✅ 最终结论"></a>✅ 最终结论</h1><p>你的流程是正确的：</p>
+<ol>
+<li>新建 test.sol</li>
+<li>编译</li>
+<li>Environment 选择 Remix VM (Shanghai)</li>
+<li>点击 Deploy</li>
+<li>测试函数 —— 全部都符合规范，没有问题。</li>
+</ol>
+<p>这是最推荐的初学者流程。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Web3/">Web3</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/11/09/d5cece21d125/">
+                        <span class="hidden-mobile">Solidity programming essentials-编写智能合约</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+
+    </body>
+
+  </html>
