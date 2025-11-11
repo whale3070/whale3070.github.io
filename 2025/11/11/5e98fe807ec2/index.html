@@ -177,7 +177,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      159 字
+      5.6k 字
     </span>
   
 
@@ -187,7 +187,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      1
+      66
        分钟
     </span>
   
@@ -223,6 +223,545 @@
             <div class="markdown-body">
               <p>上一篇：<a target="_blank" rel="noopener" href="https://whale3070.com/2025/11/10/073dd489c6c2/">remix编译运行solidity</a></p>
 <p>昨天我简要学习了全局变量和函数、表达式与控制结构，storage / memory / calldata三者差异，constructor构造函数 / modifier修饰器，payable函数，event+emit 事件与触发事件。然后在remix练习了几个简单的小合约，1.counter计数器，bank简单存取款器，struct+mapping 结构体和映射关系，双向mapping小合约用于地址是否关注的查询。然后我了解到了solidity比python要难，struct类似C++的结构体，solidity需要考虑gas费，要考虑资源消耗还要考虑安全性，不能只考虑可用性。</p>
+<h1 id="错误处理"><a href="#错误处理" class="headerlink" title="错误处理"></a>错误处理</h1><h2 id="ErrorDemo-sol"><a href="#ErrorDemo-sol" class="headerlink" title="ErrorDemo.sol"></a>ErrorDemo.sol</h2><figure class="highlight typescript"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs typescript"><span class="hljs-comment">// SPDX-License-Identifier: MIT</span><br>pragma solidity ^<span class="hljs-number">0.8</span><span class="hljs-number">.24</span>;<br><br>contract ErrorDemo &#123;<br>    <span class="hljs-comment">// Custom Error（节省 gas，通常在复杂项目中使用）</span><br>    error NotEnoughBalance(uint256 requested, uint256 available);<br><br>    uint256 <span class="hljs-keyword">public</span> totalSupply;<br>    mapping(<span class="hljs-function"><span class="hljs-params">address</span> =&gt;</span> uint256) <span class="hljs-keyword">public</span> balanceOf;<br><br>    <span class="hljs-function"><span class="hljs-title">constructor</span>(<span class="hljs-params"></span>)</span> &#123;<br>        totalSupply = <span class="hljs-number">1000</span>;<br>        balanceOf[msg.sender] = <span class="hljs-number">1000</span>;<br>    &#125;<br><br>    <span class="hljs-comment">// 1. 使用 require：输入验证 /权限 / 状态验证</span><br>    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">transfer</span>(<span class="hljs-params">address to, uint256 amount</span>) <span class="hljs-title">external</span> </span>&#123;<br>        <span class="hljs-built_in">require</span>(to != address(<span class="hljs-number">0</span>), <span class="hljs-string">&quot;Invalid address&quot;</span>);<br>        <span class="hljs-built_in">require</span>(balanceOf[msg.sender] &gt;= amount, <span class="hljs-string">&quot;Insufficient balance&quot;</span>);<br><br>        balanceOf[msg.sender] -= amount;<br>        balanceOf[to] += amount;<br>    &#125;<br><br>    <span class="hljs-comment">// 2. 使用 revert：手工抛错（推荐在复杂逻辑中使用）</span><br>    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">withdraw</span>(<span class="hljs-params">uint256 amount</span>) <span class="hljs-title">external</span> </span>&#123;<br>        uint256 bal = balanceOf[msg.sender];<br><br>        <span class="hljs-keyword">if</span> (amount &gt; bal) &#123;<br>            revert NotEnoughBalance(amount, bal);<br>        &#125;<br><br>        balanceOf[msg.sender] -= amount;<br>    &#125;<br><br>    <span class="hljs-comment">// 3. 使用 assert：用于断言永远为真（仅内部检查）</span><br>    <span class="hljs-comment">//    totalSupply 永不减少（根据业务逻辑）</span><br>    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">internalInvariantCheck</span>(<span class="hljs-params"></span>) <span class="hljs-title">external</span> <span class="hljs-title">view</span> <span class="hljs-title">returns</span> (<span class="hljs-params">bool</span>) </span>&#123;<br>        <span class="hljs-comment">// assert 失败代表代码存在 bug</span><br>        assert(totalSupply &gt;= <span class="hljs-number">1000</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>    &#125;<br><br>    <span class="hljs-comment">// 4. 显示触发 revert（手工示例）</span><br>    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">forceFail</span>(<span class="hljs-params"></span>) <span class="hljs-title">external</span> <span class="hljs-title">pure</span> </span>&#123;<br>        revert(<span class="hljs-string">&quot;Manually reverted&quot;</span>);<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<h2 id="balanceOf是什么意思？"><a href="#balanceOf是什么意思？" class="headerlink" title="balanceOf是什么意思？"></a>balanceOf是什么意思？</h2><p>balanceOf[msg.sender] = 1000;</p>
+<p>这行代码本质上就是：</p>
+<p>给当前调用者（msg.sender）在 balanceOf 这个“账本”里存一条记录：余额 = 1000。</p>
+<h2 id="require的错误处理"><a href="#require的错误处理" class="headerlink" title="require的错误处理"></a>require的错误处理</h2><p><img src="1.png" srcset="/img/loading.gif"><br>在上面的图中，输入一个eth地址，输入amount为10000，点击transact，于是就出现报错。</p>
+<p>报错如下图所示，Insufficient balance<br><img src="2.png" srcset="/img/loading.gif"></p>
+<p>如果把amount改成1，点击transact，就没有报错。</p>
+<p>看到sol的17-19行代码</p>
+<figure class="highlight livescript"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs livescript"><span class="hljs-keyword">function</span> transfer(address <span class="hljs-keyword">to</span>, uint256 amount) external &#123;<br>    <span class="hljs-built_in">require</span>(<span class="hljs-keyword">to</span> != address(<span class="hljs-number">0</span>), <span class="hljs-string">&quot;Invalid address&quot;</span>);<br>    <span class="hljs-built_in">require</span>(balanceOf[msg.sender] &gt;= amount, <span class="hljs-string">&quot;Insufficient balance&quot;</span>);<br></code></pre></div></td></tr></table></figure>
+
+<p>这就是require的错误处理</p>
+<h2 id="revert手工抛错"><a href="#revert手工抛错" class="headerlink" title="revert手工抛错"></a>revert手工抛错</h2><p>现在在withdraw函数的amount那里输入100000，点击transact。<br>报错提示要取100000 wei，但只剩下890 wei，所以报错了。<br><img src="7.png" srcset="/img/loading.gif"></p>
+<p>现在在withdraw函数的amount那里输入1，点击transact。<br>因为余额超过了1，所以没有报错。<br><img src="8.png" srcset="/img/loading.gif"></p>
+<p>这就是revert手工抛错</p>
+<h2 id="assert用于断言永远为真（仅内部检查）"><a href="#assert用于断言永远为真（仅内部检查）" class="headerlink" title="assert用于断言永远为真（仅内部检查）"></a>assert用于断言永远为真（仅内部检查）</h2><p>balanceOf = 用户的余额（会变）<br>totalSupply = 总发行量（示例里不会变）<br>withdraw 只改 balanceOf，不改 totalSupply</p>
+<p>所以断言永远为真</p>
+<p>如果 assert 失败，说明代码有 bug，而不是用户输入问题。<br><img src="9.png" srcset="/img/loading.gif"></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>在错误处理的sol文件中，我学习了require，revert，assert的错误处理。</p>
+<h1 id="Fallback合约"><a href="#Fallback合约" class="headerlink" title="Fallback合约"></a>Fallback合约</h1><p>功能：<br>receive() 接受 ETH</p>
+<p>fallback() 记录调用信息</p>
+<p>getBalance() 查询余额</p>
+<h2 id="WalletWithFallback-sol"><a href="#WalletWithFallback-sol" class="headerlink" title="WalletWithFallback.sol"></a>WalletWithFallback.sol</h2><figure class="highlight reasonml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs reasonml"><span class="hljs-comment">// SPDX-License-Identifier: MIT</span><br>pragma solidity ^<span class="hljs-number">0.8</span>.<span class="hljs-number">20</span>;<br><br>contract WalletWithFallback &#123;<br><br>    <span class="hljs-comment">// 记录 fallback 被调用时的信息</span><br>    event <span class="hljs-constructor">FallbackCalled(<span class="hljs-params">address</span> <span class="hljs-params">sender</span>, <span class="hljs-params">uint</span> <span class="hljs-params">value</span>, <span class="hljs-params">bytes</span> <span class="hljs-params">data</span>)</span>;<br><br>    <span class="hljs-comment">// 接收 ETH 的 receive 函数，只要 msg.data 为空就触发</span><br>    receive<span class="hljs-literal">()</span> <span class="hljs-keyword">external</span> payable &#123;<br>        <span class="hljs-comment">// 可以不写内容，只要 payable 就能收 ETH</span><br>    &#125;<br><br>    <span class="hljs-comment">// fallback 函数：有 data，或找不到函数签名时触发</span><br>    fallback<span class="hljs-literal">()</span> <span class="hljs-keyword">external</span> payable &#123;<br>        emit <span class="hljs-constructor">FallbackCalled(<span class="hljs-params">msg</span>.<span class="hljs-params">sender</span>, <span class="hljs-params">msg</span>.<span class="hljs-params">value</span>, <span class="hljs-params">msg</span>.<span class="hljs-params">data</span>)</span>;<br>    &#125;<br><br>    <span class="hljs-comment">// 查询当前合约内 ETH 余额</span><br>    <span class="hljs-keyword">function</span> get<span class="hljs-constructor">Balance()</span> <span class="hljs-keyword">external</span> view returns (uint) &#123;<br>        return address(this).balance;<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<h2 id="测试fallback-sol"><a href="#测试fallback-sol" class="headerlink" title="测试fallback.sol"></a>测试fallback.sol</h2><p><img src="10.png" srcset="/img/loading.gif"><br>如上图所示，在value下方输入1，右边选择ether作为单位，然后点击下方的transact<br>最后点击getBalance，即可获得余额为 10^ 18 wei</p>
+<p>receive()</p>
+<p>只负责在纯转账且没有附带 calldata 时接收 ETH。<br>例如：</p>
+<p>在 Remix 部署后，打开 “Deploy &amp; Run”</p>
+<p>找到 “Value” 输入框填 1 Ether</p>
+<p>点击合约旁的 transact (灰色按钮，不是调用函数)<br>→ receive() 触发<br>→ 合约成功收到 ETH</p>
+<p>receive() 必须是：<br>external<br>payable<br>没有参数<br>没有返回值</p>
+<p>fallback()</p>
+<p>fallback 会在两种情况被触发：</p>
+<table>
+<thead>
+<tr>
+<th>情况</th>
+<th>是否触发 fallback</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>找不到被调用的函数</td>
+<td>是</td>
+</tr>
+<tr>
+<td>调用合约并携带 calldata（不是纯转账）</td>
+<td>是</td>
+</tr>
+<tr>
+<td>纯转账但 msg.data 为空</td>
+<td>否，触发 receive</td>
+</tr>
+</tbody></table>
+<p>fallback 通常用于：</p>
+<p>记录未知调用<br>代理合约<br>防止调用失败<br>兼容某些库 transfer/ send 的行为<br>在你的代码里，fallback 会发出 event，方便你在 Remix 查看。</p>
+<p>getBalance()</p>
+<p>返回当前合约持有的 ETH 数量。<br>address(this).balance 就是查看合约地址余额。</p>
+<h2 id="fallback-会发出-event，方便你在-Remix-查看。那么event在那里查看呢？"><a href="#fallback-会发出-event，方便你在-Remix-查看。那么event在那里查看呢？" class="headerlink" title="fallback 会发出 event，方便你在 Remix 查看。那么event在那里查看呢？"></a>fallback 会发出 event，方便你在 Remix 查看。那么event在那里查看呢？</h2><p>部署合约后，在右侧的 Deployed Contracts 区域里，你调用了函数（例如 fallback 被触发）。</p>
+<p>在下面会出现一条新的 交易记录（Transactions）。</p>
+<p>点击这一条交易记录，会展开详细信息。<br>展开后你能看到类似内容：</p>
+<p><img src="11.png" srcset="/img/loading.gif"></p>
+<figure class="highlight 1c"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs 1c"><span class="hljs-string">&quot;event&quot;</span>: <span class="hljs-string">&quot;FallbackCalled&quot;</span><br></code></pre></div></td></tr></table></figure>
+
+<h2 id="event是什么？"><a href="#event是什么？" class="headerlink" title="event是什么？"></a>event是什么？</h2><p>event 是 Solidity 中的“日志输出机制”（Log），写入到区块链的交易日志（Transaction Logs）中，用于让前端、脚本、分析程序监听你的合约行为。</p>
+<p>它相当于：</p>
+<ol>
+<li>数据库的 “append-only” 日志</li>
+<li>软件系统里的 “事件通知机制”</li>
+<li>前端可以监听的 “发布消息”</li>
+</ol>
+<p>最关键特点：<br>event 不存在于合约状态（不像 storage / mapping 会消耗 storage），它记录在交易日志（Log）里，因此<code>便宜得多、不可修改、可被订阅</code>。</p>
+<p><strong>event 是区块链上的日志记录机制（写入交易日志）。</strong><br><strong>event 不自动产生，必须由你手动 emit。</strong><br><strong>正常合约几乎都会大量使用 event，因为前端和分析工具都依赖它。</strong></p>
+<h2 id="正常运行合约时，是否会自动生成-event？"><a href="#正常运行合约时，是否会自动生成-event？" class="headerlink" title="正常运行合约时，是否会自动生成 event？"></a>正常运行合约时，是否会自动生成 event？</h2><p>不会。</p>
+<p>event 是 你想记录、想暴露出来的信息时才 emit 的。<br>你不写 event，合约就不会自动产生任何 event。</p>
+<p>换句话说：</p>
+<p>event 永远不会自动产生</p>
+<p>必须由开发者写 emit 才会出现</p>
+<h2 id="为什么智能合约需要-event？"><a href="#为什么智能合约需要-event？" class="headerlink" title="为什么智能合约需要 event？"></a>为什么智能合约需要 event？</h2><p>前端监听事件（最常见）</p>
+<p>例如 Uniswap、Aave 等前端 UI 需要知道：</p>
+<p>用户是否存入资产</p>
+<p>Swap 是否发生</p>
+<p>谁转给了谁</p>
+<p>某个池子余额是否发生变动</p>
+<p>它们不会每秒轮询区块链，而是监听事件</p>
+<p>便宜的数据记录</p>
+<p>如果你想记录一条信息，方式有两种：</p>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>成本</th>
+<th>是否可在链上访问</th>
+<th>是否可被前端读取</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>写入 storage</td>
+<td>贵</td>
+<td>可访问</td>
+<td>可读取</td>
+</tr>
+<tr>
+<td>写入 event</td>
+<td>便宜</td>
+<td>不能被合约读</td>
+<td>能被前端读</td>
+</tr>
+</tbody></table>
+<h2 id="event-的行为特点（你必须知道）"><a href="#event-的行为特点（你必须知道）" class="headerlink" title="event 的行为特点（你必须知道）"></a>event 的行为特点（你必须知道）</h2><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>不可更改</td>
+<td>写入日志后永远不能修改</td>
+</tr>
+<tr>
+<td>不属于 state</td>
+<td>合约本身不能读取 logs</td>
+</tr>
+<tr>
+<td>可被索引 (indexed)</td>
+<td>类似数据库的索引，查询更快</td>
+</tr>
+<tr>
+<td>前端、脚本可以监听</td>
+<td>这是 event 最大的用途</td>
+</tr>
+<tr>
+<td>Gas 成本低于 storage</td>
+<td>大日志成本远低于写入 storage</td>
+</tr>
+</tbody></table>
+<h1 id="Caller-sol-Callee-sol"><a href="#Caller-sol-Callee-sol" class="headerlink" title="Caller.sol + Callee.sol"></a>Caller.sol + Callee.sol</h1><p>功能：<br>Callee: 返回一个 uint<br>Caller: 调用 Callee<br>使用 interface 方式调用<br>使用 call 方式调用</p>
+<p>重点理解：</p>
+<p>为什么 call 是唯一安全的低级调用<br>为什么 interface 更清晰<br>msg.sender 的变化</p>
+<h2 id="Callee-sol"><a href="#Callee-sol" class="headerlink" title="Callee.sol"></a>Callee.sol</h2><figure class="highlight typescript"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs typescript"><span class="hljs-comment">// SPDX-License-Identifier: MIT</span><br>pragma solidity ^<span class="hljs-number">0.8</span><span class="hljs-number">.20</span>;<br><br>contract Callee &#123;<br>    uint <span class="hljs-keyword">public</span> <span class="hljs-built_in">number</span> = <span class="hljs-number">2025</span>;<br><br>    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getNumber</span>(<span class="hljs-params"></span>) <span class="hljs-title">external</span> <span class="hljs-title">view</span> <span class="hljs-title">returns</span> (<span class="hljs-params">uint</span>) </span>&#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">number</span>;<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p><img src="12.png" srcset="/img/loading.gif"><br>点getNumber， 返回2025<br>点number，还是返回2025</p>
+<p>该合约部署好后，接下来用caller来调用该合约。<br><img src="14.png" srcset="/img/loading.gif"><br>上图点击copy address，即可复制该合约的地址，该合约地址在后面有用的。</p>
+<h2 id="caller-sol"><a href="#caller-sol" class="headerlink" title="caller.sol"></a>caller.sol</h2><figure class="highlight reasonml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs reasonml"><span class="hljs-comment">// SPDX-License-Identifier: MIT</span><br>pragma solidity ^<span class="hljs-number">0.8</span>.<span class="hljs-number">20</span>;<br><br><span class="hljs-comment">// 1. 定义接口</span><br>interface ICallee &#123;<br>    <span class="hljs-keyword">function</span> get<span class="hljs-constructor">Number()</span> <span class="hljs-keyword">external</span> view returns (uint);<br>&#125;<br><br>contract Caller &#123;<br><br>    <span class="hljs-comment">// 2. 用 interface 调用</span><br>    <span class="hljs-keyword">function</span> call<span class="hljs-constructor">ByInterface(<span class="hljs-params">address</span> <span class="hljs-params">calleeAddr</span>)</span> <br>        <span class="hljs-keyword">external</span> <br>        view <br>        returns (uint)<br>    &#123;<br>        return <span class="hljs-constructor">ICallee(<span class="hljs-params">calleeAddr</span>)</span>.get<span class="hljs-constructor">Number()</span>;<br>    &#125;<br><br>    <span class="hljs-comment">// 3. 用 low-level call 调用</span><br>    <span class="hljs-keyword">function</span> call<span class="hljs-constructor">ByLowLevel(<span class="hljs-params">address</span> <span class="hljs-params">calleeAddr</span>)</span> <br>        <span class="hljs-keyword">external</span> <br>        view <br>        returns (uint)<br>    &#123;<br>        (<span class="hljs-built_in">bool</span> ok, <span class="hljs-built_in">bytes</span> memory data) =<br>            calleeAddr.staticcall(<br>                abi.encode<span class="hljs-constructor">WithSignature(<span class="hljs-string">&quot;getNumber()&quot;</span>)</span><br>            );<br><br>        require(ok, <span class="hljs-string">&quot;low-level call failed&quot;</span>);<br><br>        return abi.decode(data, (uint));<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p><img src="13.png" srcset="/img/loading.gif"><br>复制callee合约的地址，在上图calleeAddr右侧粘贴，点击call。 即可成功调用callee<br>在decoded output可以看到2025这个字符串。</p>
+<p>在下面callbylowerlever，使用同样的方法，复制callee合约的地址，粘贴，点击call。<br>同样得到2025的字符串。</p>
+<p>下面说明interface调用和call调用的区别</p>
+<h2 id="下面给你一套面向初学审计-开发者的清晰、正式解释，涵盖你要理解的四个核心点："><a href="#下面给你一套面向初学审计-开发者的清晰、正式解释，涵盖你要理解的四个核心点：" class="headerlink" title="下面给你一套面向初学审计 / 开发者的清晰、正式解释，涵盖你要理解的四个核心点："></a>下面给你一套<strong>面向初学审计 / 开发者</strong>的清晰、正式解释，涵盖你要理解的四个核心点：</h2><ol>
+<li>interface 调用</li>
+<li>call 调用</li>
+<li>call 为什么是唯一“安全”的低级调用</li>
+<li>msg.sender 的变化</li>
+</ol>
+<p>内容会严格对标你未来审计岗位需要掌握的逻辑。</p>
+<hr>
+<h2 id="一、两种跨合约调用方式（interface-vs-call）"><a href="#一、两种跨合约调用方式（interface-vs-call）" class="headerlink" title="一、两种跨合约调用方式（interface vs call）"></a>一、两种跨合约调用方式（interface vs call）</h2><h3 id="方式-1：通过-interface-调用（推荐）"><a href="#方式-1：通过-interface-调用（推荐）" class="headerlink" title="方式 1：通过 interface 调用（推荐）"></a>方式 1：通过 interface 调用（推荐）</h3><figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">interface ICallee &#123;<br>    function getNumber() external view returns (uint);<br>&#125;<br><br>contract Caller &#123;<br>    function callByInterface(address _callee) external view returns (uint) &#123;<br>        return ICallee(_callee).getNumber();  <br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p>特点：</p>
+<ul>
+<li><strong>静态类型检查</strong>（编译器保证函数存在、类型正确）</li>
+<li><strong>语义清晰</strong>（跨合约调用意图明确）</li>
+<li><strong>更易审计</strong>（函数名、参数、返回类型可读性强）</li>
+</ul>
+<p>核心点：<br>interface 调用是 Solidity 给你的一个“高层调用”，底层帮你生成 ABI 编码，不需要手工编码或字节处理。</p>
+<hr>
+<h3 id="方式-2：使用-call-调用（低级调用）"><a href="#方式-2：使用-call-调用（低级调用）" class="headerlink" title="方式 2：使用 call 调用（低级调用）"></a>方式 2：使用 call 调用（低级调用）</h3><figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">contract Caller &#123;<br>    function callByLowLevel(address _callee) external returns (uint) &#123;<br>        (bool ok, bytes memory data) =<br>            _callee.call(abi.encodeWithSignature(&quot;getNumber()&quot;));<br>        require(ok, &quot;call failed&quot;);<br>        return abi.decode(data, (uint));<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p>特点：</p>
+<ul>
+<li><strong>需要手动编码函数签名与参数</strong>（没有编译器保障）</li>
+<li><strong>返回值需要自己 decode</strong></li>
+<li><strong>无法静态检查被调用函数是否存在</strong></li>
+</ul>
+<p>典型使用场景：</p>
+<ul>
+<li>调用未知 ABI 的合约</li>
+<li>与非标准合约或代理合约交互</li>
+<li>编写通用路由器或钱包合约</li>
+</ul>
+<p>审计记忆点：<br>call 属于“低级调用”，容易出现：</p>
+<ul>
+<li>编码错误</li>
+<li>调用错误函数</li>
+<li>decode 错误</li>
+<li>忽略了 call 的返回值（造成安全隐患）</li>
+</ul>
+<hr>
+<h2 id="二、为什么-call-被认为是唯一“安全”的低级调用？"><a href="#二、为什么-call-被认为是唯一“安全”的低级调用？" class="headerlink" title="二、为什么 call 被认为是唯一“安全”的低级调用？"></a>二、为什么 call 被认为是唯一“安全”的低级调用？</h2><p>注意：这里的“安全”指的是<strong>执行不 revert、永不 panic</strong> 的角度，而不是业务逻辑安全。</p>
+<p>在 Solidity 中有三个低级调用：<code>call</code>、<code>delegatecall</code>、<code>staticcall</code>。<br>其中，<strong>只有 call 是通用、稳定、不会在不存在函数时 panic 的调用方式</strong>。</p>
+<p>原因如下：</p>
+<h3 id="1-call-永远不会因为找不到函数而-revert"><a href="#1-call-永远不会因为找不到函数而-revert" class="headerlink" title="1. call 永远不会因为找不到函数而 revert"></a>1. call 永远不会因为找不到函数而 revert</h3><p>如果调用的函数不存在，call 的行为是：</p>
+<ul>
+<li>返回 <code>(false, &quot;&quot;)</code></li>
+<li>交易继续执行，不回滚</li>
+<li>caller 可以通过 bool 判断结果</li>
+</ul>
+<p>而其他调用方式可能直接 revert 或触发意外行为。</p>
+<h3 id="2-call-是-EVM-层级的底层原生操作"><a href="#2-call-是-EVM-层级的底层原生操作" class="headerlink" title="2. call 是 EVM 层级的底层原生操作"></a>2. call 是 EVM 层级的底层原生操作</h3><p>它是以太坊虚拟机的基础操作之一：</p>
+<ul>
+<li>可以附带 ETH</li>
+<li>可以更改 state</li>
+<li>可以在运行时控制 gas</li>
+<li>可以调用任意地址，即使该地址没有合约代码</li>
+</ul>
+<p>所以：</p>
+<ul>
+<li>钱包</li>
+<li>执行器</li>
+<li>Router</li>
+<li>Proxy</li>
+<li>多签</li>
+<li>DeFi 协议<br>都依赖 call 作为“最后 fallback 手段”。</li>
+</ul>
+<h3 id="3-代理合约（Proxy）依赖-call"><a href="#3-代理合约（Proxy）依赖-call" class="headerlink" title="3. 代理合约（Proxy）依赖 call"></a>3. 代理合约（Proxy）依赖 call</h3><p>所有 upgradeable 合约必须依赖 call 进行转发逻辑。</p>
+<p>总结一句话：<br><strong>interface 是高层语法糖；call 是最低级的“永远可用”的原生接口。</strong></p>
+<hr>
+<h2 id="三、为什么-interface-更清晰？"><a href="#三、为什么-interface-更清晰？" class="headerlink" title="三、为什么 interface 更清晰？"></a>三、为什么 interface 更清晰？</h2><p>审计与开发中，interface 更清晰的原因主要包括：</p>
+<h3 id="1-可读性强"><a href="#1-可读性强" class="headerlink" title="1. 可读性强"></a>1. 可读性强</h3><p>审计者打开代码就能看到：</p>
+<ul>
+<li>目标函数</li>
+<li>参数类型</li>
+<li>返回值</li>
+<li>可见性（external）</li>
+<li>是否 view/pure</li>
+</ul>
+<p>call 完全看不到这些信息。</p>
+<h3 id="2-编译器检查"><a href="#2-编译器检查" class="headerlink" title="2. 编译器检查"></a>2. 编译器检查</h3><p>interface 会在编译时进行：</p>
+<ul>
+<li>参数数量检查</li>
+<li>参数类型检查</li>
+<li>是否存在函数</li>
+</ul>
+<p>call 完全无法检查这些。</p>
+<h3 id="3-减少风险"><a href="#3-减少风险" class="headerlink" title="3. 减少风险"></a>3. 减少风险</h3><p>call 常见的错误：</p>
+<ul>
+<li>拼错函数名字符</li>
+<li>拼错参数顺序</li>
+<li>拼错函数签名</li>
+<li>decode 错误</li>
+<li>忘记检查 bool</li>
+</ul>
+<p>interface 完全避免这些问题。</p>
+<hr>
+<h2 id="四、跨合约调用时-msg-sender-的变化"><a href="#四、跨合约调用时-msg-sender-的变化" class="headerlink" title="四、跨合约调用时 msg.sender 的变化"></a>四、跨合约调用时 msg.sender 的变化</h2><p>这是审计者必须完全理解的点：</p>
+<h3 id="情况-1：Caller-→-Callee（普通-external-调用）"><a href="#情况-1：Caller-→-Callee（普通-external-调用）" class="headerlink" title="情况 1：Caller → Callee（普通 external 调用）"></a>情况 1：Caller → Callee（普通 external 调用）</h3><p>Caller 调 Callee 的函数：</p>
+<p>在 Callee 内部：</p>
+<ul>
+<li><code>msg.sender = Caller</code></li>
+<li><code>tx.origin = 最初发起交易的外部账户</code></li>
+</ul>
+<p>图示：</p>
+<figure class="highlight fix"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs fix"><span class="hljs-attr">EOA → Caller → Callee</span><br><span class="hljs-attr"></span><br><span class="hljs-attr">在 Callee 中：</span><br><span class="hljs-attr">msg.sender </span>=<span class="hljs-string"> Caller</span><br></code></pre></div></td></tr></table></figure>
+
+<h3 id="情况-2：使用-interface-调用和使用-call-调用，msg-sender-完全一样"><a href="#情况-2：使用-interface-调用和使用-call-调用，msg-sender-完全一样" class="headerlink" title="情况 2：使用 interface 调用和使用 call 调用，msg.sender 完全一样"></a>情况 2：使用 interface 调用和使用 call 调用，msg.sender 完全一样</h3><p>无论你用：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">ICallee(_addr).getNumber();<br></code></pre></div></td></tr></table></figure>
+
+<p>还是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">_addr.call(abi.encodeWithSignature(&quot;getNumber()&quot;));<br></code></pre></div></td></tr></table></figure>
+
+<p>结果都一样：</p>
+<p>在 Callee 内部：</p>
+<figure class="highlight ini"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs ini"><span class="hljs-attr">msg.sender</span> = Caller 合约<br></code></pre></div></td></tr></table></figure>
+
+<p>原因：<br>调用方式不同，但执行路径都是 EVM 的 CALL 操作。</p>
+<h3 id="注意：delegatecall-才会改变-msg-sender-的语义"><a href="#注意：delegatecall-才会改变-msg-sender-的语义" class="headerlink" title="注意：delegatecall 才会改变 msg.sender 的语义"></a>注意：delegatecall 才会改变 msg.sender 的语义</h3><p>delegatecall 会“借用” caller 的上下文，所以：</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs reasonml"><span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">Caller</span>.</span></span>delegatecall → Callee<br><br>在 Callee 中：<br>msg.sender = EOA（外部账户）<br></code></pre></div></td></tr></table></figure>
+
+<p>但你现在学“跨合约调用”，focus 在：</p>
+<ul>
+<li>interface 调用</li>
+<li>call 调用<br>这两者的 msg.sender 完全一致。</li>
+</ul>
+<hr>
+<h2 id="五、总结（你面试时就这么回答）"><a href="#五、总结（你面试时就这么回答）" class="headerlink" title="五、总结（你面试时就这么回答）"></a>五、总结（你面试时就这么回答）</h2><p>如果你要面试 Junior Auditor，可以直接这样回答：</p>
+<ol>
+<li><p><strong>interface 调用</strong>更安全、清晰、有编译期检查。适合正常业务逻辑的跨合约交互。</p>
+</li>
+<li><p><strong>call 是唯一“安全”的低级调用</strong>，因为：</p>
+<ul>
+<li>永远不会因为找不到函数而 revert</li>
+<li>是 EVM 原生操作，最通用</li>
+<li>能附带 ETH</li>
+<li>Router/Proxy 必须用 call</li>
+</ul>
+</li>
+<li><p><strong>msg.sender 的变化</strong>：</p>
+<ul>
+<li>interface 和 call 调用的本质都是 CALL 操作</li>
+<li>在被调用合约中 <code>msg.sender</code> 始终是 Caller 合约</li>
+<li>只有 delegatecall 才会把 msg.sender 变成 EOA</li>
+</ul>
+</li>
+</ol>
+<p>如果你愿意，我可以继续教你：</p>
+<ul>
+<li>写一个好用的 interface + call 对照学习合约</li>
+<li>一套 Remix 完整测试</li>
+<li>一套面试题 + 参考答案（junior 审计岗位常问）</li>
+</ul>
+<h2 id="什么是跨合约调用"><a href="#什么是跨合约调用" class="headerlink" title="什么是跨合约调用"></a>什么是跨合约调用</h2><p>下面给你一个<strong>正式、清晰、面向初学审计/开发者</strong>的定义，确保你真正理解“跨合约调用”（cross-contract call）是什么，以及它在智能合约安全、架构、审计中的意义。</p>
+<hr>
+<h3 id="一、什么是“跨合约调用”——正式定义"><a href="#一、什么是“跨合约调用”——正式定义" class="headerlink" title="一、什么是“跨合约调用”——正式定义"></a>一、什么是“跨合约调用”——正式定义</h3><p><strong>跨合约调用（Cross-Contract Call）就是一个合约在执行过程中，调用“另一个合约”的函数或 fallback/receive，从而进入另一个合约的执行上下文。</strong></p>
+<p>换句话说：</p>
+<ul>
+<li>Contract A 执行中</li>
+<li>A 调用 B 的某个函数（或 fallback）</li>
+<li>程序跳转到 B 的代码执行</li>
+<li>执行结束后返回到 A</li>
+</ul>
+<p>核心动作：<br><strong>合约 A 发起了一次 EVM 的 CALL / STATICCALL / DELEGATECALL / CALLCODE 操作。</strong></p>
+<hr>
+<h3 id="二、为什么称为“跨”？"><a href="#二、为什么称为“跨”？" class="headerlink" title="二、为什么称为“跨”？"></a>二、为什么称为“跨”？</h3><p>因为执行流程发生了“地址空间切换”：</p>
+<figure class="highlight css"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs css"><span class="hljs-selector-tag">A</span> 合约（当前上下文）  <br>   →   外部地址 <span class="hljs-selector-tag">B</span>（另一个上下文）  <br></code></pre></div></td></tr></table></figure>
+
+<p>这相当于程序从一个代码库跳转到另一个独立代码库执行。</p>
+<hr>
+<h3 id="三、跨合约调用的本质"><a href="#三、跨合约调用的本质" class="headerlink" title="三、跨合约调用的本质"></a>三、跨合约调用的本质</h3><p>本质是 EVM 底层操作：</p>
+<ul>
+<li><code>CALL</code></li>
+<li><code>STATICCALL</code></li>
+<li><code>DELEGATECALL</code></li>
+<li><code>CALLCODE（已废弃）</code></li>
+</ul>
+<p>你现在主要学习的，是最常见的<strong>CALL</strong>。</p>
+<p>对于大部分业务逻辑：</p>
+<figure class="highlight dns"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs dns"><span class="hljs-keyword">A</span> 调用 B == <span class="hljs-keyword">A</span> 执行了一次 CALL 指令<br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="四、跨合约调用与普通函数调用的对比"><a href="#四、跨合约调用与普通函数调用的对比" class="headerlink" title="四、跨合约调用与普通函数调用的对比"></a>四、跨合约调用与普通函数调用的对比</h3><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>执行位置</th>
+<th>msg.sender</th>
+<th>需要 ABI 编码</th>
+<th>能否外部发送 ETH</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>合约内部函数调用</td>
+<td>本合约内部</td>
+<td>EOA / 上级调用者</td>
+<td>不需要</td>
+<td>不能</td>
+</tr>
+<tr>
+<td>跨合约调用（CALL）</td>
+<td>切换到另一个合约</td>
+<td>调用的合约地址</td>
+<td>需要</td>
+<td>可以</td>
+</tr>
+</tbody></table>
+<p>关键区别：<br><strong>跨合约调用需要 ABI 编码，且 msg.sender 会变成调用合约地址。</strong></p>
+<hr>
+<h3 id="五、跨合约调用的典型例子"><a href="#五、跨合约调用的典型例子" class="headerlink" title="五、跨合约调用的典型例子"></a>五、跨合约调用的典型例子</h3><p>例 1：interface 调用（高层抽象）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">ICallee(callee).foo();<br></code></pre></div></td></tr></table></figure>
+
+<p>例 2：低级调用（低层 call）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">callee.call(abi.encodeWithSignature(&quot;foo()&quot;));<br></code></pre></div></td></tr></table></figure>
+
+<p>两者都属于跨合约调用。</p>
+<hr>
+<h3 id="六、跨合约调用的意义（为什么重要？）"><a href="#六、跨合约调用的意义（为什么重要？）" class="headerlink" title="六、跨合约调用的意义（为什么重要？）"></a>六、跨合约调用的意义（为什么重要？）</h3><p>跨合约调用是智能合约编程的核心：</p>
+<ol>
+<li><p><strong>模块化架构</strong>：<br>多个合约各自负责不同业务逻辑，共同构成系统。</p>
+</li>
+<li><p><strong>与外部协议交互</strong>：<br>调用 DeFi：Uniswap、Maker、Aave、Compound<br>调用 NFT：ERC721、ERC1155<br>调用 Oracle：Chainlink、Tellor</p>
+</li>
+<li><p><strong>升级代理（Proxy）必须使用跨合约调用</strong>：<br>代理合约 delegatecall 执行逻辑合约。</p>
+</li>
+<li><p><strong>安全审计重点</strong>：<br>大量漏洞都出现在跨合约调用环节，如：</p>
+<ul>
+<li>重入攻击（Reentrancy）</li>
+<li>delegatecall 上下文污染</li>
+<li>调用失败未检查</li>
+<li>fallback 调用意外触发</li>
+</ul>
+</li>
+</ol>
+<p>所以你必须熟练掌握跨合约调用的执行模型。</p>
+<hr>
+<h3 id="七、跨合约调用的执行顺序（可视化）"><a href="#七、跨合约调用的执行顺序（可视化）" class="headerlink" title="七、跨合约调用的执行顺序（可视化）"></a>七、跨合约调用的执行顺序（可视化）</h3><figure class="highlight 1c"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs 1c">EOA 发起交易<br>    <span class="hljs-string">|</span><br>    v<br>Caller 合约执行<br>    <span class="hljs-string">|</span><br>    <span class="hljs-string">|— CALL 发送到 Callee</span><br>             <span class="hljs-string">|</span><br>             v<br>        Callee 执行<br>             <span class="hljs-string">|</span><br>             v<br>        返回 Caller<br>             <span class="hljs-string">|</span><br>             v<br>       交易最终完成<br></code></pre></div></td></tr></table></figure>
+
+<p>Callee 内部看到的：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs stylus">msg<span class="hljs-selector-class">.sender</span> = Caller 合约地址<br>msg<span class="hljs-selector-class">.value</span> 由 CALL 传递<br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="八、跨合约调用的分类"><a href="#八、跨合约调用的分类" class="headerlink" title="八、跨合约调用的分类"></a>八、跨合约调用的分类</h3><p>1）常规外部函数调用（interface → CALL）</p>
+<p>安全可靠、编译器检查类型。</p>
+<p>2）低级调用（call）</p>
+<p>更灵活，风险更高，可附带 ETH。</p>
+<p>3）staticcall</p>
+<p>只读，不允许修改状态。</p>
+<p>4）delegatecall</p>
+<p>最危险：使用调用者的存储上下文。</p>
+<hr>
+<h3 id="九、面试标准答案（Junior-Auditor）"><a href="#九、面试标准答案（Junior-Auditor）" class="headerlink" title="九、面试标准答案（Junior Auditor）"></a>九、面试标准答案（Junior Auditor）</h3><p>你可以直接背：</p>
+<p><strong>跨合约调用是一个合约执行过程中通过 CALL 或 STATICCALL 跳转到另一个合约地址执行代码的行为。它需要 ABI 编码，msg.sender 会变成发起调用的合约地址。跨合约调用是智能合约模块化、与外部协议集成、升级代理、钱包转发的基础，也是审计中大量安全漏洞的来源，如重入和 delegatecall 漏洞。</strong></p>
+<hr>
+<p>如果你愿意，我可以继续带你：</p>
+<ul>
+<li>画一个跨合约调用的可视化流程图</li>
+<li>写一个测试用完整示例（Caller + Callee）</li>
+<li>带你在 Remix 实际调用，观察 msg.sender、gas、返回值变化</li>
+<li>给你跨合约调用的面试题（并附答案）</li>
+</ul>
+<p>告诉我你想继续深入哪一部分。</p>
+<h1 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h1><p>今天学了错误处理require,revert,assert。了解到require是最常用的错误处理</p>
+<p>这三个错误处理有什么区别？</p>
+<p>fallback有些类似于python里的try except continue语句，用于防止调用失败，兼容异常行为</p>
+<p>还学了跨合约调用，interface和call调用，interface更高级，call更低级。最好使用interface调用。</p>
+<p>下面我给你一份<strong>正式、精准、审计导向</strong>的总结，帮助你把今天学的内容形成体系：</p>
+<ul>
+<li>require / revert / assert 的区别</li>
+<li>fallback 是否像 try/except</li>
+<li>跨合约调用：interface vs call（你理解方向正确，但要更精确）</li>
+</ul>
+<p>内容贴合你未来面试和审计工作需要掌握的深度。</p>
+<hr>
+<h2 id="一、错误处理：require-revert-assert-的本质区别"><a href="#一、错误处理：require-revert-assert-的本质区别" class="headerlink" title="一、错误处理：require / revert / assert 的本质区别"></a>一、错误处理：require / revert / assert 的本质区别</h2><p>这是 Solidity 初级 → 初中级必须吃透的基础。</p>
+<h4 id="1-require"><a href="#1-require" class="headerlink" title="1. require"></a>1. require</h4><p><strong>用于输入验证 / 前置条件检查</strong><br>如果条件不满足 → revert 并退还剩余 gas。</p>
+<p>典型用途：</p>
+<ul>
+<li>参数不合法（msg.value、地址、数量）</li>
+<li>权限检查（onlyOwner）</li>
+<li>外部调用失败（require(success)）</li>
+</ul>
+<p>示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">require(amount &gt; 0, &quot;invalid amount&quot;);<br></code></pre></div></td></tr></table></figure>
+
+<p>特点：</p>
+<ul>
+<li>最常用</li>
+<li>可附带错误信息</li>
+<li>可用于所有正常业务逻辑</li>
+</ul>
+<p><strong>面试回答：require 用于业务逻辑中可预期的输入错误。</strong></p>
+<hr>
+<h4 id="2-revert"><a href="#2-revert" class="headerlink" title="2. revert"></a>2. revert</h4><p><strong>主动抛出异常（手动触发错误）</strong></p>
+<p>功能与 require 完全等价，只是写法不同。</p>
+<p>示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">if (balance &lt; amount) &#123;<br>    revert(&quot;insufficient balance&quot;);<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p>典型用途：</p>
+<ul>
+<li>多层 if 中出错时返回</li>
+<li>自定义错误（custom error）</li>
+</ul>
+<p>现代写法（节省 gas）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">if (balance &lt; amount) revert InsufficientBalance();<br></code></pre></div></td></tr></table></figure>
+
+<p>面试用一句话总结：<br><strong>revert 用于主动中断执行，允许更灵活的逻辑结构。</strong></p>
+<hr>
+<h4 id="3-assert"><a href="#3-assert" class="headerlink" title="3. assert"></a>3. assert</h4><p><strong>用于检查“不可能出错”的内部状态（invariants）</strong></p>
+<p>即：<br>如果 assert 失败 → 表示合约内部逻辑出现致命错误（bug）。</p>
+<p>示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">assert(totalSupply &gt;= balances[user]);<br></code></pre></div></td></tr></table></figure>
+
+<p>特点：</p>
+<ul>
+<li>不是给用户输入错误用的</li>
+<li>不是给外部调用判断用的</li>
+<li>是给开发者检测内部不变量用的</li>
+</ul>
+<p>最关键点：<br><strong>assert 失败会消耗掉所有剩余 gas（panic），因为它代表严重错误。</strong></p>
+<p>审计时常用规则：</p>
+<ul>
+<li>assert 只能用于 invariant，不允许随便使用</li>
+<li>不能用 assert 去验证用户输入</li>
+<li>用 assert 表示“这行永远应该成立，否则是 bug”</li>
+</ul>
+<hr>
+<h2 id="二、fallback-是否等同于-Python-的-try-except？"><a href="#二、fallback-是否等同于-Python-的-try-except？" class="headerlink" title="二、fallback 是否等同于 Python 的 try/except？"></a>二、fallback 是否等同于 Python 的 try/except？</h2><p>你现在的理解方向是对的：<br><strong>fallback 的功能类似于“保证调用不失败”，属于异常兼容机制的一部分。</strong></p>
+<p>但是：<br>它<strong>不是</strong> try/except 的语义替代，而是 EVM 层面的“默认处理方法”。</p>
+<p>我们精准一点。</p>
+<h4 id="fallback-的本质意义"><a href="#fallback-的本质意义" class="headerlink" title="fallback 的本质意义"></a>fallback 的本质意义</h4><ol>
+<li>当外部调用一个不存在的函数时</li>
+<li>或者没有 data 的普通调用（没有 receive 时）</li>
+</ol>
+<p>Solidity 会执行 fallback。</p>
+<p>fallback 不能让错误“继续执行”，而是一个：</p>
+<p><strong>“最后兜底函数”</strong><br>类似于“一个默认 handler”，但不是异常处理。</p>
+<p>类似程度：</p>
+<ul>
+<li>你说的 try-except-continue 有一点类似：fallback 用来保证“调用地址存在，但函数不存在时不会直接黑洞掉”，而是进入 fallback。</li>
+</ul>
+<p>但它不负责捕获你合约内部的错误。</p>
+<p>fallback 是“兜底调用接口”。<br>try/catch 才是“异常捕获语义”。</p>
+<p>真正的 try/catch 示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">try otherContract.foo() returns (uint v) &#123;<br>    // success<br>&#125; catch &#123;<br>    // failure<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p>fallback ≠ try/catch<br>fallback 是外部调用用的<strong>默认入口</strong>。</p>
+<hr>
+<h2 id="三、你对跨合约调用的理解已经正确，但可以更精准"><a href="#三、你对跨合约调用的理解已经正确，但可以更精准" class="headerlink" title="三、你对跨合约调用的理解已经正确，但可以更精准"></a>三、你对跨合约调用的理解已经正确，但可以更精准</h2><p>你说：</p>
+<blockquote>
+<p>interface 更高级<br>call 更低级<br>最好使用 interface 调用</p>
+</blockquote>
+<p>是对的，但需要升级为<strong>审计级别解释</strong>：</p>
+<h4 id="1-interface-调用"><a href="#1-interface-调用" class="headerlink" title="1. interface 调用"></a>1. interface 调用</h4><ul>
+<li>强类型检查</li>
+<li>编译器验证函数存在</li>
+<li>自动生成 ABI</li>
+<li>返回值自动解码</li>
+<li>没有 selector 字符串错误</li>
+<li>易读、易审计</li>
+</ul>
+<p><strong>智能合约正常业务逻辑都应该使用 interface 调用。</strong></p>
+<h4 id="2-call-调用"><a href="#2-call-调用" class="headerlink" title="2. call 调用"></a>2. call 调用</h4><ul>
+<li>低级 call，不检查函数是否存在</li>
+<li>需要 encode</li>
+<li>返回值必须 decode</li>
+<li>易出错，但非常灵活</li>
+<li>用在 Router、Proxy、钱包等系统合约中</li>
+</ul>
+<p><strong>只有需要“动态调用未知合约地址”时才使用 call。</strong></p>
+<hr>
+<h2 id="四、把今天内容打包成一个你能背的“面试标准答案”"><a href="#四、把今天内容打包成一个你能背的“面试标准答案”" class="headerlink" title="四、把今天内容打包成一个你能背的“面试标准答案”"></a>四、把今天内容打包成一个你能背的“面试标准答案”</h2><p>下面这段你可以在面试中原文复述：</p>
+<hr>
+<p>在 Solidity 中，错误处理主要分为 require、revert 和 assert 三类。</p>
+<ul>
+<li><strong>require</strong> 用于检查外部输入的合法性，是最常用的错误处理机制，失败时会 revert 并退还剩余 gas。</li>
+<li><strong>revert</strong> 用于主动抛错，与 require 功能一致，但更灵活，适用于复杂条件与自定义错误。</li>
+<li><strong>assert</strong> 用于验证合约内部不变量，只要失败就表示合约逻辑 bug，会触发 panic，是最严格的错误。</li>
+</ul>
+<p>fallback 函数用于处理“调用不存在函数”或“没有 receive 的 ETH 转账”等场景，是一个兜底入口，不等同于 try/except；真正的异常捕获使用 try/catch。</p>
+<p>跨合约调用可以使用 interface 或底层 call。interface 调用具有类型安全、可读性强、错误更少，是推荐方式；call 是低级调用，灵活但容易出错，只适用于需要通用动态调用的场景。</p>
+<hr>
+<p>这是你未来面试时的标准表现。</p>
+<hr>
+<p>如果你愿意，我可以继续帮你做：</p>
+<ul>
+<li>画一个错误处理流程图</li>
+<li>用简单代码演示三种错误的行为差异</li>
+<li>用 Remix trace 展示 revert 与 assert 的不同机制</li>
+<li>给你 10 条关于 require/revert/assert 的审计题（附答案）</li>
+</ul>
+<p>告诉我你要哪个。</p>
 
             </div>
             <hr>
@@ -245,6 +784,12 @@
                 <div class="post-prevnext">
                   <article class="post-prev col-6">
                     
+                    
+                      <a href="/2025/11/11/2ac79df68d16/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">remix编译运行solidity3</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
                     
                   </article>
                   <article class="post-next col-6">
