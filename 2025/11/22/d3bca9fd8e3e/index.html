@@ -177,7 +177,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      662 字
+      6.8k 字
     </span>
   
 
@@ -187,7 +187,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      9
+      76
        分钟
     </span>
   
@@ -242,6 +242,172 @@
 <p>注意：在我们的 KittyInterface 中，genes 是 uint256 类型——但如果你回想一下第 1 课，uint 是 uint256 的别名——它们是一样的。</p>
 <p>然后该函数应使用 <code>_kittyId</code> 调用 <code>kittyContract.getKitty</code> 函数，并将 genes 存储在 <code>kittyDna</code> 中。记住——<code>getKitty</code> 会返回很多变量。（确切地说是 10 个——我很贴心，已经帮你数过了！）。但我们只关心最后一个变量 <code>genes</code>。要仔细数好逗号的位置！</p>
 <p>最后，该函数应调用 <code>feedAndMultiply</code>，并向它传递 <code>_zombieId</code> 和 <code>kittyDna</code> 两个参数。</p>
+<h1 id="代码解析："><a href="#代码解析：" class="headerlink" title="代码解析："></a>代码解析：</h1><p>这段代码是 Solidity 中<strong>处理函数多个返回值</strong>的特殊语法。让我详细解释：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">uint kittyDna;<br>(,,,,,,,,,kittyDna) = kittyContract.getKitty(_kittyId);<br></code></pre></div></td></tr></table></figure>
+
+<h2 id="具体解释："><a href="#具体解释：" class="headerlink" title="具体解释："></a>具体解释：</h2><ul>
+<li><code>kittyContract.getKitty(_kittyId)</code> 返回 <strong>10个值</strong></li>
+<li>但我们只需要第10个值（genes）</li>
+<li>使用<strong>逗号占位符</strong>来忽略前9个返回值</li>
+<li>只有最后一个位置写了 <code>kittyDna</code>，表示只接收第10个返回值</li>
+</ul>
+<h2 id="相当于："><a href="#相当于：" class="headerlink" title="相当于："></a>相当于：</h2><figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">// getKitty 返回的10个值：<br>(<br>  bool isGestating,<br>  bool isReady,<br>  uint256 cooldownIndex,<br>  uint256 nextActionAt,<br>  uint256 siringWithId,<br>  uint256 birthTime,<br>  uint256 matronId,<br>  uint256 sireId,<br>  uint256 generation,<br>  uint256 genes        // ← 这是第10个，我们想要的kittyDna<br>) = kittyContract.getKitty(_kittyId);<br><br>// 但我们用逗号语法简化了，只取最后一个<br></code></pre></div></td></tr></table></figure>
+
+<h2 id="逗号计数："><a href="#逗号计数：" class="headerlink" title="逗号计数："></a>逗号计数：</h2><figure class="highlight tap"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs tap">( , , , , , , , , , kittyDna)<br><span class="hljs-number"> 1 </span>2<span class="hljs-number"> 3 </span>4<span class="hljs-number"> 5 </span>6<span class="hljs-number"> 7 </span>8<span class="hljs-number"> 9 </span> 10<br></code></pre></div></td></tr></table></figure>
+<ul>
+<li>前9个逗号对应前9个返回值（被忽略）</li>
+<li>第10个位置是 <code>kittyDna</code>，接收第10个返回值</li>
+</ul>
+<h2 id="更清晰的写法（新版本Solidity）："><a href="#更清晰的写法（新版本Solidity）：" class="headerlink" title="更清晰的写法（新版本Solidity）："></a>更清晰的写法（新版本Solidity）：</h2><figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">(,,,,,,,,,uint256 kittyDna) = kittyContract.getKitty(_kittyId);<br>// 可以直接在括号内声明变量<br></code></pre></div></td></tr></table></figure>
+
+<p>这种语法让你可以<strong>选择性接收</strong>多返回值函数的特定值，而不需要处理所有返回值。</p>
+<h1 id="第13章：额外功能：猫咪基因"><a href="#第13章：额外功能：猫咪基因" class="headerlink" title="第13章：额外功能：猫咪基因"></a>第13章：额外功能：猫咪基因</h1><p>我们的函数逻辑现在已经完成了……但让我们添加一个额外功能。</p>
+<p>让我们让由猫咪变成的僵尸拥有一些独特特征，以显示它们是猫僵尸。</p>
+<p>为了实现这一点，我们可以在僵尸的DNA中添加一些特殊的猫咪代码。</p>
+<p>如果你回想一下第1课，我们目前只使用16位DNA中的前12位来确定僵尸的外观。所以让我们使用最后2位未使用的数字来处理”特殊”特征。</p>
+<p>我们将规定猫僵尸的DNA最后两位是99（因为猫有9条命）。所以在我们的代码中，我们会说如果僵尸来自猫咪，那么将DNA的最后两位数字设置为99。</p>
+<h2 id="If-条件语句"><a href="#If-条件语句" class="headerlink" title="If 条件语句"></a>If 条件语句</h2><p>Solidity 中的 if 语句看起来和 JavaScript 中的一样：</p>
+<figure class="highlight smali"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs smali">function eatBLT(string memory sandwich)<span class="hljs-keyword"> public</span> &#123;<br>  // Remember with strings, we have to compare their keccak256 hashes<br>  // to<span class="hljs-built_in"> check </span>equality<br> <span class="hljs-built_in"> if </span>(keccak256(abi.encodePacked(sandwich)) == keccak256(abi.encodePacked(<span class="hljs-string">&quot;BLT&quot;</span>))) &#123;<br>    eat();<br>  &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p><strong>实践练习</strong><br>让我们在僵尸代码中实现猫咪基因。</p>
+<p>首先，我们修改 <code>feedAndMultiply</code> 函数的定义，使其接受第三个参数：一个名为 <code>_species</code> 的字符串，我们将把它存储在内存中。</p>
+<p>接下来，在计算出新僵尸的 DNA 后，我们添加一个 if 语句来比较 <code>_species</code> 和字符串 “kitty” 的 keccak256 哈希值。我们不能直接将字符串传递给 keccak256。相反，我们将在左侧传递 <code>abi.encodePacked(_species)</code> 作为参数，在右侧传递 <code>abi.encodePacked(&quot;kitty&quot;)</code> 作为参数。</p>
+<p>在 if 语句内部，我们要将 DNA 的最后两位数字替换为 99。一种实现方法是使用以下逻辑：<code>newDna = newDna - newDna % 100 + 99;</code>。</p>
+<p><strong>解释</strong>：假设 <code>newDna</code> 是 334455。那么 <code>newDna % 100</code> 是 55，所以 <code>newDna - newDna % 100</code> 是 334400。最后加上 99 得到 334499。</p>
+<p>最后，我们需要修改 <code>feedOnKitty</code> 内部的函数调用。当它调用 <code>feedAndMultiply</code> 时，在末尾添加参数 “kitty”。</p>
+<h1 id="大功告成，你已经完成了第2课！"><a href="#大功告成，你已经完成了第2课！" class="headerlink" title="大功告成，你已经完成了第2课！"></a>大功告成，你已经完成了第2课！</h1><p>你可以在右侧查看演示，看看它的实际效果。去吧，我知道你已经等不及翻到页面底部了😉。点击一只小猫进行攻击，看看你得到的新猫僵尸！</p>
+<h2 id="JavaScript-实现"><a href="#JavaScript-实现" class="headerlink" title="JavaScript 实现"></a>JavaScript 实现</h2><p>当我们准备将这个合约部署到以太坊时，我们只需要编译和部署 <code>ZombieFeeding</code>——因为该合约是我们继承自 <code>ZombieFactory</code> 的最终合约，并且可以访问两个合约中的所有公共方法。</p>
+<p>让我们看一个使用 JavaScript 和 web3.js 与我们部署的合约进行交互的示例：</p>
+<p>试试看吧！<br>选择你想要捕食的猫咪。你的僵尸DNA和猫咪的DNA将会结合，你将在你的军队中获得一个新的僵尸！</p>
+<p>注意到你新僵尸身上那些可爱的猫腿了吗？这就是最后两位DNA设置为99在起作用 😉</p>
+<p>如果你愿意，可以重新开始再试一次。当你得到一个满意的猫僵尸时（你只能保留一个），请继续下一章来完成第2课！</p>
+<p><img src="1.png" srcset="/img/loading.gif"></p>
+<p><img src="2.png" srcset="/img/loading.gif"></p>
+<p><a target="_blank" rel="noopener" href="https://cryptozombies.io/en/lesson/2/chapter/15">https://cryptozombies.io/en/lesson/2/chapter/15</a></p>
+<h1 id="合约不可变"><a href="#合约不可变" class="headerlink" title="合约不可变"></a>合约不可变</h1><p>一旦合约在以太坊中部署，就是不可变的。 所以这是巨大的安全隐患。<br>如果你的合约代码中存在缺陷，那你就再也没有办法修复了。<br>你必须告诉你的用户使用一个不同的已修复的合约地址。</p>
+<h1 id="外部依赖"><a href="#外部依赖" class="headerlink" title="外部依赖"></a>外部依赖</h1><p>在第2课中，我们将 CryptoKitties 合约地址硬编码到我们的 DApp 中。但是如果 CryptoKitties 合约出现漏洞，有人销毁了所有的猫咪，会发生什么？</p>
+<p>这种情况不太可能发生，但如果真的发生，它将使我们的 DApp 完全失效——我们的 DApp 指向一个硬编码的地址，而该地址不再返回任何猫咪。我们的僵尸将无法捕食猫咪，我们也无法修改合约来修复这个问题。</p>
+<p>因此，拥有允许你更新 DApp 关键部分的函数通常是有意义的。</p>
+<p>例如，与其将 CryptoKitties 合约地址硬编码到我们的 DApp 中，不如设置一个 <code>setKittyContractAddress</code> 函数，以便在未来 CryptoKitties 合约发生问题时，我们可以更改这个地址。</p>
+<p><strong>实践练习</strong><br>让我们更新第2课中的代码，使其能够更改 CryptoKitties 合约地址。</p>
+<p>删除我们硬编码 <code>ckAddress</code> 的那行代码。</p>
+<p>将我们创建 <code>kittyContract</code> 的那行代码改为仅声明变量——即不要将其设置为任何值。</p>
+<p>创建一个名为 <code>setKittyContractAddress</code> 的函数。它接受一个参数 <code>_address</code>（一个地址），并且应该是一个 external 函数。</p>
+<p>在函数内部，添加一行代码，将 <code>kittyContract</code> 设置为 <code>KittyInterface(_address)</code>。</p>
+<h1 id="第2章：可拥有合约（Ownable-Contracts）"><a href="#第2章：可拥有合约（Ownable-Contracts）" class="headerlink" title="第2章：可拥有合约（Ownable Contracts）"></a>第2章：可拥有合约（Ownable Contracts）</h1><p>你是否发现了上一章中的安全漏洞？</p>
+<p><code>setKittyContractAddress</code> 是 external 函数，这意味着任何人都可以调用它！也就是说，任何调用该函数的人都能够更改 CryptoKitties 合约的地址，从而破坏我们应用程序对所有用户的服务。</p>
+<p>我们确实希望在合约中保留更新这个地址的能力，但我们不希望所有人都能进行更新。</p>
+<p>为了处理这种情况，一个常见的做法是让合约成为<strong>可拥有的</strong>（Ownable）——这意味着它们有一个拥有特殊权限的所有者（也就是你）。</p>
+<h2 id="OpenZeppelin-的-Ownable-合约"><a href="#OpenZeppelin-的-Ownable-合约" class="headerlink" title="OpenZeppelin 的 Ownable 合约"></a>OpenZeppelin 的 Ownable 合约</h2><p>下面是从 OpenZeppelin Solidity 库中提取的 Ownable 合约。OpenZeppelin 是一个包含安全且经过社区审查的智能合约库，你可以在自己的 DApp 中使用。学完这一课后，我们强烈建议你查看他们的网站以进一步学习！</p>
+<p>请仔细阅读下面的合约。你会看到一些我们尚未学习的内容，但别担心，我们稍后会讨论它们。</p>
+<p>这里有几个我们之前没见过的新的概念：</p>
+<p><strong>构造函数</strong>：<code>constructor()</code> 是一个构造函数，这是一个可选的特殊函数。它只在合约首次创建时执行一次。</p>
+<p><strong>函数修饰符</strong>：<code>modifier onlyOwner()</code>。修饰符有点像半函数，用于修改其他函数，通常在执行前检查某些要求。在这个例子中，<code>onlyOwner</code> 可用于限制访问，只有合约的所有者才能运行此函数。我们将在下一章详细讨论函数修饰符，以及那个奇怪的 <code>_;</code> 是做什么的。</p>
+<p><strong>indexed 关键字</strong>：暂时不用担心这个，我们还不需要它。</p>
+<p>所以 Ownable 合约基本上做了以下事情：</p>
+<p>当合约创建时，它的构造函数将所有者设置为 <code>msg.sender</code>（部署合约的人）</p>
+<p>它添加了一个 <code>onlyOwner</code> 修饰符，可以限制某些函数只能由所有者访问</p>
+<p>它允许你将合约转让给新的所有者</p>
+<p><code>onlyOwner</code> 是合约中如此常见的要求，以至于大多数 Solidity DApps 都是从复制/粘贴这个 Ownable 合约开始的，然后他们的第一个合约会继承它。</p>
+<p>由于我们想将 <code>setKittyContractAddress</code> 限制为只有所有者能调用，我们将在我们的合约中做同样的处理。</p>
+<p><strong>实践练习</strong><br>我们已经提前将 Ownable 合约的代码复制到了新文件 ownable.sol 中。让我们继续让 ZombieFactory 继承它。</p>
+<p>修改我们的代码以导入 ownable.sol 的内容。如果你不记得怎么做，可以查看 zombiefeeding.sol 文件。</p>
+<p>修改 ZombieFactory 合约以继承自 Ownable。同样，如果你不记得怎么做，可以查看 zombiefeeding.sol 文件。</p>
+<h1 id="onlyOwner函数修饰符"><a href="#onlyOwner函数修饰符" class="headerlink" title="onlyOwner函数修饰符"></a>onlyOwner函数修饰符</h1><p>现在我们的基础合约 ZombieFactory 继承自 Ownable，我们也可以在 ZombieFeeding 中使用 <code>onlyOwner</code> 函数修饰符。</p>
+<p>这是由于合约继承的工作方式。记住：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs nginx"><span class="hljs-attribute">ZombieFeeding</span> 是 ZombieFactory<br>ZombieFactory 是 Ownable<br></code></pre></div></td></tr></table></figure>
+
+<p>因此 ZombieFeeding 也是 Ownable，并且可以访问 Ownable 合约中的函数/事件/修饰符。这也适用于未来继承自 ZombieFeeding 的任何合约。</p>
+<h2 id="函数修饰符"><a href="#函数修饰符" class="headerlink" title="函数修饰符"></a>函数修饰符</h2><p>函数修饰符看起来很像函数，但使用关键字 <code>modifier</code> 而不是 <code>function</code>。而且它不能像函数那样直接调用——相反，我们可以在函数定义的末尾附加修饰符的名称来改变该函数的行为。</p>
+<p>让我们通过仔细研究 <code>onlyOwner</code> 来更深入地了解：</p>
+<p>注意到 <code>renounceOwnership</code> 函数上的 <code>onlyOwner</code> 修饰符。当你调用 <code>renounceOwnership</code> 时，<code>onlyOwner</code> 中的代码会首先执行。然后当它遇到 <code>onlyOwner</code> 中的 <code>_;</code> 语句时，它会返回并执行 <code>renounceOwnership</code> 中的代码。</p>
+<p>虽然修饰符还有其他用法，但最常见的用例之一是在函数执行前添加一个快速的 require 检查。</p>
+<p>就 <code>onlyOwner</code> 而言，将这个修饰符添加到函数上，使得只有合约的所有者（也就是部署合约的你）能够调用该函数。</p>
+<p><strong>注意</strong>：像这样赋予所有者对合约的特殊权限通常是必要的，但也可能被恶意使用。例如，所有者可以添加一个后门函数，允许他将任何人的僵尸转移给自己！</p>
+<p>因此重要的是要记住，仅仅因为一个 DApp 在以太坊上，并不自动意味着它是去中心化的——你必须实际阅读完整的源代码，确保它没有需要你担心的所有者特殊控制。作为开发者，在保持对 DApp 的控制（以便修复潜在错误）与构建用户可信赖的无所有者平台之间，需要谨慎平衡。</p>
+<p><strong>实践练习</strong><br>现在我们可以限制对 <code>setKittyContractAddress</code> 的访问，这样除了我们之外，没有人能在未来修改它。</p>
+<p>将 <code>onlyOwner</code> 修饰符添加到 <code>setKittyContractAddress</code> 函数上。</p>
+<h1 id="gas费"><a href="#gas费" class="headerlink" title="gas费"></a>gas费</h1><h1 id="第4章：Gas"><a href="#第4章：Gas" class="headerlink" title="第4章：Gas"></a>第4章：Gas</h1><p>太好了！现在我们知道如何更新 DApp 的关键部分，同时防止其他用户干扰我们的合约。</p>
+<p>让我们看看 Solidity 与其他编程语言另一个很大的不同之处：</p>
+<h2 id="Gas——以太坊-DApp-运行的燃料"><a href="#Gas——以太坊-DApp-运行的燃料" class="headerlink" title="Gas——以太坊 DApp 运行的燃料"></a>Gas——以太坊 DApp 运行的燃料</h2><p>在 Solidity 中，用户每次在您的 DApp 上执行函数时都需要支付费用，使用的货币称为 <strong>gas</strong>。用户用以太币（以太坊的货币）购买 gas，因此您的用户必须花费 ETH 才能在您的 DApp 上执行函数。</p>
+<p>执行函数需要多少 gas 取决于该函数逻辑的复杂程度。每个单独的操作都有基于执行该操作所需计算资源的 gas 成本（例如，写入存储比两个整数相加要昂贵得多）。函数的总 gas 成本是其所有单独操作 gas 成本的总和。</p>
+<p>由于运行函数对用户来说需要花费真金白银，在以太坊中代码优化比其他编程语言中重要得多。如果您的代码写得马虎，用户将不得不支付更高的费用来执行您的函数——这可能会在数千用户中累积成数百万美元的不必要费用。</p>
+<h2 id="为什么需要-gas？"><a href="#为什么需要-gas？" class="headerlink" title="为什么需要 gas？"></a>为什么需要 gas？</h2><p>以太坊就像一台庞大、缓慢但极其安全的计算机。当您执行函数时，网络上的每个节点都需要运行相同的函数来验证其输出——数千个节点验证每个函数的执行，这正是以太坊去中心化的体现，也使其数据不可变且抗审查。</p>
+<p>以太坊的创建者希望确保没有人能够通过无限循环阻塞网络，或者通过非常密集的计算占用所有网络资源。因此他们规定交易不是免费的，用户必须为计算时间和存储空间付费。</p>
+<p><strong>注意</strong>：对于其他区块链，比如 CryptoZombies 作者在 Loom Network 上构建的区块链，情况不一定如此。直接在以太坊主网上运行像《魔兽世界》这样的游戏可能永远都不合适——gas 成本会高得令人望而却步。但它可以在具有不同共识算法的区块链上运行。我们将在以后的课程中详细讨论哪些类型的 DApp 适合部署在 Loom 上，哪些适合部署在以太坊主网上。</p>
+<h2 id="通过结构体打包节省-gas"><a href="#通过结构体打包节省-gas" class="headerlink" title="通过结构体打包节省 gas"></a>通过结构体打包节省 gas</h2><p>在第1课中，我们提到还有其他类型的 uint：uint8、uint16、uint32 等。</p>
+<p>通常使用这些子类型没有好处，因为无论 uint 大小如何，Solidity 都会保留 256 位的存储空间。例如，使用 uint8 而不是 uint（uint256）不会节省任何 gas。</p>
+<p>但有一个例外：在结构体内部。</p>
+<p>如果在结构体中有多个 uint，尽可能使用较小尺寸的 uint 将允许 Solidity 将这些变量打包在一起以占用更少的存储空间。例如：</p>
+<p>因此，在结构体内部，您会希望使用尽可能小的整数子类型。</p>
+<p>您还需要将相同的数据类型聚集在一起（即在结构体中让它们相邻存放），这样 Solidity 才能最小化所需的存储空间。例如，一个包含字段 <code>uint c; uint32 a; uint32 b;</code> 的结构体，会比包含字段 <code>uint32 a; uint c; uint32 b;</code> 的结构体消耗更少的 gas，因为 <code>uint32</code> 字段被聚集在了一起。</p>
+<p><strong>实践练习</strong><br>在本课中，我们将为我们的僵尸添加两个新特性：<code>level</code>（等级）和 <code>readyTime</code>（就绪时间）——后者将用于实现冷却计时器，以限制僵尸捕食的频率。</p>
+<p>让我们回到 <code>zombiefactory.sol</code>。</p>
+<p>为我们的 Zombie 结构体再添加两个属性：<code>level</code>（一个 uint32）和 <code>readyTime</code>（也是一个 uint32）。我们希望将这些数据类型打包在一起，所以把它们放在结构体的末尾。</p>
+<p>32 位对于存储僵尸的等级和时间戳来说已经绰绰有余，因此通过比使用常规 uint（256 位）更紧密地打包数据，这将为我们节省一些 gas 成本。</p>
+<h1 id="第5章：时间单位"><a href="#第5章：时间单位" class="headerlink" title="第5章：时间单位"></a>第5章：时间单位</h1><p><code>level</code> 属性相当容易理解。之后，当我们创建战斗系统时，赢得更多战斗的僵尸会随着时间升级并获得更多能力。</p>
+<p><code>readyTime</code> 属性需要更多一些解释。目标是添加一个”冷却期”，即僵尸在捕食或攻击后必须等待一段时间，才能再次捕食/攻击。如果没有这个限制，僵尸每天可以攻击和繁殖1000次，这会使游戏变得过于简单。</p>
+<p>为了跟踪僵尸需要等待多长时间才能再次攻击，我们可以使用 Solidity 的时间单位。</p>
+<h2 id="时间单位"><a href="#时间单位" class="headerlink" title="时间单位"></a>时间单位</h2><p>Solidity 提供了一些原生的时间单位来处理时间。</p>
+<p>变量 <code>now</code> 将返回最新区块的当前 Unix 时间戳（自1970年1月1日以来经过的秒数）。在我写下这段文字时，Unix 时间是 1515527488。</p>
+<p><strong>注意</strong>：Unix 时间传统上存储在32位数字中。这将导致”2038年”问题，届时32位 Unix 时间戳将溢出并破坏许多传统系统。因此，如果我们希望我们的 DApp 在20年后仍然运行，我们可以使用64位数字——但与此同时，我们的用户将不得不支付更多的 gas 来使用我们的 DApp。这就是设计决策！</p>
+<p>Solidity 还包含时间单位：<code>seconds</code>、<code>minutes</code>、<code>hours</code>、<code>days</code>、<code>weeks</code> 和 <code>years</code>。这些单位会转换为对应时间长度的秒数 uint。所以 <code>1 minutes</code> 是 60，<code>1 hours</code> 是 3600（60秒 × 60分钟），<code>1 days</code> 是 86400（24小时 × 60分钟 × 60秒），等等。</p>
+<p>下面是一个展示这些时间单位如何有用的例子：</p>
+<p>我们可以将这些时间单位用于我们的僵尸冷却功能。</p>
+<p><strong>实践练习</strong><br>让我们为 DApp 添加一个冷却时间，使得僵尸在攻击或捕食后必须等待1天才能再次攻击。</p>
+<p>声明一个名为 <code>cooldownTime</code> 的 uint，并将其设置为 <code>1 days</code>。（请原谅语法问题——如果你设置为 “1 day”，它将无法编译！）</p>
+<p>由于我们在上一章向 Zombie 结构体添加了 <code>level</code> 和 <code>readyTime</code>，我们需要更新 <code>_createZombie()</code> 函数，在创建新的 Zombie 结构体时使用正确数量的参数。</p>
+<p>更新 <code>zombies.push</code> 这行代码，添加2个参数：<code>1</code>（表示等级）和 <code>uint32(now + cooldownTime)</code>（表示就绪时间）。</p>
+<p><strong>注意</strong>：<code>uint32(...)</code> 是必需的，因为 <code>now</code> 默认返回 uint256。所以我们需要显式地将其转换为 uint32。</p>
+<p><code>now + cooldownTime</code> 将等于当前的 Unix 时间戳（以秒为单位）加上1天的秒数——这将等于从现在起1天后的 Unix 时间戳。之后我们可以通过比较这个僵尸的 <code>readyTime</code> 是否大于 <code>now</code> 来判断是否已经过了足够的时间可以再次使用该僵尸。</p>
+<p>我们将在下一章实现基于 <code>readyTime</code> 限制行动的功能。</p>
+<h1 id="第6章：僵尸冷却时间"><a href="#第6章：僵尸冷却时间" class="headerlink" title="第6章：僵尸冷却时间"></a>第6章：僵尸冷却时间</h1><p>既然我们的 Zombie 结构体已经有了 <code>readyTime</code> 属性，让我们转到 <code>zombiefeeding.sol</code> 并实现一个冷却计时器。</p>
+<p>我们将修改 <code>feedAndMultiply</code> 函数，使得：</p>
+<ol>
+<li>捕食会触发僵尸的冷却时间</li>
+<li>在冷却期结束前，僵尸不能捕食猫咪</li>
+</ol>
+<p>这将确保僵尸不能无限制地捕食猫咪并整天繁殖。将来当我们添加战斗功能时，我们也会让攻击其他僵尸依赖于冷却时间。</p>
+<p>首先，我们要定义一些辅助函数来设置和检查僵尸的 <code>readyTime</code>。 </p>
+<h2 id="将结构体作为参数传递"><a href="#将结构体作为参数传递" class="headerlink" title="将结构体作为参数传递"></a>将结构体作为参数传递</h2><p>你可以将一个指向结构体的存储指针作为参数传递给 <code>private</code> 或 <code>internal</code> 函数。这很有用，例如，可以在函数之间传递我们的 Zombie 结构体。</p>
+<p>语法如下所示：</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs pgsql"><span class="hljs-keyword">function</span> _doStuff(Zombie <span class="hljs-keyword">storage</span> _zombie) <span class="hljs-type">internal</span> &#123;<br>  // <span class="hljs-keyword">do</span> stuff <span class="hljs-keyword">with</span> _zombie<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p>这样我们就可以将僵尸的引用传递给函数，而不是传入僵尸ID再进行查找。</p>
+<p><strong>实践练习</strong><br>首先定义一个 <code>_triggerCooldown</code> 函数。它接受1个参数 <code>_zombie</code>，这是一个 Zombie 存储指针。该函数应该是 internal 的。</p>
+<p>函数体应将 <code>_zombie.readyTime</code> 设置为 <code>uint32(now + cooldownTime)</code>。</p>
+<p>接下来，创建一个名为 <code>_isReady</code> 的函数。该函数也将接受一个名为 <code>_zombie</code> 的 Zombie 存储参数。它将是一个 internal view 函数，并返回一个 bool。</p>
+<p>函数体应返回 <code>(_zombie.readyTime &lt;= now)</code>，这将计算为 true 或 false。这个函数会告诉我们自上次僵尸捕食后是否已经过了足够的时间。</p>
+<h1 id="第7章：公共函数与安全"><a href="#第7章：公共函数与安全" class="headerlink" title="第7章：公共函数与安全"></a>第7章：公共函数与安全</h1><p>现在让我们修改 <code>feedAndMultiply</code> 函数，将冷却计时器考虑进去。</p>
+<p>回顾这个函数，你可以看到我们在上一课中将其设置为 public。一个重要的安全实践是检查所有你的 public 和 external 函数，并思考用户可能如何滥用它们。记住——除非这些函数有像 <code>onlyOwner</code> 这样的修饰符，否则任何用户都可以调用它们并传递任何他们想要的数据。</p>
+<p>重新审视这个特定函数，用户可以直接调用该函数并传入任何他们想要的 <code>_targetDna</code> 或 <code>_species</code>。这看起来不太像游戏——我们希望他们遵循我们的规则！</p>
+<p>仔细检查后，这个函数只需要被 <code>feedOnKitty()</code> 调用，所以防止这些漏洞利用的最简单方法是将其设置为 internal。</p>
+<p><strong>实践练习</strong><br>目前 <code>feedAndMultiply</code> 是一个 public 函数。让我们将其改为 internal，以使合约更安全。我们不希望用户能够使用任何他们想要的 DNA 来调用此函数。</p>
+<p>让我们让 <code>feedAndMultiply</code> 考虑我们的 <code>cooldownTime</code>。首先，在我们查找 <code>myZombie</code> 之后，添加一个 require 语句来检查 <code>_isReady()</code> 并将 <code>myZombie</code> 传递给它。这样，只有当僵尸的冷却时间结束后，用户才能执行此函数。</p>
+<p>在函数的最后，让我们调用 <code>_triggerCooldown(myZombie)</code>，这样捕食就会触发僵尸的冷却时间。</p>
+<h1 id="第8章：函数修饰符详解"><a href="#第8章：函数修饰符详解" class="headerlink" title="第8章：函数修饰符详解"></a>第8章：函数修饰符详解</h1><p>很好！我们的僵尸现在有了一个功能正常的冷却计时器。</p>
+<p>接下来，我们将添加一些额外的辅助方法。我们为你创建了一个名为 <code>zombiehelper.sol</code> 的新文件，该文件导入了 <code>zombiefeeding.sol</code>。这将有助于保持我们的代码组织有序。</p>
+<p>我们将实现让僵尸在达到一定等级后获得特殊能力的功能。但为了做到这一点，首先我们需要学习一些关于函数修饰符的更多知识。</p>
+<h2 id="带参数的函数修饰符"><a href="#带参数的函数修饰符" class="headerlink" title="带参数的函数修饰符"></a>带参数的函数修饰符</h2><p>之前我们看了 <code>onlyOwner</code> 的简单示例。但函数修饰符也可以接受参数。例如：</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs reasonml"><span class="hljs-comment">// 一个存储用户年龄的映射：</span><br>mapping (uint =&gt; uint) public age;<br><br><span class="hljs-comment">// 要求用户年龄必须大于指定值的修饰符：</span><br>modifier older<span class="hljs-constructor">Than(<span class="hljs-params">uint</span> <span class="hljs-params">_age</span>, <span class="hljs-params">uint</span> <span class="hljs-params">_userId</span>)</span> &#123;<br>  require(age<span class="hljs-literal">[<span class="hljs-identifier">_userId</span>]</span> &gt;= _age);<br>  _;<br>&#125;<br><br><span class="hljs-comment">// 必须年满16岁才能开车（至少在美国是这样）。</span><br><span class="hljs-comment">// 我们可以像这样带参数调用 `olderThan` 修饰符：</span><br><span class="hljs-keyword">function</span> drive<span class="hljs-constructor">Car(<span class="hljs-params">uint</span> <span class="hljs-params">_userId</span>)</span> public older<span class="hljs-constructor">Than(16, <span class="hljs-params">_userId</span>)</span> &#123;<br>  <span class="hljs-comment">// 一些函数逻辑</span><br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p>你可以看到这里的 <code>olderThan</code> 修饰符就像函数一样接受参数。而且 <code>driveCar</code> 函数将其参数传递给了修饰符。</p>
+<p>让我们尝试创建自己的修饰符，使用僵尸的 <code>level</code> 属性来限制对特殊能力的访问。</p>
+<p><strong>实践练习</strong><br>在 <code>ZombieHelper</code> 中，创建一个名为 <code>aboveLevel</code> 的修饰符。它接受两个参数：<code>_level</code>（一个 uint）和 <code>_zombieId</code>（也是一个 uint）。</p>
+<p>修饰符的主体应检查确保 <code>zombies[_zombieId].level</code> 大于或等于 <code>_level</code>。</p>
+<p>记住在修饰符的最后一行使用 <code>_;</code> 来继续执行函数的剩余部分。</p>
+<h1 id="第9章：僵尸修饰符"><a href="#第9章：僵尸修饰符" class="headerlink" title="第9章：僵尸修饰符"></a>第9章：僵尸修饰符</h1><p>现在让我们使用 aboveLevel 修饰符来创建一些函数。</p>
+<p>我们的游戏将为玩家升级僵尸提供一些激励：</p>
+<p>对于2级及以上的僵尸，用户将能够更改它们的名字。</p>
+<p>对于20级及以上的僵尸，用户将能够给它们定制DNA。</p>
+<p>我们将在下面实现这些功能。这是上一课的示例代码供参考：</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs reasonml"><span class="hljs-comment">// A mapping to store a user&#x27;s age:</span><br>mapping (uint =&gt; uint) public age;<br><br><span class="hljs-comment">// Require that this user be older than a certain age:</span><br>modifier older<span class="hljs-constructor">Than(<span class="hljs-params">uint</span> <span class="hljs-params">_age</span>, <span class="hljs-params">uint</span> <span class="hljs-params">_userId</span>)</span> &#123;<br>  require (age<span class="hljs-literal">[<span class="hljs-identifier">_userId</span>]</span> &gt;= _age);<br>  _;<br>&#125;<br><br><span class="hljs-comment">// Must be older than 16 to drive a car (in the US, at least)</span><br><span class="hljs-keyword">function</span> drive<span class="hljs-constructor">Car(<span class="hljs-params">uint</span> <span class="hljs-params">_userId</span>)</span> public older<span class="hljs-constructor">Than(16, <span class="hljs-params">_userId</span>)</span> &#123;<br>  <span class="hljs-comment">// Some function logic</span><br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p>实践练习<br>创建一个名为 changeName 的函数。它接受2个参数：_zombieId（一个 uint）和 _newName（一个字符串，数据位置设置为 calldata），并将其设为 external。它应该具有 aboveLevel 修饰符，并且应为 _level 参数传入 2。（不要忘记也要传递 _zombieId）。</p>
+<p>注意：calldata 在某种程度上与 memory 类似，但它仅适用于 external 函数。</p>
+<p>在这个函数中，首先我们需要验证 msg.sender 是否等于 zombieToOwner[_zombieId]。使用一个 require 语句。</p>
+<p>然后该函数应将 zombies[_zombieId].name 设置为 _newName。</p>
+<p>在 changeName 下面创建另一个名为 changeDna 的函数。它的定义和内容几乎与 changeName 相同，只是它的第二个参数将是 _newDna（一个 uint），并且它应该为 aboveLevel 的 _level 参数传入 20。当然，它应该将僵尸的 dna 设置为 _newDna，而不是设置僵尸的名字。</p>
 
             </div>
             <hr>
@@ -265,12 +431,18 @@
                   <article class="post-prev col-6">
                     
                     
+                      <a href="/2025/11/23/ff18ebbceab1/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">cryptozombies3</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2025/11/20/9cf0a4898b2f/">
-                        <span class="hidden-mobile">cryptozombies</span>
+                      <a href="/2025/11/21/61c90af7f511/">
+                        <span class="hidden-mobile">我的生平（二十七）</span>
                         <span class="visible-mobile">Next</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
