@@ -177,7 +177,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      3.3k 字
+      6.5k 字
     </span>
   
 
@@ -187,7 +187,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      36
+      71
        分钟
     </span>
   
@@ -327,6 +327,133 @@
 <p><strong>动手实践</strong><br>我们已经为你创建了 <code>erc721.sol</code>，其中包含上述接口。</p>
 <p>将 <code>erc721.sol</code> 导入到 <code>zombieownership.sol</code> 中。</p>
 <p>声明 <code>ZombieOwnership</code> 继承自 <code>ZombieAttack</code> 和 <code>ERC721</code>。</p>
+<h1 id="第三章：balanceOf-和-ownerOf"><a href="#第三章：balanceOf-和-ownerOf" class="headerlink" title="第三章：balanceOf 和 ownerOf"></a>第三章：balanceOf 和 ownerOf</h1><p>很好，让我们深入探讨 ERC721 的实现！  </p>
+<p>我们已经为您复制了本节课需要实现的所有函数的空壳。  </p>
+<p>在本章中，我们将实现前两个方法：balanceOf 和 ownerOf。</p>
+<p>balanceOf</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs reasonml"><span class="hljs-keyword">function</span> balance<span class="hljs-constructor">Of(<span class="hljs-params">address</span> <span class="hljs-params">_owner</span>)</span> <span class="hljs-keyword">external</span> view returns (uint256 _balance);<br></code></pre></div></td></tr></table></figure>
+
+<p>这个函数只需接收一个地址，并返回该地址拥有的代币数量。</p>
+<p>在我们的例子中，所谓的”代币”就是僵尸。你还记得我们在 DApp 的哪个部分存储了每个所有者拥有的僵尸数量吗？</p>
+<p>ownerOf</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs reasonml"><span class="hljs-keyword">function</span> owner<span class="hljs-constructor">Of(<span class="hljs-params">uint256</span> <span class="hljs-params">_tokenId</span>)</span> <span class="hljs-keyword">external</span> view returns (address _owner);<br></code></pre></div></td></tr></table></figure>
+
+<p>这个函数接收一个代币ID（在我们这里就是僵尸ID），然后返回拥有该代币的地址地址。</p>
+<p>同样地，这个函数的实现对我们来说非常直接，因为我们的DApp中已经有一个存储这个信息的映射。我们可以用一行代码实现这个函数，只需要一个返回语句。</p>
+<p>注意：请记住，uint256 等同于 uint。我们之前一直在代码中使用 uint，但这里使用 uint256 是因为我们直接从规范中复制/粘贴了代码。</p>
+<h2 id="实践测试"><a href="#实践测试" class="headerlink" title="实践测试"></a>实践测试</h2><p>我将由你来思考如何实现这两个函数。</p>
+<p>每个函数都应该只是一行代码，即一个返回语句。查看我们之前课程的代码，看看这些数据存储在哪里。如果你无法解决，可以点击”显示答案”按钮获取帮助。</p>
+<ol>
+<li><p>实现 balanceOf 来返回 _owner 拥有的僵尸数量。</p>
+</li>
+<li><p>实现 ownerOf 来返回拥有 ID 为 _tokenId 的僵尸的地址地址。</p>
+</li>
+</ol>
+<hr>
+<p>看不懂这两行代码：<br>return ownerZombieCount[_owner];<br>return zombieToOwner[_tokenId];</p>
+<p>这两行代码涉及到合约中存储的映射（<code>mapping</code>），其作用是管理与“僵尸”相关的拥有者和数量信息。</p>
+<ol>
+<li><p><strong><code>return ownerZombieCount[_owner];</code></strong></p>
+<ul>
+<li>这行代码是返回某个地址（<code>_owner</code>）所拥有的僵尸数量。</li>
+<li><code>ownerZombieCount</code> 是一个映射（<code>mapping(address =&gt; uint256)</code>），用于存储每个地址拥有的僵尸数量。</li>
+<li><code>_owner</code> 是函数的输入参数，代表某个地址。通过 <code>ownerZombieCount[_owner]</code>，你可以获取该地址拥有的僵尸数量。</li>
+<li>例如，<code>ownerZombieCount[0x123...]</code> 会返回地址 <code>0x123...</code> 拥有的僵尸数量。</li>
+</ul>
+</li>
+<li><p><strong><code>return zombieToOwner[_tokenId];</code></strong></p>
+<ul>
+<li>这行代码是返回某个僵尸（由 <code>tokenId</code> 标识）的拥有者。</li>
+<li><code>zombieToOwner</code> 是一个映射（<code>mapping(uint256 =&gt; address)</code>），用于存储每个僵尸的拥有者地址。</li>
+<li><code>_tokenId</code> 是函数的输入参数，代表某个僵尸的唯一标识符。通过 <code>zombieToOwner[_tokenId]</code>，你可以查询到这个僵尸的拥有者地址。</li>
+<li>例如，<code>zombieToOwner[1]</code> 会返回拥有 <code>tokenId</code> 为 1 的僵尸的地址。</li>
+</ul>
+</li>
+</ol>
+<p>总的来说，这两行代码分别返回了某个地址拥有的僵尸数量和某个特定僵尸的拥有者地址，它们是通过映射存储和查询这些信息的。</p>
+<h1 id="第四章：代码重构"><a href="#第四章：代码重构" class="headerlink" title="第四章：代码重构"></a>第四章：代码重构</h1><p>糟糕！我们刚刚在代码中引入了一个错误，导致无法编译。你发现了吗？</p>
+<p>在上一章中，我们定义了一个名为 ownerOf 的函数。但如果你回想一下第4课，我们在 zombiefeeding.sol 中还创建了一个同名的修饰器 ownerOf。</p>
+<p>如果你尝试编译这段代码，编译器会报错，提示不能存在同名的修饰器和函数。</p>
+<p>那么，我们是否应该将 ZombieOwnership 中的函数名改成其他名称？</p>
+<p>不，绝不能这样做！记住，我们正在使用 ERC721 代币标准，这意味着其他合约会预期我们的合约具有这些确切名称的函数。这正是标准的意义所在——如果其他合约知道我们的合约符合 ERC721 标准，它就能直接与我们交互，而无需了解我们内部的实现细节。</p>
+<p>因此，我们需要重构第4课中的代码，将修饰器的名称更改为其他名称。</p>
+<h2 id="实践测试-1"><a href="#实践测试-1" class="headerlink" title="实践测试"></a>实践测试</h2><p>现在回到 zombiefeeding.sol 文件。我们需要将修饰器的名称从 ownerOf 改为 onlyOwnerOf。</p>
+<ol>
+<li>将修饰器的定义名称改为 onlyOwnerOf</li>
+<li>向下滚动到使用该修饰器的 feedAndMultiply 函数，这里也需要修改修饰器名称</li>
+</ol>
+<p>注意：我们在 zombiehelper.sol 和 zombieattack.sol 中也使用了这个修饰器。为了避免在本课中花费过多时间进行重构，我们已提前帮你修改了这些文件中的修饰器名称。</p>
+<h1 id="第五章：ERC721：转账逻辑"><a href="#第五章：ERC721：转账逻辑" class="headerlink" title="第五章：ERC721：转账逻辑"></a>第五章：ERC721：转账逻辑</h1><p>太好了，我们解决了冲突！</p>
+<p>现在，我们将继续实现 ERC721，看看如何将所有权从一个人转移到另一个人。</p>
+<p>请注意，ERC721 规范中有两种不同的转移代币的方法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">function transferFrom(address _from, address _to, uint256 _tokenId) external payable;<br></code></pre></div></td></tr></table></figure>
+
+<p>和</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">function approve(address _approved, uint256 _tokenId) external payable;<br>function transferFrom(address _from, address _to, uint256 _tokenId) external payable;<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="第一种方式："><a href="#第一种方式：" class="headerlink" title="第一种方式："></a>第一种方式：</h3><p>代币的拥有者调用 <code>transferFrom</code>，传入他的地址作为 <code>_from</code> 参数，目标地址作为 <code>_to</code> 参数，和他想要转移的代币的 <code>_tokenId</code>。</p>
+<h3 id="第二种方式："><a href="#第二种方式：" class="headerlink" title="第二种方式："></a>第二种方式：</h3><p>代币的拥有者首先调用 <code>approve</code>，指定一个他想要转移代币的地址和 <code>_tokenId</code>。合约会存储谁被授权接收该代币，通常保存在一个映射（<code>mapping(uint256 =&gt; address)</code>）中。然后，拥有者或被批准的地址调用 <code>transferFrom</code>，合约会检查 <code>msg.sender</code> 是否是拥有者，或者是拥有者批准的接收者，如果是的话，就会将代币转移给他。</p>
+<p>注意，这两种方法都有相同的转移逻辑。在一种情况下，代币的发送者调用 <code>transferFrom</code> 函数；在另一种情况下，拥有者或被批准的接收者调用该函数。</p>
+<p>因此，我们可以将这些逻辑抽象成一个私有函数 <code>_transfer</code>，然后由 <code>transferFrom</code> 调用它。</p>
+<h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><p>让我们定义 <code>_transfer</code> 的逻辑。</p>
+<p>定义一个名为 <code>_transfer</code> 的函数，它将接受 3 个参数：<code>address _from</code>，<code>address _to</code> 和 <code>uint256 _tokenId</code>。它应该是一个私有函数。</p>
+<p>我们有两个映射会在所有权更改时发生变化：<code>ownerZombieCount</code>（它记录每个拥有者拥有的僵尸数量）和 <code>zombieToOwner</code>（它记录每个僵尸的拥有者）。</p>
+<p>我们函数的第一步应该是增加接收僵尸的人的 <code>ownerZombieCount</code>（即 <code>_to</code> 地址）。可以使用 <code>++</code> 来递增。</p>
+<p>接下来，我们需要减少发送僵尸的人的 <code>ownerZombieCount</code>（即 <code>_from</code> 地址）。可以使用 <code>--</code> 来递减。</p>
+<p>最后，我们要改变 <code>zombieToOwner</code> 映射，将该 <code>tokenId</code> 对应的值更新为 <code>_to</code> 地址。</p>
+<p>我撒谎了，那不是最后一步。我们应该再做一步。</p>
+<p>ERC721 规范包括一个 <code>Transfer</code> 事件。函数的最后一行应该触发 <code>Transfer</code> 事件，传入正确的信息——查看 <code>erc721.sol</code>，看看它期待调用的参数，并在这里实现。</p>
+<h1 id="第六章：ERC721：转账（续）"><a href="#第六章：ERC721：转账（续）" class="headerlink" title="第六章：ERC721：转账（续）"></a>第六章：ERC721：转账（续）</h1><p>太好了！这部分是比较困难的——现在实现外部的 <code>transferFrom</code> 函数会变得很容易，因为我们的 <code>_transfer</code> 函数已经完成了几乎所有的繁重工作。</p>
+<h3 id="测试-1"><a href="#测试-1" class="headerlink" title="测试"></a>测试</h3><p>首先，我们想确保只有代币/僵尸的拥有者或已批准的地址能够转移它。让我们定义一个名为 <code>zombieApprovals</code> 的映射。它应该将一个 <code>uint</code> 映射到一个地址。这样，当一个不是拥有者的人调用 <code>transferFrom</code> 并提供一个 <code>_tokenId</code> 时，我们可以使用这个映射快速查找该地址是否被批准转移这个代币。</p>
+<p>接下来，让我们在 <code>transferFrom</code> 中添加一个 <code>require</code> 语句。它应该确保只有代币/僵尸的拥有者或已批准的地址能够转移它。</p>
+<p>最后，别忘了调用 <code>_transfer</code>。</p>
+<h3 id="注意："><a href="#注意：" class="headerlink" title="注意："></a>注意：</h3><p>确保只有代币/僵尸的拥有者或已批准的地址能够转移它，意味着至少要满足以下条件之一：</p>
+<ul>
+<li><code>zombieToOwner[_tokenId]</code> 等于 <code>msg.sender</code>，或者</li>
+<li><code>zombieApprovals[_tokenId]</code> 等于 <code>msg.sender</code></li>
+</ul>
+<p>不用担心在 <code>zombieApprovals</code> 映射中填充数据，我们将在下一章进行处理。</p>
+<h1 id="第七章：ERC721-授权机制"><a href="#第七章：ERC721-授权机制" class="headerlink" title="第七章：ERC721: 授权机制"></a>第七章：ERC721: 授权机制</h1><p>现在让我们来实现 <code>approve</code> 函数。  </p>
+<p>请记住，通过 <code>approve</code> 进行的转移操作分两步完成：  </p>
+<ol>
+<li>您作为代币所有者调用 <code>approve</code>，指定新所有者的 <code>_approved</code> 地址和要转移的 <code>_tokenId</code>  </li>
+<li>新所有者调用 <code>transferFrom</code> 并传入 <code>_tokenId</code>。接下来，合约会验证新所有者是否已获得授权，然后完成代币转移  </li>
+</ol>
+<p>由于这个过程涉及两次函数调用，我们需要使用 <code>zombieApprovals</code> 数据结构来在函数调用之间记录每个代币的授权信息。  </p>
+<h2 id="实践测试-2"><a href="#实践测试-2" class="headerlink" title="实践测试"></a>实践测试</h2><ol>
+<li><p>在 <code>approve</code> 函数中，我们需要确保只有代币的所有者才能授权他人接收该代币。因此需要为 <code>approve</code> 添加 <code>onlyOwnerOf</code> 修饰器  </p>
+</li>
+<li><p>在函数体中，将 <code>_tokenId</code> 对应的 <code>zombieApprovals</code> 值设置为 <code>_approved</code> 地址。</p>
+</li>
+</ol>
+<h1 id="第八章：ERC721-授权完成"><a href="#第八章：ERC721-授权完成" class="headerlink" title="第八章：ERC721: 授权完成"></a>第八章：ERC721: 授权完成</h1><p>太好了，我们即将完成！  </p>
+<p>还有最后一项工作——ERC721 规范中定义了一个 <code>Approval</code> 事件。因此我们需要在 <code>approve</code> 函数末尾触发该事件。  </p>
+<h2 id="实践测试-3"><a href="#实践测试-3" class="headerlink" title="实践测试"></a>实践测试</h2><p>现在让我们触发 <code>Approval</code> 事件。请查看 erc721.sol 文件了解事件参数，并确保使用 <code>msg.sender</code> 作为 <code>_owner</code> 参数。<br>太棒了，我们已经完成了 ERC721 的实现！</p>
+<h1 id="第九章：防止溢出"><a href="#第九章：防止溢出" class="headerlink" title="第九章：防止溢出"></a>第九章：防止溢出</h1><p>恭喜你，完成了我们的 ERC721 和 ERC721x 实现！</p>
+<p>这并不难，对吧？当你听别人谈论 Ethereum 时，很多内容听起来确实很复杂，所以最好的理解方式就是自己动手实现一遍。</p>
+<p>记住，这只是一个最基础的实现。我们可能还想为实现添加一些额外的功能，比如一些额外的检查，确保用户不会不小心将他们的僵尸转移到地址 0（这被称为“销毁”代币——基本上是将代币发送到一个没有私钥的地址，实质上使其无法恢复）。或者在 DApp 中加入一些基本的拍卖逻辑。（你能想到一些实现的方法吗？）</p>
+<p>但我们希望这节课简洁易懂，所以我们选择了最基本的实现。如果你想查看更深入的实现示例，可以在本教程结束后查看 OpenZeppelin 的 ERC721 合约。</p>
+<h3 id="合约安全增强：溢出和下溢"><a href="#合约安全增强：溢出和下溢" class="headerlink" title="合约安全增强：溢出和下溢"></a>合约安全增强：溢出和下溢</h3><p>我们将关注一个你在编写智能合约时应该了解的主要安全特性：防止溢出和下溢。</p>
+<h4 id="什么是溢出？"><a href="#什么是溢出？" class="headerlink" title="什么是溢出？"></a>什么是溢出？</h4><p>假设我们有一个 <code>uint8</code> 类型，它只能存储 8 位二进制数。这意味着我们能存储的最大数字是二进制数 <code>11111111</code>（或者在十进制中，<code>2^8 - 1 = 255</code>）。</p>
+<p>看看以下代码。在最后，<code>number</code> 的值会是多少？</p>
+<figure class="highlight applescript"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs applescript">uint8 <span class="hljs-built_in">number</span> = <span class="hljs-number">255</span>;<br><span class="hljs-built_in">number</span>++;<br></code></pre></div></td></tr></table></figure>
+
+<p>在这种情况下，我们导致了溢出——因此尽管我们增加了数值，但计数器现在却等于0（这很反直觉）。（就像二进制数11111111加1后，会重置回00000000，类似时钟从23:59走向00:00）。</p>
+<p>下溢也是类似的情况，如果你从值为0的uint8减去1，它会变成255（因为uint是无符号整数，不能为负）。</p>
+<p>虽然我们这里没有使用uint8，而且uint256每次递增1时发生溢出的可能性很小（2^256是个极大的数字），但在合约中加入防护措施仍然是好的做法，这样能确保我们的DApp未来不会出现意外行为。</p>
+<p>使用SafeMath<br>为防止这种情况，OpenZeppelin创建了一个名为SafeMath的库，该库默认就能预防这些问题。</p>
+<p>但在深入探讨之前…什么是库？</p>
+<p>库是Solidity中的一种特殊合约类型，其用途之一是为原生数据类型附加函数。</p>
+<p>例如，使用SafeMath库时，我们会采用<code>using SafeMath for uint256</code>的语法。SafeMath库包含4个函数——add、sub、mul和div。现在我们可以通过以下方式从uint256访问这些函数：</p>
+<figure class="highlight apache"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs apache"><span class="hljs-attribute">using</span> SafeMath for uint<span class="hljs-number">256</span>;<br><br><span class="hljs-attribute">uint256</span> a = <span class="hljs-number">5</span>;<br><span class="hljs-attribute">uint256</span> b = a.add(<span class="hljs-number">3</span>); // <span class="hljs-number">5</span> + <span class="hljs-number">3</span> = <span class="hljs-number">8</span><br><span class="hljs-attribute">uint256</span> c = a.mul(<span class="hljs-number">2</span>); // <span class="hljs-number">5</span> * <span class="hljs-number">2</span> = <span class="hljs-number">10</span><br></code></pre></div></td></tr></table></figure>
+
+<p>我们将在下一章详细讲解这些函数的功能，现在先让我们将 SafeMath 库添加到合约中。</p>
+<h2 id="实践测试-4"><a href="#实践测试-4" class="headerlink" title="实践测试"></a>实践测试</h2><p>我们已提前在 safemath.sol 文件中为你引入了 OpenZeppelin 的 SafeMath 库。如果你感兴趣可以快速浏览一下代码，不过我们将在下一章深入分析。</p>
+<p>首先告知我们的合约使用 SafeMath。我们将把这个声明放在最基础的合约 ZombieFactory 中——这样所有继承该合约的子合约都能使用 SafeMath 库。</p>
+<ol>
+<li>将 safemath.sol 导入到 zombiefactory.sol 中</li>
+<li>添加声明语句 <code>using SafeMath for uint256;</code></li>
+</ol>
 
             </div>
             <hr>
@@ -350,12 +477,18 @@
                   <article class="post-prev col-6">
                     
                     
+                      <a href="/2025/11/26/47d3a53d946c/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">cryptozombies5</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2025/11/23/ff18ebbceab1/">
-                        <span class="hidden-mobile">cryptozombies3</span>
+                      <a href="/2025/11/24/785ce21476c4/">
+                        <span class="hidden-mobile">我的生平（三十）</span>
                         <span class="visible-mobile">Next</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
