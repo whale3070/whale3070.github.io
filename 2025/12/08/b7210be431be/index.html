@@ -23,7 +23,7 @@
   <meta name="description" content="">
   <meta name="author" content="John Doe">
   <meta name="keywords" content="">
-  <title>Damn Vulnerable DeFi（二） - whale3070&#39;s blog</title>
+  <title>Damn Vulnerable DeFi（三） - whale3070&#39;s blog</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
 
@@ -153,9 +153,9 @@
               <div class="full-bg-img">
                 <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
                   <div class="page-header text-center fade-in-up">
-                    <span class="h2 text1" id="subtitle" title="Damn Vulnerable DeFi（二）">
+                    <span class="h2 text1" id="subtitle" title="Damn Vulnerable DeFi（三）">
                       
-                        Damn Vulnerable DeFi（二）
+                        Damn Vulnerable DeFi（三）
                       
                     </span>
         
@@ -177,7 +177,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      1.5k 字
+      6.5k 字
     </span>
   
 
@@ -187,7 +187,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      15
+      72
        分钟
     </span>
   
@@ -218,7 +218,7 @@
         <div class="py-5" id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">Damn Vulnerable DeFi（二）</h1>
+            <h1 style="display: none">Damn Vulnerable DeFi（三）</h1>
             
             <div class="markdown-body">
               <p>题目链接： <a target="_blank" rel="noopener" href="https://www.damnvulnerabledefi.xyz/challenges/naive-receiver/">https://www.damnvulnerabledefi.xyz/challenges/naive-receiver/</a></p>
@@ -242,6 +242,251 @@
 <h2 id="2"><a href="#2" class="headerlink" title="2"></a>2</h2><p>高效完成债务清算降低损失：当用户在 DeFi 协议中的抵押资产面临清算风险时，闪电贷能提供紧急资金。比如用户抵押的资产因行情波动快触及清算线，若被强制清算可能损失大量资产，此时借闪电贷偿还部分债务可避免清算，保住抵押资产的长期价值。这种情况下，规避的大额清算损失和 Gas 费相比，几乎可以忽略不计。</p>
 <h2 id="3"><a href="#3" class="headerlink" title="3"></a>3</h2><p>为流动性池优化提供资金支持：部分 DeFi 项目或做市商，会借助闪电贷临时补充流动性池资金，减少大额交易时的滑点损失。例如某交易对流动性不足，大额买入会导致价格大幅上涨（买入滑点），借闪电贷注入对应资产增加流动性后，能让交易更顺畅，交易产生的收益扣除闪电贷手续费和 Gas 费后仍有盈余。</p>
 <h2 id="4"><a href="#4" class="headerlink" title="4"></a>4</h2><p> 黑客用于低成本发起攻击：对黑客而言，闪电贷是低成本撬动巨额资金发起攻击的工具。他们借闪电贷后，可利用智能合约漏洞操纵资产价格或实施其他攻击行为，即便攻击失败仅损失 Gas 费，但一旦成功，窃取的资产价值远超数倍甚至数十倍的 Gas 费，这也是部分黑客频繁利用闪电贷发起攻击的原因。</p>
+<h1 id="这个代码有四个合约"><a href="#这个代码有四个合约" class="headerlink" title="这个代码有四个合约"></a>这个代码有四个合约</h1><p>2025/12/17  17:20             3,412 BasicForwarder.sol<br>2025/12/17  17:20             1,323 FlashLoanReceiver.sol<br>2025/12/17  17:20               609 Multicall.sol (抽象合约)<br>2025/12/17  17:20             3,153 NaiveReceiverPool.sol</p>
+<h2 id="1-Multicall-sol"><a href="#1-Multicall-sol" class="headerlink" title="1. Multicall.sol"></a>1. Multicall.sol</h2><p>这定义了一个multicall的函数，后续应该有其他sol会调用它。</p>
+<p>接受一个叫做data的数组，返回一个叫做results的数组。</p>
+<p>这段代码定义了一个名为 <strong><code>multicall</code></strong> 的函数，属于一个抽象合约 **<code>Multicall</code>**。其功能是接收多个 <strong><code>data</code></strong> 数组（每个数组项可能是一个调用数据），并将每个调用数据通过 <code>functionDelegateCall</code> 发送到当前合约地址。</p>
+<h3 id="代码解析："><a href="#代码解析：" class="headerlink" title="代码解析："></a>代码解析：</h3><ol>
+<li><p><strong><code>multicall</code> 函数：</strong></p>
+<ul>
+<li><strong>输入参数：</strong> <code>bytes[] calldata data</code>：这意味着输入是一个 <strong><code>bytes</code></strong> 类型的数组，<code>calldata</code> 表示这些数据来自外部调用。</li>
+<li><strong>返回值：</strong> <code>bytes[] memory results</code>：返回值是一个 <strong><code>bytes</code></strong> 类型的数组，用来存储每个调用结果。</li>
+</ul>
+</li>
+<li><p><strong>核心逻辑：</strong></p>
+<ul>
+<li><p>创建了一个与输入数组 <strong><code>data</code></strong> 长度相同的 <strong><code>results</code></strong> 数组，初始化为空。</p>
+</li>
+<li><p>使用一个 <strong><code>for</code></strong> 循环遍历传入的 <strong><code>data</code></strong> 数组，每个元素都会通过 <strong><code>Address.functionDelegateCall</code></strong> 进行代理调用。</p>
+<ul>
+<li><strong><code>Address.functionDelegateCall(address(this), data[i])</code></strong> 代表调用当前合约 (<code>address(this)</code>) 上的数据 **<code>data[i]</code>**，并执行相应的函数。</li>
+</ul>
+</li>
+<li><p>每个调用的结果会被保存在 <strong><code>results</code></strong> 数组的对应位置。</p>
+</li>
+</ul>
+</li>
+<li><p><strong><code>functionDelegateCall</code> 的作用：</strong></p>
+<ul>
+<li>这是 OpenZeppelin 的 <strong><code>Address</code></strong> 工具库中的函数，作用是通过委托调用（delegatecall）执行合约上的函数，并返回结果。委托调用会保留原合约的上下文（例如，<code>msg.sender</code>、<code>msg.value</code>），而不改变当前合约的状态。</li>
+</ul>
+</li>
+</ol>
+<h3 id="总结："><a href="#总结：" class="headerlink" title="总结："></a>总结：</h3><p>这个 <strong><code>multicall</code></strong> 函数的功能是批量执行多个函数调用。它接受一个包含多个函数调用数据的数组 **<code>data</code>**，然后将这些调用依次通过委托调用发送到当前合约的地址，并返回每个调用的结果。适用于需要批量执行多个独立函数调用的场景。</p>
+<h2 id="2-BasicForwarder-sol"><a href="#2-BasicForwarder-sol" class="headerlink" title="2. BasicForwarder.sol"></a>2. BasicForwarder.sol</h2><p>这段代码实现了一个基本的转发器合约 BasicForwarder，它利用 EIP-712 和 ECDSA 签名机制来进行代理请求。</p>
+<p>Request 结构体： 用于定义转发请求的结构，包含发送者地址、目标合约地址、转账金额、所需 gas、nonce、数据和请求截止时间等字段。</p>
+<p>_checkRequest 方法： 用于验证请求是否有效，确保请求符合预期，如检查支付金额、请求过期时间、nonce 和签名等。</p>
+<p>execute 方法： 执行转发请求，检查请求的有效性后，将数据通过低级 call 发送到目标合约。还会处理剩余的 gas 和转发的操作。</p>
+<p>_domainNameAndVersion 方法： 提供合约的 EIP-712 域名和版本信息，用于签名验证。</p>
+<p>getDataHash 方法： 返回请求数据的哈希，用于生成请求的签名。</p>
+<p>domainSeparator 和 getRequestTypehash 方法： 返回域名分隔符和请求类型哈希，用于 EIP-712 签名协议。</p>
+<p>错误处理：</p>
+<p>InvalidSigner：签名者无效。</p>
+<p>InvalidNonce：nonce 值无效。</p>
+<p>OldRequest：请求过期。</p>
+<p>InvalidTarget：目标合约无效。</p>
+<p>InvalidValue：支付金额无效。</p>
+<h2 id="3-FlashLoanReceiver-sol"><a href="#3-FlashLoanReceiver-sol" class="headerlink" title="3. FlashLoanReceiver.sol"></a>3. FlashLoanReceiver.sol</h2><p>pool：保存闪电贷池的地址，借款将从这个池中发放，并且需要归还。</p>
+<p>构造函数 (constructor)：初始化池地址，这个地址在合约创建时传入。</p>
+<p>onFlashLoan：</p>
+<p>这是闪电贷回调函数，当闪电贷池发放资金时会被调用。</p>
+<p>assembly 部分：确保只有正确的池地址（pool）能够调用此函数。如果调用者不是池地址，则会通过 revert 抛出错误，防止非法调用。</p>
+<p>检查借款的代币是否为 WETH，如果不是，抛出 UnsupportedCurrency 错误。</p>
+<p>计算需要归还的总金额（借款金额 + 闪电贷费用）。</p>
+<p>调用 _executeActionDuringFlashLoan 来执行在闪电贷期间需要进行的操作，用户可以根据自己的需要自定义此操作。</p>
+<p>最后，调用 approve 将需要归还的金额批准给闪电贷池，以完成闪电贷的归还。</p>
+<p>_executeActionDuringFlashLoan：这是一个内部函数，用于执行闪电贷期间的具体操作，可以在此函数中加入逻辑，利用借来的资金进行交易、套利等操作。</p>
+<p>错误处理：</p>
+<p>UnsupportedCurrency：如果借款的代币不是支持的代币（此处为 WETH），则抛出该错误。</p>
+<p>总结：</p>
+<p>这个合约主要实现了闪电贷的接收功能，并在借款期间执行自定义操作。它确保只有正确的池地址能够发起闪电贷请求，且支持使用 WETH 作为借款的代币，最终会将借款金额及费用归还给闪电贷池。</p>
+<h2 id="4-NaiveReceiverPool-sol"><a href="#4-NaiveReceiverPool-sol" class="headerlink" title="4.NaiveReceiverPool.sol"></a>4.NaiveReceiverPool.sol</h2><p>主要功能概述：</p>
+<p>maxFlashLoan：返回该合约支持的最大闪电贷金额。</p>
+<p>flashFee：返回闪电贷的费用，固定为 1e18。</p>
+<p>flashLoan：处理闪电贷的逻辑，借款人从合约借取 WETH，经过借款人回调，合约将收回本金和费用。</p>
+<p>withdraw：允许用户从合约中提取 WETH。</p>
+<p>deposit：允许用户将 ETH 存入合约，并转化为 WETH。</p>
+<p>_deposit：内部存款函数，帮助合约进行存款操作。</p>
+<p>_msgSender：重写 _msgSender 函数，以支持转发器地址。</p>
+<p>错误处理：</p>
+<p>RepayFailed：还款失败时抛出错误。</p>
+<p>UnsupportedCurrency：不支持的代币时抛出错误。</p>
+<p>CallbackFailed：回调函数失败时抛出错误。</p>
+<p>通过这些注释，你可以清晰地理解每一部分代码的作用和流程。</p>
+<h1 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h1><p>编译NativeRecivePool.sol的时候，提示 Error: not found solmate/tokens/WETH.sol</p>
+<p>用remix去审计合约不推荐吗？为什么会编译报错呢？</p>
+<h3 id="一、编译报错原因分析"><a href="#一、编译报错原因分析" class="headerlink" title="一、编译报错原因分析"></a>一、编译报错原因分析</h3><p>你遇到的 <code>Error: not found solmate/tokens/WETH.sol</code> 本质是<strong>合约依赖的外部文件缺失</strong>，和 Remix 审计本身无关，核心原因有两个：</p>
+<h4 id="1-依赖引用方式问题"><a href="#1-依赖引用方式问题" class="headerlink" title="1. 依赖引用方式问题"></a>1. 依赖引用方式问题</h4><p><code>NativeRecivePool.sol</code> 中大概率用了相对导入语法（比如 <code>import &quot;solmate/tokens/WETH.sol&quot;;</code>），但 Remix 环境中<strong>没有自动下载这个依赖文件</strong>，也没有手动把 <code>solmate</code> 库的 <code>WETH.sol</code> 放到对应路径下，编译器找不到文件就会报错。</p>
+<p><code>solmate</code> 是 Rari Capital 维护的轻量级 Solidity 合约库（替代 OpenZeppelin 的轻量版），<code>WETH.sol</code> 是其中的 WETH 封装合约，本身不是 Solidity 内置文件，需要手动引入。</p>
+<h4 id="2-Remix-本身的文件管理逻辑"><a href="#2-Remix-本身的文件管理逻辑" class="headerlink" title="2. Remix 本身的文件管理逻辑"></a>2. Remix 本身的文件管理逻辑</h4><p>Remix 不会自动解析并下载 <code>npm</code> 类的依赖（比如 <code>solmate</code>），如果合约中引用了外部库但没有手动添加文件，必然会报“文件未找到”错误。</p>
+<h3 id="二、Remix-审计合约是否推荐？"><a href="#二、Remix-审计合约是否推荐？" class="headerlink" title="二、Remix 审计合约是否推荐？"></a>二、Remix 审计合约是否推荐？</h3><p><strong>Remix 是适合合约审计/开发的工具，但有明确的适用场景</strong>，不能简单说“推荐”或“不推荐”：</p>
+<h4 id="✅-推荐用-Remix-的场景"><a href="#✅-推荐用-Remix-的场景" class="headerlink" title="✅ 推荐用 Remix 的场景"></a>✅ 推荐用 Remix 的场景</h4><ol>
+<li>快速验证合约逻辑、单文件/小型合约的编译/部署/调试；</li>
+<li>配合 Remix 的插件（比如 Solhint、MythX、Oyente）做基础的静态分析和安全检查；</li>
+<li>临时测试合约片段、验证语法错误、快速复现问题；</li>
+<li>新手入门，直观理解合约编译、部署、交互的全流程。</li>
+</ol>
+<h4 id="❌-不推荐（或需要补充工具）的场景"><a href="#❌-不推荐（或需要补充工具）的场景" class="headerlink" title="❌ 不推荐（或需要补充工具）的场景"></a>❌ 不推荐（或需要补充工具）的场景</h4><ol>
+<li>大型项目/多文件依赖的合约审计：Remix 对复杂依赖管理、批量测试、自动化审计支持弱；</li>
+<li>深度安全审计：仅靠 Remix 自带工具不够，需要结合专业审计工具（Slither、Mythril、Foundry 测试、形式化验证）；</li>
+<li>团队协作：Remix 没有版本控制、多人协作的原生支持，不如本地开发环境（Hardhat/Foundry）+ Git 高效。</li>
+</ol>
+<p>总结：Remix 是<strong>轻量审计/快速验证的好工具</strong>，但不是“一站式深度审计工具”，需结合场景搭配其他工具。</p>
+<h3 id="三、解决编译报错的具体步骤（Remix-环境）"><a href="#三、解决编译报错的具体步骤（Remix-环境）" class="headerlink" title="三、解决编译报错的具体步骤（Remix 环境）"></a>三、解决编译报错的具体步骤（Remix 环境）</h3><p>核心是把 <code>solmate</code> 的 <code>WETH.sol</code> 放到 Remix 的对应路径下，有两种方法：</p>
+<h4 id="方法-1：手动添加文件（最简单）"><a href="#方法-1：手动添加文件（最简单）" class="headerlink" title="方法 1：手动添加文件（最简单）"></a>方法 1：手动添加文件（最简单）</h4><ol>
+<li>打开 Remix 的“文件管理器”（左侧 Files 面板），点击 <code>+</code> 新建文件夹，命名为 <code>solmate</code>，再在其中新建 <code>tokens</code> 子文件夹；</li>
+<li>访问 <code>solmate</code> 官方仓库的 WETH.sol 源码：<a target="_blank" rel="noopener" href="https://github.com/transmissions11/solmate/blob/main/src/tokens/WETH.sol%EF%BC%9B">https://github.com/transmissions11/solmate/blob/main/src/tokens/WETH.sol；</a></li>
+<li>复制源码内容，粘贴到 Remix 中 <code>solmate/tokens/WETH.sol</code> 文件里，保存；</li>
+<li>重新编译 <code>NativeRecivePool.sol</code>，即可解决“文件未找到”错误。</li>
+</ol>
+<h4 id="方法-2：通过-Remix-的-NPM-插件导入（适合多依赖场景）"><a href="#方法-2：通过-Remix-的-NPM-插件导入（适合多依赖场景）" class="headerlink" title="方法 2：通过 Remix 的 NPM 插件导入（适合多依赖场景）"></a>方法 2：通过 Remix 的 NPM 插件导入（适合多依赖场景）</h4><ol>
+<li>打开 Remix 左侧面板的“插件商店”（Plugins），搜索并激活 <code>NPM</code> 插件；</li>
+<li>激活后，在 Remix 底部会出现 NPM 面板，输入 <code>@solmate/solmate</code> 并安装（注意版本，建议和合约依赖的版本一致）；</li>
+<li>安装完成后，合约中的 <code>import &quot;solmate/tokens/WETH.sol&quot;;</code> 会自动映射到 NPM 安装的文件路径，重新编译即可。</li>
+</ol>
+<h4 id="补充注意事项"><a href="#补充注意事项" class="headerlink" title="补充注意事项"></a>补充注意事项</h4><ul>
+<li>确认 <code>WETH.sol</code> 的 Solidity 版本和 <code>NativeRecivePool.sol</code> 兼容（比如都是 0.8.x），否则会报版本不匹配错误；</li>
+<li>如果合约还引用了其他 <code>solmate</code> 合约（比如 <code>ERC20.sol</code>），需要按相同路径添加对应的文件。</li>
+</ul>
+<h3 id="四、替代方案（本地开发环境）"><a href="#四、替代方案（本地开发环境）" class="headerlink" title="四、替代方案（本地开发环境）"></a>四、替代方案（本地开发环境）</h3><p>如果合约依赖较多，更推荐用本地工具（Hardhat/Foundry）管理依赖：</p>
+<h4 id="1-Hardhat-示例"><a href="#1-Hardhat-示例" class="headerlink" title="1. Hardhat 示例"></a>1. Hardhat 示例</h4><figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 初始化项目</span><br>npm init -y<br>npm install --save-dev hardhat @nomiclabs/hardhat-ethers ethers<br>npm install @solmate/solmate<br><br><span class="hljs-comment"># 编写 hardhat.config.js 后，在合约中直接导入</span><br><span class="hljs-comment"># import &quot;@solmate/tokens/WETH.sol&quot;;</span><br></code></pre></div></td></tr></table></figure>
+
+<h4 id="2-Foundry-示例"><a href="#2-Foundry-示例" class="headerlink" title="2. Foundry 示例"></a>2. Foundry 示例</h4><figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 初始化项目</span><br>forge init my-project<br><span class="hljs-built_in">cd</span> my-project<br><br><span class="hljs-comment"># 安装 solmate 依赖</span><br>forge install transmissions11/solmate<br><br><span class="hljs-comment"># 合约中导入（Foundry 会自动解析 lib 目录）</span><br><span class="hljs-comment"># import &quot;solmate/tokens/WETH.sol&quot;;</span><br></code></pre></div></td></tr></table></figure>
+
+<p>本地环境能自动管理依赖，避免手动添加文件的麻烦，适合复杂合约的开发和审计。</p>
+<h1 id="我现在想用fountry去测试Damn-Vulnerable-DeFi-的naive-receiver，你先不要告诉我writeup。我需要把它部署到测试网再去审计吗，还是直接看代码呢"><a href="#我现在想用fountry去测试Damn-Vulnerable-DeFi-的naive-receiver，你先不要告诉我writeup。我需要把它部署到测试网再去审计吗，还是直接看代码呢" class="headerlink" title="我现在想用fountry去测试Damn Vulnerable DeFi 的naive-receiver，你先不要告诉我writeup。我需要把它部署到测试网再去审计吗，还是直接看代码呢"></a>我现在想用fountry去测试Damn Vulnerable DeFi 的naive-receiver，你先不要告诉我writeup。我需要把它部署到测试网再去审计吗，还是直接看代码呢</h1><p>针对用Foundry测试Damn Vulnerable DeFi（DVD）的<code>naive-receiver</code>关卡，核心结论先明确：<strong>完全不需要部署到测试网</strong>，直接本地基于Foundry的链下测试环境分析代码+编写测试即可，部署测试网反而多此一举。以下是具体原因和实操思路：</p>
+<h3 id="一、为什么不用部署到测试网？"><a href="#一、为什么不用部署到测试网？" class="headerlink" title="一、为什么不用部署到测试网？"></a>一、为什么不用部署到测试网？</h3><ol>
+<li><p><strong>Foundry的核心优势：本地模拟链环境</strong><br>Foundry内置<code>forge test</code>的本地EVM模拟器，能100%复现以太坊的执行逻辑，包括合约部署、交易发送、gas计算、回滚等，和测试网（如Sepolia）的EVM行为完全一致，且：</p>
+<ul>
+<li>无需申请测试币、配置RPC节点，避免网络延迟/节点故障；</li>
+<li>测试速度极快（毫秒级单次测试），可反复调试；</li>
+<li>能直接捕获合约的revert原因、调用栈，比测试网调试更高效。</li>
+</ul>
+</li>
+<li><p><strong>DVD关卡的设计逻辑</strong><br>DVD的所有关卡（包括<code>naive-receiver</code>）都是「自包含」的：合约依赖仅在本地即可满足（无外部链上依赖），目标是审计合约逻辑漏洞+编写攻击脚本，而非测试链上交互稳定性。部署到测试网只会增加操作成本，对漏洞分析无任何增益。</p>
+</li>
+</ol>
+<h3 id="二、正确的操作流程（基于Foundry）"><a href="#二、正确的操作流程（基于Foundry）" class="headerlink" title="二、正确的操作流程（基于Foundry）"></a>二、正确的操作流程（基于Foundry）</h3><h4 id="步骤1：拉取DVD代码并定位naive-receiver"><a href="#步骤1：拉取DVD代码并定位naive-receiver" class="headerlink" title="步骤1：拉取DVD代码并定位naive-receiver"></a>步骤1：拉取DVD代码并定位naive-receiver</h4><figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 克隆DVD仓库</span><br>git <span class="hljs-built_in">clone</span> https://github.com/tinchoabbate/damn-vulnerable-defi.git<br><span class="hljs-built_in">cd</span> damn-vulnerable-defi<br><span class="hljs-comment"># 定位到naive-receiver关卡（v3版本为例）</span><br><span class="hljs-built_in">cd</span> src/naive-receiver<br></code></pre></div></td></tr></table></figure>
+
+<h4 id="步骤2：本地分析合约代码（核心）"><a href="#步骤2：本地分析合约代码（核心）" class="headerlink" title="步骤2：本地分析合约代码（核心）"></a>步骤2：本地分析合约代码（核心）</h4><p>先看<code>naive-receiver</code>的两个核心合约：</p>
+<ul>
+<li><code>FlashLoanReceiver.sol</code>：接收闪电贷的合约，逻辑是否有漏洞？</li>
+<li><code>NaiveReceiverLenderPool.sol</code>：闪电贷池，提供闪电贷的逻辑是否可被利用？</li>
+</ul>
+<p><strong>关键：不用部署，直接读代码找漏洞</strong> —— Foundry的测试本身会帮你「部署」这些合约到本地EVM，你只需要写测试用例验证漏洞。</p>
+<h4 id="步骤3：编写Foundry测试用例"><a href="#步骤3：编写Foundry测试用例" class="headerlink" title="步骤3：编写Foundry测试用例"></a>步骤3：编写Foundry测试用例</h4><p>在<code>test/</code>目录下新建<code>NaiveReceiver.t.sol</code>，核心思路：</p>
+<ol>
+<li>用<code>forge-std/Test.sol</code>作为基类；</li>
+<li>测试函数中部署<code>NaiveReceiverLenderPool</code>和<code>FlashLoanReceiver</code>；</li>
+<li>模拟攻击场景，验证是否能利用漏洞达成目标（比如耗尽Receiver的ETH）。</li>
+</ol>
+<p>极简示例框架：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">// SPDX-License-Identifier: UNLICENSED<br>pragma solidity ^0.8.0;<br><br>import &quot;forge-std/Test.sol&quot;;<br>import &quot;../src/naive-receiver/NaiveReceiverLenderPool.sol&quot;;<br>import &quot;../src/naive-receiver/FlashLoanReceiver.sol&quot;;<br><br>contract NaiveReceiverTest is Test &#123;<br>    NaiveReceiverLenderPool public pool;<br>    FlashLoanReceiver public receiver;<br>    address public attacker = makeAddr(&quot;attacker&quot;);<br><br>    function setUp() public &#123;<br>        // 部署合约到本地EVM（无需测试网）<br>        pool = new NaiveReceiverLenderPool();<br>        receiver = new FlashLoanReceiver(address(pool));<br>        // 给receiver转ETH（模拟初始资金）<br>        payable(address(receiver)).transfer(1 ether);<br>        // 给攻击者转少量ETH（用于支付gas）<br>        vm.deal(attacker, 1 ether);<br>    &#125;<br><br>    function testExploitNaiveReceiver() public &#123;<br>        // 切换到攻击者身份<br>        vm.startPrank(attacker);<br>        <br>        // 这里写你的攻击逻辑（核心：利用漏洞耗尽receiver的ETH）<br>        <br>        vm.stopPrank();<br><br>        // 验证攻击结果<br>        assertEq(address(receiver).balance, 0);<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<h4 id="步骤4：运行测试并调试"><a href="#步骤4：运行测试并调试" class="headerlink" title="步骤4：运行测试并调试"></a>步骤4：运行测试并调试</h4><figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 运行测试（本地EVM，无需网络）</span><br>forge <span class="hljs-built_in">test</span> --match-test testExploitNaiveReceiver -vvv<br><br><span class="hljs-comment"># 如果需要调试，用forge debug</span><br>forge debug script/Exploit.s.sol:ExploitScript<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="三、什么时候才需要部署到测试网？"><a href="#三、什么时候才需要部署到测试网？" class="headerlink" title="三、什么时候才需要部署到测试网？"></a>三、什么时候才需要部署到测试网？</h3><p>只有两种场景需要测试网：</p>
+<ol>
+<li>合约依赖<strong>链上已部署的合约</strong>（比如Uniswap V2 Router），且本地模拟无法复现其状态；</li>
+<li>需要测试<strong>跨链/链下中继/交易打包</strong>等和网络相关的逻辑。</li>
+</ol>
+<p>而<code>naive-receiver</code>是纯本地逻辑的漏洞题，完全不需要测试网。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>优先本地分析代码：聚焦<code>FlashLoanReceiver</code>的闪电贷回调逻辑、<code>NaiveReceiverLenderPool</code>的调用权限/费用计算；</li>
+<li>用Foundry本地测试：编写攻击用例，验证漏洞是否可利用；</li>
+<li>测试网仅作为补充（本题完全不需要）。</li>
+</ol>
+<p>如果后续写测试时遇到具体问题（比如合约部署失败、攻击逻辑不生效），可以再针对性分析。</p>
+<h1 id="forge-install-transmissions11-solmate"><a href="#forge-install-transmissions11-solmate" class="headerlink" title="forge install transmissions11/solmate"></a>forge install transmissions11/solmate</h1><p>这句话是什么意思，什么是transmissions11</p>
+<h3 id="一、forge-install-transmissions11-solmate-核心含义"><a href="#一、forge-install-transmissions11-solmate-核心含义" class="headerlink" title="一、forge install transmissions11/solmate 核心含义"></a>一、<code>forge install transmissions11/solmate</code> 核心含义</h3><p>这句话是 <strong>Foundry 工具链</strong> 中用于<strong>安装第三方 Solidity 合约库依赖</strong>的命令，作用是将 <code>solmate</code> 库下载到你的 Foundry 项目中，让合约能直接引用 <code>solmate</code> 中的代码（比如 WETH.sol、ERC20.sol 等）。</p>
+<p>拆解来看：</p>
+<ul>
+<li><code>forge</code>：Foundry 的核心命令行工具（类似 Hardhat 的 <code>npx hardhat</code>）；</li>
+<li><code>install</code>：forge 的子命令，用于安装开源合约库（底层会从 GitHub 克隆仓库）；</li>
+<li><code>transmissions11/solmate</code>：是 Solmate 库在 GitHub 上的<strong>仓库标识</strong>（格式：<code>GitHub用户名/仓库名</code>）。</li>
+</ul>
+<p>执行该命令后，Foundry 会自动将 Solmate 库下载到项目的 <code>lib/</code> 目录下，合约中就能通过 <code>import &quot;solmate/tokens/WETH.sol&quot;;</code> 引用，无需手动复制文件。</p>
+<h3 id="二、transmissions11-是什么？"><a href="#二、transmissions11-是什么？" class="headerlink" title="二、transmissions11 是什么？"></a>二、<code>transmissions11</code> 是什么？</h3><p><code>transmissions11</code> 是 <strong>Solmate 库的作者在 GitHub 上的用户名</strong>（对应开发者的身份），本名是 <strong>Noah Zinsmeister</strong>，是加密领域的资深开发者（曾任职于 Rari Capital、Paradigm 等机构）。</p>
+<p>补充背景：</p>
+<ol>
+<li><strong>Solmate 库的定位</strong>：由 <code>transmissions11</code> 主导开发的轻量级 Solidity 合约库，主打“极简、高效、低 Gas”，是 OpenZeppelin 的轻量化替代方案（比如 Solmate 的 ERC20 实现比 OpenZeppelin 更精简，Gas 成本更低）；</li>
+<li><strong>为什么用用户名标识仓库</strong>：Foundry 的 <code>forge install</code> 命令默认从 GitHub 拉取仓库，因此用 <code>用户名/仓库名</code> 就能唯一定位开源库（类似 npm 用 <code>@包名/包名</code> 定位 npm 包）；</li>
+<li>除了 <code>transmissions11/solmate</code>，Foundry 中常见的库安装命令也遵循这个格式，比如：<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">forge install OpenZeppelin/openzeppelin-contracts  <span class="hljs-comment"># 安装 OpenZeppelin 库</span><br>forge install foundry-rs/forge-std                <span class="hljs-comment"># 安装 Foundry 标准库</span><br></code></pre></div></td></tr></table></figure></li>
+</ol>
+<h3 id="三、额外补充（理解-Foundry-依赖管理逻辑）"><a href="#三、额外补充（理解-Foundry-依赖管理逻辑）" class="headerlink" title="三、额外补充（理解 Foundry 依赖管理逻辑）"></a>三、额外补充（理解 Foundry 依赖管理逻辑）</h3><ol>
+<li>Foundry 安装的库会放在项目根目录的 <code>lib/</code> 文件夹下，且默认通过 Git Submodule（Git 子模块）管理（方便版本控制）；</li>
+<li>如果需要指定 Solmate 的版本，可在命令后加版本号/提交哈希：<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">forge install transmissions11/solmate@v6.0.0  <span class="hljs-comment"># 安装 6.0.0 版本</span><br></code></pre></div></td></tr></table></figure></li>
+<li>若后续想更新依赖，可执行：<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">forge update lib/solmate  <span class="hljs-comment"># 更新 solmate 到最新版本</span><br></code></pre></div></td></tr></table></figure></li>
+</ol>
+<p>简单来说，<code>transmissions11</code> 就是 Solmate 库的开发者 GitHub 账号，而 <code>forge install transmissions11/solmate</code> 本质是从该账号的 GitHub 仓库下载 Solmate 库到你的 Foundry 项目中。</p>
+<h1 id="Slither和Mythril"><a href="#Slither和Mythril" class="headerlink" title="Slither和Mythril"></a>Slither和Mythril</h1><p>你这个思路太高效了！现在提前掌握Slither和Mythril，等对接香港Web3公司时，相当于带着“现成的审计实操能力”求职，竞争力直接拉满。这两个工具前者侧重静态精准扫描，后者擅长符号执行挖深层漏洞，刚好匹配你的底层安全思维，下面给你整理了<strong>2025年最新的快速上手指南</strong>，从安装到实操一步到位：</p>
+<h3 id="Slither（静态分析工具，低误报率首选）"><a href="#Slither（静态分析工具，低误报率首选）" class="headerlink" title="Slither（静态分析工具，低误报率首选）"></a>Slither（静态分析工具，低误报率首选）</h3><p>它是Trail of Bits开发的工具，伪阳性率仅10.9%，能快速扫出重入、整数溢出等常见漏洞，还能集成到项目流程里，对你这种有代码逆向和漏洞挖掘经验的人来说，上手会很轻松。</p>
+<ol>
+<li><strong>快速安装</strong><br> 支持多种安装方式，pip安装最便捷，且需Python 3.8以上版本，若要切换Solidity编译器版本，建议搭配solc - select：<table>
+<thead>
+<tr>
+<th>安装方式</th>
+<th>具体命令</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>pip安装</td>
+<td><code>python3 -m pip install slither-analyzer</code>，升级命令为<code>python3 -m pip install --upgrade slither-analyzer</code></td>
+</tr>
+<tr>
+<td>Docker安装</td>
+<td>先拉取镜像<code>docker pull trailofbits/eth-security-toolbox</code>，再启动容器<code>docker run -it -v &quot;$pwd&quot;:/home/trufflecon trailofbits/eth-security-toolbox</code></td>
+</tr>
+<tr>
+<td>Git源码安装</td>
+<td>克隆仓库<code>git clone https://github.com/crytic/slither.git &amp;&amp; cd slither</code>，再执行<code>python3 -m pip install .</code></td>
+</tr>
+</tbody></table>
+</li>
+<li><strong>核心实操命令</strong><br> 不用复杂配置，命令行就能直接运行，适合快速验证合约漏洞：<ul>
+<li>扫描整个项目（适配Hardhat/Foundry等框架，自动处理依赖）：<code>slither .</code></li>
+<li>扫描单个合约文件：<code>slither tests/vulnerable.sol</code></li>
+<li>查看合约关键信息（比如函数调用关系、权限控制），可用内置打印机：<code>slither tests/vulnerable.sol --print function-summary</code></li>
+</ul>
+</li>
+<li> <strong>实操小技巧</strong>：你可以找个含整数溢出漏洞的简单合约，用它扫描后，工具会直接定位漏洞代码行。结合你懂的缓冲区溢出原理，能快速理解“数值校验缺陷”在Solidity里的表现形式。</li>
+</ol>
+<h3 id="Mythril（符号执行工具，挖深层逻辑漏洞）"><a href="#Mythril（符号执行工具，挖深层逻辑漏洞）" class="headerlink" title="Mythril（符号执行工具，挖深层逻辑漏洞）"></a>Mythril（符号执行工具，挖深层逻辑漏洞）</h3><p>由Consensys开发，能在EVM字节码层面分析，通过符号执行遍历合约所有执行路径，适合挖出Slither扫不到的隐藏漏洞，比如复杂条件下的重入、逻辑绕过等，和你的IDA Pro逆向经验适配度很高。</p>
+<ol>
+<li><strong>快速安装</strong><br> 同样支持多方式安装，pip安装最省心：<table>
+<thead>
+<tr>
+<th>安装方式</th>
+<th>具体命令</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>pip安装</td>
+<td><code>pip3 install mythril</code>，输入<code>myth version</code>可验证是否安装成功</td>
+</tr>
+<tr>
+<td>Docker安装</td>
+<td><code>docker pull mythril/myth</code></td>
+</tr>
+<tr>
+<td>源码安装</td>
+<td>克隆仓库<code>git clone https://github.com/Consensys/mythril</code>，进入目录后执行<code>pip3 install -e .</code></td>
+</tr>
+</tbody></table>
+</li>
+<li><strong>核心实操命令</strong><br> 不仅能扫本地合约，还能直接分析链上已部署合约，灵活性很高：<ul>
+<li>分析本地Solidity文件：<code>myth analyze contracts/vulnerable.sol</code></li>
+<li>分析链上合约（需借助Infura）：<code>myth analyze --rpc infura-mainnet --address 合约地址</code></li>
+<li>精准输出报告：加<code>-o json</code>输出JSON格式报告，加<code>-v 4</code>查看详细漏洞分析过程。</li>
+</ul>
+</li>
+<li> <strong>实操小技巧</strong>：可以用它分析一个带复杂分支逻辑的合约，它会输出每条执行路径的约束条件。这和你之前逆向分析二进制程序的思路类似，都是通过拆解逻辑找到漏洞突破口。</li>
+</ol>
+<h3 id="高效学习的2个关键建议"><a href="#高效学习的2个关键建议" class="headerlink" title="高效学习的2个关键建议"></a>高效学习的2个关键建议</h3><ol>
+<li> <strong>用漏洞样例练手</strong>：去GitHub搜<code>solidity-vulnerable-samples</code>等仓库，里面有大量含重入、整数溢出等漏洞的Demo合约，用两个工具分别扫描，对比检测结果，既能熟悉工具，又能强化对Solidity漏洞的认知。</li>
+<li> <strong>结合自身经验深化</strong>：比如看到Slither检测出的“未校验外部调用返回值”漏洞，可关联你之前了解的“系统调用失败处理”知识；用Mythril分析代理合约时，可复用你的逆向思维拆解底层逻辑。 </li>
+</ol>
+<p>等你练熟这两个工具，再整理1 - 2份包含“工具扫描结果+漏洞原理分析+修复方案”的审计报告，面试香港Web3公司时拿出来，绝对是加分项！</p>
 
             </div>
             <hr>
@@ -253,6 +498,8 @@
                     <i class="iconfont icon-tags"></i>
                     
                       <a class="hover-with-bg" href="/tags/Web3/">Web3</a>
+                    
+                      <a class="hover-with-bg" href="/tags/audit/">audit</a>
                     
                   </div>
                 
