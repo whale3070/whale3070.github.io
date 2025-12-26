@@ -1,7 +1,7 @@
 
 
   <!DOCTYPE html>
-  <html lang="en" data-default-color-scheme=&#34;dark&#34; >
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
   <style>
     .text1
     {
@@ -25,22 +25,22 @@
   <meta name="keywords" content="">
   <title>Brainfuck靶机渗透实践-rsa算法和维吉尼亚解密 - whale3070&#39;s blog</title>
 
-  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
 
 
-  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
   <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
 
   
     
     
       
-      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
     
   
 
   
-    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
   
 
 
@@ -61,11 +61,11 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
-<meta name="generator" content="Hexo 6.0.0"></head>
+<meta name="generator" content="Hexo 7.3.0"></head>
 
 
     <body>
@@ -92,7 +92,7 @@
             <li class="nav-item">
               <a class="nav-link" href="/">
                 <i class="iconfont icon-home-fill"></i>
-                Home
+                首页
               </a>
             </li>
           
@@ -104,7 +104,7 @@
             <li class="nav-item">
               <a class="nav-link" href="/archives/">
                 <i class="iconfont icon-archive-fill"></i>
-                Archives
+                归档
               </a>
             </li>
           
@@ -116,7 +116,7 @@
             <li class="nav-item">
               <a class="nav-link" href="/categories/">
                 <i class="iconfont icon-category-fill"></i>
-                Categories
+                分类
               </a>
             </li>
           
@@ -128,16 +128,23 @@
             <li class="nav-item">
               <a class="nav-link" href="/tags/">
                 <i class="iconfont icon-tags-fill"></i>
-                Tags
+                标签
               </a>
             </li>
           
         
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/search/">
+                <i class="iconfont icon-search"></i>
+                搜索
+              </a>
+            </li>
+          
         
-          <li class="nav-item" id="search-btn">
-            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
-                class="iconfont icon-search"></i>&nbsp;</a>
-          </li>
         
         
           
@@ -166,7 +173,7 @@
     <span class="post-meta">
       <i class="iconfont icon-date-fill" aria-hidden="true"></i>
       <time datetime="2019-07-16 00:00" pubdate>
-        July 16, 2019 am
+        2019年7月16日 凌晨
       </time>
     </span>
   
@@ -216,7 +223,7 @@
     <div class="col-lg-8 nopadding-x-md">
       <div class="container nopadding-x-md" id="board-ctn">
         <div class="py-5" id="board">
-          <article class="post-content mx-auto">
+          <article class="post-content mx-auto" data-pagefind-body>
             <!-- SEO header -->
             <h1 style="display: none">Brainfuck靶机渗透实践-rsa算法和维吉尼亚解密</h1>
             
@@ -243,9 +250,9 @@
 </ol>
 <p>下面介绍关于过期的机器<strong>Brainfuck</strong>的渗透过程，难度等级为hard。</p>
 <h2 id="扫描"><a href="#扫描" class="headerlink" title="扫描"></a><strong>扫描</strong></h2><p>用脚本扫描，好处是不用每次输入很多命令。运行以下脚本，输入IP：<code>10.10.10.17</code>，即可扫描udp和tcp的65535个端口，以及端口的版本。</p>
-<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-meta">#!/bin/bash</span><br><br><span class="hljs-built_in">read</span> -p <span class="hljs-string">&quot;which ip? &quot;</span> ip<br>masscan -p1-65535,U:1-65535 <span class="hljs-variable">$&#123;ip&#125;</span> --rate=1000 -p1-65535,U:1-65535 -e tun0 &gt; ports<br><br>what=$(awk <span class="hljs-string">&#x27;NR&lt;=1 &#123;print $6&#125;&#x27;</span> ports)<br>ports=$(cat ports | awk -F <span class="hljs-string">&quot; &quot;</span> <span class="hljs-string">&#x27;&#123;print $4&#125;&#x27;</span> | awk -F <span class="hljs-string">&quot;/&quot;</span> <span class="hljs-string">&#x27;&#123;print $1&#125;&#x27;</span> | sort -n | tr <span class="hljs-string">&#x27;\n&#x27;</span> <span class="hljs-string">&#x27;,&#x27;</span> | sed <span class="hljs-string">&#x27;s/,$//&#x27;</span>)<br>nmap -Pn -sV -sC -p<span class="hljs-variable">$ports</span> <span class="hljs-variable">$&#123;what&#125;</span> -oA <span class="hljs-variable">$&#123;ip&#125;</span><br>nmap -Pn -sU -sV -sC -p<span class="hljs-variable">$ports</span> <span class="hljs-variable">$&#123;what&#125;</span> -oA <span class="hljs-variable">$&#123;ip&#125;</span>-udp.xml<br><br>nikto -h http://<span class="hljs-variable">$&#123;ip&#125;</span> &gt; nikto-<span class="hljs-variable">$&#123;ip&#125;</span>.txt<br></code></pre></div></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-meta">#!/bin/bash</span><br><br><span class="hljs-built_in">read</span> -p <span class="hljs-string">&quot;which ip? &quot;</span> ip<br>masscan -p1-65535,U:1-65535 <span class="hljs-variable">$&#123;ip&#125;</span> --rate=1000 -p1-65535,U:1-65535 -e tun0 &gt; ports<br><br>what=$(awk <span class="hljs-string">&#x27;NR&lt;=1 &#123;print $6&#125;&#x27;</span> ports)<br>ports=$(<span class="hljs-built_in">cat</span> ports | awk -F <span class="hljs-string">&quot; &quot;</span> <span class="hljs-string">&#x27;&#123;print $4&#125;&#x27;</span> | awk -F <span class="hljs-string">&quot;/&quot;</span> <span class="hljs-string">&#x27;&#123;print $1&#125;&#x27;</span> | <span class="hljs-built_in">sort</span> -n | <span class="hljs-built_in">tr</span> <span class="hljs-string">&#x27;\n&#x27;</span> <span class="hljs-string">&#x27;,&#x27;</span> | sed <span class="hljs-string">&#x27;s/,$//&#x27;</span>)<br>nmap -Pn -sV -sC -p<span class="hljs-variable">$ports</span> <span class="hljs-variable">$&#123;what&#125;</span> -oA <span class="hljs-variable">$&#123;ip&#125;</span><br>nmap -Pn -sU -sV -sC -p<span class="hljs-variable">$ports</span> <span class="hljs-variable">$&#123;what&#125;</span> -oA <span class="hljs-variable">$&#123;ip&#125;</span>-udp.xml<br><br>nikto -h http://<span class="hljs-variable">$&#123;ip&#125;</span> &gt; nikto-<span class="hljs-variable">$&#123;ip&#125;</span>.txt<br></code></pre></div></td></tr></table></figure>
 <p>以下是扫描结果：</p>
-<figure class="highlight pgsql"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs pgsql">Discovered <span class="hljs-keyword">open</span> port <span class="hljs-number">25</span>/tcp <span class="hljs-keyword">on</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.17</span>                                     <br>Discovered <span class="hljs-keyword">open</span> port <span class="hljs-number">443</span>/tcp <span class="hljs-keyword">on</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.17</span>                                    <br>Discovered <span class="hljs-keyword">open</span> port <span class="hljs-number">22</span>/tcp <span class="hljs-keyword">on</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.17</span>                                     <br>Discovered <span class="hljs-keyword">open</span> port <span class="hljs-number">143</span>/tcp <span class="hljs-keyword">on</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.17</span>                                    <br>Discovered <span class="hljs-keyword">open</span> port <span class="hljs-number">110</span>/tcp <span class="hljs-keyword">on</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.17</span>      <br><br>PORT    STATE SERVICE  <span class="hljs-keyword">VERSION</span><br><br><span class="hljs-number">22</span>/tcp  <span class="hljs-keyword">open</span>  ssh      OpenSSH <span class="hljs-number">7.2</span>p2 Ubuntu <span class="hljs-number">4</span>ubuntu2<span class="hljs-number">.1</span> (Ubuntu Linux; protocol <span class="hljs-number">2.0</span>)<br><br><span class="hljs-number">25</span>/tcp  <span class="hljs-keyword">open</span>  smtp     Postfix smtpd<br>|_smtp-commands: brainfuck, PIPELINING, SIZE <span class="hljs-number">10240000</span>, VRFY, ETRN, STARTTLS, ENHANCEDSTATUSCODES, <span class="hljs-number">8</span>BITMIME, DSN, <br><br><span class="hljs-number">110</span>/tcp <span class="hljs-keyword">open</span>  pop3     Dovecot pop3d<br><br>|_pop3-capabilities: TOP UIDL CAPA RESP-CODES SASL(PLAIN) <span class="hljs-keyword">USER</span> PIPELINING AUTH-RESP-CODE<br><br><span class="hljs-number">143</span>/tcp <span class="hljs-keyword">open</span>  imap     Dovecot imapd<br><br>|_imap-capabilities: IDLE IMAP4rev1 LITERAL+ more listed have capabilities <span class="hljs-keyword">LOGIN</span>-REFERRALS <span class="hljs-keyword">ENABLE</span> ID OK post-<span class="hljs-keyword">login</span> Pre-<span class="hljs-keyword">login</span> SASL-IR AUTH=PLAINA0001<br><br><span class="hljs-number">443</span>/tcp <span class="hljs-keyword">open</span>  ssl/http nginx <span class="hljs-number">1.10</span><span class="hljs-number">.0</span> (Ubuntu)<br>|_http-<span class="hljs-keyword">server</span>-<span class="hljs-keyword">header</span>: nginx/<span class="hljs-number">1.10</span><span class="hljs-number">.0</span> (Ubuntu)<br>|_http-title: Welcome <span class="hljs-keyword">to</span> nginx!<br><br>| ssl-cert: Subject: commonName=brainfuck.htb/organizationName=Brainfuck Ltd./stateOrProvinceName=Attica/countryName=GR<br><br>| Subject Alternative <span class="hljs-type">Name</span>: DNS:www.brainfuck.htb, DNS:sup3rs3cr3t.brainfuck.htb<br>                             <br>Service <span class="hljs-keyword">Info</span>: Host:  brainfuck; OS: Linux; CPE: cpe:/o:linux:linux_kernel<br></code></pre></div></td></tr></table></figure>
+<figure class="highlight nix"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs nix">Discovered open port <span class="hljs-number">25</span><span class="hljs-symbol">/tcp</span> on <span class="hljs-number">10.10</span>.<span class="hljs-number">10.17</span>                                     <br>Discovered open port <span class="hljs-number">443</span><span class="hljs-symbol">/tcp</span> on <span class="hljs-number">10.10</span>.<span class="hljs-number">10.17</span>                                    <br>Discovered open port <span class="hljs-number">22</span><span class="hljs-symbol">/tcp</span> on <span class="hljs-number">10.10</span>.<span class="hljs-number">10.17</span>                                     <br>Discovered open port <span class="hljs-number">143</span><span class="hljs-symbol">/tcp</span> on <span class="hljs-number">10.10</span>.<span class="hljs-number">10.17</span>                                    <br>Discovered open port <span class="hljs-number">110</span><span class="hljs-symbol">/tcp</span> on <span class="hljs-number">10.10</span>.<span class="hljs-number">10.17</span>      <br><br>PORT    STATE SERVICE  VERSION<br><br><span class="hljs-number">22</span><span class="hljs-symbol">/tcp</span>  open  ssh      OpenSSH <span class="hljs-number">7.2</span>p2 Ubuntu <span class="hljs-number">4</span>ubuntu2.<span class="hljs-number">1</span> (Ubuntu Linux; protocol <span class="hljs-number">2.0</span>)<br><br><span class="hljs-number">25</span><span class="hljs-symbol">/tcp</span>  open  smtp     Postfix smtpd<br>|<span class="hljs-params">_smtp-commands:</span> brainfuck, PIPELINING, SIZE <span class="hljs-number">10240000</span>, VRFY, ETRN, STARTTLS, ENHANCEDSTATUSCODES, <span class="hljs-number">8</span>BITMIME, DSN, <br><br><span class="hljs-number">110</span><span class="hljs-symbol">/tcp</span> open  pop3     Dovecot pop3d<br><br>|<span class="hljs-params">_pop3-capabilities:</span> TOP UIDL CAPA RESP-CODES SASL(PLAIN) USER PIPELINING AUTH-RESP-CODE<br><br><span class="hljs-number">143</span><span class="hljs-symbol">/tcp</span> open  imap     Dovecot imapd<br><br>|<span class="hljs-params">_imap-capabilities:</span> IDLE IMAP4rev1 LITERAL<span class="hljs-operator">+</span> more listed have capabilities LOGIN-REFERRALS ENABLE ID OK post-login Pre-login SASL-IR AUTH<span class="hljs-operator">=</span>PLAINA0001<br><br><span class="hljs-number">443</span><span class="hljs-symbol">/tcp</span> open  ssl<span class="hljs-symbol">/http</span> nginx <span class="hljs-number">1.10</span>.<span class="hljs-number">0</span> (Ubuntu)<br>|<span class="hljs-params">_http-server-header:</span> nginx<span class="hljs-symbol">/1.10.0</span> (Ubuntu)<br>|<span class="hljs-params">_http-title:</span> Welcome to nginx<span class="hljs-operator">!</span><br><br>| <span class="hljs-params">ssl-cert:</span> <span class="hljs-params">Subject:</span> commonName<span class="hljs-operator">=</span>brainfuck.htb<span class="hljs-operator">/</span>organizationName<span class="hljs-operator">=</span>Brainfuck Ltd.<span class="hljs-operator">/</span>stateOrProvinceName<span class="hljs-operator">=</span>Attica<span class="hljs-operator">/</span>countryName<span class="hljs-operator">=</span>GR<br><br>| Subject Alternative <span class="hljs-params">Name:</span> DNS:www.brainfuck.htb, DNS:sup3rs3cr3t.brainfuck.htb<br>                             <br>Service <span class="hljs-params">Info:</span> <span class="hljs-params">Host:</span>  brainfuck; <span class="hljs-params">OS:</span> Linux; <span class="hljs-params">CPE:</span> cpe:<span class="hljs-operator">/</span>o:linux:linux_kernel<br></code></pre></div></td></tr></table></figure>
 <h2 id="smtp（简单邮件传输协议）枚举存在用户"><a href="#smtp（简单邮件传输协议）枚举存在用户" class="headerlink" title="smtp（简单邮件传输协议）枚举存在用户"></a><strong>smtp（简单邮件传输协议）枚举存在用户</strong></h2><p><code>smtp-user-enum -M VRFY -U /usr/share/metasploit-framework/data/wordlists/unix_users.txt -t 10.10.10.17</code></p>
 <p><img src="1.PNG" srcset="/img/loading.gif"></p>
 <h2 id="web分析"><a href="#web分析" class="headerlink" title="web分析"></a><strong>web分析</strong></h2><p>访问地址<code>https://10.10.10.17</code></p>
@@ -253,7 +260,7 @@
 <p>nmap、nikto，都显示了域名：commonName=brainfuck.htb</p>
 <p><img src="3.PNG" srcset="/img/loading.gif"></p>
 <p>同样也可以用sslyze查询域名。</p>
-<figure class="highlight gradle"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs gradle">sslyze --regular <span class="hljs-number">10.10</span>.<span class="hljs-number">10.17</span> &gt; <span class="hljs-regexp">/root/</span>Desktop<span class="hljs-regexp">/10.10.10.17/</span>domain<br>cat <span class="hljs-regexp">/root/</span>Desktop<span class="hljs-regexp">/10.10.10.17/</span>domain | <span class="hljs-keyword">grep</span> <span class="hljs-string">&quot;Name&quot;</span><br></code></pre></div></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">sslyze --regular 10.10.10.17 &gt; /root/Desktop/10.10.10.17/domain<br><span class="hljs-built_in">cat</span> /root/Desktop/10.10.10.17/domain | grep <span class="hljs-string">&quot;Name&quot;</span><br></code></pre></div></td></tr></table></figure>
 
 <ul>
 <li>用burp，将host修改为brainfuck.htb，可以看到nginx 默认配置页面变成了另一个页面。<br>访问<a target="_blank" rel="noopener" href="https://brainfuck.htb/%EF%BC%8C%E5%8F%AF%E4%BB%A5%E7%9C%8B%E5%88%B0wordpress%E7%AB%99">https://brainfuck.htb/，可以看到wordpress站</a></li>
@@ -266,7 +273,7 @@
 <p>该扫描器发现了4个插件漏洞。主要是“WP Support Plus Responsive Ticket System”</p>
 <h5 id="searchsploit"><a href="#searchsploit" class="headerlink" title="searchsploit"></a><strong>searchsploit</strong></h5><p>searchsploit WP Support Plus Responsive</p>
 <p><img src="2.PNG" srcset="/img/loading.gif"></p>
-<figure class="highlight awk"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs awk">searchsploit -m exploits<span class="hljs-regexp">/php/</span>webapps/<span class="hljs-number">34589</span>.txt<br>searchsploit -m exploits<span class="hljs-regexp">/php/</span>webapps/<span class="hljs-number">41006</span>.txt<br>searchsploit -m exploits<span class="hljs-regexp">/php/</span>webapps/<span class="hljs-number">40939</span>.txt<br></code></pre></div></td></tr></table></figure>
+<figure class="highlight apache"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs apache"><span class="hljs-attribute">searchsploit</span> -m exploits/php/webapps/<span class="hljs-number">34589</span>.txt<br><span class="hljs-attribute">searchsploit</span> -m exploits/php/webapps/<span class="hljs-number">41006</span>.txt<br><span class="hljs-attribute">searchsploit</span> -m exploits/php/webapps/<span class="hljs-number">40939</span>.txt<br></code></pre></div></td></tr></table></figure>
 <p>经过测试，找到了可用exp</p>
 <p>wordpress插件“WP Support Plus Responsive Ticket System 7.1.3”提权漏洞。<a target="_blank" rel="noopener" href="https://www.exploit-db.com/exploits/41006">https://www.exploit-db.com/exploits/41006</a></p>
 <p>你可以无需知道密码以任何用户名登陆，因为使用函数wp_set_auth_cookie()的方式不正确。</p>
@@ -338,10 +345,10 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2019/07/29/98a20b522b04/">
+                      <a href="/2019/07/30/0d9c7a7d58c8/">
                         <i class="iconfont icon-arrowleft"></i>
                         <span class="hidden-mobile">awvs和appscan登陆扫描</span>
-                        <span class="visible-mobile">Previous</span>
+                        <span class="visible-mobile">上一篇</span>
                       </a>
                     
                   </article>
@@ -350,7 +357,7 @@
                     
                       <a href="/2019/07/11/3ec23ff59f83/">
                         <span class="hidden-mobile">图片隐写（一）</span>
-                        <span class="visible-mobile">Next</span>
+                        <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
                     
@@ -367,7 +374,7 @@
     
       <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
         <div id="toc">
-  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
   <div class="toc-body" id="toc-body"></div>
 </div>
 
@@ -388,28 +395,6 @@
                   
 
                     
-                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-     aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header text-center">
-        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
-        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body mx-3">
-        <div class="md-form mb-5">
-          <input type="text" id="local-search-input" class="form-control validate">
-          <label data-error="x" data-success="v"
-                 for="local-search-input">keyword</label>
-        </div>
-        <div class="list-group" id="local-search-result"></div>
-      </div>
-    </div>
-  </div>
-</div>
-                        
 
                           
       </main>
@@ -451,8 +436,8 @@
 
 <!-- SCRIPTS -->
 
-  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
-  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
 
   <script>
     NProgress.configure({"showSpinner":false,"trickleSpeed":100})
@@ -463,8 +448,8 @@
   </script>
 
 
-<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
-<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
 <script  src="/js/debouncer.js" ></script>
 <script  src="/js/events.js" ></script>
 <script  src="/js/plugins.js" ></script>
@@ -482,19 +467,19 @@
 
 
 
-  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
 
 
 
-  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
 
 
 
-  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
 
 
 
-  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
 
 
 
@@ -504,18 +489,6 @@
 
 
 
-
-  <script  src="/js/local-search.js" ></script>
-  <script>
-    (function () {
-      var path = "/local-search.xml";
-      var inputArea = document.querySelector("#local-search-input");
-      inputArea.onclick = function () {
-        searchFunc(path, 'local-search-input', 'local-search-result');
-        this.onclick = null
-      }
-    })()
-  </script>
 
 
 
@@ -535,7 +508,18 @@
 <script  src="/js/boot.js" ></script>
 
 
-
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
     </body>
 
   </html>

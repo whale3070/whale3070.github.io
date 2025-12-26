@@ -1,0 +1,462 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>WebSocket sql blind inject - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/search/">
+                <i class="iconfont icon-search"></i>
+                搜索
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="WebSocket sql blind inject">
+                      
+                        WebSocket sql blind inject
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2023-06-07 13:02" pubdate>
+        2023年6月7日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.5k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      16
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">WebSocket sql blind inject</h1>
+            
+            <div class="markdown-body">
+              <h2 id="web-socket是什么"><a href="#web-socket是什么" class="headerlink" title="web socket是什么"></a>web socket是什么</h2><p>HTTP和WebSocket都使用了<strong>客户端、服务端通信</strong>进行连接的一种协议。</p>
+<h3 id="http"><a href="#http" class="headerlink" title="http"></a>http</h3><p>HTTP协议：HTTP是单向的，客户端发送请求，服务器发送响应。让我们举个例子，当用户向服务器发送请求时，该请求以HTTP或HTTPS的形式发送，服务器接收到请求后向客户端发送响应，每个请求都与相应的响应相关联，发送完响应后连接关闭，每次HTTP或HTTPS请求都会建立新的与服务器的连接，获取响应后连接会自动终止。</p>
+<p>HTTP是一种无状态协议，运行在基于TCP的面向连接的协议之上，它使用三次握手方法来保证数据包传输的可靠性，并重新传输丢失的数据包。</p>
+<p>HTTP可以在任何可靠的面向连接的协议上运行，如TCP、SCTP。当客户端向服务器发送HTTP请求时，客户端和服务器之间会建立一个TCP连接，获取响应后TCP连接会终止，每个HTTP请求都会打开一个单独的TCP连接到服务器，例如，如果客户端向服务器发送了10个请求，将会打开10个单独的TCP连接，并在获取响应/回退后关闭。</p>
+<p>HTTP消息使用ASCII编码，每个HTTP请求消息由HTTP协议版本（HTTP/1.1、HTTP/2）、HTTP方法（GET/POST等）、HTTP头部（内容类型、内容长度）、主机信息等组成，以及包含实际传输到服务器的消息的正文。HTTP头部的大小通常在200字节到2KB之间，常见的HTTP头部大小为700-800字节。当Web应用程序在客户端使用更多的cookie和其他工具来扩展代理存储功能时，会减少HTTP头部的负载。</p>
+<h3 id="ws"><a href="#ws" class="headerlink" title="ws"></a>ws</h3><p>WebSocket（网络套接字）：WebSocket是一种双向的、全双工的协议，用于客户端和服务器之间的通信，与HTTP不同，它的URL以ws://或wss://开头。它是一种有状态的协议，也就是说，客户端和服务器之间的连接将保持活动状态，直到由任一方（客户端或服务器）终止。在任一方（客户端或服务器）关闭连接后，连接将从两端终止。</p>
+<p>让我们以客户端和服务器之间的通信为例，客户端是一个Web浏览器，服务器是另一端。当客户端和服务器之间建立连接时，它们进行握手并决定创建一个新的连接，这个连接将保持活动状态，直到被任一方终止。在连接建立并保持活动状态时，通信将通过同一连接通道进行，直到连接被终止。</p>
+<p>这就是在客户端和服务器进行握手后，决定保持活动的新连接，这个新连接被称为WebSocket的方式。一旦通信链路建立并打开连接，消息交换将以双向模式进行，直到客户端和服务器之间的连接持续存在。如果其中任何一方（客户端或服务器）断开连接或决定关闭连接，则连接将被双方关闭。套接字的工作方式与HTTP的工作方式略有不同，状态码101表示在WebSocket中切换协议。</p>
+<h2 id="WebSocket的应用场景"><a href="#WebSocket的应用场景" class="headerlink" title="WebSocket的应用场景"></a>WebSocket的应用场景</h2><p>WebSocket可以在以下情况下使用：</p>
+<p>实时Web应用程序：实时Web应用程序使用WebSocket在客户端端显示由后端服务器不断发送的数据。在WebSocket中，数据不断地通过已经打开的连接进行推送/传输，这就是为什么WebSocket更快并且改善了应用程序的性能。例如，在交易网站或比特币交易中，通过使用WebSocket通道，后端服务器不断地将价格波动和动态数据推送到客户端端以显示。</p>
+<p>游戏应用程序：在游戏应用程序中，服务器持续接收数据，并且在不刷新UI的情况下，数据将立即在屏幕上生效，UI将自动刷新，而无需建立新连接，因此在游戏应用程序中非常有帮助。</p>
+<p>聊天应用程序：聊天应用程序使用WebSocket仅一次建立连接，以在订阅者之间交换、发布和广播消息。它重用同一WebSocket连接来发送和接收消息，并进行一对一的消息传递。</p>
+<p>不适合使用WebSocket的情况：如果我们只想获取旧数据，或者只需一次性获取数据以在应用程序中进行处理，我们应该使用HTTP协议而不是WebSocket。不需要频繁获取或仅获取一次的旧数据可以通过简单的HTTP请求查询，因此在这种情况下最好不要使用WebSocket。</p>
+<p>注意：如果我们只加载数据一次，RESTful Web服务已足够从服务器获取数据。</p>
+<table>
+<thead>
+<tr>
+<th>WebSocket连接</th>
+<th>HTTP连接</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>WebSocket是一种双向通信协议，可以通过重用已建立的连接通道将数据从客户端发送到服务器，或者从服务器发送到客户端。连接保持活动状态，直到被客户端或服务器终止。</td>
+<td>HTTP协议是一种单向协议，它在TCP协议之上工作，TCP是一种面向连接的传输层协议，我们可以使用HTTP请求方法创建连接，获取响应后HTTP连接关闭。</td>
+</tr>
+<tr>
+<td>几乎所有实时应用程序（如交易、监控、通知）都使用WebSocket在单个通信通道上接收数据。</td>
+<td>简单的RESTful应用程序使用无状态的HTTP协议。</td>
+</tr>
+<tr>
+<td>所有频繁更新的应用程序都使用WebSocket，因为它比HTTP连接更快。</td>
+<td>当我们不想保留连接一段时间或重用连接传输数据时，HTTP连接比WebSocket慢。</td>
+</tr>
+</tbody></table>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.geeksforgeeks.org/what-is-web-socket-and-how-it-is-different-from-the-http/">https://www.geeksforgeeks.org/what-is-web-socket-and-how-it-is-different-from-the-http/</a></li>
+<li><a target="_blank" rel="noopener" href="https://rayhan0x01.github.io/ctf/2021/04/02/blind-sqli-over-websocket-automation.html">https://rayhan0x01.github.io/ctf/2021/04/02/blind-sqli-over-websocket-automation.html</a></li>
+</ul>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/06/07/75047eecc09c/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Soccer(WebSocket注入)</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/06/06/9f5389ba1833/">
+                        <span class="hidden-mobile">雅思写作课程-第十课-大作文</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>
