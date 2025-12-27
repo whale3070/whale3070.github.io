@@ -1,0 +1,444 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>T1134.001 windows-2008-r2-令牌伪造提权 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/search/">
+                <i class="iconfont icon-search"></i>
+                搜索
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="T1134.001 windows-2008-r2-令牌伪造提权">
+                      
+                        T1134.001 windows-2008-r2-令牌伪造提权
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-11-25 14:30" pubdate>
+        2021年11月25日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      6 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      1
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">T1134.001 windows-2008-r2-令牌伪造提权</h1>
+            
+            <div class="markdown-body">
+              <div class="hbe hbe-container" id="hexo-blog-encrypt" data-wpm="Oh, this is an invalid password. Check and try again, please." data-whm="Oh, these decrypted content cannot be verified, but you can still have a look.">
+  <script id="hbeData" type="hbeData" data-hmacdigest="05030fea0784af50bd90171541a545179b22dcdb5ba6844b0ab297a50f8bdfcb">36a8c550e2bef3e6f6e1f965bd55bc8a65f25f6a835f7113a07caec67862e689167469238ae68f1f4017aaf2df15765323c16adccd1ad24c27b8b548e5d9c74190120234df084a4f06dfd6e5bbff032fc8752287a5f003f72ff8012b747f197bc9dc68907e4793453db0ca6dd4faff87ab156ac93e945b021c40d3c4235ffb9dd7643fb40a2919a755e1fa1575c9b37e81e4d43bb59c84eeaf8e9f184e867bca4668f69ced112611e791db1972bcb6419fe6acb816d1212167739f5373f0f5b8dc4770c4cd5fbf093a8de33a81dc5c263acf717328ea2bb43d668bcdb017208bc55764545e63a4331c340bd065ea0e5f9393c6cce682845c175262ec393ee36b05fbcf39f9397dcc7f69b603c4ee103998774d2a4c3cde9d55ec8dfa8079b01532bb7007d626a7ebcb1f2e3b1cc2e9120f8c302db98e9d10bd364a88e5b65cc61113070b6aa2d1542f1777adb5f06dc00473949d0979c0eac9e795eae3f9f8226ea5f6f55c9e85348d18112774803ba071a1e9a80b4c0e7b0b505707bc7d58c8f619e2f20cfac0e8e3662fc457c52b5380baef051076ab32674bfa8ef1b823a2d5ad4aebf94c58b0dab94103ea33c26f144772c38a45132450fdcf61ec6def416fa62c85aa673755adc058b98b3971241a0fbaed415797c62d87216fb374d2a03bd7d5d8b7173eb694fe9b6907eb6db4bd203d00230ff9e4af52837750869b3b750906f5827492651e14281e9296852858719a20bdfdafe2dbc2fb12b0163cc476ec165a9aaf744b92daa98d83af5a79d31a60d4f994e32beeae40ec22ade78b7025f34ee49d42df2bb834a77a07c07e6f0e0aa0b5ddaf7b1dd1845233688a75b060f06a036a0cbd2a2adc87832937d29f4e109f5c6ed4d88e403bd1c98091805dae39112b45b310d22411862e4f818906365134f8c034e3f258f33c685b8155ca80d42448302d15dd4e426fe1d8c67c71ee36ddc3f246cf0cfb9e1e4a34a6162f6d539dba5c455df623e6893badb6b1cfd26d6593242e608c2eec5cc762a4add3658b64bb926e77fae57acda3f3e96f99b34613b22e3b5429251a2c022745607b049b783ea8195c942bdd554844f943e53b3bcd2d2d28ada1a89fc6166a1b06fb6c33403c150ff74697f819f48f95b78e7aba46cf90e55f9a0e215ef3a2338f5283956c13a51c035b39973a6a721f9dedeea7822d8c6709db17f54143083365119c47e0adf6b188cb17ab9077f8b2ab60c13749c8b197bd84bbfd4ca387af81ac1aefe3a9fdd8fb16ddbcd8de10d26e6af3a457ecf94097d7ba160fdb355172faecaf6fc852a92fca8e223d557d282d90dccc7a6b16691d6f9b5d8b7c353869a2985995fb0491dd7dd92e615c77a03314ce40a7b5ce6ad1720c119d6a29a8fb2bb1c1f79e3c1473bd19998420186b670149286e8aff30b592d330b8fbed07f0287e08274ce808176f01db353181c4f190206b7ad98733cd74cf42dab46673ab536c6521658339c247c2731c5441f39f5bef7139bc337160c238443855575ef4a27bd8f87fa5c53e51cc116bc282695d4d44c30f8142deb3f1e82310788e8a0328e499cdd340332427dea6723489d7fd9deb10601316f817f96b8b645502eb17e20f18667561fc0ef41432dc3a09735b8cc043f43a89d032a5c063be4764a8daa91b37cba7945e221d66202d5083d28e5d45fdb1cfae857d57ed2d290f7a852e0e095fa3e76821209a09d83cad3cf4f378914629ad73adab223e813a7c7d1871ee6776277e04430270b3e56de65aac4f879effe94d67b64b31c7c1ef44ff8c1c50bbbb5da71c4ac625cc673e777eed459f3cc5d10f9057a0066073eedd1fd24abd9d37c62ccd1906046e226b6ab4293e526153513cd987ad5f6aaeeeffd75a1678c28bbd6e8a8ce6fb46a0fe78fd325fff3dcd9dedb41008600ce4d05d0b79ea43a4f45057bfb53e51a1b004c4bd0033cc960fee445692ba01363d133c1f63d02c73a5edbbdfa224602eb070d75eb75bac4d429c6f3b9a352e0b67fbeb2db8df56d40ae818dcc2311e524d2b390ece4853623f36bd959b2c99622249006a7abb</script>
+  <div class="hbe hbe-content">
+    <div class="hbe hbe-input hbe-input-default">
+      <input class="hbe hbe-input-field hbe-input-field-default" type="password" id="hbePass">
+      <label class="hbe hbe-input-label hbe-input-label-default" for="hbePass">
+        <span class="hbe hbe-input-label-content hbe-input-label-content-default">Hey, password is required here.</span>
+      </label>
+    </div>
+  </div>
+</div>
+<script data-pjax src="/lib/hbe.js"></script><link href="/css/hbe.style.css" rel="stylesheet" type="text/css">
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/record/">record</a>
+                    
+                      <a class="hover-with-bg" href="/tags/ATTCK/">ATTCK</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/11/28/9949.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">提权工具wes-无需上传exe的内网漏洞信息搜集</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/11/21/57416.html">
+                        <span class="hidden-mobile">老龄化对未来二十年教育行业的影响</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>

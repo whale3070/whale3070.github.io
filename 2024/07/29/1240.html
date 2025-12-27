@@ -1,0 +1,525 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>make与makefile - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/search/">
+                <i class="iconfont icon-search"></i>
+                搜索
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="make与makefile">
+                      
+                        make与makefile
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2024-07-29 03:26" pubdate>
+        2024年7月29日 凌晨
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.9k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      22
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">make与makefile</h1>
+            
+            <div class="markdown-body">
+              <h1 id="make命令"><a href="#make命令" class="headerlink" title="make命令"></a>make命令</h1><p>make是linux系统中的一个编译源码的命令。</p>
+<p>通常在执行后，会成功生成一个elf的可执行文件。</p>
+<p><code>make</code> 是一个构建管理工具，主要用于自动化编译程序和其他文件。它通过读取一个名为 <code>Makefile</code> 的文件来执行任务。<code>Makefile</code> 是一个包含规则和命令的文本文件，描述了如何编译和链接一个程序或者执行其他类型的任务。在 <code>Makefile</code> 中，你可以定义目标（target）、依赖关系（dependencies）和操作命令（commands），<code>make</code> 工具根据 <code>Makefile</code> 中定义的规则来决定需要重新编译哪些文件，以确保所有的文件都是最新的。</p>
+<h2 id="如何编写makefile"><a href="#如何编写makefile" class="headerlink" title="如何编写makefile"></a>如何编写makefile</h2><p>编写 <code>Makefile</code> 可以帮助你自动化编译和管理项目的过程，以下是编写 <code>Makefile</code> 的基本步骤和语法说明：</p>
+<h3 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h3><ol>
+<li><p><strong>目标（Targets）</strong>：</p>
+<ul>
+<li>目标是 <code>Makefile</code> 中的主要部分，它们指定了要执行的操作。</li>
+</ul>
+</li>
+<li><p><strong>依赖关系（Dependencies）</strong>：</p>
+<ul>
+<li>每个目标可以有零个或多个依赖项，这些依赖项是目标执行所必需的文件或其他目标。</li>
+</ul>
+</li>
+<li><p><strong>命令（Commands）</strong>：</p>
+<ul>
+<li>每个目标可以有一个或多个命令，用于执行特定操作。命令必须以 Tab 键开始。</li>
+</ul>
+</li>
+</ol>
+<h3 id="示例-Makefile"><a href="#示例-Makefile" class="headerlink" title="示例 Makefile"></a>示例 <code>Makefile</code></h3><p>假设有一个简单的 C 语言项目，包含两个源文件 <code>main.c</code> 和 <code>helper.c</code>，以及它们对应的头文件 <code>helper.h</code>。我们可以编写一个 <code>Makefile</code> 来编译这个项目：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs makefile"><span class="hljs-comment"># Makefile for a simple C program</span><br><br><span class="hljs-comment"># 定义编译器</span><br>CC = gcc<br><span class="hljs-comment"># 定义编译选项</span><br>CFLAGS = -Wall -g<br><br><span class="hljs-comment"># 默认目标</span><br><span class="hljs-section">default: myprogram</span><br><br><span class="hljs-comment"># 目标：myprogram</span><br><span class="hljs-section">myprogram: main.o helper.o</span><br>    <span class="hljs-variable">$(CC)</span> <span class="hljs-variable">$(CFLAGS)</span> -o myprogram main.o helper.o<br><br><span class="hljs-comment"># 目标：main.o</span><br><span class="hljs-section">main.o: main.c helper.h</span><br>    <span class="hljs-variable">$(CC)</span> <span class="hljs-variable">$(CFLAGS)</span> -c main.c<br><br><span class="hljs-comment"># 目标：helper.o</span><br><span class="hljs-section">helper.o: helper.c helper.h</span><br>    <span class="hljs-variable">$(CC)</span> <span class="hljs-variable">$(CFLAGS)</span> -c helper.c<br><br><span class="hljs-comment"># 清理目标：clean</span><br><span class="hljs-section">clean:</span><br>    rm -f *.o myprogram<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="解释和说明"><a href="#解释和说明" class="headerlink" title="解释和说明"></a>解释和说明</h3><ul>
+<li><strong>CC</strong>: 定义了编译器为 <code>gcc</code>。</li>
+<li><strong>CFLAGS</strong>: 定义了编译选项，这里包括 <code>-Wall</code>（显示所有警告）和 <code>-g</code>（生成调试信息）。</li>
+<li><strong>default</strong>: 这是一个伪目标，定义了默认的目标，这里是 <code>myprogram</code>。</li>
+<li><strong>myprogram</strong>: 目标 <code>myprogram</code> 的依赖是 <code>main.o</code> 和 <code>helper.o</code>，执行命令是将它们链接为可执行文件 <code>myprogram</code>。</li>
+<li><strong>main.o</strong> 和 <strong>helper.o</strong>: 分别是 <code>main.c</code> 和 <code>helper.c</code> 的编译目标，每个都有对应的依赖和编译命令。</li>
+<li><strong>clean</strong>: 清理目标，用于删除编译生成的 <code>.o</code> 文件和可执行文件 <code>myprogram</code>。</li>
+</ul>
+<h3 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h3><p>在命令行中，你可以运行 <code>make</code> 命令来执行 <code>Makefile</code> 中定义的目标。比如：</p>
+<ul>
+<li><code>make</code>：执行默认目标 <code>myprogram</code>，编译整个项目。</li>
+<li><code>make clean</code>：执行清理目标，删除所有编译生成的文件。</li>
+</ul>
+<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h3><ul>
+<li>目标和依赖关系中的文件名区分大小写。</li>
+<li>命令必须以 Tab 键开始，而不是空格。</li>
+<li>可以在 <code>Makefile</code> 中使用变量来简化和参数化编译过程。</li>
+<li><code>Makefile</code> 是根据目标和依赖关系来判断是否需要重新编译文件，从而提高了项目的编译效率。</li>
+</ul>
+<p>编写 <code>Makefile</code> 可以根据具体项目的需要灵活调整，例如添加更多目标来执行测试、文档生成等其他任务。</p>
+<h3 id="案例"><a href="#案例" class="headerlink" title="案例"></a>案例</h3><figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">BINARY_NAME=mythic-cli<br>LOCAL_PATH=$(shell <span class="hljs-built_in">pwd</span>)<br>BUILDER_IMAGE=ghcr.io/its-a-feature/mythic_cli:v0.0.3.53<br>.PHONY: default<br>default: build_linux ;<br><br><span class="hljs-comment"># pull in build and env options from global settings</span><br>-include ../build.env<br>-include ../.env<br><br><span class="hljs-built_in">export</span><br><br>copy_binary_linux:<br>	docker run -v <span class="hljs-variable">$&#123;LOCAL_PATH&#125;</span>/copy_file/:/copy_file/ --<span class="hljs-built_in">rm</span> <span class="hljs-variable">$&#123;BUILDER_IMAGE&#125;</span> sh -c <span class="hljs-string">&quot;cp /mythic-cli_linux /copy_file/mythic-cli&quot;</span><br>	<span class="hljs-built_in">mv</span> ./copy_file/<span class="hljs-variable">$&#123;BINARY_NAME&#125;</span> . &amp;&amp; <span class="hljs-built_in">rm</span> -rf ./copy_file &amp;&amp; <span class="hljs-built_in">chmod</span> +x <span class="hljs-variable">$&#123;BINARY_NAME&#125;</span><br><br>copy_binary_macos:<br>	docker run -v <span class="hljs-variable">$&#123;LOCAL_PATH&#125;</span>/copy_file/:/copy_file/ --<span class="hljs-built_in">rm</span> <span class="hljs-variable">$&#123;BUILDER_IMAGE&#125;</span> sh -c <span class="hljs-string">&quot;cp /mythic-cli_macos /copy_file/mythic-cli&quot;</span><br>	<span class="hljs-built_in">mv</span> ./copy_file/<span class="hljs-variable">$&#123;BINARY_NAME&#125;</span> . &amp;&amp; <span class="hljs-built_in">rm</span> -rf ./copy_file &amp;&amp; <span class="hljs-built_in">chmod</span> +x <span class="hljs-variable">$&#123;BINARY_NAME&#125;</span><br><br>build_local:<br>	<span class="hljs-built_in">cd</span> src &amp;&amp; go build -o ../../mythic-cli .<br><br>build_linux_docker:<br>	docker build -t mythic-cli-builder -f Dockerfile .<br>	docker run -v <span class="hljs-variable">$&#123;LOCAL_PATH&#125;</span>/copy_file/:/copy_file/ --<span class="hljs-built_in">rm</span> mythic-cli-builder sh -c <span class="hljs-string">&quot;cp /mythic-cli_linux /copy_file/mythic-cli&quot;</span><br>	<span class="hljs-built_in">mv</span> ./copy_file/<span class="hljs-variable">$&#123;BINARY_NAME&#125;</span> . &amp;&amp; <span class="hljs-built_in">rm</span> -rf ./copy_file &amp;&amp; <span class="hljs-built_in">chmod</span> +x <span class="hljs-variable">$&#123;BINARY_NAME&#125;</span><br><br>build_macos_docker:<br>	docker build -t mythic-cli-builder -f Dockerfile .<br>	docker run -v <span class="hljs-variable">$&#123;LOCAL_PATH&#125;</span>/copy_file/:/copy_file/ --<span class="hljs-built_in">rm</span> mythic-cli-builder sh -c <span class="hljs-string">&quot;cp /mythic-cli_macos /copy_file/mythic-cli&quot;</span><br>	<span class="hljs-built_in">mv</span> ./copy_file/<span class="hljs-variable">$&#123;BINARY_NAME&#125;</span> . &amp;&amp; <span class="hljs-built_in">rm</span> -rf ./copy_file &amp;&amp; <span class="hljs-built_in">chmod</span> +x <span class="hljs-variable">$&#123;BINARY_NAME&#125;</span><br><br>build_linux: copy_binary_linux<br>build_macos: copy_binary_macos<br><br></code></pre></div></td></tr></table></figure>
+<p>这个 <code>Makefile</code> 文件定义了一些规则和目标，用来构建一个名为 <code>mythic-cli</code> 的命令行工具。</p>
+<ol>
+<li><p><strong>变量定义</strong>：</p>
+<ul>
+<li><code>BINARY_NAME=mythic-cli</code>：定义生成的可执行文件的名称为 <code>mythic-cli</code>。</li>
+<li><code>LOCAL_PATH=$(shell pwd)</code>：获取当前工作目录的路径，并存储在 <code>LOCAL_PATH</code> 变量中。</li>
+<li><code>BUILDER_IMAGE=ghcr.io/its-a-feature/mythic_cli:v0.0.3.53</code>：定义了用于构建的 Docker 镜像名称和版本。</li>
+</ul>
+</li>
+<li><p><strong>默认目标及依赖</strong>：</p>
+<ul>
+<li><code>.PHONY: default</code>：声明 <code>default</code> 是一个伪目标，即不对应实际文件。</li>
+<li><code>default: build_linux ;</code>：默认目标是 <code>build_linux</code>，即执行 <code>make</code> 命令时默认会执行 <code>build_linux</code> 目标。</li>
+</ul>
+</li>
+<li><p><strong>包含外部文件</strong>：</p>
+<ul>
+<li><code>-include ../build.env</code>：尝试包含上级目录的 <code>build.env</code> 文件。</li>
+<li><code>-include ../.env</code>：尝试包含上级目录的 <code>.env</code> 文件。</li>
+</ul>
+</li>
+<li><p><strong>目标规则</strong>：</p>
+<ul>
+<li><code>copy_binary_linux</code> 和 <code>copy_binary_macos</code>：这两个目标使用 Docker 容器来复制生成的 Linux 和 macOS 版本的 <code>mythic-cli</code> 可执行文件，并将其重命名为 <code>mythic-cli</code>。然后将其移动到当前目录下，并赋予执行权限。</li>
+<li><code>build_local</code>：在 <code>src</code> 目录下使用 Go 编译器编译源代码，生成 <code>mythic-cli</code> 可执行文件，并将其移动到上一级目录。</li>
+<li><code>build_linux_docker</code> 和 <code>build_macos_docker</code>：这两个目标使用 Docker 容器来构建 Linux 和 macOS 版本的 <code>mythic-cli</code> 可执行文件。它们分别构建一个临时的 <code>mythic-cli-builder</code> 容器，从中复制生成的可执行文件，并进行后续的文件操作。</li>
+</ul>
+</li>
+<li><p><strong>依赖关系</strong>：</p>
+<ul>
+<li><code>build_linux</code> 和 <code>build_macos</code>：这两个目标分别依赖于 <code>copy_binary_linux</code> 和 <code>copy_binary_macos</code> 目标，因此执行 <code>make build_linux</code> 或 <code>make build_macos</code> 时，会先执行相应的复制操作，然后才完成构建。</li>
+</ul>
+</li>
+</ol>
+<p>这个 <code>Makefile</code> 使用了 Docker 来隔离和执行编译任务，确保了构建过程的环境一致性和可重复性。</p>
+<h1 id="用Docker-来隔离和执行编译任务"><a href="#用Docker-来隔离和执行编译任务" class="headerlink" title="用Docker 来隔离和执行编译任务"></a>用Docker 来隔离和执行编译任务</h1><p>使用 Docker 来隔离和执行编译任务在现代软件开发中非常常见。以下是一些使用 Docker 来执行编译任务的常见优点和场景：</p>
+<ol>
+<li><p><strong>环境一致性</strong>：Docker 可以确保在不同的开发环境中具有一致的编译和构建环境，避免了因环境差异而导致的构建失败或不一致的问题。</p>
+</li>
+<li><p><strong>依赖管理</strong>：通过将所有依赖项（如编译器、库文件）封装在 Docker 镜像中，可以简化项目的依赖管理，减少了安装和配置软件所需的手动步骤。</p>
+</li>
+<li><p><strong>隔离性</strong>：使用 Docker 可以将编译过程隔离在容器中，防止其影响主机系统的其他部分，同时也减少了与操作系统版本和配置相关的问题。</p>
+</li>
+<li><p><strong>跨平台</strong>：Docker 镜像可以在不同的操作系统上运行，从而使得开发团队可以在不同的操作系统上使用相同的构建环境。</p>
+</li>
+<li><p><strong>持续集成和持续部署（CI&#x2F;CD）</strong>：Docker 可以集成到 CI&#x2F;CD 流水线中，用于自动化构建、测试和部署流程，提高了开发团队的生产力和发布的可靠性。</p>
+</li>
+</ol>
+<p>因此，使用 Docker 来隔离和执行编译任务已经成为许多现代软件项目的标准实践，特别是对于需要跨平台开发、复杂依赖关系或需要确保环境一致性的项目。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/linux/">linux</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/07/31/15844.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">第十一套-雅思真题错题解析</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/07/28/60671.html">
+                        <span class="hidden-mobile">Iot-c2</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>

