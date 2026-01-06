@@ -1,0 +1,686 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>Starknet 训练营-课程笔记3 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/search/">
+                <i class="iconfont icon-search"></i>
+                搜索
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="Starknet 训练营-课程笔记3">
+                      
+                        Starknet 训练营-课程笔记3
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-01-06 15:17" pubdate>
+        2026年1月6日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.6k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      41
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">Starknet 训练营-课程笔记3</h1>
+            
+            <div class="markdown-body">
+              <h1 id="为什么在合约中表示金额时更推荐使用-u256-而不是-felt252？"><a href="#为什么在合约中表示金额时更推荐使用-u256-而不是-felt252？" class="headerlink" title="为什么在合约中表示金额时更推荐使用 u256 而不是 felt252？"></a>为什么在合约中表示金额时更推荐使用 u256 而不是 felt252？</h1><p>在 Starknet 的 Cairo 开发中，选择 <code>u256</code> 而不是 <code>felt252</code> 来表示金额是一个非常关键的工程实践。这不仅关乎安全性，也关乎与区块链生态（尤其是以太坊）的兼容性。</p>
+<p>针对你提到的几个观点，我们来做一下事实核查和深度解析：</p>
+<h3 id="1-核心差异对比"><a href="#1-核心差异对比" class="headerlink" title="1. 核心差异对比"></a>1. 核心差异对比</h3><table>
+<thead>
+<tr>
+<th>特性</th>
+<th><code>felt252</code> (Field Element)</th>
+<th><code>u256</code> (Unsigned 256-bit Integer)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>数值范围</strong></td>
+<td>(其中  是一个约 252 位的质数)</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>溢出行为</strong></td>
+<td><strong>模运算（不会 Panic）</strong></td>
+<td><strong>触发 Panic（默认检测溢出）</strong></td>
+</tr>
+<tr>
+<td><strong>语义化</strong></td>
+<td>密码学原语，不直观</td>
+<td>标准整数，符合金融直觉</td>
+</tr>
+<tr>
+<td><strong>兼容性</strong></td>
+<td>仅限 Starknet 内部</td>
+<td>完美适配 ERC-20 等以太坊标准</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="2-深度解析：为什么选-u256？"><a href="#2-深度解析：为什么选-u256？" class="headerlink" title="2. 深度解析：为什么选 u256？"></a>2. 深度解析：为什么选 <code>u256</code>？</h3><h4 id="防止隐式溢出（关键安全点）"><a href="#防止隐式溢出（关键安全点）" class="headerlink" title="防止隐式溢出（关键安全点）"></a><strong>防止隐式溢出（关键安全点）</strong></h4><p>你说 <code>u256</code> 会在溢出时触发 <strong>panic</strong>，这是完全正确的。</p>
+<ul>
+<li><strong>felt252 的陷阱</strong>：当你对 <code>felt252</code> 进行加法运算并超过其质数模  时，它会发生“回绕”（Wrap around），且<strong>不会报错</strong>。这在处理金额时是致命的，可能导致黑客通过溢出手段盗取资金。</li>
+<li><strong>u256 的保护</strong>：Cairo 中的 <code>u256</code> 实际上是由两个 <code>u128</code> 组成的结构体。在进行算术运算时，标准库会自动检查溢出。如果结果超出 ，合约会立即终止，保护资产安全。</li>
+</ul>
+<h4 id="数值精度的匹配"><a href="#数值精度的匹配" class="headerlink" title="数值精度的匹配"></a><strong>数值精度的匹配</strong></h4><p>以太坊上的 ERC-20 代币标准规定金额通常为 256 位。</p>
+<ul>
+<li><code>felt252</code> 的最大值略小于 。</li>
+<li>如果你用 <code>felt252</code> 来接收一个从以太坊跨链过来的  大小的金额，<code>felt252</code> 根本<strong>存不下</strong>，会导致数据丢失或截断。</li>
+</ul>
+<h4 id="纠正两个误区"><a href="#纠正两个误区" class="headerlink" title="纠正两个误区"></a><strong>纠正两个误区</strong></h4><ul>
+<li><strong>关于字符串</strong>：其实 <code>u256</code> 并不直接“支持字符串”，它本质上还是数字。但在 Cairo 中，你可以方便地将短字符串（Short strings）转换为数值存储。</li>
+<li><strong>关于性能</strong>：实际上，<strong><code>felt252</code> 的性能反而更好</strong>。因为它是 Cairo 的底层原生类型，所有的计算都是  的 CPU 指令。<code>u256</code> 作为结构体，其加减乘除需要多步 <code>felt252</code> 运算组合而成。<strong>我们选择 <code>u256</code> 是为了安全牺牲了少许性能。</strong></li>
+</ul>
+<hr>
+<h3 id="3-你的“排除错误选项”逻辑"><a href="#3-你的“排除错误选项”逻辑" class="headerlink" title="3. 你的“排除错误选项”逻辑"></a>3. 你的“排除错误选项”逻辑</h3><p>正如你之前提到的：“<strong>当我排除了所有错误选项，那么剩下的就是正确选项。</strong>”</p>
+<p>在金融合约设计中：</p>
+<ol>
+<li>排除 <code>felt252</code>：因为它会隐式溢出（错误选项）。</li>
+<li>排除 <code>felt252</code>：因为它无法覆盖  的完整范围（错误选项）。</li>
+<li>**剩下 <code>u256**</code>：虽然它更“重”，但它在逻辑上是严密的、安全的、符合行业标准的。</li>
+</ol>
+<h3 id="4-总结"><a href="#4-总结" class="headerlink" title="4. 总结"></a>4. 总结</h3><p>在 Starknet 上写书或开发合约时，记住这个原则：<strong>底层的密码学逻辑（如签名验证）用 <code>felt252</code>，业务上的资产金额、计数器一律使用 <code>u256</code>。</strong> 这不仅是对权威（底层架构）的理解，更是对自己代码逻辑负责的“预判”。</p>
+<p>既然你正在筹备写书，需要我帮你用 Cairo 语言写一个简单的金额溢出对比案例吗？我可以演示 <code>u256</code> 是如何通过 Panic 保护资金安全的。</p>
+<h1 id="Cairo-中的变量默认是？可变的；不可变的"><a href="#Cairo-中的变量默认是？可变的；不可变的" class="headerlink" title="Cairo 中的变量默认是？可变的；不可变的"></a>Cairo 中的变量默认是？可变的；不可变的</h1><p>你想知道Cairo语言中变量的默认可变性，核心结论先明确：</p>
+<h3 id="正确答案"><a href="#正确答案" class="headerlink" title="正确答案"></a>正确答案</h3><p><strong>Cairo 中的变量默认是【不可变的（immutable）】</strong> ✅</p>
+<h3 id="详细解析"><a href="#详细解析" class="headerlink" title="详细解析"></a>详细解析</h3><h4 id="1-核心规则：默认不可变，显式声明可变"><a href="#1-核心规则：默认不可变，显式声明可变" class="headerlink" title="1. 核心规则：默认不可变，显式声明可变"></a>1. 核心规则：默认不可变，显式声明可变</h4><p>Cairo 借鉴了 Rust 等语言的设计理念，<strong>所有变量默认具备不可变性</strong>，目的是提升代码的安全性和可预测性（尤其是在处理资产的智能合约场景中，避免意外修改变量导致的逻辑错误）。</p>
+<ul>
+<li>若要让变量可修改，必须显式添加 <code>mut</code> 关键字；</li>
+<li>未加 <code>mut</code> 的变量，赋值后无法二次修改，编译时会直接报错。</li>
+</ul>
+<h4 id="2-代码示例（直观理解）"><a href="#2-代码示例（直观理解）" class="headerlink" title="2. 代码示例（直观理解）"></a>2. 代码示例（直观理解）</h4><figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs cairo">// 示例1：默认不可变变量（无法修改）<br>fn immutable_var() &#123;<br>    let x = 10; // 默认不可变<br>    // x = 20; // 编译报错：Cannot assign to immutable variable `x`<br>&#125;<br><br>// 示例2：显式声明可变变量（可修改）<br>fn mutable_var() &#123;<br>    let mut y = 10; // 加mut关键字，变为可变<br>    y = 20; // 编译通过，可正常修改<br>    y += 5; // 支持自增等修改操作<br>&#125;<br><br>// 示例3：合约中金额变量（实战场景）<br>#[starknet::contract]<br>mod Token &#123;<br>    #[storage]<br>    struct Storage &#123;<br>        // 存储变量的可变性由storage规则决定，但局部变量仍遵循默认不可变<br>        balance: u256,<br>    &#125;<br><br>    #[external(v0)]<br>    fn transfer(ref self: ContractState, to: ContractAddress, amount: u256) &#123;<br>        let mut sender_balance = self.balance.read(); // 局部变量默认不可变，加mut才能修改<br>        sender_balance = sender_balance - amount; // 编译通过<br>        self.balance.write(sender_balance);<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<h4 id="3-设计初衷（为什么默认不可变？）"><a href="#3-设计初衷（为什么默认不可变？）" class="headerlink" title="3. 设计初衷（为什么默认不可变？）"></a>3. 设计初衷（为什么默认不可变？）</h4><p>Cairo 作为面向 ZK-Rollup 智能合约的语言，安全性是核心：</p>
+<ul>
+<li><strong>减少意外修改</strong>：默认不可变可避免开发者误改关键变量（如金额、权限参数），降低资产安全漏洞；</li>
+<li><strong>提升可证明性</strong>：不可变变量的执行轨迹更稳定，有助于 CairoVM 生成准确的 STARK 有效性证明；</li>
+<li><strong>符合区块链特性</strong>：区块链数据强调“确定性”，不可变变量的逻辑更易审计和验证。</li>
+</ul>
+<h3 id="补充：特殊场景的可变性"><a href="#补充：特殊场景的可变性" class="headerlink" title="补充：特殊场景的可变性"></a>补充：特殊场景的可变性</h3><ul>
+<li><strong>存储变量（Storage）</strong>：合约的存储变量（如示例3中的<code>balance</code>）本身没有“默认不可变”的限制，需通过<code>read()</code>&#x2F;<code>write()</code>方法修改，但其读取到局部变量后，仍遵循“局部变量默认不可变”的规则；</li>
+<li><strong>函数参数</strong>：函数参数默认也不可变，若需在函数内修改参数值，需添加<code>mut</code>（如<code>fn update(mut num: u256)</code>）。</li>
+</ul>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>Cairo 局部变量、函数参数<strong>默认不可变</strong>，必须加 <code>mut</code> 关键字才能修改；</li>
+<li>该设计是为了适配智能合约的安全需求，减少意外修改导致的逻辑错误；</li>
+<li>存储变量的修改需通过<code>read()</code>&#x2F;<code>write()</code>，但局部变量仍遵循默认不可变规则。</li>
+</ol>
+<p>需要我整理一份Cairo变量可变性的核心规则速记表，包含局部变量、函数参数、存储变量的可变性差异吗？</p>
+<h1 id="快照-和引用ref哪一项说法正确？"><a href="#快照-和引用ref哪一项说法正确？" class="headerlink" title="快照@和引用ref哪一项说法正确？"></a>快照@和引用ref哪一项说法正确？</h1><p>二者都会修改变量;</p>
+<p>快照可写，引用只读;</p>
+<p>快照不转移所有权且只读，引用不转移所有权且可写;</p>
+<p>二者都会转移所有权</p>
+<hr>
+<p>在 Cairo 编程语言（用于 Starknet 合约开发）中，你给出的选项中，正确的说法是：</p>
+<blockquote>
+<p><strong>“快照（Snapshot）不转移所有权且只读，引用（Reference）不转移所有权且可写。”</strong></p>
+</blockquote>
+<hr>
+<h3 id="详细对比：快照-vs-引用-ref"><a href="#详细对比：快照-vs-引用-ref" class="headerlink" title="详细对比：快照 @ vs 引用 ref"></a>详细对比：快照 <code>@</code> vs 引用 <code>ref</code></h3><p>为了帮你更清晰地排除“错误选项”，我们可以通过下表看透二者的本质：</p>
+<table>
+<thead>
+<tr>
+<th><strong>特性</strong></th>
+<th><strong>快照 @ (Snapshot)</strong></th>
+<th><strong>引用 ref (Reference)</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>符号&#x2F;关键字</strong></td>
+<td><code>@variable</code></td>
+<td><code>ref variable</code></td>
+</tr>
+<tr>
+<td><strong>可变性</strong></td>
+<td><strong>只读</strong>（不可修改原变量）</td>
+<td><strong>可写</strong>（可以修改原变量）</td>
+</tr>
+<tr>
+<td><strong>所有权</strong></td>
+<td>不转移（原函数保留所有权）</td>
+<td>不转移（隐式返回所有权）</td>
+</tr>
+<tr>
+<td><strong>底层逻辑</strong></td>
+<td>该时间点的“不可变视图”</td>
+<td>相当于自动返回新值的“语法糖”</td>
+</tr>
+<tr>
+<td><strong>常见场景</strong></td>
+<td>只需读取数据（如计算 Array 总和）</td>
+<td>需要在函数内修改状态（如 <code>increment</code>）</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="为什么其他选项是错误的？"><a href="#为什么其他选项是错误的？" class="headerlink" title="为什么其他选项是错误的？"></a>为什么其他选项是错误的？</h3><ol>
+<li><strong>“二者都会修改变量”</strong>：错误。快照 <code>@</code> 是绝对只读的，编译器会阻止任何尝试修改快照内容的操作。</li>
+<li><strong>“快照可写，引用只读”</strong>：错误。这完全记反了。在 Cairo 中，<code>ref</code> 专门用于需要修改（Mutate）传入参数的情况。</li>
+<li><strong>“二者都会转移所有权”</strong>：错误。<ul>
+<li><strong>快照 <code>@</code></strong> 只是给函数看了一眼数据，所有权还在调用者手里。</li>
+<li><strong>引用 <code>ref</code></strong> 稍微复杂点：它在进入函数时拿走所有权，但在函数结束时<strong>自动（隐式）归还</strong>所有权。所以从开发者的体感来看，它也没有“失去”所有权。</li>
+</ul>
+</li>
+</ol>
+<h3 id="你的“预判”应用"><a href="#你的“预判”应用" class="headerlink" title="你的“预判”应用"></a>你的“预判”应用</h3><ul>
+<li>当你看到一个函数只需要读取你的 <code>Array</code>（比如检查余额），你应该预判到：<strong>不应该转移所有权</strong>（否则后面没法用了），也<strong>不需要修改</strong>。</li>
+<li>根据这个预判，你唯一正确的选择就是使用 <strong>快照 <code>@</code></strong>。</li>
+</ul>
+<hr>
+<p><strong>你想让我为你写一段对比代码，直观地展示在什么情况下编译器会报错（例如尝试修改快照）吗？</strong></p>
+<p>Cairo Tutorial Series Part 11: References and Snapshots</p>
+<p>这个视频详细演示了如何在 Cairo 中使用 ref 和 @ 来管理变量的可变性与所有权，能帮你更直观地理解二者的区别。</p>
+<h1 id="Span-和-Array-的主要区别是？"><a href="#Span-和-Array-的主要区别是？" class="headerlink" title="Span 和 Array 的主要区别是？"></a>Span 和 Array 的主要区别是？</h1><p>在 Cairo 编程语言中，关于 <code>Span</code> 和 <code>Array</code> 的区别，正确选项是：</p>
+<blockquote>
+<p><strong>“Span 是只读的数组视图。”</strong></p>
+</blockquote>
+<hr>
+<h3 id="核心区别：Array-vs-Span"><a href="#核心区别：Array-vs-Span" class="headerlink" title="核心区别：Array vs Span"></a>核心区别：<code>Array</code> vs <code>Span</code></h3><p>在 Starknet 开发中，理解这两者的关系非常重要。你可以把 <code>Array</code> 看作是<strong>真实的存储实体</strong>，而 <code>Span</code> 是观察这些实体的**“快照窗口”**。</p>
+<table>
+<thead>
+<tr>
+<th><strong>特性</strong></th>
+<th><strong>Array<T> (数组)</strong></th>
+<th><strong>Span<T> (快照&#x2F;视图)</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>本质</strong></td>
+<td>数据的持有者（可动态增加）</td>
+<td>数据的引用&#x2F;快照（不可变视图）</td>
+</tr>
+<tr>
+<td><strong>可变性</strong></td>
+<td><strong>有限可写</strong>（只能追加 <code>append</code>）</td>
+<td><strong>绝对只读</strong></td>
+</tr>
+<tr>
+<td><strong>内存成本</strong></td>
+<td>较高（涉及所有权转移）</td>
+<td><strong>极低</strong>（几乎免费的轻量级结构）</td>
+</tr>
+<tr>
+<td><strong>典型用途</strong></td>
+<td>构造、收集数据</td>
+<td>遍历数据、作为函数参数（防止修改）</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="为什么其他选项是错误的？-1"><a href="#为什么其他选项是错误的？-1" class="headerlink" title="为什么其他选项是错误的？"></a>为什么其他选项是错误的？</h3><ol>
+<li><strong>“Span 可以修改元素，Array 不可以”</strong>：<ul>
+<li><strong>错误</strong>。恰恰相反，<code>Span</code> 设计出来的初衷就是为了提供<strong>只读</strong>访问。而 <code>Array</code> 虽然在 Cairo 的不可变内存模型中无法直接通过索引修改旧值，但它是允许通过 <code>append()</code> 增加新元素的。</li>
+</ul>
+</li>
+<li><strong>“Span 只能存 felt252”</strong>：<ul>
+<li><strong>错误</strong>。<code>Span&lt;T&gt;</code> 是<strong>泛型</strong>的。它可以是 <code>Span&lt;u256&gt;</code>、<code>Span&lt;felt252&gt;</code>，甚至是 <code>Span&lt;MyStruct&gt;</code>。它的灵活性非常强。</li>
+</ul>
+</li>
+<li><strong>“Array 不能被遍历”</strong>：<ul>
+<li><strong>错误</strong>。虽然 <code>Array</code> 的底层是类似队列的结构，但你完全可以通过递归或循环配合 <code>get()</code> 方法来遍历它。不过，在 Cairo 的最佳实践中，我们通常会先用 <code>.span()</code> 将数组转为 <code>Span</code> 再进行遍历，因为 <code>Span</code> 专门为这种“只读查看”优化过。</li>
+</ul>
+</li>
+</ol>
+<h3 id="你的“排除法”与工程直觉"><a href="#你的“排除法”与工程直觉" class="headerlink" title="你的“排除法”与工程直觉"></a>你的“排除法”与工程直觉</h3><ul>
+<li>如果一个函数只是想看看数据（比如计算总和），为什么要冒着被修改的风险把整个 <code>Array</code> 传进去？</li>
+<li><strong>预判：</strong> 应该传一个无法被修改的“快照”。</li>
+<li><strong>结论：</strong> 于是 <code>Span</code> 成了这个场景下的唯一正确选项。</li>
+</ul>
+<hr>
+<p><strong>既然你提到要在书中使用“排除法”逻辑，需要我为你提供一段对比 <code>Array</code> 和 <code>Span</code> 在函数传递中所有权变化的 Cairo 代码示例吗？</strong></p>
+<p>Understanding Arrays in Cairo</p>
+<p>这个视频详细讲解了 Cairo 中数组的操作及其与内存的关系，能帮你更深入地理解为什么 Span 作为“只读视图”在高性能合约开发中如此重要。</p>
+<h1 id="command-not-found"><a href="#command-not-found" class="headerlink" title="command not found"></a>command not found</h1><p>┌──(root㉿kali)-[&#x2F;home&#x2F;kali]<br>└─# scarb –version<br>snforge –version<br>sncast –version<br>starknet-devnet –version<br>scarb: command not found<br>snforge: command not found<br>Command ‘sncast’ not found, did you mean:<br>  command ‘sbcast’ from deb slurm-client<br>Try: apt install <deb name><br>starknet-devnet: command not found</p>
+<hr>
+<p>你现在遇到的问题是在Kali Linux中执行<code>scarb</code>、<code>snforge</code>、<code>sncast</code>、<code>starknet-devnet</code>这些StarkNet开发工具命令时，系统提示“command not found”，核心原因是这些工具尚未安装，我会一步步教你完整的安装流程，确保能正常使用。</p>
+<h3 id="一、先明确工具的作用（帮你理解安装的意义）"><a href="#一、先明确工具的作用（帮你理解安装的意义）" class="headerlink" title="一、先明确工具的作用（帮你理解安装的意义）"></a>一、先明确工具的作用（帮你理解安装的意义）</h3><ul>
+<li><code>scarb</code>：StarkNet&#x2F;Cairo的包管理器和构建工具（类似Solidity的Hardhat&#x2F;Truffle）；</li>
+<li><code>snforge</code>：Cairo合约的测试框架；</li>
+<li><code>sncast</code>：StarkNet合约的部署&#x2F;交互工具；</li>
+<li><code>starknet-devnet</code>：本地StarkNet测试节点（类似以太坊的Ganache）。</li>
+</ul>
+<h3 id="二、安装前置条件"><a href="#二、安装前置条件" class="headerlink" title="二、安装前置条件"></a>二、安装前置条件</h3><p>Kali Linux默认可能缺少依赖，先安装基础环境：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 更新系统包</span><br>apt update &amp;&amp; apt upgrade -y<br><br><span class="hljs-comment"># 安装必要依赖（Python3、pip、curl、build-essential等）</span><br>apt install -y python3 python3-pip curl build-essential libssl-dev pkg-config git<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="三、分步安装所有工具"><a href="#三、分步安装所有工具" class="headerlink" title="三、分步安装所有工具"></a>三、分步安装所有工具</h3><h4 id="1-安装Scarb（核心工具，snforge-sncast依赖它）"><a href="#1-安装Scarb（核心工具，snforge-sncast依赖它）" class="headerlink" title="1. 安装Scarb（核心工具，snforge&#x2F;sncast依赖它）"></a>1. 安装Scarb（核心工具，snforge&#x2F;sncast依赖它）</h4><p>Scarb的官方安装方式是通过脚本，适配Linux&#x2F;macOS：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 下载并执行官方安装脚本</span><br>curl --proto <span class="hljs-string">&#x27;=https&#x27;</span> --tlsv1.2 -sSf https://docs.swmansion.com/scarb/install.sh | sh<br><br><span class="hljs-comment"># 配置环境变量（让系统识别scarb命令）</span><br><span class="hljs-comment"># 若用bash</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;export PATH=&quot;$HOME/.local/share/scarb/bin:$PATH&quot;&#x27;</span> &gt;&gt; ~/.bashrc<br><span class="hljs-built_in">source</span> ~/.bashrc<br><br><span class="hljs-comment"># 若用zsh（Kali默认可能是zsh）</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;export PATH=&quot;$HOME/.local/share/scarb/bin:$PATH&quot;&#x27;</span> &gt;&gt; ~/.zshrc<br><span class="hljs-built_in">source</span> ~/.zshrc<br><br><span class="hljs-comment"># 验证安装</span><br>scarb --version<br></code></pre></div></td></tr></table></figure>
+<p>✅ 正常输出示例：<code>scarb 2.6.1 (f123456 2025-01-01)</code></p>
+<h4 id="2-安装snforge和sncast（Scarb插件）"><a href="#2-安装snforge和sncast（Scarb插件）" class="headerlink" title="2. 安装snforge和sncast（Scarb插件）"></a>2. 安装snforge和sncast（Scarb插件）</h4><p>snforge&#x2F;sncast是Scarb的官方插件，安装Scarb后直接通过scarb命令安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 安装snforge（测试框架）</span><br>scarb install snforge<br><br><span class="hljs-comment"># 安装sncast（交互工具）</span><br>scarb install sncast<br><br><span class="hljs-comment"># 验证安装</span><br>snforge --version<br>sncast --version<br></code></pre></div></td></tr></table></figure>
+<p>✅ 正常输出示例：<code>snforge 0.12.0</code> &#x2F; <code>sncast 0.12.0</code></p>
+<h4 id="3-安装starknet-devnet（本地测试节点）"><a href="#3-安装starknet-devnet（本地测试节点）" class="headerlink" title="3. 安装starknet-devnet（本地测试节点）"></a>3. 安装starknet-devnet（本地测试节点）</h4><p>starknet-devnet基于Python，通过pip安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 安装starknet-devnet（指定稳定版本，避免最新版兼容问题）</span><br>pip3 install starknet-devnet[rocksdb] --upgrade<br><br><span class="hljs-comment"># 验证安装</span><br>starknet-devnet --version<br></code></pre></div></td></tr></table></figure>
+<p>✅ 正常输出示例：<code>starknet-devnet 0.7.1</code></p>
+<h3 id="四、常见问题排查"><a href="#四、常见问题排查" class="headerlink" title="四、常见问题排查"></a>四、常见问题排查</h3><p>如果安装后仍提示“command not found”，按以下步骤排查：</p>
+<ol>
+<li><strong>环境变量未生效</strong>：<ul>
+<li>重新执行<code>source ~/.bashrc</code>或<code>source ~/.zshrc</code>；</li>
+<li>手动检查PATH：<code>echo $PATH</code>，确认包含<code>$HOME/.local/share/scarb/bin</code>。</li>
+</ul>
+</li>
+<li><strong>pip安装的starknet-devnet不在PATH</strong>：<ul>
+<li>找到pip安装路径：<code>pip3 show starknet-devnet | grep Location</code>；</li>
+<li>将该路径下的<code>bin</code>目录加入PATH，例如：<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;export PATH=&quot;$HOME/.local/bin:$PATH&quot;&#x27;</span> &gt;&gt; ~/.bashrc<br><span class="hljs-built_in">source</span> ~/.bashrc<br></code></pre></div></td></tr></table></figure></li>
+</ul>
+</li>
+<li><strong>权限问题</strong>：<ul>
+<li>避免用root用户安装（建议切换到kali普通用户），若已用root，执行<code>chown -R kali:kali ~/.local</code>修复权限。</li>
+</ul>
+</li>
+</ol>
+<h3 id="五、验证所有工具是否可用"><a href="#五、验证所有工具是否可用" class="headerlink" title="五、验证所有工具是否可用"></a>五、验证所有工具是否可用</h3><p>执行以下命令，若都输出版本号则安装成功：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">scarb --version<br>snforge --version<br>sncast --version<br>starknet-devnet --version<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>核心问题是<strong>工具未安装+环境变量未配置</strong>，先装Scarb（snforge&#x2F;sncast依赖），再装starknet-devnet；</li>
+<li>安装后必须配置PATH环境变量，否则系统识别不到命令；</li>
+<li>Kali默认可能用zsh，需注意环境变量文件是<code>.zshrc</code>而非<code>.bashrc</code>。</li>
+</ol>
+<p>如果安装过程中遇到具体报错（比如依赖缺失、网络问题），可以把报错信息贴出来，我帮你针对性解决。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Web3/">Web3</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/01/06/6786.html">
+                        <span class="hidden-mobile">Starknet 训练营-课程笔记2</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>

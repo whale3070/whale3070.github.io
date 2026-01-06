@@ -1,0 +1,1079 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>Starknet 训练营-课程笔记 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/search/">
+                <i class="iconfont icon-search"></i>
+                搜索
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="Starknet 训练营-课程笔记">
+                      
+                        Starknet 训练营-课程笔记
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-01-06 14:25" pubdate>
+        2026年1月6日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      8.7k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      95
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">Starknet 训练营-课程笔记</h1>
+            
+            <div class="markdown-body">
+              <p>我的学号21<br>▶️ 课程视频合集<br>📺 YouTube 合集：👉<a target="_blank" rel="noopener" href="https://www.youtube.com/playlist?list=PLCv99tqIzSwm-6Dn2OLD8zRPS18sI2rOv">https://www.youtube.com/playlist?list=PLCv99tqIzSwm-6Dn2OLD8zRPS18sI2rOv</a><br>📺 Bilibili 合集：👉<a target="_blank" rel="noopener" href="https://space.bilibili.com/1152852334/lists/7032696?type=season">https://space.bilibili.com/1152852334/lists/7032696?type=season</a></p>
+<h1 id="开营仪式"><a href="#开营仪式" class="headerlink" title="开营仪式"></a>开营仪式</h1><p><img src="/2016/01/01/18266" alt="使用软件"><br><img src="/2016/01/01/18266" alt="助教"><br><img src="/2016/01/01/18266" alt="大纲"><br><img src="/2016/01/01/18266" alt="如何提交作业"><br><img src="/2016/01/01/18266" alt="毕业标准"><br><img src="/2016/01/01/18266" alt="活动"><br><img src="/2016/01/01/18266" alt="激励"><br><img src="/2016/01/01/18266" alt="班长"><br><img src="/2016/01/01/18266" alt="课程二维码"><br><img src="/2016/01/01/18266" alt="课程周期"><br><img src="/2016/01/01/18266" alt="课程表"></p>
+<h1 id="starkware是什么公司"><a href="#starkware是什么公司" class="headerlink" title="starkware是什么公司"></a>starkware是什么公司</h1><p>StarkWare是2018年成立于以色列的隐私计算与区块链扩容公司，核心是基于STARK零知识证明技术，为以太坊生态提供高性能、隐私友好的Layer2扩容方案，同时开发了Cairo语言与StarkEx、StarkNet等核心产品，是Web3扩容与隐私赛道的头部技术提供商。</p>
+<hr>
+<h3 id="一、公司核心信息"><a href="#一、公司核心信息" class="headerlink" title="一、公司核心信息"></a>一、公司核心信息</h3><table>
+<thead>
+<tr>
+<th align="left">项目</th>
+<th align="left">详情</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">成立时间</td>
+<td align="left">2018年</td>
+</tr>
+<tr>
+<td align="left">总部</td>
+<td align="left">以色列内坦亚（Netanya）</td>
+</tr>
+<tr>
+<td align="left">创始人</td>
+<td align="left">Eli Ben‑Sasson（CEO）、Alessandro Chiesa、Michael Riabzev、Uri Kolodny</td>
+</tr>
+<tr>
+<td align="left">融资</td>
+<td align="left">累计股权融资超2.5亿美元，获以太坊基金会1200万美元资助，投资方含Coatue、Tiger Global等</td>
+</tr>
+<tr>
+<td align="left">定位</td>
+<td align="left">以色列最大的区块链深度科技公司，专注STARK零知识证明技术研发</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="二、核心技术与产品"><a href="#二、核心技术与产品" class="headerlink" title="二、核心技术与产品"></a>二、核心技术与产品</h3><p>StarkWare的技术核心是STARK（Scalable Transparent ARguments of Knowledge），一种零知识、简洁、透明且抗量子的证明系统，能在保证计算完整性的同时，大幅压缩链上数据、降低Gas成本并提升隐私性。其核心产品如下：</p>
+<ol>
+<li><strong>StarkEx</strong>：2020年6月上线的ZK‑Rollup SaaS，为DeFi与NFT等场景提供定制化扩容，支持批量交易与隐私保护，客户包括dYdX、Immutable X、Sorare等。</li>
+<li><strong>StarkNet</strong>：以太坊上的去中心化无许可ZK‑Rollup，支持用Cairo语言编写智能合约，实现高TPS与EVM兼容，适合复杂DeFi与通用dApp开发。</li>
+<li><strong>Cairo语言</strong>：专为STARK证明设计的图灵完备语言，让开发者无需深入密码学即可编写具备零知识证明能力的程序，是StarkNet生态的核心开发语言。</li>
+<li><strong>Stwo Prover</strong>：新一代STARK证明器，进一步提升证明生成效率与扩容上限。</li>
+</ol>
+<hr>
+<h3 id="三、技术优势与应用价值"><a href="#三、技术优势与应用价值" class="headerlink" title="三、技术优势与应用价值"></a>三、技术优势与应用价值</h3><ol>
+<li><strong>性能与成本</strong>：通过批量交易与证明压缩，将以太坊Layer2 TPS提升至数万级，单笔交易Gas成本降低90%以上，且每笔批量更新仅需约80KB的链上证明数据。</li>
+<li><strong>隐私与安全</strong>：STARK证明支持隐私交易（如私密转账），同时具备数学上的计算完整性保证，抗量子攻击，安全性高于传统侧链方案。</li>
+<li><strong>生态兼容</strong>：无缝对接以太坊主网，兼容EVM生态，降低开发者与用户的迁移成本。</li>
+</ol>
+<hr>
+<h3 id="四、行业影响"><a href="#四、行业影响" class="headerlink" title="四、行业影响"></a>四、行业影响</h3><ul>
+<li>推动ZK‑Rollup成为以太坊Layer2主流方案，引领“扩容+隐私”的技术趋势。</li>
+<li>Cairo语言成为零知识智能合约开发的标杆，影响后续ZKP语言设计。</li>
+<li>服务dYdX等头部DeFi项目，验证了STARK技术在高频交易场景的可行性。</li>
+</ul>
+<hr>
+<h3 id="五、与Move-Solidity生态的差异"><a href="#五、与Move-Solidity生态的差异" class="headerlink" title="五、与Move&#x2F;Solidity生态的差异"></a>五、与Move&#x2F;Solidity生态的差异</h3><ul>
+<li>与Move（资产安全优先）、Solidity（EVM通用优先）相比，StarkWare聚焦“零知识证明+扩容”，通过Cairo与STARK技术为以太坊生态提供隐私与性能的双重提升，是Web3安全审计与扩容开发中不可忽视的技术栈。</li>
+</ul>
+<p>需要我基于你之前关注的<strong>Move与Cairo</strong>，整理一份“StarkWare技术栈vs Move生态”的<strong>核心差异对比表</strong>，并标注安全审计的重点风险点吗？</p>
+<h1 id="S-two证明器是什么"><a href="#S-two证明器是什么" class="headerlink" title="S-two证明器是什么"></a>S-two证明器是什么</h1><p>S-two是StarkWare推出的下一代开源ZK-STARK证明器与zkVM框架，基于Circle STARKs与M31素数域构建，用Rust实现，主打极致性能与客户端本地证明能力，2025年11月起成为Starknet主网默认证明器，全面替代前一代Stone证明器。</p>
+<hr>
+<h3 id="核心定位与关键特性"><a href="#核心定位与关键特性" class="headerlink" title="核心定位与关键特性"></a>核心定位与关键特性</h3><ul>
+<li><strong>技术底座</strong>：以Circle STARKs为密码学基础，采用M31（Mersenne31）小素数域，适配32位硬件指令，大幅提升多项式运算与FFT效率，证明速度较Stone提升一个数量级，部分场景达39倍。</li>
+<li><strong>开发与集成</strong>：原生支持Cairo语言与直接AIR定义，兼顾开发便捷性与底层约束表达能力，适配Rust生态，便于Web3开发者集成与定制证明系统。</li>
+<li><strong>客户端侧证明</strong>：针对消费级硬件优化，可在手机、浏览器、笔记本等本地设备生成证明，无需依赖中心化服务器&#x2F;云算力，推动隐私DeFi、可验证AI、zk身份等应用落地。</li>
+<li><strong>开放与生态</strong>：Apache 2.0开源，无缝接入Starknet、SHARP证明聚合器，降低链上验证成本，提升网络吞吐量与去中心化程度。</li>
+</ul>
+<hr>
+<h3 id="技术架构要点"><a href="#技术架构要点" class="headerlink" title="技术架构要点"></a>技术架构要点</h3><table>
+<thead>
+<tr>
+<th align="left">模块</th>
+<th align="left">核心设计</th>
+<th align="left">价值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">算术基础</td>
+<td align="left">M31素数域（2³¹-1）</td>
+<td align="left">适配通用硬件，加速模运算与多项式操作</td>
+</tr>
+<tr>
+<td align="left">代数结构</td>
+<td align="left">圆群（Circle Group）</td>
+<td align="left">优化FFT与多项式承诺，提升证明生成效率</td>
+</tr>
+<tr>
+<td align="left">多项式协议</td>
+<td align="left">Circle FRI + 向量&#x2F;多项式承诺</td>
+<td align="left">低阶测试与高效承诺，保障证明安全性与简洁性</td>
+</tr>
+<tr>
+<td align="left">实现语言</td>
+<td align="left">Rust</td>
+<td align="left">高性能、内存安全，适配Substrate等Web3技术栈</td>
+</tr>
+<tr>
+<td align="left">前端适配</td>
+<td align="left">Cairo + 直接AIR</td>
+<td align="left">灵活表达计算约束，平衡开发效率与性能</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="性能与应用场景"><a href="#性能与应用场景" class="headerlink" title="性能与应用场景"></a>性能与应用场景</h3><ul>
+<li><strong>性能表现</strong>：4核Intel i7单线程Poseidon2哈希证明吞吐超50万次&#x2F;秒；M3 Pro 12核达60万次&#x2F;秒，远超传统STARK方案。</li>
+<li><strong>典型场景</strong><ol>
+<li>Starknet Layer2扩容：为区块生成有效性证明，降低上链成本与延迟。</li>
+<li>客户端隐私证明：本地生成身份&#x2F;资产证明，不泄露敏感数据。</li>
+<li>可验证计算：AI推理、数据合规等场景的计算完整性证明。</li>
+<li>递归证明与聚合：通过SHARP聚合多笔交易&#x2F;程序证明，进一步压缩链上开销。</li>
+</ol>
+</li>
+</ul>
+<hr>
+<h3 id="与Stone证明器对比"><a href="#与Stone证明器对比" class="headerlink" title="与Stone证明器对比"></a>与Stone证明器对比</h3><table>
+<thead>
+<tr>
+<th align="left">维度</th>
+<th align="left">S-two</th>
+<th align="left">Stone</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">密码学基础</td>
+<td align="left">Circle STARKs + M31</td>
+<td align="left">传统STARKs + 大素数域</td>
+</tr>
+<tr>
+<td align="left">实现语言</td>
+<td align="left">Rust</td>
+<td align="left">C++</td>
+</tr>
+<tr>
+<td align="left">本地证明</td>
+<td align="left">支持（手机&#x2F;浏览器）</td>
+<td align="left">依赖云&#x2F;服务器算力</td>
+</tr>
+<tr>
+<td align="left">性能提升</td>
+<td align="left">10–39倍</td>
+<td align="left">基准线</td>
+</tr>
+<tr>
+<td align="left">生态适配</td>
+<td align="left">Cairo 1.0+&#x2F;AIR</td>
+<td align="left">Cairo 0.x</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="快速上手（Web3开发者）"><a href="#快速上手（Web3开发者）" class="headerlink" title="快速上手（Web3开发者）"></a>快速上手（Web3开发者）</h3><ol>
+<li>安装依赖：Rust工具链、Cairo编译器（v2.0+）。</li>
+<li>拉取代码：<code>git clone https://github.com/starkware-libs/stwo.git</code>。</li>
+<li>本地测试：运行Poseidon2哈希证明基准 <code>cargo run --release --example poseidon_bench</code>。</li>
+<li>集成开发：通过Cairo编写程序或直接定义AIR约束，使用S-two生成并验证证明。</li>
+</ol>
+<hr>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>S-two通过密码学创新与硬件友好设计，将ZK-STARK证明从云端推向终端，为Web3安全审计、隐私计算、Layer2扩容提供高性能基础设施，尤其适配Rust&#x2F;Substrate开发者构建高效zk应用的需求。</p>
+<p>需要我基于你的Web3安全审计场景，整理一份S-two在<strong>Cairo合约验证</strong>与<strong>客户端zk证明</strong>的最小可复现示例（含Rust代码片段与调试步骤）吗？</p>
+<h1 id="Move语言是什么"><a href="#Move语言是什么" class="headerlink" title="Move语言是什么"></a>Move语言是什么</h1><p>你想了解Move语言的核心概念、用途和特点，我会从新手容易理解的角度为你全面讲解。</p>
+<h3 id="一、Move语言的核心定义"><a href="#一、Move语言的核心定义" class="headerlink" title="一、Move语言的核心定义"></a>一、Move语言的核心定义</h3><p>Move 是一种<strong>专为区块链和数字资产设计的静态类型编程语言</strong>，最初由Meta（原Facebook）为Libra（后更名为Diem）区块链项目开发，现在已成为Aptos、Sui、Aptos等主流Layer1区块链的核心开发语言。</p>
+<p>简单来说：如果把Solidity（以太坊智能合约语言）比作“区块链通用脚本语言”，Move就是“为数字资产量身定做的编程语言”，它的核心设计目标是<strong>安全、高效地管理数字资产</strong>（比如代币、NFT、稳定币等）。</p>
+<h3 id="二、Move语言的核心特点（新手易懂版）"><a href="#二、Move语言的核心特点（新手易懂版）" class="headerlink" title="二、Move语言的核心特点（新手易懂版）"></a>二、Move语言的核心特点（新手易懂版）</h3><h4 id="1-资产导向的核心设计"><a href="#1-资产导向的核心设计" class="headerlink" title="1. 资产导向的核心设计"></a>1. 资产导向的核心设计</h4><p>Move最独特的特性是<strong>将数字资产作为一等公民</strong>：</p>
+<ul>
+<li>在Move中，数字资产（如代币）被定义为<code>Resource</code>（资源类型），这种类型有严格的安全规则：<ul>
+<li>不能被复制（避免双花问题）</li>
+<li>不能被意外销毁</li>
+<li>只能通过显式的代码逻辑转移</li>
+</ul>
+</li>
+<li>对比Solidity：Solidity中资产通常用映射（mapping）模拟，容易因代码漏洞导致资产丢失；Move的Resource类型从语言层面杜绝了这类问题。</li>
+</ul>
+<h4 id="2-静态类型与安全性"><a href="#2-静态类型与安全性" class="headerlink" title="2. 静态类型与安全性"></a>2. 静态类型与安全性</h4><ul>
+<li>Move是静态类型语言（类似Rust&#x2F;TypeScript），编译时就能检查类型错误，避免运行时的资产安全问题；</li>
+<li>内置严格的权限控制和资源访问规则，大幅降低智能合约漏洞（如重入攻击、溢出攻击）的风险。</li>
+</ul>
+<h4 id="3-模块化与可复用性"><a href="#3-模块化与可复用性" class="headerlink" title="3. 模块化与可复用性"></a>3. 模块化与可复用性</h4><ul>
+<li>Move的代码组织基于<code>模块（Module）</code>和<code>脚本（Script）</code>：<ul>
+<li><strong>Module</strong>：相当于智能合约的核心逻辑（存储资产、定义规则），部署后不可修改；</li>
+<li><strong>Script</strong>：触发Module中逻辑的“调用脚本”（类似交易指令），仅用于执行操作。</li>
+</ul>
+</li>
+<li>支持代码复用（比如通用的代币标准），且模块可以跨链复用（Aptos的Move模块可适配Sui）。</li>
+</ul>
+<h4 id="4-高性能"><a href="#4-高性能" class="headerlink" title="4. 高性能"></a>4. 高性能</h4><ul>
+<li>针对区块链并行执行优化，Sui、Aptos等链基于Move实现了高TPS（每秒交易数），远高于以太坊。</li>
+</ul>
+<h3 id="三、Move语言的简单示例（核心语法）"><a href="#三、Move语言的简单示例（核心语法）" class="headerlink" title="三、Move语言的简单示例（核心语法）"></a>三、Move语言的简单示例（核心语法）</h3><p>以下是一个极简的Move模块示例，定义一个自定义代币（新手可重点看注释）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs move">// 声明模块，格式：address::模块名（address是部署地址）<br>module 0x42::MyToken &#123;<br>    // 导入核心库（类似Python的import）<br>    use std::signer;<br>    use std::event;<br>    use aptos_framework::coin;<br><br>    // 定义代币的资源类型（核心：不可复制、不可销毁）<br>    struct MyToken has store, mintable, burnable &#123;&#125;<br><br>    // 初始化代币（部署时执行）<br>    public fun init_module(account: &amp;signer) &#123;<br>        // 注册代币元数据（名称、符号、小数位）<br>        coin::register&lt;MyToken&gt;(account);<br>        // 铸造1000个代币给部署者<br>        coin::mint&lt;MyToken&gt;(1000, account);<br>    &#125;<br><br>    // 转账函数（核心逻辑）<br>    public fun transfer(from: &amp;signer, to: address, amount: u64) &#123;<br>        // 检查金额合法性<br>        assert!(amount &gt; 0, 1); // 1是错误码<br>        // 执行转账（语言层面保证资产安全）<br>        coin::transfer&lt;MyToken&gt;(from, to, amount);<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="四、Move的应用场景"><a href="#四、Move的应用场景" class="headerlink" title="四、Move的应用场景"></a>四、Move的应用场景</h3><ol>
+<li><strong>智能合约开发</strong>：为Aptos、Sui、Diem等区块链编写DeFi（去中心化金融）、NFT、稳定币等合约；</li>
+<li><strong>数字资产管理</strong>：安全地定义、发行、转移各类链上资产；</li>
+<li><strong>跨链应用</strong>：基于Move的跨链协议开发（如Aptos ↔ Sui）。</li>
+</ol>
+<h3 id="五、Move与Solidity的核心区别"><a href="#五、Move与Solidity的核心区别" class="headerlink" title="五、Move与Solidity的核心区别"></a>五、Move与Solidity的核心区别</h3><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>Move</th>
+<th>Solidity</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>核心设计目标</td>
+<td>资产安全管理</td>
+<td>通用智能合约</td>
+</tr>
+<tr>
+<td>资产类型</td>
+<td>原生Resource（不可复制）</td>
+<td>映射（mapping）模拟</td>
+</tr>
+<tr>
+<td>安全性</td>
+<td>编译时检查，漏洞少</td>
+<td>运行时检查，易出漏洞</td>
+</tr>
+<tr>
+<td>主要应用链</td>
+<td>Aptos、Sui、Diem</td>
+<td>以太坊、BSC、Polygon</td>
+</tr>
+</tbody></table>
+<h3 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>Move是<strong>专为区块链数字资产设计</strong>的静态类型语言，核心优势是资产安全性；</li>
+<li>它将数字资产定义为<code>Resource</code>类型，从语言层面杜绝复制、销毁、双花等问题；</li>
+<li>主要用于Aptos、Sui等高性能区块链的智能合约开发，是Web3领域的重要编程语言。</li>
+</ol>
+<p>如果你想进一步学习，建议先从Aptos官方的Move教程入手，结合实际案例（如发行代币、编写NFT合约）理解核心语法。</p>
+<h1 id="cairo语言是什么"><a href="#cairo语言是什么" class="headerlink" title="cairo语言是什么"></a>cairo语言是什么</h1><p>你想了解Cairo语言的核心概念、用途和特点，我会延续讲解Move语言的风格，从新手视角把Cairo讲清楚，还会对比你刚了解的Move，帮你更好区分。</p>
+<h3 id="一、Cairo语言的核心定义"><a href="#一、Cairo语言的核心定义" class="headerlink" title="一、Cairo语言的核心定义"></a>一、Cairo语言的核心定义</h3><p>Cairo（中文常译“开罗”）是一种<strong>专为零知识证明（Zero-Knowledge Proof，ZKP）设计的图灵完备编程语言</strong>，由StarkWare公司开发，是StarkNet（以太坊Layer2扩容方案）的核心智能合约语言。</p>
+<p>简单来说：如果Move的核心是“安全管理区块链资产”，那么Cairo的核心就是“高效实现零知识证明”——它能让开发者编写可以生成和验证ZKP的程序，既保证区块链交易的隐私性，又能大幅提升以太坊的处理效率。</p>
+<h3 id="二、Cairo语言的核心特点（新手易懂版）"><a href="#二、Cairo语言的核心特点（新手易懂版）" class="headerlink" title="二、Cairo语言的核心特点（新手易懂版）"></a>二、Cairo语言的核心特点（新手易懂版）</h3><h4 id="1-专为零知识证明（ZKP）而生"><a href="#1-专为零知识证明（ZKP）而生" class="headerlink" title="1. 专为零知识证明（ZKP）而生"></a>1. 专为零知识证明（ZKP）而生</h4><p>这是Cairo最核心的特性：</p>
+<ul>
+<li>ZKP的核心逻辑是“证明者能向验证者证明自己知道某个秘密，但不泄露秘密本身”（比如证明你有100ETH，但不暴露你的钱包地址）；</li>
+<li>Cairo的语法和底层设计完全适配ZKP的数学逻辑（基于STARK证明系统），开发者无需手动编写复杂的密码学代码，就能让程序具备ZKP能力；</li>
+<li>对比普通语言：用Python&#x2F;Java写ZKP程序需要深入理解密码学，而Cairo把ZKP能力“内置”到语言层面。</li>
+</ul>
+<h4 id="2-图灵完备-以太坊兼容"><a href="#2-图灵完备-以太坊兼容" class="headerlink" title="2. 图灵完备+以太坊兼容"></a>2. 图灵完备+以太坊兼容</h4><ul>
+<li>图灵完备：能实现所有可计算的逻辑（和Solidity、Move一样），可以编写任意复杂的智能合约；</li>
+<li>以太坊兼容：StarkNet作为以太坊Layer2，Cairo编写的合约能和以太坊主网无缝交互，且兼容EVM（以太坊虚拟机）生态。</li>
+</ul>
+<h4 id="3-高性能与低Gas费"><a href="#3-高性能与低Gas费" class="headerlink" title="3. 高性能与低Gas费"></a>3. 高性能与低Gas费</h4><ul>
+<li>Cairo程序编译后会生成“算术电路”，通过STARK证明压缩计算量，让StarkNet的TPS（每秒交易数）远超以太坊主网；</li>
+<li>基于ZKP的批量验证，大幅降低用户的Gas成本（比以太坊主网低90%以上）。</li>
+</ul>
+<h4 id="4-静态类型-内存安全"><a href="#4-静态类型-内存安全" class="headerlink" title="4. 静态类型+内存安全"></a>4. 静态类型+内存安全</h4><ul>
+<li>和Move、Rust一样是静态类型语言，编译时检查类型错误，避免运行时漏洞；</li>
+<li>内置内存安全机制，防止常见的内存越界、空指针等问题。</li>
+</ul>
+<h3 id="三、Cairo语言的简单示例（核心语法）"><a href="#三、Cairo语言的简单示例（核心语法）" class="headerlink" title="三、Cairo语言的简单示例（核心语法）"></a>三、Cairo语言的简单示例（核心语法）</h3><p>以下是一个极简的Cairo合约示例，实现“私密转账”（核心逻辑是验证转账合法性但不暴露金额&#x2F;地址）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs cairo">// 声明合约（类似Solidity的contract、Move的module）<br>#[starknet::contract]<br>mod PrivateTransfer &#123;<br>    // 导入核心库<br>    use starknet::ContractAddress;<br>    use starknet::get_caller_address;<br>    use core::felt252;<br><br>    // 存储状态：用户余额（私密存储，仅通过ZKP验证）<br>    #[storage]<br>    struct Storage &#123;<br>        // felt252是Cairo的核心类型（252位整数，适配区块链）<br>        balances: LegacyMap&lt;ContractAddress, felt252&gt;,<br>    &#125;<br><br>    // 初始化函数：给部署者设置初始余额<br>    #[constructor]<br>    fn constructor(ref self: ContractState, initial_balance: felt252) &#123;<br>        let deployer = get_caller_address();<br>        self.balances.write(deployer, initial_balance);<br>    &#125;<br><br>    // 私密转账函数（核心：通过ZKP验证，不暴露转账细节）<br>    #[external(v0)]<br>    fn transfer(<br>        ref self: ContractState,<br>        to: ContractAddress,<br>        amount: felt252,<br>        // zk_proof：零知识证明参数（验证转账合法性）<br>        zk_proof: felt252<br>    ) &#123;<br>        let caller = get_caller_address();<br>        // 1. 验证ZKP（核心：证明caller有足够余额，且未作弊）<br>        assert!(verify_zk_proof(caller, amount, zk_proof), &quot;Invalid proof&quot;);<br>        // 2. 扣减转账方余额<br>        let caller_balance = self.balances.read(caller);<br>        self.balances.write(caller, caller_balance - amount);<br>        // 3. 增加接收方余额<br>        let to_balance = self.balances.read(to);<br>        self.balances.write(to, to_balance + amount);<br>    &#125;<br><br>    // 辅助函数：验证零知识证明（简化版）<br>    fn verify_zk_proof(caller: ContractAddress, amount: felt252, proof: felt252) -&gt; bool &#123;<br>        // 实际开发中会调用StarkNet的ZKP验证库<br>        // 这里简化为“证明非空且金额&gt;0”<br>        proof != 0 &amp;&amp; amount &gt; 0<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="四、Cairo的应用场景"><a href="#四、Cairo的应用场景" class="headerlink" title="四、Cairo的应用场景"></a>四、Cairo的应用场景</h3><ol>
+<li><strong>隐私型智能合约</strong>：开发需要隐私保护的DeFi（如私密借贷、匿名交易）、NFT（匿名铸造&#x2F;转移）；</li>
+<li><strong>以太坊Layer2开发</strong>：为StarkNet编写扩容合约，承接以太坊主网的高并发需求；</li>
+<li><strong>ZKP应用开发</strong>：除了区块链，还能用于身份验证、数据隐私计算等非链上ZKP场景；</li>
+<li><strong>游戏&#x2F;元宇宙</strong>：高并发+隐私保护的链上游戏（如私密道具交易）。</li>
+</ol>
+<h3 id="五、Cairo-vs-Move-vs-Solidity（核心区别）"><a href="#五、Cairo-vs-Move-vs-Solidity（核心区别）" class="headerlink" title="五、Cairo vs Move vs Solidity（核心区别）"></a>五、Cairo vs Move vs Solidity（核心区别）</h3><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>Cairo</th>
+<th>Move</th>
+<th>Solidity</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>核心设计目标</td>
+<td>零知识证明+以太坊扩容</td>
+<td>区块链资产安全管理</td>
+<td>以太坊通用智能合约</td>
+</tr>
+<tr>
+<td>核心优势</td>
+<td>隐私性、高性能（ZKP）</td>
+<td>资产安全性（Resource）</td>
+<td>生态成熟、通用性强</td>
+</tr>
+<tr>
+<td>主要应用链&#x2F;平台</td>
+<td>StarkNet（以太坊Layer2）</td>
+<td>Aptos、Sui、Diem</td>
+<td>以太坊、BSC、Polygon</td>
+</tr>
+<tr>
+<td>核心类型</td>
+<td>felt252（适配ZKP的整数）</td>
+<td>Resource（资源类型）</td>
+<td>mapping（映射）</td>
+</tr>
+</tbody></table>
+<h3 id="总结-2"><a href="#总结-2" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>Cairo是<strong>专为零知识证明（ZKP）设计</strong>的图灵完备语言，核心优势是隐私性和高性能；</li>
+<li>它是StarkNet（以太坊Layer2）的核心开发语言，兼顾隐私保护和以太坊生态兼容；</li>
+<li>与Move相比，Cairo聚焦“ZKP+扩容”，Move聚焦“资产安全管理”，二者都是区块链领域的重要专用语言。</li>
+</ol>
+<p>如果想入门Cairo，建议先从StarkWare官方的Cairo 1.0教程开始，重点理解<code>felt252</code>类型、ZKP验证逻辑和StarkNet合约的部署流程。</p>
+<h1 id="stark和snark的区别是什么"><a href="#stark和snark的区别是什么" class="headerlink" title="stark和snark的区别是什么"></a>stark和snark的区别是什么</h1><p>STARK与SNARK是零知识证明（ZKP）的两大主流方案，核心差异集中在<strong>可信设置、证明效率、抗量子安全、生态成熟度</strong>四个维度，二者为不同场景做了“安全-性能-成本”的取舍，在Web3安全审计与Layer2开发中各有适用场景。</p>
+<hr>
+<h3 id="一、核心定义与本质区别"><a href="#一、核心定义与本质区别" class="headerlink" title="一、核心定义与本质区别"></a>一、核心定义与本质区别</h3><table>
+<thead>
+<tr>
+<th align="left">特性</th>
+<th align="left">STARK（Zero-Knowledge Scalable Transparent Argument of Knowledge）</th>
+<th align="left">SNARK（Zero-Knowledge Succinct Non-interactive Argument of Knowledge）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">核心定位</td>
+<td align="left">透明、可扩展优先，面向大规模计算与抗量子未来</td>
+<td align="left">简洁、非交互优先，追求链上轻量验证与快速部署</td>
+</tr>
+<tr>
+<td align="left">核心设计</td>
+<td align="left">基于哈希函数+信息论，无信任假设</td>
+<td align="left">基于椭圆曲线+多项式承诺，依赖公共参考字符串（CRS）</td>
+</tr>
+<tr>
+<td align="left">互动性</td>
+<td align="left">理论交互式，通过哈希随机挑战实现“非交互等效”</td>
+<td align="left">原生非交互式，单次证明即可完成验证</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="二、关键技术差异（安全审计重点）"><a href="#二、关键技术差异（安全审计重点）" class="headerlink" title="二、关键技术差异（安全审计重点）"></a>二、关键技术差异（安全审计重点）</h3><h4 id="1-可信设置（Trust-Setup）"><a href="#1-可信设置（Trust-Setup）" class="headerlink" title="1. 可信设置（Trust Setup）"></a>1. 可信设置（Trust Setup）</h4><ul>
+<li><strong>SNARK</strong>：必须执行“可信设置仪式”生成公共参考字符串（CRS），参数泄露会导致系统安全失效；Groth16需一次性仪式，Plonk支持多方更新但仍有信任假设，存在“有毒废物”风险。</li>
+<li><strong>STARK</strong>：完全无需可信设置，通过公开随机性与哈希碰撞保证安全，消除信任假设与参数泄露风险，部署更安全、透明。</li>
+</ul>
+<h4 id="2-证明大小与验证效率"><a href="#2-证明大小与验证效率" class="headerlink" title="2. 证明大小与验证效率"></a>2. 证明大小与验证效率</h4><ul>
+<li><strong>SNARK</strong>：证明仅数百字节，验证速度极快（毫秒级），适合链上轻量存储与高频验证（如Zcash、zkSync）。</li>
+<li><strong>STARK</strong>：证明大小达数十KB（比SNARK大1-2个数量级），验证耗时稍长，但大规模计算时验证复杂度呈对数增长，扩展性更强。</li>
+</ul>
+<h4 id="3-抗量子安全性"><a href="#3-抗量子安全性" class="headerlink" title="3. 抗量子安全性"></a>3. 抗量子安全性</h4><ul>
+<li><strong>SNARK</strong>：基于椭圆曲线离散对数假设，量子计算机可通过Shor算法破解，存在后量子安全隐患。</li>
+<li><strong>STARK</strong>：依赖哈希函数（如SHA-256）的抗碰撞性，被认为具备后量子安全潜力，适合长期安全需求场景。</li>
+</ul>
+<h4 id="4-底层密码学与计算模型"><a href="#4-底层密码学与计算模型" class="headerlink" title="4. 底层密码学与计算模型"></a>4. 底层密码学与计算模型</h4><ul>
+<li><strong>SNARK</strong>：用算术电路描述计算，依赖椭圆曲线多项式承诺（如Groth16、Plonk），工具链成熟（Circom、Halo2等）。</li>
+<li><strong>STARK</strong>：用代数化计算轨迹+哈希挑战验证，适配Cairo语言与STARK证明系统，适合复杂计算的ZKP转化。</li>
+</ul>
+<h4 id="5-生态与工具链"><a href="#5-生态与工具链" class="headerlink" title="5. 生态与工具链"></a>5. 生态与工具链</h4><ul>
+<li><strong>SNARK</strong>：生态成熟，框架丰富（Zokrates、snarkjs等），适合快速开发隐私合约与Layer2扩容（如zkSync、Polygon zkEVM）。</li>
+<li><strong>STARK</strong>：由StarkWare主导，Cairo语言+StarkNet生态，适合高性能隐私扩容与零知识智能合约开发，学习成本较高。</li>
+</ul>
+<hr>
+<h3 id="三、适用场景与安全审计选择"><a href="#三、适用场景与安全审计选择" class="headerlink" title="三、适用场景与安全审计选择"></a>三、适用场景与安全审计选择</h3><table>
+<thead>
+<tr>
+<th align="left">场景</th>
+<th align="left">优先选择</th>
+<th align="left">审计重点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">隐私代币、轻量合约</td>
+<td align="left">SNARK</td>
+<td align="left">可信设置仪式安全性、参数保护、椭圆曲线漏洞</td>
+</tr>
+<tr>
+<td align="left">以太坊Layer2高并发扩容</td>
+<td align="left">STARK</td>
+<td align="left">证明压缩效率、哈希函数安全性、Cairo合约漏洞</td>
+</tr>
+<tr>
+<td align="left">后量子安全需求场景</td>
+<td align="left">STARK</td>
+<td align="left">哈希函数抗量子性、计算轨迹完整性验证</td>
+</tr>
+<tr>
+<td align="left">快速部署与生态兼容</td>
+<td align="left">SNARK</td>
+<td align="left">工具链漏洞、多方仪式参与方可信度</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="四、Web3安全审计的核心取舍"><a href="#四、Web3安全审计的核心取舍" class="headerlink" title="四、Web3安全审计的核心取舍"></a>四、Web3安全审计的核心取舍</h3><ul>
+<li>SNARK优势：链上验证成本低、生态成熟，适合对Gas敏感的高频交易场景，但需严格审计可信设置流程与参数安全。</li>
+<li>STARK优势：无信任假设、抗量子、大规模计算可扩展，适合长期安全与高吞吐需求，但需关注证明大小带来的Gas成本与验证效率。</li>
+</ul>
+<p>需要我基于你关注的<strong>Web3安全审计</strong>场景，整理一份“STARK&#x2F;SNARK合约审计清单”，标注<strong>可信设置、证明验证、抗量子安全</strong>的关键检查项与漏洞示例吗？</p>
+<h1 id="EOAs是什么"><a href="#EOAs是什么" class="headerlink" title="EOAs是什么"></a>EOAs是什么</h1><p><strong>EOA</strong> 是 <strong>Externally Owned Account</strong> 的缩写，中文译为<strong>外部账户</strong>，是区块链（尤其是以太坊生态）中最基础的账户类型，也是普通用户日常使用的钱包账户。</p>
+<p>与之相对的是 <strong>CA</strong>（Contract Account，合约账户），二者共同构成了以太坊等链的账户体系。</p>
+<h3 id="一、EOA的核心特点"><a href="#一、EOA的核心特点" class="headerlink" title="一、EOA的核心特点"></a>一、EOA的核心特点</h3><ol>
+<li><p><strong>由私钥控制</strong><br>EOA的所有权完全由<strong>非对称加密算法生成的私钥</strong>掌控，私钥持有者可以签署交易（转账、部署合约、调用合约等）。<br>核心逻辑：私钥生成公钥，公钥通过哈希运算生成账户地址（以太坊地址格式为<code>0x</code>开头的42位十六进制字符串）。</p>
+</li>
+<li><p><strong>无代码逻辑</strong><br>EOA是“被动账户”，本身不包含任何智能合约代码，无法主动触发交易或执行逻辑。<br>所有操作都必须由私钥持有者主动发起并签名，这也是它和合约账户的核心区别。</p>
+</li>
+<li><p><strong>可收发原生代币</strong><br>EOA可以直接接收和发送区块链的原生代币（比如以太坊的ETH、BSC的BNB），也能与智能合约交互（比如转账ERC-20代币、铸造NFT）。</p>
+</li>
+<li><p><strong>无需部署</strong><br>EOA是“无中生有”的账户——只要生成私钥，对应的地址就存在于区块链中，无需像合约账户那样通过部署交易创建。</p>
+</li>
+</ol>
+<h3 id="二、EOA-vs-合约账户（CA）核心区别"><a href="#二、EOA-vs-合约账户（CA）核心区别" class="headerlink" title="二、EOA vs 合约账户（CA）核心区别"></a>二、EOA vs 合约账户（CA）核心区别</h3><table>
+<thead>
+<tr>
+<th align="left">特性</th>
+<th align="left">外部账户（EOA）</th>
+<th align="left">合约账户（CA）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">控制权</td>
+<td align="left">私钥持有者</td>
+<td align="left">智能合约代码逻辑</td>
+</tr>
+<tr>
+<td align="left">代码逻辑</td>
+<td align="left">无</td>
+<td align="left">有（Solidity&#x2F;Cairo&#x2F;Move编写）</td>
+</tr>
+<tr>
+<td align="left">交易发起方</td>
+<td align="left">可以主动发起交易（需签名）</td>
+<td align="left">只能被动响应交易（被EOA或其他合约调用）</td>
+</tr>
+<tr>
+<td align="left">创建方式</td>
+<td align="left">私钥生成，无需部署</td>
+<td align="left">部署交易创建，需消耗Gas</td>
+</tr>
+<tr>
+<td align="left">主要用途</td>
+<td align="left">用户钱包、资金管理、发起操作</td>
+<td align="left">执行复杂逻辑（DeFi、NFT、DAO等）</td>
+</tr>
+</tbody></table>
+<h3 id="三、EOA在Web3安全中的重要性"><a href="#三、EOA在Web3安全中的重要性" class="headerlink" title="三、EOA在Web3安全中的重要性"></a>三、EOA在Web3安全中的重要性</h3><p>对于你关注的<strong>Web3安全审计</strong>来说，EOA的安全是基础：</p>
+<ol>
+<li><strong>私钥泄露风险</strong>：EOA的资产安全完全依赖私钥，一旦私钥泄露，攻击者可直接转移账户内所有资产，且无法追溯。</li>
+<li><strong>交易签名风险</strong>：恶意DApp可能诱导用户签署伪造交易（比如授权无限额度代币转账），审计时需重点检查合约对EOA签名的验证逻辑。</li>
+<li><strong>与合约交互的权限边界</strong>：EOA调用合约时，需明确权限范围（比如是否允许合约转账、是否有时间锁限制），避免越权操作导致资产损失。</li>
+</ol>
+<p>需要我帮你整理一份<strong>EOA安全防护清单</strong>，包含私钥管理、交易签名验证、合约交互风险规避的具体操作吗？</p>
+<h1 id="smart-wallets是什么"><a href="#smart-wallets是什么" class="headerlink" title="smart wallets是什么"></a>smart wallets是什么</h1><p><strong>Smart Wallet（智能钱包）</strong> 是基于区块链智能合约技术构建的<strong>可编程账户钱包</strong>，本质是一种<strong>合约账户（CA）</strong>，而非传统的外部账户（EOA）。它通过嵌入自定义代码逻辑，实现了传统EOA钱包不具备的安全、便捷和可编程功能，是Web3生态中账户体系升级的核心方向。</p>
+<h3 id="一、智能钱包的核心本质"><a href="#一、智能钱包的核心本质" class="headerlink" title="一、智能钱包的核心本质"></a>一、智能钱包的核心本质</h3><p>传统钱包（如MetaMask）本质是<strong>EOA钱包</strong>，由私钥直接控制，所有操作都需要私钥签名；<br>智能钱包本质是<strong>部署在链上的合约账户</strong>，控制权可以由多组私钥、甚至其他智能合约共同管理，其核心逻辑由预先编写的合约代码定义。</p>
+<p>简单来说：</p>
+<ul>
+<li>EOA钱包 &#x3D; 私钥 + 地址（被动账户，无逻辑）</li>
+<li>智能钱包 &#x3D; 合约代码 + 多签&#x2F;权限规则 + 地址（主动账户，可自定义规则）</li>
+</ul>
+<h3 id="二、智能钱包的核心优势（对比EOA钱包）"><a href="#二、智能钱包的核心优势（对比EOA钱包）" class="headerlink" title="二、智能钱包的核心优势（对比EOA钱包）"></a>二、智能钱包的核心优势（对比EOA钱包）</h3><ol>
+<li><p><strong>非单一私钥控制，提升安全性</strong></p>
+<ul>
+<li>支持<strong>多签验证</strong>：比如设置“2&#x2F;3私钥签名才能发起交易”，避免单私钥泄露导致资产丢失；</li>
+<li>支持<strong>社交恢复</strong>：私钥丢失时，可通过预设的“监护人地址”投票重置控制权，无需依赖助记词；</li>
+<li>可设置<strong>交易限额&#x2F;时间锁</strong>：比如单日转账上限1 ETH，或大额交易需等待24小时确认，降低黑客攻击损失。</li>
+</ul>
+</li>
+<li><p><strong>可编程自动化，提升便捷性</strong></p>
+<ul>
+<li><strong>批量交易</strong>：一次签名即可完成多笔操作（比如同时兑换代币+存入流动性池），减少Gas消耗和操作步骤；</li>
+<li><strong>自动执行逻辑</strong>：比如设置“当ETH价格低于1500 USDT时，自动兑换为USDT”，无需手动盯盘；</li>
+<li><strong>无Gas交易</strong>：可由第三方（如DApp、中继器）代付Gas费，用户无需持有原生代币即可交互（比如用ERC-20代币支付Gas）。</li>
+</ul>
+</li>
+<li><p><strong>灵活的权限管理</strong></p>
+<ul>
+<li>可以给不同设备&#x2F;用户分配<strong>分级权限</strong>：比如手机端只能小额转账，硬件钱包才能发起大额操作；</li>
+<li>支持<strong>临时授权</strong>：给DApp授予限时权限，到期自动失效，避免长期授权的安全风险。</li>
+</ul>
+</li>
+</ol>
+<h3 id="三、智能钱包的工作原理"><a href="#三、智能钱包的工作原理" class="headerlink" title="三、智能钱包的工作原理"></a>三、智能钱包的工作原理</h3><ol>
+<li><strong>账户创建</strong>：用户部署一个智能钱包合约到链上，合约中预先写入权限规则（如多签阈值、恢复机制）。</li>
+<li><strong>交易发起</strong>：用户发起交易时，智能钱包合约会先验证<strong>签名是否符合权限规则</strong>（比如是否满足多签数量）。</li>
+<li><strong>交易执行</strong>：验证通过后，合约自动执行交易逻辑（如转账、调用其他DApp），无需用户直接用私钥签名链上交易。</li>
+<li><strong>安全兜底</strong>：当私钥丢失或账户异常时，触发预设的恢复机制（如监护人投票）重置控制权。</li>
+</ol>
+<h3 id="四、智能钱包-vs-传统EOA钱包-核心区别"><a href="#四、智能钱包-vs-传统EOA钱包-核心区别" class="headerlink" title="四、智能钱包 vs 传统EOA钱包 核心区别"></a>四、智能钱包 vs 传统EOA钱包 核心区别</h3><table>
+<thead>
+<tr>
+<th align="left">特性</th>
+<th align="left">传统EOA钱包（如MetaMask）</th>
+<th align="left">智能钱包（如Argent、Safe）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">账户类型</td>
+<td align="left">外部账户（EOA）</td>
+<td align="left">合约账户（CA）</td>
+</tr>
+<tr>
+<td align="left">控制权</td>
+<td align="left">单一私钥&#x2F;助记词控制</td>
+<td align="left">多签、社交恢复、代码规则控制</td>
+</tr>
+<tr>
+<td align="left">核心安全风险</td>
+<td align="left">私钥泄露&#x3D;资产全丢</td>
+<td align="left">单私钥泄露不影响，需突破权限规则</td>
+</tr>
+<tr>
+<td align="left">功能扩展性</td>
+<td align="left">仅支持基础转账&#x2F;签名</td>
+<td align="left">批量交易、自动执行、无Gas交易等</td>
+</tr>
+<tr>
+<td align="left">恢复机制</td>
+<td align="left">助记词是唯一恢复方式</td>
+<td align="left">社交恢复、监护人重置</td>
+</tr>
+<tr>
+<td align="left">适用场景</td>
+<td align="left">普通用户小额资产管理</td>
+<td align="left">大额资产存储、机构钱包、高频DApp交互</td>
+</tr>
+</tbody></table>
+<h3 id="五、智能钱包的安全审计重点"><a href="#五、智能钱包的安全审计重点" class="headerlink" title="五、智能钱包的安全审计重点"></a>五、智能钱包的安全审计重点</h3><p>对于Web3安全审计而言，智能钱包的核心风险点集中在<strong>合约代码逻辑</strong>上：</p>
+<ol>
+<li><strong>权限规则漏洞</strong>：比如多签阈值设置错误、监护人权限过大，可能导致恶意攻击；</li>
+<li><strong>签名验证漏洞</strong>：合约对用户签名的验证逻辑存在缺陷，可能被伪造签名绕过权限；</li>
+<li><strong>重入攻击风险</strong>：智能钱包调用外部合约时，未做重入防护，可能被利用转移资产；</li>
+<li><strong>社交恢复机制漏洞</strong>：监护人投票机制设计不合理，可能被恶意操控。</li>
+</ol>
+<h3 id="六、主流智能钱包方案"><a href="#六、主流智能钱包方案" class="headerlink" title="六、主流智能钱包方案"></a>六、主流智能钱包方案</h3><ul>
+<li><strong>Safe（原Gnosis Safe）</strong>：以太坊生态最成熟的多签智能钱包，支持自定义权限规则，适合机构和大额资产管理；</li>
+<li><strong>Argent</strong>：面向普通用户的智能钱包，主打社交恢复和无Gas交易，操作简洁；</li>
+<li><strong>ZeroDev</strong>：基于ERC-4337标准的智能钱包开发框架，支持开发者快速定制钱包逻辑。</li>
+</ul>
+<p>需要我帮你整理一份<strong>智能钱包安全审计检查清单</strong>，标注权限规则、签名验证、重入防护的关键检查点吗？</p>
+<h1 id="TPS最高可以达到1000这句话是什么意思"><a href="#TPS最高可以达到1000这句话是什么意思" class="headerlink" title="TPS最高可以达到1000这句话是什么意思"></a>TPS最高可以达到1000这句话是什么意思</h1><p>“TPS最高可以达到1000”这句话的核心含义是：<strong>这条区块链网络在理想条件下，每秒最多能够处理并确认1000笔交易</strong>。</p>
+<h3 id="关键补充说明"><a href="#关键补充说明" class="headerlink" title="关键补充说明"></a>关键补充说明</h3><ol>
+<li><p><strong>TPS的定义</strong><br>TPS &#x3D; Transactions Per Second，即<strong>每秒交易数</strong>，是衡量区块链网络处理能力的核心指标，直接关系到网络的吞吐量和用户体验（TPS越高，交易拥堵概率越低，转账&#x2F;合约交互速度越快）。</p>
+</li>
+<li><p><strong>“最高”的前提条件</strong><br>这个数值是<strong>理论上限或理想峰值</strong>，实际运行中很难稳定达到，受以下因素影响：</p>
+<ul>
+<li><strong>交易类型</strong>：简单转账交易（如ETH转账）比复杂智能合约交易（如DeFi流动性挖矿）更节省资源，能支撑更高TPS；</li>
+<li><strong>网络负载</strong>：网络拥堵时（如NFT mint高峰期），实际TPS会低于理论上限；</li>
+<li><strong>底层技术</strong>：采用Layer2扩容（如ZK-Rollup）、并行执行（如Move生态链）的网络，更容易接近或突破这个峰值；而以太坊主网未扩容前TPS仅约15-30，远低于1000。</li>
+</ul>
+</li>
+<li><p><strong>不同技术方案的TPS对比参考</strong></p>
+<table>
+<thead>
+<tr>
+<th>技术方案&#x2F;公链</th>
+<th>理论最高TPS</th>
+<th>实际稳定TPS</th>
+<th>核心技术支撑</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>以太坊主网（未扩容）</td>
+<td>30左右</td>
+<td>15-20</td>
+<td>纯PoW共识，无扩容</td>
+</tr>
+<tr>
+<td>StarkNet（ZK-Rollup）</td>
+<td>数千级</td>
+<td>500-1000+</td>
+<td>批量交易+ZKP证明压缩</td>
+</tr>
+<tr>
+<td>Aptos（Move生态）</td>
+<td>10万+</td>
+<td>2000-5000</td>
+<td>并行执行+资源隔离</td>
+</tr>
+<tr>
+<td>普通侧链</td>
+<td>1000-5000</td>
+<td>500-2000</td>
+<td>独立共识，脱离主网约束</td>
+</tr>
+</tbody></table>
+</li>
+</ol>
+<h3 id="结合你关注的Web3安全审计视角"><a href="#结合你关注的Web3安全审计视角" class="headerlink" title="结合你关注的Web3安全审计视角"></a>结合你关注的Web3安全审计视角</h3><p>当一条链宣称“TPS最高1000”时，需要关注两个点：</p>
+<ul>
+<li>该数值是<strong>测试网峰值</strong>还是<strong>主网实际值</strong>？测试网无真实负载，数据水分较大；</li>
+<li>高TPS是否以<strong>牺牲安全性</strong>为代价？比如部分公链通过简化共识或降低去中心化程度提升TPS，可能存在节点垄断风险。</li>
+</ul>
+<p>需要我帮你整理一份<strong>高TPS公链安全性评估清单</strong>，对比ZK-Rollup和Move生态链的安全取舍吗？</p>
+<h1 id="ZK-rollup-技术是什么"><a href="#ZK-rollup-技术是什么" class="headerlink" title="ZK-rollup 技术是什么"></a>ZK-rollup 技术是什么</h1><p>ZK-Rollup 是以太坊生态主流的 <strong>Layer2 扩容技术</strong>，核心是通过<strong>零知识证明（ZKP）</strong> 将大量链下交易“打包压缩”，仅向以太坊主网提交交易的<strong>有效性证明</strong>，以此在不牺牲主网安全性的前提下，大幅提升交易吞吐量、降低 Gas 成本。</p>
+<h3 id="一、ZK-Rollup-的核心工作原理"><a href="#一、ZK-Rollup-的核心工作原理" class="headerlink" title="一、ZK-Rollup 的核心工作原理"></a>一、ZK-Rollup 的核心工作原理</h3><p>可以把整个过程拆解为 <strong>3 步</strong>，理解起来更清晰：</p>
+<ol>
+<li><p><strong>交易归集</strong><br>所有用户交易先发送到 ZK-Rollup 节点的<strong>链下执行环境</strong>，而非直接上以太坊主网。节点会批量处理这些交易（比如一次打包 1000 笔），并生成对应的<strong>交易状态快照</strong>（比如用户余额变化、合约状态更新）。</p>
+</li>
+<li><p><strong>生成零知识证明</strong><br>节点基于这批交易的执行结果，利用零知识证明算法（如 STARK、Groth16 等）生成一个<strong>简洁的有效性证明</strong>。<br>这个证明的核心作用是：<strong>向以太坊主网证明“我已经正确执行了这 1000 笔交易，且最终状态是合法的”，但不需要把每笔交易的细节都上传</strong>。</p>
+</li>
+<li><p><strong>上链验证与状态更新</strong><br>节点将这个<strong>证明数据 + 最终状态快照</strong>提交到以太坊主网的 ZK-Rollup 智能合约。合约会验证证明的有效性：</p>
+<ul>
+<li>验证通过 → 直接更新主网的 Rollup 状态，完成所有交易的最终确认；</li>
+<li>验证失败 → 拒绝状态更新，确保交易的正确性。</li>
+</ul>
+</li>
+</ol>
+<p>简单总结：<strong>把大量计算和数据留在链下，只把“证明结果”上链</strong>。</p>
+<h3 id="二、ZK-Rollup-的核心优势"><a href="#二、ZK-Rollup-的核心优势" class="headerlink" title="二、ZK-Rollup 的核心优势"></a>二、ZK-Rollup 的核心优势</h3><ol>
+<li><p><strong>安全性与主网等价</strong><br>所有交易的最终状态由以太坊主网合约验证，资产始终托管在主网，不存在侧链“脱离主网”的安全风险，是目前 Layer2 中<strong>安全性最高</strong>的方案之一。</p>
+</li>
+<li><p><strong>高吞吐量 + 低 Gas 成本</strong></p>
+<ul>
+<li>以太坊主网 TPS 仅 15-30，而 ZK-Rollup 可轻松达到 <strong>1000+ TPS</strong>，部分优化方案（如 StarkNet）理论 TPS 可达数千甚至上万；</li>
+<li>批量交易压缩了链上数据，单笔交易的 Gas 成本可降低 <strong>90% 以上</strong>。</li>
+</ul>
+</li>
+<li><p><strong>即时终局性（部分方案）</strong><br>不同于 Optimistic Rollup 需要 7 天的“欺诈证明窗口期”，ZK-Rollup 的交易在证明验证通过后<strong>立即确认</strong>，无需等待，用户体验更优。</p>
+</li>
+<li><p><strong>隐私性潜力</strong><br>基于零知识证明的特性，ZK-Rollup 可以轻松实现<strong>隐私交易</strong>（比如隐藏转账金额、交易双方地址），适合需要隐私保护的 DeFi、NFT 场景。</p>
+</li>
+</ol>
+<h3 id="三、ZK-Rollup-的关键分类（按证明类型）"><a href="#三、ZK-Rollup-的关键分类（按证明类型）" class="headerlink" title="三、ZK-Rollup 的关键分类（按证明类型）"></a>三、ZK-Rollup 的关键分类（按证明类型）</h3><p>根据所使用的零知识证明算法，ZK-Rollup 主要分为两类，这也是你之前关注的 <strong>STARK vs SNARK</strong> 的落地体现：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>核心技术</th>
+<th>代表项目</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>ZK-STARK Rollup</strong></td>
+<td>基于 STARK 证明</td>
+<td>StarkNet</td>
+<td>无需可信设置、抗量子攻击、证明体积稍大</td>
+</tr>
+<tr>
+<td><strong>ZK-SNARK Rollup</strong></td>
+<td>基于 SNARK 证明</td>
+<td>zkSync Era、Polygon zkEVM</td>
+<td>证明体积小、验证速度快、需要可信设置</td>
+</tr>
+</tbody></table>
+<h3 id="四、与你关注的技术栈的关联"><a href="#四、与你关注的技术栈的关联" class="headerlink" title="四、与你关注的技术栈的关联"></a>四、与你关注的技术栈的关联</h3><ol>
+<li><strong>和 Cairo 语言的关系</strong>：StarkNet 作为 ZK-STARK Rollup 的代表，其智能合约就是用 <strong>Cairo 语言</strong>编写的，Cairo 的设计天然适配 STARK 证明的生成，让开发者能高效编写支持零知识证明的合约。</li>
+<li><strong>和 Move 生态的区别</strong>：Move 生态公链（如 Aptos、Sui）是<strong>独立 Layer1</strong>，通过并行执行提升 TPS；而 ZK-Rollup 是<strong>以太坊 Layer2</strong>，依托主网安全性做扩容，二者是“扩容赛道的不同路线”。</li>
+</ol>
+<h3 id="五、Web3-安全审计的重点"><a href="#五、Web3-安全审计的重点" class="headerlink" title="五、Web3 安全审计的重点"></a>五、Web3 安全审计的重点</h3><p>对于 ZK-Rollup 项目的安全审计，核心关注 3 点：</p>
+<ol>
+<li><strong>证明生成逻辑的正确性</strong>：避免证明算法存在漏洞，导致“错误交易被验证通过”；</li>
+<li><strong>主网合约的安全性</strong>：Rollup 智能合约是资产托管的核心，需防范重入攻击、权限漏洞等；</li>
+<li><strong>链下执行环境的可信性</strong>：节点的链下交易处理是否存在恶意篡改风险，需验证执行逻辑与证明的一致性。</li>
+</ol>
+<p>需要我帮你整理一份 <strong>ZK-Rollup 项目安全审计的核心检查清单</strong>，覆盖证明验证、合约逻辑、链下执行三个维度吗？</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Web3/">Web3</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/01/06/6786.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Starknet 训练营-课程笔记2</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/01/05/25692860.html">
+                        <span class="hidden-mobile">Polkadot Solidity开发-课程笔记8</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>

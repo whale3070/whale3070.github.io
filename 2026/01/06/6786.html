@@ -1,0 +1,880 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>Starknet 训练营-课程笔记2 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/search/">
+                <i class="iconfont icon-search"></i>
+                搜索
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="Starknet 训练营-课程笔记2">
+                      
+                        Starknet 训练营-课程笔记2
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-01-06 14:37" pubdate>
+        2026年1月6日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      5.8k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      63
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">Starknet 训练营-课程笔记2</h1>
+            
+            <div class="markdown-body">
+              <h1 id="“StarkWare技术栈vs-Move生态”的核心差异对比表"><a href="#“StarkWare技术栈vs-Move生态”的核心差异对比表" class="headerlink" title="“StarkWare技术栈vs Move生态”的核心差异对比表"></a>“StarkWare技术栈vs Move生态”的核心差异对比表</h1><p>以下是 <strong>StarkWare 技术栈 vs Move 生态</strong> 的核心差异对比表，覆盖定位、技术架构、性能、安全、开发与适用场景等关键维度，兼顾 Web3 安全审计与开发视角。</p>
+<hr>
+<h3 id="核心差异总览表"><a href="#核心差异总览表" class="headerlink" title="核心差异总览表"></a>核心差异总览表</h3><table>
+<thead>
+<tr>
+<th align="left">对比维度</th>
+<th align="left">StarkWare 技术栈（StarkNet&#x2F;StarkEx）</th>
+<th align="left">Move 生态（Aptos&#x2F;Sui 等）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>网络定位</strong></td>
+<td align="left">以太坊 Layer2（ZK‑STARK Rollup），依托主网安全性做扩容</td>
+<td align="left">独立 Layer1 公链，原生高吞吐与独立共识</td>
+</tr>
+<tr>
+<td align="left"><strong>扩容路径</strong></td>
+<td align="left">链下批量执行 + STARK 有效性证明上链，压缩数据与计算</td>
+<td align="left">并行执行 + 资源隔离 + 交易流优化，原生架构提效</td>
+</tr>
+<tr>
+<td align="left"><strong>核心技术</strong></td>
+<td align="left">Cairo 语言、Stone Prover、STARK 证明、账户抽象</td>
+<td align="left">Move 语言（资源模型）、并行执行、Move Prover、拜占庭容错共识</td>
+</tr>
+<tr>
+<td align="left"><strong>安全性来源</strong></td>
+<td align="left">以太坊主网合约验证证明，资产托管于 L1，零知识证明保障计算完整性</td>
+<td align="left">语言层资源不可复制&#x2F;销毁、形式化验证友好、内置安全检查</td>
+</tr>
+<tr>
+<td align="left"><strong>理论 TPS</strong></td>
+<td align="left">数千级（StarkNet 可达 1000+，优化后更高）</td>
+<td align="left">数万至十万级（Aptos 2000‑5000 稳定，Sui 峰值更高）</td>
+</tr>
+<tr>
+<td align="left"><strong>交易终局性</strong></td>
+<td align="left">证明验证通过即终局，无欺诈证明窗口期</td>
+<td align="left">共识确认后快速终局（Aptos 约 1-2s，Sui 亚秒级）</td>
+</tr>
+<tr>
+<td align="left"><strong>Gas 成本逻辑</strong></td>
+<td align="left">批量压缩链上数据，成本比 L1 低 90%+，随 L1 波动</td>
+<td align="left">原生低费，不依赖以太坊，成本更稳定</td>
+</tr>
+<tr>
+<td align="left"><strong>开发语言</strong></td>
+<td align="left">Cairo（类 Rust，适配 STARK 证明生成）</td>
+<td align="left">Move（资源导向，形式化验证友好）</td>
+</tr>
+<tr>
+<td align="left"><strong>生态核心项目</strong></td>
+<td align="left">StarkNet（通用 L2）、StarkEx（应用定制 L2）、dYdX、Immutable X</td>
+<td align="left">Aptos、Sui、Starcoin、Movement Network</td>
+</tr>
+<tr>
+<td align="left"><strong>隐私潜力</strong></td>
+<td align="left">天然支持隐私交易（隐藏金额&#x2F;地址）</td>
+<td align="left">需额外协议实现隐私，语言层无原生隐私</td>
+</tr>
+<tr>
+<td align="left"><strong>去中心化程度</strong></td>
+<td align="left">定序器逐步去中心化，依赖以太坊去中心化</td>
+<td align="left">原生去中心化共识，验证节点网络独立</td>
+</tr>
+<tr>
+<td align="left"><strong>安全审计重点</strong></td>
+<td align="left">证明生成逻辑、Rollup 合约漏洞、链下执行一致性</td>
+<td align="left">并行执行漏洞、资源模型误用、共识与内存池安全</td>
+</tr>
+<tr>
+<td align="left"><strong>适用场景</strong></td>
+<td align="left">DeFi、NFT、游戏（需以太坊安全与互操作性）</td>
+<td align="left">高并发支付、大规模 DeFi、Web3 社交（需原生高吞吐）</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="关键差异详解"><a href="#关键差异详解" class="headerlink" title="关键差异详解"></a>关键差异详解</h3><ol>
+<li><p><strong>定位与扩容逻辑</strong></p>
+<ul>
+<li>StarkWare 是以太坊 L2，安全性锚定主网，适合需要以太坊生态与资产互通的场景，无需重构底层。</li>
+<li>Move 生态是独立 L1，通过架构级并行与资源模型实现原生高吞吐，适合对性能要求极高且不依赖以太坊的场景。</li>
+</ul>
+</li>
+<li><p><strong>安全模型对比</strong></p>
+<ul>
+<li>StarkWare：L1 兜底 + 零知识证明防计算错误，资产不离开以太坊，安全上限与主网一致。</li>
+<li>Move 生态：语言层从根源避免重入、双花等漏洞，配合 Move Prover 做形式化验证，适合资产密集型应用。</li>
+</ul>
+</li>
+<li><p><strong>性能与成本</strong></p>
+<ul>
+<li>StarkWare 受限于以太坊 L1 验证效率，TPS 上限低于 Move 生态，但安全性与互操作性更强。</li>
+<li>Move 生态 TPS 更高，成本更稳定，但跨链互操作需额外桥接，存在桥接安全风险。</li>
+</ul>
+</li>
+<li><p><strong>开发与工具链</strong></p>
+<ul>
+<li>Cairo 适配零知识证明，适合编写需要证明的合约；Move 适合安全第一的数字资产与 DeFi 开发，形式化验证更成熟。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="选择建议（Web3-安全审计视角）"><a href="#选择建议（Web3-安全审计视角）" class="headerlink" title="选择建议（Web3 安全审计视角）"></a>选择建议（Web3 安全审计视角）</h3><ul>
+<li>优先选 StarkWare：需以太坊安全性、资产互通、隐私交易或已有 L1 项目扩容。</li>
+<li>优先选 Move 生态：需原生高吞吐、独立网络主权、资产安全优先的大规模应用。</li>
+</ul>
+<p>需要我基于这个对比，整理一份 <strong>Web3 安全审计的核心检查项清单</strong>，分别覆盖 <strong>StarkWare 与 Move 生态</strong> 的高频风险点吗？</p>
+<h1 id="optimistic-rollup-plasma-rollup-validity-rollup-sidechain有什么区别"><a href="#optimistic-rollup-plasma-rollup-validity-rollup-sidechain有什么区别" class="headerlink" title="optimistic rollup, plasma rollup, validity rollup, sidechain有什么区别"></a>optimistic rollup, plasma rollup, validity rollup, sidechain有什么区别</h1><p>Optimistic Rollup、Plasma Rollup、Validity Rollup、Sidechain 是以太坊生态四种主流的扩容方案，核心差异体现在<strong>安全性来源、数据存储、交易终局性、适用场景</strong>四个维度，以下是详细对比：</p>
+<h3 id="一、核心定义与本质区别"><a href="#一、核心定义与本质区别" class="headerlink" title="一、核心定义与本质区别"></a>一、核心定义与本质区别</h3><table>
+<thead>
+<tr>
+<th align="left">对比维度</th>
+<th align="left"><strong>Optimistic Rollup（乐观 Rollup）</strong></th>
+<th align="left"><strong>Plasma Rollup（等离子 Rollup）</strong></th>
+<th align="left"><strong>Validity Rollup（有效性 Rollup）</strong></th>
+<th align="left"><strong>Sidechain（侧链）</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>核心信任假设</strong></td>
+<td align="left">乐观假设交易合法，需<strong>欺诈证明</strong>挑战</td>
+<td align="left">依赖主链智能合约+子链共识，采用<strong>欺诈证明&#x2F;退出博弈</strong></td>
+<td align="left">悲观假设交易可能非法，需<strong>有效性证明</strong>验证</td>
+<td align="left">完全依赖侧链独立共识，主链仅做资产锚定</td>
+</tr>
+<tr>
+<td align="left"><strong>安全性来源</strong></td>
+<td align="left">以太坊主网 + 欺诈证明窗口期</td>
+<td align="left">以太坊主网 + 子链轻节点 + 退出机制</td>
+<td align="left">以太坊主网 + 零知识证明（ZKP）&#x2F;简洁证明</td>
+<td align="left">侧链节点共识（如PoS&#x2F;PoA），主网无直接安全兜底</td>
+</tr>
+<tr>
+<td align="left"><strong>数据存储</strong></td>
+<td align="left">交易数据全量上链（以太坊主网）</td>
+<td align="left">仅存储交易哈希&#x2F;状态根，数据链下存储</td>
+<td align="left">仅存储证明+最终状态根，交易数据链下</td>
+<td align="left">数据完全侧链存储，主网仅记录资产跨链映射</td>
+</tr>
+<tr>
+<td align="left"><strong>交易终局性</strong></td>
+<td align="left">需 <strong>7天挑战期</strong>，期间可撤回交易；挑战期后终局</td>
+<td align="left">退出需等待 <strong>1-7天窗口期</strong>，存在数据可用性风险</td>
+<td align="left">证明验证通过<strong>立即终局</strong>，无窗口期</td>
+<td align="left">侧链共识确认后即终局，速度快但安全性弱</td>
+</tr>
+<tr>
+<td align="left"><strong>代表项目</strong></td>
+<td align="left">Optimism、Arbitrum</td>
+<td align="left">Plasma Cash、OMG Network</td>
+<td align="left">ZK-Rollup（StarkNet、zkSync）</td>
+<td align="left">Polygon PoS、xDai</td>
+</tr>
+<tr>
+<td align="left"><strong>TPS 性能</strong></td>
+<td align="left">约 1000-2000</td>
+<td align="left">约 1000-5000（受限于退出机制）</td>
+<td align="left">约 1000-10000+（批量压缩效率高）</td>
+<td align="left">约 1000-10000+（独立共识无主网瓶颈）</td>
+</tr>
+<tr>
+<td align="left"><strong>Gas 成本</strong></td>
+<td align="left">比主网低 5-10 倍</td>
+<td align="left">成本极低，但退出流程复杂</td>
+<td align="left">比主网低 10-100 倍</td>
+<td align="left">成本最低，与主网 Gas 无直接关联</td>
+</tr>
+<tr>
+<td align="left"><strong>以太坊兼容性</strong></td>
+<td align="left">完全 EVM 兼容，开发门槛低</td>
+<td align="left">部分兼容，需定制退出逻辑</td>
+<td align="left">部分兼容（如 zkEVM）或独立 VM（如 Cairo VM）</td>
+<td align="left">需桥接适配，兼容性取决于桥接设计</td>
+</tr>
+</tbody></table>
+<h3 id="二、关键差异详解"><a href="#二、关键差异详解" class="headerlink" title="二、关键差异详解"></a>二、关键差异详解</h3><ol>
+<li><p><strong>核心逻辑：“乐观” vs “悲观” vs “独立”</strong></p>
+<ul>
+<li><strong>Optimistic Rollup</strong>：名字源于“乐观假设”——默认所有交易合法，只有当有人质疑时才触发<strong>欺诈证明</strong>，重新计算有争议的交易。优点是 EVM 兼容性好，缺点是终局慢。</li>
+<li><strong>Plasma Rollup</strong>：属于“分片式扩容”，将主网资产映射到子链，通过<strong>退出机制</strong>保障资产安全（用户提现需提交证明，无异议则完成退出）。优点是成本低，缺点是存在数据可用性风险，且退出流程繁琐。</li>
+<li><strong>Validity Rollup</strong>：即 ZK-Rollup，核心是“先验证再上链”——链下批量执行交易后生成<strong>零知识证明</strong>，主网合约验证证明合法后直接更新状态。优点是终局快、安全性高，缺点是证明生成成本高，早期 EVM 兼容性弱。</li>
+<li><strong>Sidechain</strong>：完全独立的区块链，通过<strong>跨链桥</strong>与以太坊主网互通。优点是性能高、成本低，缺点是安全性与侧链节点挂钩，桥接是最大安全风险点。</li>
+</ul>
+</li>
+<li><p><strong>安全性排序（从高到低）</strong><br><code>Validity Rollup（ZK-Rollup） &gt; Optimistic Rollup &gt; Plasma Rollup &gt; Sidechain</code></p>
+<ul>
+<li>Validity Rollup 安全性<strong>与以太坊主网等价</strong>，资产始终托管在主网合约；</li>
+<li>Sidechain 安全性最弱，若侧链节点被攻击或联合作恶，可能导致资产丢失。</li>
+</ul>
+</li>
+<li><p><strong>适用场景差异</strong></p>
+<ul>
+<li>Optimistic Rollup：适合需要 EVM 兼容、快速迁移的 DeFi 项目（如 Uniswap V3 部署在 Arbitrum）；</li>
+<li>Plasma Rollup：适合低频大额转账场景（如比特币 Plasma 侧链），不适合高频复杂合约；</li>
+<li>Validity Rollup：适合高频交易、隐私需求场景（如 StarkNet 上的 dYdX 永续合约）；</li>
+<li>Sidechain：适合对成本敏感、对安全性要求不高的场景（如游戏、社交 dApp）。</li>
+</ul>
+</li>
+</ol>
+<h3 id="三、与你关注技术栈的关联"><a href="#三、与你关注技术栈的关联" class="headerlink" title="三、与你关注技术栈的关联"></a>三、与你关注技术栈的关联</h3><ul>
+<li>你之前了解的 <strong>StarkNet</strong> 属于 <strong>Validity Rollup</strong> 中的 <strong>ZK-STARK Rollup</strong> 子类，是 Validity Rollup 性能与隐私的代表；</li>
+<li>Move 生态公链（如 Aptos）本质是<strong>独立 Layer1</strong>，而非以上四类扩容方案，其性能提升源于原生并行执行，而非“主链+扩容层”架构。</li>
+</ul>
+<p>需要我帮你整理一份<strong>扩容方案安全审计优先级清单</strong>，标注不同方案的核心风险点和审计重点吗？</p>
+<h1 id="Starknet-中负责交易排序、执行并生成区块的组件是？"><a href="#Starknet-中负责交易排序、执行并生成区块的组件是？" class="headerlink" title="Starknet 中负责交易排序、执行并生成区块的组件是？"></a>Starknet 中负责交易排序、执行并生成区块的组件是？</h1><p>StarkNet 中负责交易排序、执行并生成区块的核心组件是 <strong>Starknet Sequencer（排序器）</strong>，它是网络的核心执行与出块单元，以下从核心职责、运行逻辑、关键关联组件三方面详细说明：</p>
+<hr>
+<h3 id="一、Sequencer-的核心职责"><a href="#一、Sequencer-的核心职责" class="headerlink" title="一、Sequencer 的核心职责"></a>一、Sequencer 的核心职责</h3><ol>
+<li><strong>交易排序</strong>：接收用户提交的交易，放入内存池（mempool），按规则（如费用优先级、时序）排序，过滤无效&#x2F;失败交易，确保区块内交易的确定性与合法性。</li>
+<li><strong>交易执行</strong>：调用 Starknet OS（基于 Cairo 的系统程序）与 Cairo VM，执行排序后的交易，生成执行轨迹（execution trace）与状态差异（state diff），更新 L2 网络状态。</li>
+<li><strong>区块生成</strong>：将执行成功的交易打包成完整区块，生成区块头、状态根等关键数据，提交给证明者（Prover）生成 STARK 有效性证明，最终通过主网核心合约完成状态锚定。</li>
+<li><strong>节点功能</strong>：Sequencer 节点是 Starknet 的核心节点类型，兼具排序、执行、出块、与 L1 交互的全流程能力，当前由 StarkWare 运营，未来将实现去中心化（如 Madara 等社区开源 Sequencer 方案）。</li>
+</ol>
+<hr>
+<h3 id="二、与关联组件的协同流程"><a href="#二、与关联组件的协同流程" class="headerlink" title="二、与关联组件的协同流程"></a>二、与关联组件的协同流程</h3><table>
+<thead>
+<tr>
+<th align="left">组件</th>
+<th align="left">角色</th>
+<th align="left">与 Sequencer 的协同关系</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>Sequencer</strong></td>
+<td align="left">排序、执行、出块</td>
+<td align="left">主导交易处理全流程，输出区块与执行结果</td>
+</tr>
+<tr>
+<td align="left"><strong>Starknet OS</strong></td>
+<td align="left">系统层执行引擎</td>
+<td align="left">Sequencer 调用其 Cairo 程序完成交易执行与状态更新</td>
+</tr>
+<tr>
+<td align="left"><strong>Prover（证明者）</strong></td>
+<td align="left">生成 STARK 证明</td>
+<td align="left">接收 Sequencer 输出的执行轨迹，生成有效性证明供 L1 验证</td>
+</tr>
+<tr>
+<td align="left"><strong>L1 Core Contract</strong></td>
+<td align="left">主网验证与状态锚定</td>
+<td align="left">验证 Prover 提交的证明，确认后更新 Starknet 状态根，完成终局性确认</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="三、关键补充"><a href="#三、关键补充" class="headerlink" title="三、关键补充"></a>三、关键补充</h3><ul>
+<li><strong>去中心化进程</strong>：当前 Starknet 为中心化 Sequencer 模式，社区正推进去中心化排序（如 Starknet 2.0 路线图），目标是引入多 Sequencer 网络，消除单点故障，提升网络抗审查性。</li>
+<li><strong>安全边界</strong>：Sequencer 的执行结果需经 Prover 生成的 STARK 证明验证，最终由以太坊主网合约确认，确保其行为的有效性与不可篡改，安全性与主网等价。</li>
+</ul>
+<p>需要我帮你整理一份 <strong>Sequencer 安全审计的核心检查项</strong>（含排序逻辑、执行一致性、内存池过滤、出块权限控制等），方便你在 Web3 安全审计中快速复用吗？</p>
+<h1 id="下列关于-Cairo-语言的说法，哪一项是正确的？"><a href="#下列关于-Cairo-语言的说法，哪一项是正确的？" class="headerlink" title="下列关于 Cairo 语言的说法，哪一项是正确的？"></a>下列关于 Cairo 语言的说法，哪一项是正确的？</h1><ol>
+<li><p>Cairo 是 EVM 的一种方言 </p>
+</li>
+<li><p>Cairo 编译后的程序直接运行在 CPU 上 </p>
+</li>
+<li><p>Cairo 需要开发者深入理解 zk 电路才能使用 </p>
+</li>
+<li><p>Cairo 程序运行在 CairoVM 上，并可生成有效性证明</p>
+</li>
+</ol>
+<hr>
+<p>你想确认关于Cairo语言的四个说法中哪一项是正确的，我先直接给出答案，再逐一拆解每个选项的对错原因，帮你彻底理解核心知识点。</p>
+<h3 id="正确答案"><a href="#正确答案" class="headerlink" title="正确答案"></a>正确答案</h3><p><strong>第4项：Cairo 程序运行在 CairoVM 上，并可生成有效性证明</strong> ✅</p>
+<h3 id="各选项详细解析"><a href="#各选项详细解析" class="headerlink" title="各选项详细解析"></a>各选项详细解析</h3><h4 id="1-错误：Cairo-是-EVM-的一种方言"><a href="#1-错误：Cairo-是-EVM-的一种方言" class="headerlink" title="1. 错误：Cairo 是 EVM 的一种方言"></a>1. 错误：Cairo 是 EVM 的一种方言</h4><ul>
+<li><strong>核心错误</strong>：EVM（以太坊虚拟机）是以太坊生态的执行环境，适配Solidity语言；而Cairo是StarkWare专为STARK零知识证明设计的独立语言，运行在<strong>CairoVM</strong>（而非EVM）上，二者语法、底层执行逻辑完全无关，不存在“方言”关系。</li>
+<li>补充：部分ZK-Rollup项目（如zkSync）的zkEVM是让EVM合约适配ZK证明，而Cairo从设计上就不兼容EVM，是独立的虚拟机体系。</li>
+</ul>
+<h4 id="2-错误：Cairo-编译后的程序直接运行在-CPU-上"><a href="#2-错误：Cairo-编译后的程序直接运行在-CPU-上" class="headerlink" title="2. 错误：Cairo 编译后的程序直接运行在 CPU 上"></a>2. 错误：Cairo 编译后的程序直接运行在 CPU 上</h4><ul>
+<li><strong>核心错误</strong>：Cairo程序编译后生成的是“代数化计算轨迹”（Algebraic Execution Trace），专门适配STARK证明的生成逻辑，<strong>只能运行在CairoVM（定制化虚拟机）</strong> 中，无法直接在普通CPU上执行。</li>
+<li>补充：CairoVM是为ZK证明优化的虚拟机，会将程序执行过程转化为适合生成STARK证明的数学结构，这是Cairo区别于普通编程语言的核心特征。</li>
+</ul>
+<h4 id="3-错误：Cairo-需要开发者深入理解-zk-电路才能使用"><a href="#3-错误：Cairo-需要开发者深入理解-zk-电路才能使用" class="headerlink" title="3. 错误：Cairo 需要开发者深入理解 zk 电路才能使用"></a>3. 错误：Cairo 需要开发者深入理解 zk 电路才能使用</h4><ul>
+<li><strong>核心错误</strong>：Cairo的设计目标就是<strong>让开发者无需深入理解ZK电路&#x2F;密码学</strong>，就能编写支持零知识证明的程序。StarkWare已将ZK证明的复杂逻辑封装在CairoVM和底层库中，开发者只需关注业务逻辑（如合约功能），证明生成由工具链自动完成。</li>
+<li>反例：用Cairo编写StarkNet智能合约时，只需掌握Cairo基础语法，无需手动设计ZK电路，和用Solidity写合约无需理解EVM底层一样。</li>
+</ul>
+<h4 id="4-正确：Cairo-程序运行在-CairoVM-上，并可生成有效性证明"><a href="#4-正确：Cairo-程序运行在-CairoVM-上，并可生成有效性证明" class="headerlink" title="4. 正确：Cairo 程序运行在 CairoVM 上，并可生成有效性证明"></a>4. 正确：Cairo 程序运行在 CairoVM 上，并可生成有效性证明</h4><ul>
+<li><strong>核心逻辑</strong>：<ol>
+<li>Cairo是图灵完备语言，所有Cairo程序必须在<strong>CairoVM</strong>中执行（类似Solidity程序运行在EVM）；</li>
+<li>CairoVM在执行过程中会记录程序的“执行轨迹”，基于这个轨迹可自动生成STARK有效性证明（这也是StarkNet作为ZK-Rollup的核心）；</li>
+<li>该证明可提交到以太坊主网验证，确保Cairo程序执行结果的正确性，这是Cairo最核心的设计价值。</li>
+</ol>
+</li>
+</ul>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>Cairo是独立于EVM的语言，运行在专属的CairoVM上，而非CPU或EVM；</li>
+<li>Cairo的核心优势是“封装ZK证明复杂度”，开发者无需懂ZK电路即可使用；</li>
+<li>Cairo程序的最终价值是在CairoVM中执行并生成STARK有效性证明，这是它适配ZK-Rollup的核心能力。</li>
+</ol>
+<p>如果需要，我可以整理一份Cairo语言核心特性速记清单，帮你快速区分它与Solidity&#x2F;EVM的关键差异。</p>
+<h1 id="Starknet-与-StarkEx-的主要区别是什么？"><a href="#Starknet-与-StarkEx-的主要区别是什么？" class="headerlink" title="Starknet 与 StarkEx 的主要区别是什么？"></a>Starknet 与 StarkEx 的主要区别是什么？</h1><ol>
+<li>StarkEx 使用 SNARK，而 Starknet 使用 STARK</li>
+<li>StarkEx 完全开放准入，Starknet 需要授权</li>
+<li>StarkEx 面向特定应用并需要 StarkWare 授权，Starknet 是开放网络</li>
+<li>StarkEx 只能部署 DeFi 项目，Starknet 不能</li>
+</ol>
+<hr>
+<h3 id="正确答案-1"><a href="#正确答案-1" class="headerlink" title="正确答案"></a>正确答案</h3><p><strong>第3项：StarkEx 面向特定应用并需要 StarkWare 授权，Starknet 是开放网络</strong> ✅</p>
+<h3 id="各选项详细解析-1"><a href="#各选项详细解析-1" class="headerlink" title="各选项详细解析"></a>各选项详细解析</h3><h4 id="1-错误：StarkEx-使用-SNARK，而-Starknet-使用-STARK"><a href="#1-错误：StarkEx-使用-SNARK，而-Starknet-使用-STARK" class="headerlink" title="1. 错误：StarkEx 使用 SNARK，而 Starknet 使用 STARK"></a>1. 错误：StarkEx 使用 SNARK，而 Starknet 使用 STARK</h4><ul>
+<li><strong>核心错误</strong>：StarkEx 和 StarkNet 均基于 <strong>STARK 零知识证明技术</strong> 构建，二者都不使用 SNARK 算法。</li>
+<li>补充：StarkWare 全产品线的核心技术都是 STARK，区别仅在于证明的应用场景和网络形态，与证明类型无关。</li>
+</ul>
+<h4 id="2-错误：StarkEx-完全开放准入，Starknet-需要授权"><a href="#2-错误：StarkEx-完全开放准入，Starknet-需要授权" class="headerlink" title="2. 错误：StarkEx 完全开放准入，Starknet 需要授权"></a>2. 错误：StarkEx 完全开放准入，Starknet 需要授权</h4><ul>
+<li><strong>核心错误</strong>：该描述与实际情况完全相反。<ul>
+<li>StarkEx 是<strong>定制化许可制扩容方案</strong>，需要项目方与 StarkWare 合作并获得授权，才能基于其技术搭建专属扩容层；</li>
+<li>StarkNet 是<strong>无需许可的开放型 ZK-Rollup 网络</strong>，任何开发者都可以自由部署合约、提交交易，无需授权。</li>
+</ul>
+</li>
+</ul>
+<h4 id="3-正确：StarkEx-面向特定应用并需要-StarkWare-授权，Starknet-是开放网络"><a href="#3-正确：StarkEx-面向特定应用并需要-StarkWare-授权，Starknet-是开放网络" class="headerlink" title="3. 正确：StarkEx 面向特定应用并需要 StarkWare 授权，Starknet 是开放网络"></a>3. 正确：StarkEx 面向特定应用并需要 StarkWare 授权，Starknet 是开放网络</h4><ul>
+<li><strong>核心逻辑</strong>：<ol>
+<li><strong>StarkEx</strong>：定位是 <strong>B2B 定制化扩容 SaaS 服务</strong>，专为特定高并发应用设计（如 dYdX 永续合约、Immutable X 的 NFT 交易）。项目方需与 StarkWare 合作，根据自身业务需求定制交易规则和扩容逻辑，准入需授权，灵活性低但针对性强。</li>
+<li><strong>StarkNet</strong>：定位是 <strong>通用型无需许可 ZK-Rollup 网络</strong>，是以太坊 Layer2 上的“公共计算平台”。任何开发者都可以用 Cairo 语言编写智能合约并部署，支持任意类型的 dApp（DeFi、NFT、游戏等），无需 StarkWare 授权，生态开放性强。</li>
+</ol>
+</li>
+</ul>
+<h4 id="4-错误：StarkEx-只能部署-DeFi-项目，Starknet-不能"><a href="#4-错误：StarkEx-只能部署-DeFi-项目，Starknet-不能" class="headerlink" title="4. 错误：StarkEx 只能部署 DeFi 项目，Starknet 不能"></a>4. 错误：StarkEx 只能部署 DeFi 项目，Starknet 不能</h4><ul>
+<li><strong>核心错误</strong>：二者的适用场景描述均错误。<ul>
+<li>StarkEx 不仅支持 DeFi 项目（如 dYdX），也支持 NFT 项目（如 Immutable X、Sorare），只要是高并发、有明确业务规则的应用都可适配；</li>
+<li>StarkNet 作为通用网络，完全可以部署 DeFi 项目，且支持更复杂的通用智能合约逻辑。</li>
+</ul>
+</li>
+</ul>
+<h3 id="核心区别总结表"><a href="#核心区别总结表" class="headerlink" title="核心区别总结表"></a>核心区别总结表</h3><table>
+<thead>
+<tr>
+<th align="left">对比维度</th>
+<th align="left">StarkEx</th>
+<th align="left">StarkNet</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>网络定位</strong></td>
+<td align="left">定制化许可制扩容 SaaS</td>
+<td align="left">无需许可的通用型 ZK-Rollup</td>
+</tr>
+<tr>
+<td align="left"><strong>准入规则</strong></td>
+<td align="left">需要 StarkWare 授权合作</td>
+<td align="left">完全开放，无需授权</td>
+</tr>
+<tr>
+<td align="left"><strong>适用场景</strong></td>
+<td align="left">特定高并发应用（如中心化交易、NFT 市场）</td>
+<td align="left">全类型 dApp（DeFi、NFT、游戏等）</td>
+</tr>
+<tr>
+<td align="left"><strong>灵活性</strong></td>
+<td align="left">按应用需求定制规则，灵活性低</td>
+<td align="left">支持自由编写合约，灵活性高</td>
+</tr>
+<tr>
+<td align="left"><strong>证明技术</strong></td>
+<td align="left">基于 STARK 证明</td>
+<td align="left">基于 STARK 证明</td>
+</tr>
+</tbody></table>
+<p>需要我帮你整理一份 <strong>StarkEx 与 StarkNet 安全审计侧重点对比清单</strong> 吗？</p>
+<h1 id="关于-Starknet-上的账户抽象（Account-Abstraction），以下哪一项描述是正确的？"><a href="#关于-Starknet-上的账户抽象（Account-Abstraction），以下哪一项描述是正确的？" class="headerlink" title="关于 Starknet 上的账户抽象（Account Abstraction），以下哪一项描述是正确的？"></a>关于 Starknet 上的账户抽象（Account Abstraction），以下哪一项描述是正确的？</h1><ol>
+<li>Starknet 同时支持 EOA 和智能合约账户</li>
+<li>Starknet 的账户由私钥直接控制，无法更换</li>
+<li>Starknet 上的每个账户本质上都是一个智能合约</li>
+<li>账户抽象只能用于多签钱包</li>
+</ol>
+<hr>
+<h3 id="正确答案-2"><a href="#正确答案-2" class="headerlink" title="正确答案"></a>正确答案</h3><p><strong>Starknet 上的每个账户本质上都是一个智能合约</strong> ✅</p>
+<h3 id="各选项详细解析-2"><a href="#各选项详细解析-2" class="headerlink" title="各选项详细解析"></a>各选项详细解析</h3><h4 id="1-错误：Starknet-同时支持-EOA-和智能合约账户"><a href="#1-错误：Starknet-同时支持-EOA-和智能合约账户" class="headerlink" title="1. 错误：Starknet 同时支持 EOA 和智能合约账户"></a>1. 错误：Starknet 同时支持 EOA 和智能合约账户</h4><ul>
+<li><strong>核心错误</strong>：Starknet 是<strong>原生账户抽象（Native Account Abstraction）</strong> 网络，<strong>不存在传统 EOA 账户</strong>。<br>以太坊的 EOA 是无代码的外部账户，由私钥直接控制；而 Starknet 中所有账户都是智能合约账户，即便是普通用户的基础钱包，也对应一个遵循账户抽象标准的合约（如 <code>OpenZeppelin Account</code>），私钥的作用是对合约交易进行签名授权，而非直接控制账户。</li>
+</ul>
+<h4 id="2-错误：Starknet-的账户由私钥直接控制，无法更换"><a href="#2-错误：Starknet-的账户由私钥直接控制，无法更换" class="headerlink" title="2. 错误：Starknet 的账户由私钥直接控制，无法更换"></a>2. 错误：Starknet 的账户由私钥直接控制，无法更换</h4><ul>
+<li><strong>核心错误</strong>：<ul>
+<li>Starknet 账户的控制权由<strong>合约代码逻辑</strong>定义，私钥只是“签名工具”，而非账户的唯一控制核心。例如，用户可以通过合约升级或权限配置，添加新的私钥签名者、移除旧私钥，实现私钥的更换。</li>
+<li>部分智能钱包合约还支持社交恢复、多签授权等功能，进一步脱离了“单一私钥控制”的限制。</li>
+</ul>
+</li>
+</ul>
+<h4 id="3-正确：Starknet-上的每个账户本质上都是一个智能合约"><a href="#3-正确：Starknet-上的每个账户本质上都是一个智能合约" class="headerlink" title="3. 正确：Starknet 上的每个账户本质上都是一个智能合约"></a>3. 正确：Starknet 上的每个账户本质上都是一个智能合约</h4><ul>
+<li><strong>核心逻辑</strong>：<ol>
+<li>Starknet 摒弃了以太坊“EOA + 合约账户”的双层账户模型，采用<strong>全合约账户架构</strong>。所有账户都由 Cairo 编写的合约代码驱动，具备可编程性。</li>
+<li>账户合约中定义了<strong>签名验证规则</strong>（如 ECDSA 签名验证）、<strong>交易执行逻辑</strong>（如转账、调用合约）、<strong>权限管理规则</strong>（如多签、社交恢复）。即便是最基础的个人账户，也需要部署一个标准账户合约才能使用。</li>
+<li>这种设计是 Starknet 原生支持账户抽象的核心——所有账户天生具备智能钱包的特性，无需额外适配。</li>
+</ol>
+</li>
+</ul>
+<h4 id="4-错误：账户抽象只能用于多签钱包"><a href="#4-错误：账户抽象只能用于多签钱包" class="headerlink" title="4. 错误：账户抽象只能用于多签钱包"></a>4. 错误：账户抽象只能用于多签钱包</h4><ul>
+<li><strong>核心错误</strong>：账户抽象的功能远不止多签钱包，其核心价值是<strong>让账户具备可编程性</strong>，具体应用场景包括：<ul>
+<li>多签&#x2F;社交恢复钱包；</li>
+<li>无 Gas 交易（由第三方代付 Gas）；</li>
+<li>批量交易（一次签名执行多笔操作）；</li>
+<li>分级权限控制（如小额免签、大额需多签）；</li>
+<li>与其他智能合约的无缝交互（如自动定投、自动复投）。</li>
+</ul>
+</li>
+</ul>
+<h3 id="核心总结"><a href="#核心总结" class="headerlink" title="核心总结"></a>核心总结</h3><p>Starknet 的账户抽象是<strong>原生级别的架构设计</strong>，区别于以太坊“通过 EIP-4337 适配账户抽象”的模式。其核心特征就是<strong>全账户智能合约化</strong>，让所有用户账户都具备灵活的可编程能力，而非局限于某一种钱包形态。</p>
+<p>需要我帮你整理一份 <strong>Starknet 标准账户合约的核心代码解析</strong>，标注签名验证、交易执行的关键逻辑吗？</p>
+<h1 id="下面哪一项正确描述了-Cairo-的编译流程？"><a href="#下面哪一项正确描述了-Cairo-的编译流程？" class="headerlink" title="下面哪一项正确描述了 Cairo 的编译流程？"></a>下面哪一项正确描述了 Cairo 的编译流程？</h1><ol>
+<li>Cairo → CASM → 直接上链 </li>
+<li>Cairo → LLVM → CPU </li>
+<li>Cairo → Sierra → CASM → CairoVM 执行 </li>
+<li>Cairo → EVM Bytecode → 执行</li>
+</ol>
+<hr>
+<h3 id="正确答案-3"><a href="#正确答案-3" class="headerlink" title="正确答案"></a>正确答案</h3><p><strong>第3项：Cairo → Sierra → CASM → CairoVM 执行</strong> ✅</p>
+<h3 id="各选项详细解析-3"><a href="#各选项详细解析-3" class="headerlink" title="各选项详细解析"></a>各选项详细解析</h3><h4 id="1-错误：Cairo-→-CASM-→-直接上链"><a href="#1-错误：Cairo-→-CASM-→-直接上链" class="headerlink" title="1. 错误：Cairo → CASM → 直接上链"></a>1. 错误：Cairo → CASM → 直接上链</h4><ul>
+<li><strong>核心错误</strong>：Cairo 编译后不会“直接上链”，且 CASM 并非 Cairo 编译的直接产物（中间还有 Sierra 层）。<ul>
+<li>补充：Cairo 代码需先编译为 Sierra（中间表示层），再编译为 CASM（Cairo 汇编），最终在 CairoVM 中执行；执行结果的<strong>有效性证明</strong>会上链（以太坊主网），而非 CASM 代码本身。</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-错误：Cairo-→-LLVM-→-CPU"><a href="#2-错误：Cairo-→-LLVM-→-CPU" class="headerlink" title="2. 错误：Cairo → LLVM → CPU"></a>2. 错误：Cairo → LLVM → CPU</h4><ul>
+<li><strong>核心错误</strong>：Cairo 是专为 ZK 证明和 CairoVM 设计的语言，<strong>不基于 LLVM 编译</strong>，也无法直接在普通 CPU 上执行。<ul>
+<li>补充：LLVM 是通用编译框架（如 Rust&#x2F;C++ 常用），但 Cairo 的编译链是定制化的（Sierra → CASM），目标是适配 CairoVM 的执行逻辑和 STARK 证明生成，与 CPU 执行无关。</li>
+</ul>
+</li>
+</ul>
+<h4 id="3-正确：Cairo-→-Sierra-→-CASM-→-CairoVM-执行"><a href="#3-正确：Cairo-→-Sierra-→-CASM-→-CairoVM-执行" class="headerlink" title="3. 正确：Cairo → Sierra → CASM → CairoVM 执行"></a>3. 正确：Cairo → Sierra → CASM → CairoVM 执行</h4><ul>
+<li><strong>核心逻辑</strong>：这是 Cairo 1.0+ 版本的标准编译流程，也是 StarkNet 合约的核心编译路径：<ol>
+<li><strong>Cairo（源码）</strong>：开发者编写的高级语言代码（如 StarkNet 智能合约）；</li>
+<li><strong>Sierra（中间表示层）</strong>：Cairo 编译器的核心中间产物，是“类型安全、可验证的中间语言”，作用是<strong>确保代码的安全性和可证明性</strong>（过滤掉无法生成 ZK 证明的逻辑）；</li>
+<li><strong>CASM（Cairo 汇编）</strong>：Sierra 进一步编译为 Cairo 汇编代码，是 CairoVM 可直接执行的底层指令；</li>
+<li><strong>CairoVM 执行</strong>：CASM 代码在 CairoVM 中运行，生成执行轨迹，最终可基于轨迹生成 STARK 有效性证明。</li>
+</ol>
+<ul>
+<li>补充：Sierra 层是 Cairo 1.0 新增的关键层，解决了早期 Cairo 0.x 直接编译为 CASM 导致的安全风险（如无边界循环、无效操作）。</li>
+</ul>
+</li>
+</ul>
+<h4 id="4-错误：Cairo-→-EVM-Bytecode-→-执行"><a href="#4-错误：Cairo-→-EVM-Bytecode-→-执行" class="headerlink" title="4. 错误：Cairo → EVM Bytecode → 执行"></a>4. 错误：Cairo → EVM Bytecode → 执行</h4><ul>
+<li><strong>核心错误</strong>：Cairo 与 EVM 完全无关，不会编译为 EVM 字节码，也无法在 EVM 中执行。<ul>
+<li>补充：EVM 是以太坊的虚拟机，适配 Solidity 语言；Cairo 适配 CairoVM，是 StarkNet 专属的执行环境，二者语法、编译目标、执行逻辑均无交集。</li>
+</ul>
+</li>
+</ul>
+<h3 id="核心总结-1"><a href="#核心总结-1" class="headerlink" title="核心总结"></a>核心总结</h3><ol>
+<li>Cairo 的编译流程是<strong>分层定制化</strong>的，核心中间层是 Sierra（安全校验），最终产物是 CASM（供 CairoVM 执行）；</li>
+<li>Cairo 编译的目标是<strong>适配 ZK 证明和 CairoVM</strong>，而非 CPU 或 EVM；</li>
+<li>“上链”的是 Cairo 程序执行的<strong>有效性证明</strong>，而非编译后的代码本身。</li>
+</ol>
+<p>需要我帮你整理一份 <strong>Cairo 1.0 编译流程可视化清单</strong>（含各阶段的作用和安全校验点），方便你在审计中快速核对吗？</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Web3/">Web3</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/01/06/55875.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Starknet 训练营-课程笔记3</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/01/06/49685.html">
+                        <span class="hidden-mobile">Starknet 训练营-课程笔记</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>
