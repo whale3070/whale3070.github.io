@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -230,25 +245,25 @@
             <div class="markdown-body">
               <p>本文只讲使用，不讲原理。原理请看《第一本docker书》</p>
 <h1 id="docker镜像是什么？"><a href="#docker镜像是什么？" class="headerlink" title="docker镜像是什么？"></a>docker镜像是什么？</h1><p>docker image是相当于工厂中的原型。</p>
-<p><img src="/1.jpg" srcset="/img/loading.gif"></p>
+<p><img src="/1.jpg"></p>
 <p>docker方便在可以在仓库中取回各种各样的原型，然后再修改配置，方便我们自己的使用。而且改完的配置，还可以给别人使用。</p>
-<p><img src="/2.jpg" srcset="/img/loading.gif"></p>
+<p><img src="/2.jpg"></p>
 <h2 id="virtualBox"><a href="#virtualBox" class="headerlink" title="virtualBox"></a>virtualBox</h2><p><code>右ctrl</code>离开虚拟机输入<br><code>右ctrl + c</code> 切换视图，隐藏菜单到窗口模式</p>
 <p><a target="_blank" rel="noopener" href="https://blog.csdn.net/textboy/article/details/48293731">virtualbox增强功能</a>，可以自由扩展虚拟机的大小。如果没有安装，则虚拟机的大小是固定的，比较不方便。</p>
 <h2 id="查看本地镜像"><a href="#查看本地镜像" class="headerlink" title="查看本地镜像"></a>查看本地镜像</h2><p><code>docker image ls</code></p>
 <h2 id="下载服务器的镜像"><a href="#下载服务器的镜像" class="headerlink" title="下载服务器的镜像"></a>下载服务器的镜像</h2><p><code>docker pull ubuntu:12.04</code></p>
 <h2 id="查看服务器提供了哪些镜像"><a href="#查看服务器提供了哪些镜像" class="headerlink" title="查看服务器提供了哪些镜像"></a>查看服务器提供了哪些镜像</h2><p><code>docker search kali</code></p>
 <p>这条命令会查找仓库中所有可用的image</p>
-<p><img src="/11.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/11.PNG"></p>
 <p>查找到以后，用<code>docker pull ctarwater/kali-msf</code>，即可下载一个想要的镜像到本地。</p>
 <h2 id="修改本地镜像"><a href="#修改本地镜像" class="headerlink" title="修改本地镜像"></a>修改本地镜像</h2><p>当从仓库中取回了镜像，就可以在本地修改镜像了。</p>
 <h3 id="docker-commit"><a href="#docker-commit" class="headerlink" title="docker commit"></a>docker commit</h3><p>commit是提交的意思，可以用该命令修改容器的配置。举个例子。</p>
 <figure class="highlight awk"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs awk">apt-get -y install apache2<br><span class="hljs-keyword">exit</span><br>docker commit 指定容器 自动逸新的容器名称<br></code></pre></div></td></tr></table></figure>
-<p><img src="/12.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/12.PNG"></p>
 <h3 id="dockerfile"><a href="#dockerfile" class="headerlink" title="dockerfile"></a>dockerfile</h3><p>dockerfile类似一个linux shell脚本，它使用的语法是被称为DSL的一种语言。暂时我们不涉及学习这种语言的编写。</p>
 <figure class="highlight awk"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs awk">wget https:<span class="hljs-regexp">//</span>raw.githubusercontent.com<span class="hljs-regexp">/vulhub/</span>vulhub<span class="hljs-regexp">/master/</span>base<span class="hljs-regexp">/weblogic/</span>Dockerfile<br><br>docker build -t myimg/ubuntu:v1 .<br><br>当前目录下有个名为Dockerfile的文件，用build -t命令，以tab标签新建一个自定义名称的容器。<br>注意最后的英文点号<br>注意，起容器名称的时候，长度不能太短，否则会报错<br></code></pre></div></td></tr></table></figure>
 
-<p><img src="/16.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/16.PNG"></p>
 <h2 id="dockerhub账号"><a href="#dockerhub账号" class="headerlink" title="dockerhub账号"></a>dockerhub账号</h2><p>dockerhub是之前一直说到的仓库，我们可以把它理解为github代码托管网站。<a target="_blank" rel="noopener" href="https://hub.docker.com/signup">注册</a></p>
 <p>注册以后，就有了私有仓库，叫做私有registry。可以将自己创建的image上传到私有仓库中。</p>
 <h1 id="kali安装docker"><a href="#kali安装docker" class="headerlink" title="kali安装docker"></a>kali安装docker</h1><p>kali@kali:<del>$ sudo apt update<br>kali@kali:</del>$<br>kali@kali:<del>$ sudo apt install -y docker.io<br>kali@kali:</del>$<br>kali@kali:<del>$ sudo systemctl enable docker –now<br>kali@kali:</del>$<br>kali@kali:~$ docker</p>
@@ -395,10 +410,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

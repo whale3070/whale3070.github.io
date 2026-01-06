@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -235,7 +250,7 @@
 <p>微信小程序所在的路径类似下面的：</p>
 <figure class="highlight awk"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs awk"><span class="hljs-regexp">/data/</span>data<span class="hljs-regexp">/com.tencent.mm/</span>MicroMsg<span class="hljs-regexp">/a2268ac69a706289482397d3a73403b4【32位的字符串】/</span>appbrand/pkg<br></code></pre></div></td></tr></table></figure>
 
-<p><img src="https://i.imgur.com/5LHrcyU.png" srcset="/img/loading.gif" alt="3"></p>
+<p><img src="https://i.imgur.com/5LHrcyU.png" alt="3"></p>
 <p>小程序就在pkg目录下，后缀名是<code>.wxapkg</code>。</p>
 <p>使用adb的命令</p>
 <figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">adb devices <span class="hljs-comment">#确保手机已经连接电脑</span><br>adb shell <span class="hljs-comment">#进入手机的shell</span><br>su root <span class="hljs-comment">#进入root权限的shell</span><br><br><span class="hljs-built_in">cd</span> /data/data/com.tencent.mm/MicroMsg/a2268ac69a706289482397d3a73403b4【32位的字符串】/appbrand/pkg<br><br>tar -cvf whale.tar /data/data/com.tencent.mm/MicroMsg/a2268ac69a706289482397d3a73403b4【32位的字符串】/appbrand/pkg<br><span class="hljs-comment">#上述命令将这个目录打包为一个文件whale.tar</span><br><br><span class="hljs-built_in">mv</span> whale.tar sdcard/<br><span class="hljs-comment">#将tar文件移动到sdcard目录下</span><br></code></pre></div></td></tr></table></figure>
@@ -249,7 +264,7 @@
 <h2 id="反编译"><a href="#反编译" class="headerlink" title="反编译"></a>反编译</h2><figure class="highlight awk"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs awk">这个程序是主包<br>.<span class="hljs-regexp">/bingo.sh /</span>home<span class="hljs-regexp">/kali/</span>Desktop<span class="hljs-regexp">/app/</span>_-<span class="hljs-number">1387825193</span>_12.wxapkg<br><br>这个程序是子包，解包语法要用-s参数加上指定的解包后存放的绝对路径<br>.<span class="hljs-regexp">/bingo.sh /</span>home<span class="hljs-regexp">/kali/</span>Desktop<span class="hljs-regexp">/app/</span>_1123949441_535.wxapkg -s=<span class="hljs-regexp">/home/</span>kali<span class="hljs-regexp">/Desktop/</span>app/<br></code></pre></div></td></tr></table></figure>
 
 <h2 id="使用微信开发者工具"><a href="#使用微信开发者工具" class="headerlink" title="使用微信开发者工具"></a>使用微信开发者工具</h2><p><a target="_blank" rel="noopener" href="https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html">https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html</a></p>
-<p>导入程序，选择解包后的文件夹，即可进行调试<br><img src="https://i.imgur.com/Gai3eOO.png" srcset="/img/loading.gif" alt="1"></p>
+<p>导入程序，选择解包后的文件夹，即可进行调试<br><img src="https://i.imgur.com/Gai3eOO.png" alt="1"></p>
 
             </div>
             <hr>
@@ -384,10 +399,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -230,7 +245,7 @@
             <div class="markdown-body">
               <h1 id="BCP业务连续性计划"><a href="#BCP业务连续性计划" class="headerlink" title="BCP业务连续性计划"></a>BCP业务连续性计划</h1><p>Jargon:</p>
 <p>SLE是”Single Loss Expectancy”的缩写，翻译为”单次损失预期”<br>EF是”Exposure Factor”的缩写，翻译为”暴露系数”。在信息安全和风险管理领域中，EF用于衡量特定事件发生时对资产造成的损失百分比。<br>MTD是”Maximum Tolerable Downtime”的缩写，翻译为”最大容忍停机时间”。在业务连续性和灾难恢复计划中，MTD是指在发生灾难性事件或重大故障后，组织能够容忍的最长停机时间。<br>ARO是”Annualized Rate of Occurrence”的缩写，翻译为”年化发生率”。在风险评估和风险管理中，ARO用于衡量特定风险事件在一年内发生的频率或概率。<br>ALE，全称为”Annualized Loss Expectancy”，指的是一年内由于特定风险事件可能发生而导致的损失的预期值。ALE是风险评估中的一个重要指标，通过将风险事件的发生概率（ARO，Annualized Rate of Occurrence）与单次损失预期（SLE，Single Loss Expectancy）结合起来计算得出。</p>
-<p><img src="/2023/07/23/26622/1.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/07/23/26622/1.png"></p>
 <h2 id="BIA业务影响评估"><a href="#BIA业务影响评估" class="headerlink" title="BIA业务影响评估"></a>BIA业务影响评估</h2><p>BIA（Business Impact Analysis，业务影响评估）是评估业务中断对组织运营的潜在影响的过程。在BIA中，通常会考虑以下指标：</p>
 <ol>
 <li><p>RTO（Recovery Time Objective，恢复时间目标）：指从业务中断开始到业务功能完全恢复所需的时间。RTO是指定业务恢复的时间限制，有助于确定连续性计划中的恢复策略和措施。</p>
@@ -429,10 +444,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

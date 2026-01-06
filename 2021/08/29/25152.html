@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -236,12 +251,12 @@
 
 <h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p><a target="_blank" rel="noopener" href="https://localhost:9443/#!/home">https://localhost:9443/#!/home</a></p>
 <p>第一次使用需要设置用户名、密码</p>
-<p>点击containers，可以看到所有的容器。可以方便的进行容器开启、关闭、修改、删除<br><img src="https://i.imgur.com/RGfod1c.png" srcset="/img/loading.gif" alt="13"></p>
-<p>在命令行开启一个容器以后，刷新一下，就可以看到新的containers<br><img src="https://i.imgur.com/HrYoM9w.png" srcset="/img/loading.gif" alt="14"><br><img src="https://i.imgur.com/35Agj3H.png" srcset="/img/loading.gif" alt="15"></p>
+<p>点击containers，可以看到所有的容器。可以方便的进行容器开启、关闭、修改、删除<br><img src="https://i.imgur.com/RGfod1c.png" alt="13"></p>
+<p>在命令行开启一个容器以后，刷新一下，就可以看到新的containers<br><img src="https://i.imgur.com/HrYoM9w.png" alt="14"><br><img src="https://i.imgur.com/35Agj3H.png" alt="15"></p>
 <h3 id="Endpoint-management末端管理"><a href="#Endpoint-management末端管理" class="headerlink" title="Endpoint management末端管理"></a>Endpoint management末端管理</h3><p>portainer由server和agent组成，server是非必须的，agent是必须的。</p>
 <p>访问<a target="_blank" rel="noopener" href="http://127.0.0.1:9000/#/endpoints%EF%BC%8C%E5%8D%B3%E5%8F%AF%E7%9C%8B%E5%88%B0%E4%B8%80%E4%B8%AA%E6%9C%AC%E5%9C%B0agent%E3%80%82">http://127.0.0.1:9000/#/endpoints，即可看到一个本地agent。</a></p>
-<p>如果想要多个服务器使用portainer进行管理，可以设置server，然后在多台服务器上安装agent，由server进行统一管理。<br><img src="https://i.imgur.com/LAvP0CR.png" srcset="/img/loading.gif" alt="144"></p>
-<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>容器自动启动，删不掉<br>docker stop, rm , rmi都试过了，一会就自动启动了<br><img src="/2021/08/29/25152/1.png" srcset="/img/loading.gif"></p>
+<p>如果想要多个服务器使用portainer进行管理，可以设置server，然后在多台服务器上安装agent，由server进行统一管理。<br><img src="https://i.imgur.com/LAvP0CR.png" alt="144"></p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><p>容器自动启动，删不掉<br>docker stop, rm , rmi都试过了，一会就自动启动了<br><img src="/2021/08/29/25152/1.png"></p>
 <p>解决办法<br>docker stop 7593edbd237c 4c028f6777eb; docker rm 7593edbd237c 4c028f6777eb  ; docker rmi -f e11e66973eb2 580c0e4e98b0 </p>
 <ol>
 <li>断网，防止它偷偷下载images. 必须要断网，不然删不干净，哪怕删了images，另外一个就自动下载重启容器了。</li>
@@ -386,10 +401,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

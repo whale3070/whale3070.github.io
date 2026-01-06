@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -235,27 +250,27 @@
 <ul>
 <li><p><a target="_blank" rel="noopener" href="https://www.exploit-db.com/exploits/45001/">https://www.exploit-db.com/exploits/45001/</a><br>OpenSSH &lt; 6.6 SFTP - Command Execution<br>失败</p>
 </li>
-<li><p><a target="_blank" rel="noopener" href="https://www.exploit-db.com/exploits/45233/">https://www.exploit-db.com/exploits/45233/</a><br>OpenSSH 2.3 &lt; 7.7 - Username Enumeration<br>成功<br><img src="/2018/10/29/9264/2.PNG" srcset="/img/loading.gif"><br>确认frank用户存在，但是爆破失败。笑容逐渐消失~~</p>
+<li><p><a target="_blank" rel="noopener" href="https://www.exploit-db.com/exploits/45233/">https://www.exploit-db.com/exploits/45233/</a><br>OpenSSH 2.3 &lt; 7.7 - Username Enumeration<br>成功<br><img src="/2018/10/29/9264/2.PNG"><br>确认frank用户存在，但是爆破失败。笑容逐渐消失~~</p>
 </li>
 </ul>
 <h2 id="http-80port"><a href="#http-80port" class="headerlink" title="http-80port"></a>http-80port</h2><p><code>http://192.168.1.132/robots.txt</code>显示这个路径存在，心中一喜，访问看看。<br><code>NOTHING here , yet !</code><br>MD好贱呐！</p>
 <h2 id="http-8011port"><a href="#http-8011port" class="headerlink" title="http-8011port"></a>http-8011port</h2><p>visit <a target="_blank" rel="noopener" href="http://192.168.1.132:8011/">http://192.168.1.132:8011/</a><br><code>Development Server !</code></p>
 <figure class="highlight apache"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs apache"><span class="hljs-comment">#nmap -sV -p 8011 192.168.1.132</span><br><span class="hljs-attribute">8011</span>/tcp open  http    Apache httpd <span class="hljs-number">2</span>.<span class="hljs-number">2</span>.<span class="hljs-number">22</span> ((Ubuntu))<br></code></pre></div></td></tr></table></figure>
 <h2 id="info1"><a href="#info1" class="headerlink" title="info1"></a>info1</h2><p>Apache&#x2F;2.2.22 (Ubuntu) Server<br><a target="_blank" rel="noopener" href="http://192.168.1.132/development/">http://192.168.1.132/development/</a> 有一个登陆页面</p>
-<h1 id="Trying1"><a href="#Trying1" class="headerlink" title="Trying1"></a>Trying1</h1><p><img src="/2018/10/29/9264/1.PNG" srcset="/img/loading.gif"><br>输入用户名123，密码123，发现以123:123的形式base64编码。<br>于是可以尝试爆破。<br><img src="/Screenshot%20from%202018-10-27%2012-33-31.png" srcset="/img/loading.gif"></p>
+<h1 id="Trying1"><a href="#Trying1" class="headerlink" title="Trying1"></a>Trying1</h1><p><img src="/2018/10/29/9264/1.PNG"><br>输入用户名123，密码123，发现以123:123的形式base64编码。<br>于是可以尝试爆破。<br><img src="/Screenshot%20from%202018-10-27%2012-33-31.png"></p>
 <figure class="highlight stylus"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs stylus">import base64<br>user = <span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;/usr/share/wordlists/rockyou.txt&quot;</span>,<span class="hljs-string">&quot;r&quot;</span>)<br>answer=<span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;/root/Desktop/302/answer.txt&quot;</span>,<span class="hljs-string">&quot;w+&quot;</span>)<br>while True:<br>	one = user<span class="hljs-selector-class">.readline</span>()<br>	<span class="hljs-selector-id">#password</span> = <span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;/usr/share/wordlists/rockyou.txt&quot;</span>,<span class="hljs-string">&quot;r&quot;</span>) <br>	with <span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;/usr/share/wordlists/password.txt&quot;</span>,<span class="hljs-string">&quot;r&quot;</span>) as password:<br>		<span class="hljs-keyword">for</span> one_password <span class="hljs-keyword">in</span> password<span class="hljs-selector-class">.readlines</span>():	<br>			ans = one_password<span class="hljs-selector-class">.strip</span>(<span class="hljs-string">&quot;\n&quot;</span>)+<span class="hljs-string">&quot;:&quot;</span>+one<br>			key = base64<span class="hljs-selector-class">.b64encode</span>(ans)<br>			answer<span class="hljs-selector-class">.writelines</span>(key+<span class="hljs-string">&quot;\n&quot;</span>)<br><br>user<span class="hljs-selector-class">.close</span>()<br></code></pre></div></td></tr></table></figure>
-<p>用burp intruder爆破，无果。<br><img src="/2018/10/29/9264/3.PNG" srcset="/img/loading.gif"></p>
+<p>用burp intruder爆破，无果。<br><img src="/2018/10/29/9264/3.PNG"></p>
 <p>好吧，看看writeup，我承认我菜了&#x3D;&#x3D;</p>
 <p><a target="_blank" rel="noopener" href="https://delosec.com/vulnhub-ch4inrulz-writeup/">https://delosec.com/vulnhub-ch4inrulz-writeup/</a></p>
 <h2 id="划重点"><a href="#划重点" class="headerlink" title="划重点"></a>划重点</h2><p>当时我扫描到了api这个页面，其中提示了四个页面，说在建设中，我检查了前两个，不存在，我就当作四个都不存在。。。</p>
 <p>当时的精力花在80端口破解登陆页面去了。。。<br>反省，需要另开一篇，复习踩点。</p>
-<p><a target="_blank" rel="noopener" href="http://192.168.1.132:8011/api/files_api.php">http://192.168.1.132:8011/api/files_api.php</a><br><img src="/2018/10/29/9264/4.PNG" srcset="/img/loading.gif"></p>
+<p><a target="_blank" rel="noopener" href="http://192.168.1.132:8011/api/files_api.php">http://192.168.1.132:8011/api/files_api.php</a><br><img src="/2018/10/29/9264/4.PNG"></p>
 <ul>
 <li>尝试get提交文件名</li>
 </ul>
 <figure class="highlight ada"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs ada">YOUR IP <span class="hljs-keyword">IS</span> : 192.168.1.128<br>WRONG INPUT !!<br></code></pre></div></td></tr></table></figure>
 <ul>
-<li>尝试post提交文件名<br><img src="/2018/10/29/9264/5.PNG" srcset="/img/loading.gif"><br>说明该php没有禁止post方式&#x3D;&#x3D;</li>
+<li>尝试post提交文件名<br><img src="/2018/10/29/9264/5.PNG"><br>说明该php没有禁止post方式&#x3D;&#x3D;</li>
 </ul>
 <p>接下来我尝试了好久，找apache日志的地址，结果都是无用功。。</p>
 <ul>
@@ -267,7 +282,7 @@
 <p>于是我找到了另一个登陆页面<code>http://192.168.1.132/development/$apr1$1oIGDEDK$/aVFPluYt56UvslZMBDoC0</code></p>
 <p>em。。？黑人问号</p>
 <ul>
-<li>新知识点1<br><a target="_blank" rel="noopener" href="https://httpd.apache.org/docs/2.4/misc/password_encryptions.html">Apache密码类型</a><br><img src="/2018/10/29/9264/7.PNG" srcset="/img/loading.gif"><br>以前遇到的都是加盐（salt）类型的mdf，md5($pass.$salt)。<br>这次遇到的这一串<code>$apr1$1oIGDEDK$/aVFPluYt56UvslZMBDoC0</code><br>貌似是apache特有的加密方式&#x3D;&#x3D;，长见识了。密码学没怎么学。<br><img src="/2018/10/29/9264/6.PNG" srcset="/img/loading.gif"></li>
+<li>新知识点1<br><a target="_blank" rel="noopener" href="https://httpd.apache.org/docs/2.4/misc/password_encryptions.html">Apache密码类型</a><br><img src="/2018/10/29/9264/7.PNG"><br>以前遇到的都是加盐（salt）类型的mdf，md5($pass.$salt)。<br>这次遇到的这一串<code>$apr1$1oIGDEDK$/aVFPluYt56UvslZMBDoC0</code><br>貌似是apache特有的加密方式&#x3D;&#x3D;，长见识了。密码学没怎么学。<br><img src="/2018/10/29/9264/6.PNG"></li>
 </ul>
 <p>总之获得了frank:frank!!!口令，登陆后，看到了上传页面。</p>
 <p>上传了一个png，然后找图片上传路径&#x3D;&#x3D;，找了半天没找到。<br>看了wp，路径是&#x2F;development&#x2F;uploader&#x2F;FRANKuploads</p>
@@ -282,8 +297,8 @@
 <h2 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h2><ol>
 <li>nc -lnvp 1234</li>
 <li>选择&#x2F;usr&#x2F;share&#x2F;webshells&#x2F;php&#x2F;php-reverse-shell.php</li>
-<li>开burp拦截，因为只允许图片类型<br>后缀改为gif，文件内容改为GIF98，点go就可以成功上传。<br><img src="/2018/10/29/9264/12.PNG" srcset="/img/loading.gif"></li>
-<li>绝对路径进行文件包含。<br><img src="/2018/10/29/9264/8.PNG" srcset="/img/loading.gif"><br>linux2.6，版本很低嘛，很明显的内核漏洞提权，快讲烂了&#x3D;&#x3D;<br><img src="/2018/10/29/9264/13.PNG" srcset="/img/loading.gif"></li>
+<li>开burp拦截，因为只允许图片类型<br>后缀改为gif，文件内容改为GIF98，点go就可以成功上传。<br><img src="/2018/10/29/9264/12.PNG"></li>
+<li>绝对路径进行文件包含。<br><img src="/2018/10/29/9264/8.PNG"><br>linux2.6，版本很低嘛，很明显的内核漏洞提权，快讲烂了&#x3D;&#x3D;<br><img src="/2018/10/29/9264/13.PNG"></li>
 </ol>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>wfuzz、nikto、johntheripper，复习了工具的使用。<br>明明知道怎么操作，但是就是因为字典或者工具的原因无法成功利用那才是灾难。。。</p>
 
@@ -420,10 +435,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

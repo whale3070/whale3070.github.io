@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -333,7 +348,7 @@
 <ul>
 <li><strong>主站 (whale3070.com)</strong>：继续作为你的**“思维镜像”<strong>和</strong>“技术长廊”**。你那 1100 篇博客就在这里，它是你个人品牌的核心。</li>
 <li><strong>商务子域名 (<a target="_blank" rel="noopener" href="https://www.google.com/search?q=audit.whale3070.com">https://www.google.com/search?q=audit.whale3070.com</a>)</strong>：作为你未来<strong>个人工作室&#x2F;咨询业务</strong>的官方入口。在这里发布你的专业审计服务介绍、RWA 安全白皮书。</li>
-<li><strong>企业邮箱 (<a href="mailto:&#119;&#x65;&#105;&#64;&#x77;&#x68;&#x61;&#x6c;&#101;&#51;&#48;&#x37;&#x30;&#x2e;&#x63;&#x6f;&#109;">wei@whale3070.com</a>)</strong>：在香港发邮件谈商务时，使用这种带个人品牌域名的邮箱，专业度远超 Gmail，更容易获得金融机构的信任。</li>
+<li><strong>企业邮箱 (<a href="mailto:&#x77;&#101;&#x69;&#x40;&#x77;&#x68;&#x61;&#x6c;&#x65;&#x33;&#x30;&#55;&#48;&#x2e;&#x63;&#x6f;&#109;">wei@whale3070.com</a>)</strong>：在香港发邮件谈商务时，使用这种带个人品牌域名的邮箱，专业度远超 Gmail，更容易获得金融机构的信任。</li>
 </ul>
 <h3 id="2-为什么你的-com-在香港值钱？"><a href="#2-为什么你的-com-在香港值钱？" class="headerlink" title="2. 为什么你的 .com 在香港值钱？"></a>2. 为什么你的 <code>.com</code> 在香港值钱？</h3><p>香港的金融和 Web3 圈子极其看重 <strong>Digital Footprint（数字足迹）</strong>。</p>
 <ul>
@@ -398,13 +413,105 @@
 <li><strong>逻辑</strong>：既然你待过深信服和绿盟，你应该熟悉这种分布式搜索。Algolia 提供云端索引，你只需要在 Hexo 生成时推送数据，搜索时直接调用其 API。</li>
 <li><strong>效果</strong>：支持错别字容忍、实时反馈。面试官在你的博客搜索“免杀”，打出“免”字的瞬间结果就出来了。</li>
 </ul>
-<h3 id="3-给你的“加速清单”-Action-Items"><a href="#3-给你的“加速清单”-Action-Items" class="headerlink" title="3. 给你的“加速清单” (Action Items)"></a>3. 给你的“加速清单” (Action Items)</h3><p>| 优化点 | 操作建议 | 预期效果 |<br>| <strong>压缩</strong> | 在 Docker 的 Nginx 配置中开启 <code>brotli</code> 压缩。 | 搜索索引文件传输时间减少 60% |<br>| <strong>协议</strong> | 确保 Docker 容器前的反向代理开启了 <strong>HTTP&#x2F;3 (QUIC)</strong>。 | 弱网环境下访问速度大幅提升 |<br>| <strong>索引</strong> | 尝试将搜索插件更换为 <strong>Pagefind</strong>。 | 解决 1000+ 篇文章搜索时的内存卡顿 |<br>| <strong>缓存</strong> | 利用 Cloudflare 缓存你的 <code>search.json</code>。 | 彻底消除由于文件过大导致的加载延迟 |</p>
+<h3 id="3-给你的“加速清单”-Action-Items"><a href="#3-给你的“加速清单”-Action-Items" class="headerlink" title="3. 给你的“加速清单” (Action Items)"></a>3. 给你的“加速清单” (Action Items)</h3><table>
+<thead>
+<tr>
+<th>优化点</th>
+<th>操作建议</th>
+<th>预期效果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>压缩</strong></td>
+<td>在 Docker 的 Nginx 配置中开启 <code>brotli</code> 压缩。</td>
+<td>搜索索引文件传输时间减少 60%</td>
+</tr>
+<tr>
+<td><strong>协议</strong></td>
+<td>确保 Docker 容器前的反向代理开启了 <strong>HTTP&#x2F;3 (QUIC)</strong>。</td>
+<td>弱网环境下访问速度大幅提升</td>
+</tr>
+<tr>
+<td><strong>索引</strong></td>
+<td>尝试将搜索插件更换为 <strong>Pagefind</strong>。</td>
+<td>解决 1000+ 篇文章搜索时的内存卡顿</td>
+</tr>
+<tr>
+<td><strong>缓存</strong></td>
+<td>利用 Cloudflare 缓存你的 <code>search.json</code>。</td>
+<td>彻底消除由于文件过大导致的加载延迟</td>
+</tr>
+</tbody></table>
 <h3 id="一个关于“复利”的小建议："><a href="#一个关于“复利”的小建议：" class="headerlink" title="一个关于“复利”的小建议："></a>一个关于“复利”的小建议：</h3><p>既然你的博客已经装进了 Docker，这其实是你<strong>审计能力</strong>的最好展示。<br>你可以考虑在博客里开一个 <strong>“Ops (运维)”</strong> 专题，记录你如何优化这个 1100 篇文章的“怪兽级” Hexo 博客。</p>
 <p><strong>对于 RWA 审计来说，这种对大规模数据处理和极致性能的追求，本身就是一种“技术严谨性”的证明。</strong></p>
 <p><strong>最后问个技术细节：你的 Docker 镜像是基于 Alpine 还是 Ubuntu 这种重型镜像？如果你能把镜像压减到几十 MB，那种“极简”的品味会非常符合香港高级技术职位的调性。</strong></p>
-<h1 id="todo-list"><a href="#todo-list" class="headerlink" title="todo list"></a>todo list</h1><h3 id="阶段一：品牌与技术底座优化-现在-入境前"><a href="#阶段一：品牌与技术底座优化-现在-入境前" class="headerlink" title="阶段一：品牌与技术底座优化 (现在 - 入境前)"></a>阶段一：品牌与技术底座优化 (现在 - 入境前)</h3><p>| 任务项 | 具体执行要点 | 建议时间 |<br>| <strong>博客性能跃迁</strong> | 1. 替换搜索插件为 <strong>Pagefind</strong> (解决1100+篇索引卡顿) 2. 优化 Dockerfile，改用 <strong>Alpine</strong> 镜像精简体积 | <strong>Week 1</strong> |<br>| <strong>访问加速</strong> | 1. 迁移至 <strong>Vercel</strong> 或 <strong>Cloudflare Pages</strong> (香港边缘秒开) 2. 开启 <strong>Brotli</strong> 压缩与 <strong>HTTP&#x2F;3</strong> 协议支持 | <strong>Week 1</strong> |<br>| <strong>内容战略调整</strong> | 1. 置顶中英双语 <strong>About</strong> 页 (标注大厂背景、高才身份)  2. 建立 <strong>RWA 审计专题</strong>，同步更新 Solidity 复盘 | <strong>Week 2</strong> |<br>| <strong>职业社交占坑</strong> | 1. 更新 <strong>LinkedIn</strong> 坐标为 Hong Kong  2. 博客页脚标注: <em>Wei You Consultancy Limited (In Formation)</em> | <strong>Week 2</strong> |</p>
-<h3 id="阶段二：香港落地与职业启动-入境后-Week-1-4"><a href="#阶段二：香港落地与职业启动-入境后-Week-1-4" class="headerlink" title="阶段二：香港落地与职业启动 (入境后 Week 1-4)"></a>阶段二：香港落地与职业启动 (入境后 Week 1-4)</h3><p>| 任务项 | 具体执行要点 | 建议时间 |<br>| <strong>安家与社交</strong> | 1. 在 <strong>数码港&#x2F;科学园</strong> 附近租房 (Web3 核心圈)  2. 办理受养人签证延期及香港身份证件 | <strong>Week 3</strong> |<br>| <strong>锁定审计 Offer</strong> | 1. 开启面试 (利用博客作为 PoW，主打 RWA 实务审计)  2. 协商 <strong>B2B 合约</strong>可能性 (为公司接单铺路) | <strong>Week 4</strong> |</p>
-<h3 id="阶段三：魏由顾问有限公司注册-入境后-Month-2-3"><a href="#阶段三：魏由顾问有限公司注册-入境后-Month-2-3" class="headerlink" title="阶段三：魏由顾问有限公司注册 (入境后 Month 2-3)"></a>阶段三：魏由顾问有限公司注册 (入境后 Month 2-3)</h3><p>| 任务项 | 具体执行要点 | 建议时间 |<br>| <strong>公司法律程序</strong> | 1. <strong>ICRIS</strong> 系统查册 (最终确认: 魏由&#x2F;Whale3070)  2. 找秘书公司提供挂靠地址、担任法定秘书并领取 <strong>CI&#x2F;BR</strong> | <strong>Week 9</strong> |<br>| <strong>商业闭环建立</strong> | 1. 申请香港<strong>商业银行账户</strong> (中银香港&#x2F;汇丰&#x2F;众安)  2. 启用企业邮箱: <code>wei@whale3070.com</code> | <strong>Week 12</strong> |</p>
+<h1 id="todo-list"><a href="#todo-list" class="headerlink" title="todo list"></a>todo list</h1><h3 id="阶段一：品牌与技术底座优化-现在-入境前"><a href="#阶段一：品牌与技术底座优化-现在-入境前" class="headerlink" title="阶段一：品牌与技术底座优化 (现在 - 入境前)"></a>阶段一：品牌与技术底座优化 (现在 - 入境前)</h3><table>
+<thead>
+<tr>
+<th>任务项</th>
+<th>具体执行要点</th>
+<th>建议时间</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>博客性能跃迁</strong></td>
+<td>1. 替换搜索插件为 <strong>Pagefind</strong> (解决1100+篇索引卡顿) 2. 优化 Dockerfile，改用 <strong>Alpine</strong> 镜像精简体积</td>
+<td><strong>Week 1</strong></td>
+</tr>
+<tr>
+<td><strong>访问加速</strong></td>
+<td>1. 迁移至 <strong>Vercel</strong> 或 <strong>Cloudflare Pages</strong> (香港边缘秒开) 2. 开启 <strong>Brotli</strong> 压缩与 <strong>HTTP&#x2F;3</strong> 协议支持</td>
+<td><strong>Week 1</strong></td>
+</tr>
+<tr>
+<td><strong>内容战略调整</strong></td>
+<td>1. 置顶中英双语 <strong>About</strong> 页 (标注大厂背景、高才身份)  2. 建立 <strong>RWA 审计专题</strong>，同步更新 Solidity 复盘</td>
+<td><strong>Week 2</strong></td>
+</tr>
+<tr>
+<td><strong>职业社交占坑</strong></td>
+<td>1. 更新 <strong>LinkedIn</strong> 坐标为 Hong Kong  2. 博客页脚标注: <em>Wei You Consultancy Limited (In Formation)</em></td>
+<td><strong>Week 2</strong></td>
+</tr>
+</tbody></table>
+<h3 id="阶段二：香港落地与职业启动-入境后-Week-1-4"><a href="#阶段二：香港落地与职业启动-入境后-Week-1-4" class="headerlink" title="阶段二：香港落地与职业启动 (入境后 Week 1-4)"></a>阶段二：香港落地与职业启动 (入境后 Week 1-4)</h3><table>
+<thead>
+<tr>
+<th>任务项</th>
+<th>具体执行要点</th>
+<th>建议时间</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>安家与社交</strong></td>
+<td>1. 在 <strong>数码港&#x2F;科学园</strong> 附近租房 (Web3 核心圈)  2. 办理受养人签证延期及香港身份证件</td>
+<td><strong>Week 3</strong></td>
+</tr>
+<tr>
+<td><strong>锁定审计 Offer</strong></td>
+<td>1. 开启面试 (利用博客作为 PoW，主打 RWA 实务审计)  2. 协商 <strong>B2B 合约</strong>可能性 (为公司接单铺路)</td>
+<td><strong>Week 4</strong></td>
+</tr>
+</tbody></table>
+<h3 id="阶段三：魏由顾问有限公司注册-入境后-Month-2-3"><a href="#阶段三：魏由顾问有限公司注册-入境后-Month-2-3" class="headerlink" title="阶段三：魏由顾问有限公司注册 (入境后 Month 2-3)"></a>阶段三：魏由顾问有限公司注册 (入境后 Month 2-3)</h3><table>
+<thead>
+<tr>
+<th>任务项</th>
+<th>具体执行要点</th>
+<th>建议时间</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>公司法律程序</strong></td>
+<td>1. <strong>ICRIS</strong> 系统查册 (最终确认: 魏由&#x2F;Whale3070)  2. 找秘书公司提供挂靠地址、担任法定秘书并领取 <strong>CI&#x2F;BR</strong></td>
+<td><strong>Week 9</strong></td>
+</tr>
+<tr>
+<td><strong>商业闭环建立</strong></td>
+<td>1. 申请香港<strong>商业银行账户</strong> (中银香港&#x2F;汇丰&#x2F;众安)  2. 启用企业邮箱: <code>wei@whale3070.com</code></td>
+<td><strong>Week 12</strong></td>
+</tr>
+</tbody></table>
 <p><strong>使用提示：</strong></p>
 <ul>
 <li><strong>关于 Pagefind</strong>：它是静态网站搜索的“降维打击”，非常适合你这种文章量极大的 Hexo 博客。</li>
@@ -605,10 +712,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

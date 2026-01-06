@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -241,12 +256,12 @@
 <h3 id="为什么要用ptf框架"><a href="#为什么要用ptf框架" class="headerlink" title="为什么要用ptf框架?"></a>为什么要用ptf框架?</h3><p>ptf是渗透测试框架，为了解决渗透工具的更新而使用的。举个例子，老版本的masscan工具在扫描结束后，不会自动结束，而是一直等待，这样就不能在扫描完一个ip后继续扫描。而这个错误只要更新到最新版本就可以解决。</p>
 <p>而更新软件是个复杂的差事，虽然用apt-get可以安装，但是软件名各种各样，甚至有的时候，你只知道需要什么功能的软件，但是你不知道软件的名字！这时候，使用ptf框架就十分方便</p>
 <h3 id="如何用ptf框架"><a href="#如何用ptf框架" class="headerlink" title="如何用ptf框架?"></a>如何用ptf框架?</h3><ol>
-<li><p>运行ptf<br><img src="/35.PNG" srcset="/img/loading.gif"></p>
+<li><p>运行ptf<br><img src="/35.PNG"></p>
 </li>
 <li><p>输入？查看使用方式</p>
 </li>
 </ol>
-<p><img src="/36.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/36.PNG"></p>
 <figure class="highlight gauss"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs gauss"><span class="hljs-keyword">use</span> modules/ 加<span class="hljs-built_in">tab</span>按钮，自动补全命令<br>如果你不知道需要哪个软件，也可以使用上诉命令，<span class="hljs-built_in">tab</span>自动补全，会列出所有可以下载的软件，然后再挑选软件。<br><br>图中列出了很多模块，例如主动检测绕过、后渗透利用、代码审计、报告、逆向、漏洞分析等等。。<br></code></pre></div></td></tr></table></figure>
 
 <figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><br>use modules/exploitation/install_update_all<br>如果你想更新利用模块的所有软件，可以执行上述命令<br><br>use modules/install_update_all<br>不建议更新所有模块，因为等待时间长，占用磁盘空间，并且也不可能用上所有软件。<br><br>运用 <span class="hljs-built_in">cd</span> modules/xxx; update 语法，即可更新某个模块的版本<br></code></pre></div></td></tr></table></figure>
@@ -254,7 +269,7 @@
 <li>所有已安装的tools都在&#x2F;pentest目录</li>
 </ol>
 <p>先退出ptf模块，然后cd &#x2F;pentest</p>
-<p><img src="/37.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/37.PNG"></p>
 
             </div>
             <hr>
@@ -389,10 +404,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

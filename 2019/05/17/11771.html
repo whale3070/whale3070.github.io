@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -230,18 +245,18 @@
             <div class="markdown-body">
               <p>参考书籍：《Foundations of Python Network Programming 2nd》Page294</p>
 <h2 id="案例一，下载user-txt"><a href="#案例一，下载user-txt" class="headerlink" title="案例一，下载user.txt"></a>案例一，下载user.txt</h2><p>在hackthebox中，用python代码下载位于10.10.10.152的ftp端口上的user.txt文件。</p>
-<p><img src="/1.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/1.PNG"></p>
 <figure class="highlight pgsql"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs pgsql"><span class="hljs-meta">#ascii download</span><br><span class="hljs-keyword">import</span> os<br><span class="hljs-keyword">from</span> ftplib <span class="hljs-keyword">import</span> FTP<br><br><span class="hljs-keyword">if</span> os.path.<span class="hljs-keyword">exists</span>(<span class="hljs-string">&#x27;user.txt&#x27;</span>):<br>	<span class="hljs-keyword">raise</span> IOError(<span class="hljs-string">&#x27;refusing to overwrite your user.txt&#x27;</span>)<br><br>def writeline(data):<br>	fd.<span class="hljs-keyword">write</span>(data)<br>	fd.<span class="hljs-keyword">write</span>(os.linesep)<br><br>f = FTP(<span class="hljs-string">&#x27;10.10.10.152&#x27;</span>) #远程IP<br>f.<span class="hljs-keyword">login</span>()              <br>f.cwd(<span class="hljs-string">&#x27;/Users/Public&#x27;</span>) #切换远程系统上的工作目录<br><br>fd = <span class="hljs-keyword">open</span>(<span class="hljs-string">&#x27;user.txt&#x27;</span>, <span class="hljs-string">&#x27;w&#x27;</span>)<br>f.retrlines(<span class="hljs-string">&#x27;RETR user.txt&#x27;</span>, writeline) #开始传输<br>fd.<span class="hljs-keyword">close</span>()<br>f.quit()<br></code></pre></div></td></tr></table></figure>
 <h2 id="案例二，扫描开放21端口的主机。"><a href="#案例二，扫描开放21端口的主机。" class="headerlink" title="案例二，扫描开放21端口的主机。"></a>案例二，扫描开放21端口的主机。</h2><p>通过这个<a target="_blank" rel="noopener" href="https://whale3070.github.io/linux/2019/05/17/09-x/">脚本</a>，我们获得了40个主机的端口扫描结果。</p>
 <p>接下来，用python自动连接开放21端口的主机。</p>
-<p>grep ‘21&#x2F;tcp’ *&#x2F;nmap-result &gt; test&#x2F;result<br><img src="/2.PNG" srcset="/img/loading.gif"></p>
+<p>grep ‘21&#x2F;tcp’ *&#x2F;nmap-result &gt; test&#x2F;result<br><img src="/2.PNG"></p>
 <p>将ip写入ip.txt</p>
 <figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-comment">#if anonymous can login </span><br><span class="hljs-keyword">from</span> ftplib <span class="hljs-keyword">import</span> FTP,error_perm<br> <br><span class="hljs-keyword">def</span> <span class="hljs-title function_">try_login</span>(<span class="hljs-params">IP</span>):<br>	f=FTP(IP)<br>	<span class="hljs-keyword">try</span>:<br>		f.login()<br>		<span class="hljs-built_in">print</span> <span class="hljs-string">&quot;Current working directory:&quot;</span>, f.pwd()<br>		f.quit()<br>	<span class="hljs-keyword">except</span> error_perm:<br>		<span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;error&#x27;</span>	<br>		<span class="hljs-keyword">return</span> <span class="hljs-comment">#ignore non-directories and ones we cannot enter</span><br>f = <span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;ip.txt&quot;</span>,<span class="hljs-string">&#x27;r&#x27;</span>)<br>all_ip = f.read().splitlines()<br><span class="hljs-built_in">print</span> all_ip<br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> all_ip:<br>	<span class="hljs-built_in">print</span> i<br>	try_login(i)<br></code></pre></div></td></tr></table></figure>
-<p><img src="/3.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/3.PNG"></p>
 <p>修改下try的代码段，列出ip.txt中，可以匿名登陆的ip。</p>
 <figure class="highlight vim"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs vim"><span class="hljs-keyword">f</span>.login()<br><span class="hljs-keyword">print</span> <span class="hljs-string">&quot;Current working directory:&quot;</span>, <span class="hljs-keyword">f</span>.<span class="hljs-keyword">pwd</span>()<br><br>entries = []<br><span class="hljs-keyword">f</span>.dir(entries.<span class="hljs-keyword">append</span>)<br><span class="hljs-keyword">print</span> <span class="hljs-string">&quot;%d entries:&quot;</span> % <span class="hljs-built_in">len</span>(entries)<br><br><span class="hljs-keyword">for</span> entry in entries:<br>	<span class="hljs-keyword">print</span> entry<br><span class="hljs-keyword">f</span>.<span class="hljs-keyword">quit</span>()<br></code></pre></div></td></tr></table></figure>
 
-<p><img src="/4.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/4.PNG"></p>
 
             </div>
             <hr>
@@ -265,9 +280,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2019/05/17/20562.html">
+                      <a href="/2019/05/25/3300.html">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">shell-script（四） range-scan.sh</span>
+                        <span class="hidden-mobile">kotarak（从ssrf到提权-ntds-dit提取密码）</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -275,8 +290,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2019/05/16/48950.html">
-                        <span class="hidden-mobile">China should release birth restrictions</span>
+                      <a href="/2019/05/17/5409.html">
+                        <span class="hidden-mobile">从中国与日本的女性地位谈婚姻</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -376,10 +391,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

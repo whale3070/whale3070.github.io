@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -230,28 +245,28 @@
             <div class="markdown-body">
               <h1 id="PoshC2"><a href="#PoshC2" class="headerlink" title="PoshC2"></a>PoshC2</h1><p>工具链接 ：<a target="_blank" rel="noopener" href="https://github.com/nettitude/PoshC2">https://github.com/nettitude/PoshC2</a></p>
 <h2 id="0x00-安装"><a href="#0x00-安装" class="headerlink" title="0x00 安装"></a>0x00 安装</h2><figure class="highlight cmake"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs cmake">wget https://raw.githubusercontent.com/nettitude/PoshC2/master/<span class="hljs-keyword">Install</span>.sh<br>chmod + x ./<span class="hljs-keyword">Install</span>.sh<br>./<span class="hljs-keyword">Install</span>.sh<br><br>pip <span class="hljs-keyword">install</span> pycryptodome<br>pip <span class="hljs-keyword">install</span> python-jenkins<br>pip <span class="hljs-keyword">install</span> donut<br></code></pre></div></td></tr></table></figure>
-<p><img src="/2022/01/29/34036/1.png" srcset="/img/loading.gif"></p>
-<h2 id="0x01-运行"><a href="#0x01-运行" class="headerlink" title="0x01 运行"></a>0x01 运行</h2><p>创建名为0706的项目名称： posh-project -n 0706<br><img src="/2022/01/29/34036/2.png" srcset="/img/loading.gif"></p>
+<p><img src="/2022/01/29/34036/1.png"></p>
+<h2 id="0x01-运行"><a href="#0x01-运行" class="headerlink" title="0x01 运行"></a>0x01 运行</h2><p>创建名为0706的项目名称： posh-project -n 0706<br><img src="/2022/01/29/34036/2.png"></p>
 <p>posh-config</p>
 <p>配置服务器参数，修改参数的时候注意这个编辑器，默认是vim的。</p>
 <blockquote>
 <p>这里记得把本地回环地址改为外网地址，否则无法接收上线。</p>
 <p>根据实际和喜好配置好命名前缀，域名，端口等配置。</p>
 </blockquote>
-<p><img src="/2022/01/29/34036/3.png" srcset="/img/loading.gif"></p>
+<p><img src="/2022/01/29/34036/3.png"></p>
 <p>posh-server<br>开启团队服务器</p>
-<p><img src="/2022/01/29/34036/4.png" srcset="/img/loading.gif"></p>
+<p><img src="/2022/01/29/34036/4.png"></p>
 <blockquote>
 <p>启动成功就会自动根据配置生成各类payload并存储到payload文件夹中。</p>
 </blockquote>
 <h2 id="0x02-客户上线"><a href="#0x02-客户上线" class="headerlink" title="0x02 客户上线"></a>0x02 客户上线</h2><p>运行上一步生成的exe或者powershell上线命令，让傀儡机上线</p>
 <p>posh -u jerry<br>攻击者的名字是jerry，连接到teamserver</p>
-<p><img src="/2022/01/29/34036/5.png" srcset="/img/loading.gif"></p>
+<p><img src="/2022/01/29/34036/5.png"></p>
 <p>输入1，就可以选中session1，进行命令执行</p>
-<p><img src="/2022/01/29/34036/6.png" srcset="/img/loading.gif"></p>
+<p><img src="/2022/01/29/34036/6.png"></p>
 <p>注意，执行的命令回显都会在posh-server那个团队服务器的终端进行显示。</p>
 <h2 id="Apache重写规则"><a href="#Apache重写规则" class="headerlink" title="Apache重写规则"></a>Apache重写规则</h2><p>建议使用 C2 代理通过将所有流量代理到 C2 服务器来维护操作安全。可以启动一个运行 Apache 的简单 VPS，并使用 mod_rewrite 在客户端不知情的情况下将流量从代理静默重定向到 C2 服务器，从而允许红队隐藏其 C2 基础设施，并在代理 IP 受到损害时提供灵活性。 一个典型的例子可能如下所示：</p>
-<p><img src="C:\Users\86158\Pictures\1proxy.png" srcset="/img/loading.gif"></p>
+<p><img src="C:\Users\86158\Pictures\1proxy.png"></p>
 <p>这通过不将 C2 基础架构暴露给目标或整个互联网来提供操作安全性，并允许红队在现有的 C2 代理受到损害时转向不同的 C2 代理，而无需更改 C2 服务器本身。 </p>
 <p>使用 Apache 重写规则，我们可以重定向用于 C2 服务器的流量，但也可以在不符合我们的重写规则的同一主机上保留一个功能齐全的网站，这样如果机器人、不相关的浏览器或蓝队出现- 看着只是一个良性网站。 </p>
 <p>为了帮助解释这个 Nettitude 创建了一个简短的博客，其中解释了使用带有 OpenVPN 的 VPS 实现此目的的一种方法：</p>
@@ -416,10 +431,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

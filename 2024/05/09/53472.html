@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -248,8 +263,8 @@
 <h1 id="SIEM安全信息事件管理工具Splunk"><a href="#SIEM安全信息事件管理工具Splunk" class="headerlink" title="SIEM安全信息事件管理工具Splunk"></a>SIEM安全信息事件管理工具Splunk</h1><p>Splunk的创建者将其描述为一种从机器数据中聚合、分析并获得答案的解决方案。Splunk可用于应用程序管理、运营管理、安全与合规等。</p>
 <p>在安全性方面，Splunk可以用作日志管理解决方案，但最重要的是用作分析驱动的SIEM。Splunk可以通过详细的可视化来加强对动态多步骤攻击的调查，甚至可以通过用户行为分析来增强组织的检测能力。</p>
 <p>Splunk可以通过无代理和转发器的方式从几乎任何来源获取几乎任何数据。</p>
-<p><img src="https://assets.ine.com/content/ptp/Effectively_Using_Splunk_Scenario_1/0.png" srcset="/img/loading.gif"></p>
-<h2 id="Splunk的构架"><a href="#Splunk的构架" class="headerlink" title="Splunk的构架"></a>Splunk的构架</h2><p><img src="https://assets.ine.com/content/ptp/Effectively_Using_Splunk_Scenario_1/1.png" srcset="/img/loading.gif"></p>
+<p><img src="https://assets.ine.com/content/ptp/Effectively_Using_Splunk_Scenario_1/0.png"></p>
+<h2 id="Splunk的构架"><a href="#Splunk的构架" class="headerlink" title="Splunk的构架"></a>Splunk的构架</h2><p><img src="https://assets.ine.com/content/ptp/Effectively_Using_Splunk_Scenario_1/1.png"></p>
 <p>Splunk的体系结构（高级别）包括：</p>
 <p>转发器组件</p>
 <p>通用转发器 从远程源收集数据，并将其发送到一个或多个Splunk索引器。通用转发器是单独的下载，可以安装在任何远程源上，对网络或主机性能几乎没有影响。</p>
@@ -270,10 +285,10 @@
 <p>管理员：此角色拥有最多的功能。</p>
 <p>Power：此角色可以编辑所有共享对象（保存搜索等）和警报，标记事件等类似任务。</p>
 <p>用户：此角色可以创建和编辑自己的保存搜索、运行搜索、编辑自己的首选项、创建和编辑事件类型等类似任务。</p>
-<h2 id="Splunk的搜索和报告"><a href="#Splunk的搜索和报告" class="headerlink" title="Splunk的搜索和报告"></a>Splunk的搜索和报告</h2><p>您将在Splunk的搜索和报告中度过大部分时间。<br><img src="https://assets.ine.com/content/ptp/Effectively_Using_Splunk_Scenario_1/2.jpg" srcset="/img/loading.gif"></p>
-<p><img src="https://assets.ine.com/content/ptp/Effectively_Using_Splunk_Scenario_1/3.jpg" srcset="/img/loading.gif"></p>
+<h2 id="Splunk的搜索和报告"><a href="#Splunk的搜索和报告" class="headerlink" title="Splunk的搜索和报告"></a>Splunk的搜索和报告</h2><p>您将在Splunk的搜索和报告中度过大部分时间。<br><img src="https://assets.ine.com/content/ptp/Effectively_Using_Splunk_Scenario_1/2.jpg"></p>
+<p><img src="https://assets.ine.com/content/ptp/Effectively_Using_Splunk_Scenario_1/3.jpg"></p>
 <p>Data Summary数据摘要，可以在单独的选项卡上为您提供主机、来源或来源类型。</p>
-<p><img src="https://assets.ine.com/content/ptp/Effectively_Using_Splunk_Scenario_1/4.jpg" srcset="/img/loading.gif"><br><img src="https://assets.ine.com/content/ptp/Effectively_Using_Splunk_Scenario_1/4_1.jpg" srcset="/img/loading.gif"><br><img src="https://assets.ine.com/content/ptp/Effectively_Using_Splunk_Scenario_1/4_2.jpg" srcset="/img/loading.gif"><br><img src="https://assets.ine.com/content/ptp/Effectively_Using_Splunk_Scenario_1/4_3.jpg" srcset="/img/loading.gif"><br>最后，这就是事件的样子。<br><img src="https://assets.ine.com/content/ptp/Effectively_Using_Splunk_Scenario_1/5.jpg" srcset="/img/loading.gif"></p>
+<p><img src="https://assets.ine.com/content/ptp/Effectively_Using_Splunk_Scenario_1/4.jpg"><br><img src="https://assets.ine.com/content/ptp/Effectively_Using_Splunk_Scenario_1/4_1.jpg"><br><img src="https://assets.ine.com/content/ptp/Effectively_Using_Splunk_Scenario_1/4_2.jpg"><br><img src="https://assets.ine.com/content/ptp/Effectively_Using_Splunk_Scenario_1/4_3.jpg"><br>最后，这就是事件的样子。<br><img src="https://assets.ine.com/content/ptp/Effectively_Using_Splunk_Scenario_1/5.jpg"></p>
 <p>Splunk的搜索处理语言（SPL）：</p>
 <p>Splunk表示，SPL将SQL的最佳功能与Unix管道语法相结合，使您能够：</p>
 <p>以原始格式访问所有数据</p>
@@ -281,7 +296,7 @@
 <p>使用相同的语言进行可视化</p>
 <p>SPL提供了140多个命令，允许您搜索、关联、分析和可视化任何数据。</p>
 <p>下图表示一个搜索，分解为其语法组件。</p>
-<p><img src="https://assets.ine.com/content/ptp/Effectively_Using_Splunk_Scenario_1/6.png" srcset="/img/loading.gif"></p>
+<p><img src="https://assets.ine.com/content/ptp/Effectively_Using_Splunk_Scenario_1/6.png"></p>
 <p>搜索由五个基本组成部分组成。</p>
 <p>搜索词，在其中指定要查找的内容。搜索词包含关键字、短语、布尔值等。</p>
 <p>命令，用于指定要如何操作结果。例如，创建图表、计算统计数据等。</p>
@@ -289,7 +304,7 @@
 <p>参数，以防存在要应用于函数的变量。</p>
 <p>子句，用于指定对结果中的字段进行分组或重命名的确切方式。</p>
 <p>在编写搜索时，您会注意到搜索字符串的某些部分会自动着色。颜色基于搜索语法。实例</p>
-<p><img src="https://assets.ine.com/content/ptp/Effectively_Using_Splunk_Scenario_1/7.png" srcset="/img/loading.gif"></p>
+<p><img src="https://assets.ine.com/content/ptp/Effectively_Using_Splunk_Scenario_1/7.png"></p>
 <p>提交搜索时需要考虑的其他事项是Splunk的搜索模式。</p>
 <p>有三种搜索模式：</p>
 <p>快速模式：关闭字段查找以进行事件搜索。没有用于统计搜索的事件或字段数据。</p>
@@ -437,10 +452,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

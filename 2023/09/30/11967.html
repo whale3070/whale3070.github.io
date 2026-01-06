@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -232,7 +247,7 @@
 <h3 id="Zowe-CLI-交互式使用"><a href="#Zowe-CLI-交互式使用" class="headerlink" title="Zowe CLI - 交互式使用"></a>Zowe CLI - 交互式使用</h3><p>在本节中，我们将使用 Zowe CLI 以交互方式查看数据集成员、提交作业和查看输出汇总。</p>
 <ol>
 <li><p>在 VS Code 中，打开集成终端（终端 -&gt; 新建终端）。在终端中，输入 <code>zowe --version</code> 以确认 Zowe CLI 已安装，如下图所示。如果尚未安装，请参考“安装 Zowe CLI 和插件”部分。还请注意，默认选择的 shell 是 <code>cmd</code>。建议为此实验选择默认 shell 为 <code>bash</code> 或 <code>cmd</code>。</p>
-<p><img src="/2023/09/30/11967/zowe-cli-version.png" srcset="/img/loading.gif" alt="图 26.  在 VS Code 集成终端中执行 &#96;zowe --version&#96; 命令"></p>
+<p><img src="/2023/09/30/11967/zowe-cli-version.png" alt="图 26.  在 VS Code 集成终端中执行 &#96;zowe --version&#96; 命令"></p>
 </li>
 <li><p>为了使 Zowe CLI 能够与 z&#x2F;OSMF 交互，CLI 必须知道连接详细信息，如主机、端口、用户名、密码等。虽然您可以在每个命令中输入这些信息，但 Zowe 提供了在配置文件中存储这些信息的功能。</p>
 <p>如果您在第一个实验中进行了配置，那么您将拥有一个包含您的团队配置文件的文件夹。请确保您的终端位于该位置，并执行以下命令。</p>
@@ -246,12 +261,12 @@
 <p>您还可以通过执行类似以下命令的命令列出分区数据集中的所有成员（请参考下图中的示例输出）：</p>
 <figure class="highlight vim"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs vim">zowe <span class="hljs-keyword">files</span> <span class="hljs-keyword">list</span> <span class="hljs-keyword">am</span> <span class="hljs-string">&quot;Z99998.CBL&quot;</span><br></code></pre></div></td></tr></table></figure>
 
-<p><img src="/2023/09/30/11967/zowe-files-list-ds-and-am-commands.png" srcset="/img/loading.gif"><br><em>Figure  28.  zowe files list ds 和 am 命令</em></p>
+<p><img src="/2023/09/30/11967/zowe-files-list-ds-and-am-commands.png"><br><em>Figure  28.  zowe files list ds 和 am 命令</em></p>
 </li>
 <li><p>接下来，我们将下载我们的 COBOL 和 JCL 数据集成员到本地计算机。在终端中，执行类似以下命令的命令：</p>
 <figure class="highlight vim"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs vim">zowe <span class="hljs-keyword">files</span> download <span class="hljs-keyword">am</span> <span class="hljs-string">&quot;Z99998.CBL&quot;</span> -<span class="hljs-keyword">e</span> <span class="hljs-string">&quot;.cbl&quot;</span><br>zowe <span class="hljs-keyword">files</span> download <span class="hljs-keyword">am</span> <span class="hljs-string">&quot;Z99998.JCL&quot;</span> -<span class="hljs-keyword">e</span> <span class="hljs-string">&quot;.jcl&quot;</span><br></code></pre></div></td></tr></table></figure>
 <p>下图显示了一个已完成的示例：</p>
-<p><img src="/2023/09/30/11967/zowe-files-download-am.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/11967/zowe-files-download-am.png"></p>
 <p><em>图 29. 使用 CLI 下载和查看数据集成员</em></p>
 </li>
 <li><p>接下来，我们将提交位于成员 <code>Z99998.JCL(HELLO)</code> 中的作业。要提交作业、等待其完成并查看所有输出，请执行以下命令：</p>
@@ -267,33 +282,33 @@
 <p>要查看特定的输出文件（COBRUN:SYSOUT），请执行以下命令：</p>
 <figure class="highlight mipsasm"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs mipsasm">zowe <span class="hljs-keyword">jobs </span>view sfbi <span class="hljs-keyword">JOB04064 </span><span class="hljs-number">105</span><br></code></pre></div></td></tr></table></figure>
 
-<p>其中，<code>JOB04064</code> 和 <code>105</code> 是从前面的命令中获取的值。<br><img src="/2023/09/30/11967/zowe-jobs-submit-ds-and-view-spool-output.png" srcset="/img/loading.gif"></p>
+<p>其中，<code>JOB04064</code> 和 <code>105</code> 是从前面的命令中获取的值。<br><img src="/2023/09/30/11967/zowe-jobs-submit-ds-and-view-spool-output.png"></p>
 <p><em>图 30. 提交作业，等待完成，然后列出作业的输出，查看特定输出文件</em></p>
 <p>如果需要，您还可以使用以下命令轻松提交作业、等待其完成并下载输出内容（请参考下图中的已完成状态）：</p>
 <figure class="highlight mipsasm"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs mipsasm">zowe <span class="hljs-keyword">jobs </span><span class="hljs-keyword">submit </span>ds <span class="hljs-string">&quot;Z99998.JCL(HELLO)&quot;</span> -d .<br></code></pre></div></td></tr></table></figure>
 
-<p><img src="/2023/09/30/11967/zowe-jobs-submit-ds-and-download-spool-output.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/11967/zowe-jobs-submit-ds-and-download-spool-output.png"></p>
 <p><em>图 31. 提交作业，等待完成，下载并查看输出</em></p>
 <p>Zowe CLI 考虑了脚本编写。例如，您可以使用 <code>--rfj</code> 标志以 JSON 格式接收输出，以便轻松解析。请参考下图的示例。</p>
-<p><img src="/2023/09/30/11967/zowe-jobs-submit-ds-rfj.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/11967/zowe-jobs-submit-ds-rfj.png"></p>
 <p><em>图 32. <code>--rfj</code> 标志允许轻松进行编程式使用</em></p>
 </li>
 </ol>
 <h3 id="Zowe-CLI-编程式使用"><a href="#Zowe-CLI-编程式使用" class="headerlink" title="Zowe CLI - 编程式使用"></a>Zowe CLI - 编程式使用</h3><p>在本节中，我们将以编程方式利用 Zowe CLI 来自动化提交用于编译、链接和运行 COBOL 程序的 JCL，并下载输出。一旦您将内容保存到本地，您就可以使用任意数量的分布式脚本和测试工具来消除手动查看输出内容本身的需要。在 Mainframe 中，我们通常使用 REXX Exec、CLIST 等进行自动化，但今天我们将使用 CLI 和分布式工具。</p>
 <ol>
 <li><p>由于我们已经安装了 Node 和 npm，请让我们为自动化创建一个 Node 项目。要在项目的文件夹中初始化项目，请在项目的文件夹中运行 <code>npm init</code> 命令并按照提示操作。您可以通过按回车键接受默认值。只需更改描述和作者字段。请参考下图。请注意，要使用前面部分提到的团队配置文件，此项目必须是 <strong>LearnCOBOL</strong> 文件夹的子目录。</p>
-<p><img src="/2023/09/30/11967/npm-init-example.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/11967/npm-init-example.png"></p>
 <p><em>图 33. 使用 <code>npm init</code> 创建项目的 <code>package.json</code></em></p>
 </li>
 <li><p>现在我们有了 <code>package.json</code>，只需用一个 <code>clg</code> 脚本替换 <code>test</code> 脚本，该脚本运行以下 zowe 命令（请将 <code>Z99998</code> 替换为您的高级限定符）：</p>
 <figure class="highlight 1c"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs 1c">zowe jobs submit ds &#x27;Z<span class="hljs-number">9999</span>8.JCL(HELLO)&#x27; <span class="hljs-punctuation">-</span>d .<br></code></pre></div></td></tr></table></figure>
 
 <p>您可以随意命名脚本。我之所以建议 <code>clg</code>，是因为 <code>IGYWCLG</code> 过程中的 <code>CLG</code>（这是 JCL 利用的内容）代表编译、链接和运行。现在，只需在终端中输入 <code>npm run clg</code>，即可利用自动化来编译、链接和运行 COBOL 程序，并下载输出进行审查。完成的 <code>package.json</code> 和命令执行示例如下图所示。</p>
-<p><img src="/2023/09/30/11967/npm-run-clg.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/11967/npm-run-clg.png"></p>
 <p><em>图 34. 最终的 <code>package.json</code> 和 <code>npm run clg</code> 执行</em></p>
 </li>
 <li><p>如果您更喜欢图形触发器，可以像下图所示使用 VS Code。基本上，CLI 使您能够快速构建自己的 z&#x2F;OS 自定义任务按钮。您还可以调用脚本而不是单个命令，以适应更复杂的情况。</p>
-<p><img src="/2023/09/30/11967/npm-run-clg-button.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/11967/npm-run-clg-button.png"></p>
 <p><em>图 35. 通过按钮触发的 <code>clg</code> 任务</em></p>
 </li>
 </ol>
@@ -409,11 +424,11 @@
 </ul>
 <h3 id="数据关系"><a href="#数据关系" class="headerlink" title="数据关系"></a>数据关系</h3><p>在程序中使用的所有数据之间的关系在数据部分（DATA DIVISION）中定义，通过一种层次编号和层次数的系统。层次指示符和其描述性条目标识程序中的每个文件。层次指示符表示与其关联的任何数据层次结构的最高级别。层次编号和其描述性条目指示特定数据的属性。层次编号可用于描述数据层次结构；它们可以指示此数据具有特殊目的。</p>
 <h4 id="层次编号"><a href="#层次编号" class="headerlink" title="层次编号"></a>层次编号</h4><p>结构化的层次编号层次关系适用于所有 DATA DIVISION 部分。图 1 显示了程序员选择的层次编号、变量名称和 PIC 子句在文件部分中的层次关系，其中 “01 PRINT-REC” 引用以下 “05” 级变量组，”01 ACCT-FIELDS” 引用以下 “05” 级变量组。请注意，05 级 CLIENT-ADDR 进一步细分为几个 10 级名称。引用名称 CLIENT-ADDR 的 COBOL 代码包括 10 级名称。</p>
-<p><img src="/2023/09/30/11967/image107.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/11967/image107.png"></p>
 <p><em>图 1. 层次编号层次关系</em></p>
 <h3 id="数据层次"><a href="#数据层次" class="headerlink" title="数据层次"></a>数据层次</h3><p>在定义记录之后，可以将其细分以提供更详细的数据引用，如图 1 所示。层次编号是一个 01 到 49 之间的一位或两位整数，或者是三个特殊层次编号之一：66、77 或 88，其中变量名称被分配了与 01-49 层次编号不同的属性。组项内部层次编号之间的关系定义了该组内数据的层次结构。组项包括从其后跟随的所有组和基本项，直到遇到小于或等于该组层次编号的层次编号。基本项是不能进一步细分的项。这些项具有 PIC 子句，因为它们为该项保留存储空间。</p>
 <h2 id="MOVE-和-COMPUTE"><a href="#MOVE-和-COMPUTE" class="headerlink" title="MOVE 和 COMPUTE"></a>MOVE 和 COMPUTE</h2><p>MOVE 和 COMPUTE 保留字语句改变变量名称的值。图 2 中显示的每个 MOVE 都导致字面值存储在 77 级变量名称中。在图 2 中还显示了 COMPUTE 语句，它将 <code>HOURS * RATE</code> 的值存储在 <code>GROSS-PAY</code> 中。所有三个变量名称都使用 PIC 9 赋予了数值值数据类型，这是 COMPUTE 语句操作所必需的。</p>
-<p><img src="/2023/09/30/11967/image108.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/11967/image108.png"></p>
 <p><em>图 2. MOVE 和 COMPUTE 示例</em></p>
 <h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><p><strong>注意</strong>：加载此实验的所有部分可能需要几秒钟的时间。如果文件未加载，请在悬停在部分栏上时点击刷新按钮。</p>
 <ol>
@@ -422,13 +437,13 @@
 <li><p>从 id.JCL 下拉列表中提交 JCL 成员 PAYROL00。这是 id.JCL(PAYROL00) 编译并成功执行 PAYROL00 程序的地方。</p>
 </li>
 </ol>
-<p><img src="/2023/09/30/11967/image113.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/11967/image113.png"></p>
 <p><em>图 3. 提交 PAYROL00 作业</em></p>
-<p><strong>注意</strong>: 如果在提交作业后收到此错误消息：<br><img src="/2023/09/30/11967/image114.png" srcset="/img/loading.gif"><br>那是因为您是从 .CBL 数据集提交的作业，而不是 .JCL 数据集。</p>
+<p><strong>注意</strong>: 如果在提交作业后收到此错误消息：<br><img src="/2023/09/30/11967/image114.png"><br>那是因为您是从 .CBL 数据集提交的作业，而不是 .JCL 数据集。</p>
 <ol start="3">
 <li>查看 PAYROL00 作业输出的编译和执行，参见图 4。</li>
 </ol>
-<p><img src="/2023/09/30/11967/image116.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/11967/image116.png"></p>
 <p><em>图 4. PAYROL00 输出</em></p>
 <ol start="4">
 <li><p>接下来，查看 id.CBL 数据集中 PAYROL0X COBOL 源代码成员。</p>
@@ -439,17 +454,17 @@
 <p>您是否注意到此编译与图 5 中显示的先前作业编译之间的差异？</p>
 </li>
 </ol>
-<p><img src="/2023/09/30/11967/image117.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/11967/image117.png"></p>
 <p><em>图 5. 比较作业编译</em></p>
 <p>它们之间的不同之处在于与每个作业输出关联的返回&#x2F;完成代码，如上所示，位于 JOBS 部分中的作业输出名称旁边，或者位于编译输出的末尾，格式为 0Return code ##。返回代码为 12 意味着存在错误，但我们如何知道错误是什么呢？继续了解吧！</p>
 <ol start="7">
 <li><p>在作业输出中找到编译错误 IGYPA3146-S，如图 6 所示。</p>
-<p><img src="/2023/09/30/11967/image121.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/11967/image121.png"></p>
 <p><em>图 6. IGYPA3146-S 错误信息</em></p>
 <p>请注意，此行告诉您要关注 GROSS-PAY 图片子句，以识别问题。使用这些信息，修改 PAYROL0X COBOL 源代码以修复错误。确保您正在编辑正确的代码。</p>
 </li>
 <li><p>在修改后，重新提交 PAYROL0X JCL 以验证问题是否已被识别和修正，结果是成功的编译和执行，返回代码为零，如图 7 所示。</p>
-<p><img src="/2023/09/30/11967/image124.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/11967/image124.png"></p>
 <p><em>图 7. 比较返回代码</em></p>
 </li>
 </ol>
@@ -587,10 +602,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

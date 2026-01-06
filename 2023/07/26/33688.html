@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -253,7 +268,7 @@
 <h2 id="Diffie-Hellman-算法"><a href="#Diffie-Hellman-算法" class="headerlink" title="Diffie-Hellman 算法"></a>Diffie-Hellman 算法</h2><p><a target="_blank" rel="noopener" href="https://youtu.be/e27HzeAVQbQ?si=3XCmdFfZCW8V7R5o">Diffie-Hellman 算法</a>发明于1976年。读作迪菲-黑尔门</p>
 <p>允许两方通过不安全信道交换对称加密密钥。</p>
 <p>Diffie-Hellman 算法又叫做Diffie-Hellman密钥协商算法（key agreement）<br>这个算法的原理根据数学中的<code>有限域的离散对数</code>问题设计的。</p>
-<p><img src="/2023/07/26/33688/3.jpg" srcset="/img/loading.gif"><br>不说数学公式了，因为我根本不会。<br>就看这上面这张图。<br>（金黄 + 橘红） + 蓝色 &#x3D; 橄榄绿色<br>（金黄 + 蓝色） + 橘红 &#x3D; 橄榄绿色</p>
+<p><img src="/2023/07/26/33688/3.jpg"><br>不说数学公式了，因为我根本不会。<br>就看这上面这张图。<br>（金黄 + 橘红） + 蓝色 &#x3D; 橄榄绿色<br>（金黄 + 蓝色） + 橘红 &#x3D; 橄榄绿色</p>
 <p>在攻击者眼里：<br>（金黄 + 某种颜色A）+ 某种颜色B &#x3D; 无法计算出的密文<br>（金黄 + 某种颜色B）+ 某种颜色A &#x3D; 无法计算出的密文</p>
 <p>因为橘红和蓝色从来没有公开过，没有交换过。所以攻击者就不知道。</p>
 <p>Diffie-Hellman密钥协商算法（key agreement）<br>因为Alice和Bob根本就没有交换过密钥。他们只是交换了其中一个结果。</p>
@@ -340,9 +355,9 @@
 <li>常见算法：RC4（Rivest Cipher 4）是一个著名的流密码算法。<br>凯撒密码是流密码的一个例子。单次密本也是一种流密码，因为算法在明文消息的每个字母上单独运行。</li>
 </ul>
 <p>总结：<br>块密码适用于将数据划分成块并逐个进行加密的场景，但在处理非常长的数据流时效率可能较低。流密码适用于需要流式加密的场景，特别是对实时通信和数据流的加密。在实际应用中，选择加密算法要根据具体需求、安全性要求和性能等因素来综合考虑。</p>
-<h2 id="对称密码系统-1"><a href="#对称密码系统-1" class="headerlink" title="对称密码系统"></a>对称密码系统</h2><p>Brian 管理着一个由20 个用户使用的对称密码系统，其中每个用户都可以与任何其他<br>用户进行私密通信。有一个用户丧失了对自己账户的控制， Brian 认为这个用户的密钥泄露了。<br>那么Brian 必须更换多少个密钥？  19个<br><img src="/2023/07/26/33688/2.png" srcset="/img/loading.gif"></p>
+<h2 id="对称密码系统-1"><a href="#对称密码系统-1" class="headerlink" title="对称密码系统"></a>对称密码系统</h2><p>Brian 管理着一个由20 个用户使用的对称密码系统，其中每个用户都可以与任何其他<br>用户进行私密通信。有一个用户丧失了对自己账户的控制， Brian 认为这个用户的密钥泄露了。<br>那么Brian 必须更换多少个密钥？  19个<br><img src="/2023/07/26/33688/2.png"></p>
 <p>James 是其所在机构的对称密钥密码系统管理员。需要的时候，他会向用户发放密钥。<br>Mary 和Beth 最近找到了他，提出他们之间需要安全交换加密文件。那么， James 必须生成多少个密钥？  1个</p>
-<p>Jones 研究所有6 名员工，用一种对称密钥加密系统来保证通信的保密性。如果每名<br>员工都需要与其他所有员工进行私密通信，那么他们需要多少个密钥？ 15 个<br>每对想私下通信的用户都必须有一个单独的密钥。在一组6 个用户中，总共需要15 个秘密密钥。你可以用公式(n*(n-I)&#x2F;2)算出这个值。在本例中， n&#x3D;6, 因而得出(6*5)&#x2F;2&#x3D;15个密钥。<br><img src="/2023/07/26/33688/1.PNG" srcset="/img/loading.gif"></p>
+<p>Jones 研究所有6 名员工，用一种对称密钥加密系统来保证通信的保密性。如果每名<br>员工都需要与其他所有员工进行私密通信，那么他们需要多少个密钥？ 15 个<br>每对想私下通信的用户都必须有一个单独的密钥。在一组6 个用户中，总共需要15 个秘密密钥。你可以用公式(n*(n-I)&#x2F;2)算出这个值。在本例中， n&#x3D;6, 因而得出(6*5)&#x2F;2&#x3D;15个密钥。<br><img src="/2023/07/26/33688/1.PNG"></p>
 <h2 id="初始化向量"><a href="#初始化向量" class="headerlink" title="初始化向量"></a>初始化向量</h2><h2 id="GCM"><a href="#GCM" class="headerlink" title="GCM"></a>GCM</h2><p>Tammy 正在为她将在单位使用的一个对称密码系统挑选一种运行模式。她希望自己<br>选出的模式既能为数据提供保密性保护，又能保证数据的真实性。以下哪种模式最能满足她<br>的要求？ GCM</p>
 <h2 id="6-20-练习题测试结果"><a href="#6-20-练习题测试结果" class="headerlink" title="[6&#x2F;20] 练习题测试结果"></a>[6&#x2F;20] 练习题测试结果</h2><p>正确率 6&#x2F;20</p>
 <h2 id="12-20-《CISSP官方学习指南第八版》第6章练习题"><a href="#12-20-《CISSP官方学习指南第八版》第6章练习题" class="headerlink" title="[12&#x2F;20] 《CISSP官方学习指南第八版》第6章练习题"></a>[12&#x2F;20] 《CISSP官方学习指南第八版》第6章练习题</h2><p>正确率 12&#x2F;20</p>
@@ -593,10 +608,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

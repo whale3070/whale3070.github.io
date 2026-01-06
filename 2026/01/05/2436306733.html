@@ -1,0 +1,669 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>Polkadot Solidity开发-课程笔记7 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/search/">
+                <i class="iconfont icon-search"></i>
+                搜索
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="Polkadot Solidity开发-课程笔记7">
+                      
+                        Polkadot Solidity开发-课程笔记7
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-01-05 04:48" pubdate>
+        2026年1月5日 凌晨
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      5k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      59
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">Polkadot Solidity开发-课程笔记7</h1>
+            
+            <div class="markdown-body">
+              <p><img src="/2026/01/05/2436306733/1.png"></p>
+<h1 id="rustc-–version是什么意思"><a href="#rustc-–version是什么意思" class="headerlink" title="rustc –version是什么意思"></a>rustc –version是什么意思</h1><h3 id="一、rustc-version-核心含义"><a href="#一、rustc-version-核心含义" class="headerlink" title="一、rustc --version 核心含义"></a>一、<code>rustc --version</code> 核心含义</h3><p><code>rustc --version</code>（也可简写为 <code>rustc -V</code>，大写V）是 <strong>在命令行&#x2F;终端中执行的Rust编译器查询命令</strong>，其核心作用是：<strong>查看当前系统中已安装的Rust编译器（rustc）的版本信息，同时还会附带该编译器的构建元数据</strong>。</p>
+<h3 id="二、命令各部分拆解"><a href="#二、命令各部分拆解" class="headerlink" title="二、命令各部分拆解"></a>二、命令各部分拆解</h3><ol>
+<li><strong><code>rustc</code></strong>：是 Rust Compiler（Rust编译器）的可执行程序名称，也是Rust工具链的核心组件——Rust源代码最终需要通过它编译为可执行文件或库文件，它是Rust生态的基础工具。</li>
+<li><strong><code>--version</code></strong>：是命令的“选项&#x2F;标志”（flag），作用是向<code>rustc</code>程序传递“查询版本信息”的指令，而非执行代码编译等其他核心功能；其简写形式<code>-V</code>（大写）与<code>--version</code>功能完全一致，另外<code>rustc -v</code>（小写v）会输出更详细的版本及编译环境信息（如依赖库版本、系统架构等）。</li>
+</ol>
+<h3 id="三、典型输出示例"><a href="#三、典型输出示例" class="headerlink" title="三、典型输出示例"></a>三、典型输出示例</h3><p>执行该命令后，终端会返回类似如下的信息（版本号会随安装的Rust版本不同而变化）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">rustc 1.79.0 (129f3b996 2024-06-10)<br></code></pre></div></td></tr></table></figure>
+<p>输出信息解读：</p>
+<ul>
+<li><code>1.79.0</code>：这是 <strong>rustc的主版本号</strong>（语义化版本，格式为「主版本.次版本.补丁版本」），是用户最常关注的版本标识；</li>
+<li><code>129f3b996</code>：对应的Git提交哈希值，用于定位该版本编译器的源代码提交记录；</li>
+<li><code>2024-06-10</code>：该版本rustc的正式发布日期。</li>
+</ul>
+<h3 id="四、补充说明"><a href="#四、补充说明" class="headerlink" title="四、补充说明"></a>四、补充说明</h3><p>该命令能正常执行的前提是：你的系统已经成功安装了Rust工具链（通常通过<code>rustup</code>（Rust官方工具链管理器）安装），且<code>rustc</code>已添加到系统环境变量中（<code>rustup</code>安装时会自动配置，无需手动操作）。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ol>
+<li><code>rustc --version</code> 是查询Rust编译器版本的命令行指令，简写为<code>rustc -V</code>；</li>
+<li><code>rustc</code>是Rust编译器可执行程序，<code>--version</code>是查询版本的选项；</li>
+<li>输出包含rustc主版本号（核心信息）及构建提交哈希、发布日期等元数据。</li>
+</ol>
+<h1 id="rustup-update是什么意思"><a href="#rustup-update是什么意思" class="headerlink" title="rustup update是什么意思"></a>rustup update是什么意思</h1><h3 id="一、rustup-update-核心含义"><a href="#一、rustup-update-核心含义" class="headerlink" title="一、rustup update 核心含义"></a>一、<code>rustup update</code> 核心含义</h3><p>你问的 <code>rustup update</code> 是 Rust 官方工具链管理器 <code>rustup</code> 的核心命令，其核心作用是：<strong>自动检查并将你系统中安装的所有 Rust 相关组件（包括 rustc 编译器、cargo 构建工具、标准库等）更新到最新的稳定版本</strong>。</p>
+<h3 id="二、命令拆解与执行逻辑"><a href="#二、命令拆解与执行逻辑" class="headerlink" title="二、命令拆解与执行逻辑"></a>二、命令拆解与执行逻辑</h3><ol>
+<li><strong><code>rustup</code></strong>：是 Rust 官方提供的工具链管理工具，负责 Rust 版本的安装、更新、切换、卸载等全生命周期管理，是使用 Rust 的标配工具（而非单独的 <code>rustc</code> 仅负责编译）。</li>
+<li><strong><code>update</code></strong>：是 <code>rustup</code> 的子命令，代表“检查并更新”，执行时会完成以下步骤：<ul>
+<li>第一步：联网查询 Rust 官方服务器上的最新稳定版本；</li>
+<li>第二步：对比本地已安装的版本，若本地版本较旧，则自动下载并安装最新版本；</li>
+<li>第三步：更新完成后，将默认使用的 Rust 工具链切换为新更新的版本；</li>
+<li>第四步：输出更新结果（比如哪些组件更新了、新旧版本号对比）。</li>
+</ul>
+</li>
+</ol>
+<h3 id="三、典型执行示例"><a href="#三、典型执行示例" class="headerlink" title="三、典型执行示例"></a>三、典型执行示例</h3><p>在终端执行 <code>rustup update</code> 后，你会看到类似这样的输出：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">info: syncing channel updates <span class="hljs-keyword">for</span> <span class="hljs-string">&#x27;stable-x86_64-apple-darwin&#x27;</span><br>info: latest update on 2024-06-10, rust version 1.79.0 (129f3b996 2024-06-10)<br>info: downloading component <span class="hljs-string">&#x27;cargo&#x27;</span><br>info: downloading component <span class="hljs-string">&#x27;clippy&#x27;</span><br>info: downloading component <span class="hljs-string">&#x27;rust-docs&#x27;</span><br>info: downloading component <span class="hljs-string">&#x27;rust-std&#x27;</span><br>info: downloading component <span class="hljs-string">&#x27;rustc&#x27;</span><br>info: downloading component <span class="hljs-string">&#x27;rustfmt&#x27;</span><br>info: installing component <span class="hljs-string">&#x27;cargo&#x27;</span><br>info: installing component <span class="hljs-string">&#x27;clippy&#x27;</span><br>info: installing component <span class="hljs-string">&#x27;rust-docs&#x27;</span><br>info: installing component <span class="hljs-string">&#x27;rust-std&#x27;</span><br>info: installing component <span class="hljs-string">&#x27;rustc&#x27;</span><br>info: installing component <span class="hljs-string">&#x27;rustfmt&#x27;</span><br>info: default toolchain <span class="hljs-built_in">set</span> to <span class="hljs-string">&#x27;stable-x86_64-apple-darwin&#x27;</span><br><br>  stable-x86_64-apple-darwin updated - rustc 1.79.0 (129f3b996 2024-06-10) (from 1.78.0 (9b00956e5 2024-04-29))<br></code></pre></div></td></tr></table></figure>
+<p>从输出能清晰看到：系统将 Rust 从 1.78.0 版本更新到了 1.79.0 版本，且自动安装了 cargo、rustc 等核心组件。</p>
+<h3 id="四、实用补充"><a href="#四、实用补充" class="headerlink" title="四、实用补充"></a>四、实用补充</h3><ul>
+<li>若只想更新到特定版本（而非稳定版），可指定版本，比如 <code>rustup update nightly</code>（更新到夜间版）、<code>rustup update 1.78.0</code>（更新到指定版本）；</li>
+<li>若更新后想验证是否生效，可执行你之前问的 <code>rustc --version</code>，查看版本号是否已变为最新。</li>
+</ul>
+<h3 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h3><ol>
+<li><code>rustup update</code> 是 Rust 工具链的一键更新命令，会自动下载并安装最新稳定版的 Rust 全套组件；</li>
+<li>它依赖 <code>rustup</code> 工具（而非单独的 <code>rustc</code>），执行后默认切换到新更新的版本；</li>
+<li>可通过指定参数更新到非稳定版，更新后用 <code>rustc --version</code> 验证结果。</li>
+</ol>
+<h1 id="rustup-doc-报错一"><a href="#rustup-doc-报错一" class="headerlink" title="rustup doc 报错一"></a>rustup doc 报错一</h1><figure class="highlight applescript"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs applescript">└─$ rustup doc<br><span class="hljs-keyword">error</span>: rustup could <span class="hljs-keyword">not</span> choose a <span class="hljs-built_in">version</span> <span class="hljs-keyword">of</span> rustup <span class="hljs-keyword">to</span> <span class="hljs-built_in">run</span>, because one wasn&#x27;t specified explicitly, <span class="hljs-keyword">and</span> no default <span class="hljs-keyword">is</span> configured.<br>help: <span class="hljs-built_in">run</span> &#x27;rustup default stable&#x27; <span class="hljs-keyword">to</span> download <span class="hljs-keyword">the</span> latest stable release <span class="hljs-keyword">of</span> Rust <span class="hljs-keyword">and</span> <span class="hljs-keyword">set</span> <span class="hljs-keyword">it</span> <span class="hljs-keyword">as</span> your default toolchain.<br></code></pre></div></td></tr></table></figure>
+
+
+
+<h3 id="一、错误核心含义"><a href="#一、错误核心含义" class="headerlink" title="一、错误核心含义"></a>一、错误核心含义</h3><p>你执行 <code>rustup doc</code> 时遇到的这个错误，本质原因是：<strong>你的系统里虽然安装了 <code>rustup</code> 工具，但还没有配置任何默认的 Rust 工具链（比如 stable&#x2F;nightly 版本），<code>rustup</code> 不知道该用哪个版本的 Rust 来打开文档，因此无法执行 <code>doc</code> 命令</strong>。</p>
+<h3 id="二、解决方案"><a href="#二、解决方案" class="headerlink" title="二、解决方案"></a>二、解决方案</h3><p>这个错误的提示已经给出了关键解决办法，我们一步步来操作，确保能彻底解决问题：</p>
+<h4 id="1-第一步：设置并安装默认稳定版工具链"><a href="#1-第一步：设置并安装默认稳定版工具链" class="headerlink" title="1. 第一步：设置并安装默认稳定版工具链"></a>1. 第一步：设置并安装默认稳定版工具链</h4><p>在终端执行提示里的命令，这会自动下载、安装最新的 Rust 稳定版，并将其设为默认工具链：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">rustup default stable<br></code></pre></div></td></tr></table></figure>
+
+<p><img src="/2026/01/05/2436306733/2.png"></p>
+<p>执行后你会看到类似这样的输出（表示正在下载和安装组件）：</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs pgsql"><span class="hljs-keyword">info</span>: syncing channel updates <span class="hljs-keyword">for</span> <span class="hljs-string">&#x27;stable-x86_64-unknown-linux-gnu&#x27;</span><br><span class="hljs-keyword">info</span>: latest <span class="hljs-keyword">update</span> <span class="hljs-keyword">on</span> <span class="hljs-number">2024</span><span class="hljs-number">-06</span><span class="hljs-number">-10</span>, rust <span class="hljs-keyword">version</span> <span class="hljs-number">1.79</span><span class="hljs-number">.0</span> (<span class="hljs-number">129</span>f3b996 <span class="hljs-number">2024</span><span class="hljs-number">-06</span><span class="hljs-number">-10</span>)<br><span class="hljs-keyword">info</span>: downloading component <span class="hljs-string">&#x27;cargo&#x27;</span><br><span class="hljs-keyword">info</span>: downloading component <span class="hljs-string">&#x27;rust-std&#x27;</span><br><span class="hljs-keyword">info</span>: downloading component <span class="hljs-string">&#x27;rustc&#x27;</span><br><span class="hljs-keyword">info</span>: installing component <span class="hljs-string">&#x27;cargo&#x27;</span><br><span class="hljs-keyword">info</span>: installing component <span class="hljs-string">&#x27;rust-std&#x27;</span><br><span class="hljs-keyword">info</span>: installing component <span class="hljs-string">&#x27;rustc&#x27;</span><br><span class="hljs-keyword">info</span>: <span class="hljs-keyword">default</span> toolchain <span class="hljs-keyword">set</span> <span class="hljs-keyword">to</span> <span class="hljs-string">&#x27;stable-x86_64-unknown-linux-gnu&#x27;</span><br><br>  <span class="hljs-keyword">stable</span>-x86_64-<span class="hljs-type">unknown</span>-linux-gnu installed - rustc <span class="hljs-number">1.79</span><span class="hljs-number">.0</span> (<span class="hljs-number">129</span>f3b996 <span class="hljs-number">2024</span><span class="hljs-number">-06</span><span class="hljs-number">-10</span>)<br></code></pre></div></td></tr></table></figure>
+
+<h4 id="2-第二步：验证工具链是否配置成功"><a href="#2-第二步：验证工具链是否配置成功" class="headerlink" title="2. 第二步：验证工具链是否配置成功"></a>2. 第二步：验证工具链是否配置成功</h4><p>执行以下命令，确认默认工具链已生效：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">rustup show<br></code></pre></div></td></tr></table></figure>
+
+<p><img src="/2026/01/05/2436306733/3.png"></p>
+<p>正常输出会包含 <code>default toolchain: stable-x86_64-unknown-linux-gnu (default)</code>，说明配置成功。</p>
+<h4 id="3-第三步：重新执行-rustup-doc-打开文档"><a href="#3-第三步：重新执行-rustup-doc-打开文档" class="headerlink" title="3. 第三步：重新执行 rustup doc 打开文档"></a>3. 第三步：重新执行 <code>rustup doc</code> 打开文档</h4><p>现在再执行你原本想运行的命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">rustup doc<br></code></pre></div></td></tr></table></figure>
+<p>这个命令会自动在你的默认浏览器中打开 Rust 的官方离线文档（包含 <code>rustc</code>、<code>cargo</code>、标准库等所有核心文档），方便你离线查阅。</p>
+<h3 id="三、补充说明"><a href="#三、补充说明" class="headerlink" title="三、补充说明"></a>三、补充说明</h3><ul>
+<li><code>rustup doc</code> 还有实用的子命令：比如 <code>rustup doc std</code> 可直接打开标准库文档，<code>rustup doc cargo</code> 直接打开 cargo 工具文档，<code>rustup doc book</code> 直接打开 Rust 官方书籍《The Rust Programming Language》；</li>
+<li>若安装过程中遇到网络慢的问题，可配置 Rust 镜像源（比如清华大学镜像），能大幅提升下载速度。</li>
+</ul>
+<h3 id="总结-2"><a href="#总结-2" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>错误根源是<strong>未配置默认 Rust 工具链</strong>，<code>rustup</code> 无法确定执行 <code>doc</code> 命令的版本；</li>
+<li>核心解决步骤：先执行 <code>rustup default stable</code> 安装并设置默认稳定版，再执行 <code>rustup doc</code> 即可正常打开文档；</li>
+<li><code>rustup doc</code> 是查阅 Rust 离线文档的便捷命令，可通过子命令快速定位到特定文档。</li>
+</ol>
+<h1 id="rustup-doc-报错二"><a href="#rustup-doc-报错二" class="headerlink" title="rustup doc 报错二"></a>rustup doc 报错二</h1><figure class="highlight pgsql"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs pgsql">└─# rustup doc<br><span class="hljs-keyword">info</span>: `rust-docs` <span class="hljs-keyword">not</span> installed <span class="hljs-keyword">in</span> toolchain `<span class="hljs-keyword">stable</span>-x86_64-<span class="hljs-type">unknown</span>-linux-gnu`<br><span class="hljs-keyword">info</span>: <span class="hljs-keyword">To</span> install, try `rustup component <span class="hljs-keyword">add</span> <span class="hljs-comment">--toolchain stable-x86_64-unknown-linux-gnu rust-docs`</span><br>error: unable <span class="hljs-keyword">to</span> <span class="hljs-keyword">view</span> documentation which <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> installed<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="一、错误核心含义-1"><a href="#一、错误核心含义-1" class="headerlink" title="一、错误核心含义"></a>一、错误核心含义</h3><p>你这次执行 <code>rustup doc</code> 遇到的新错误，原因很明确：<strong>你的默认 Rust 稳定版工具链（stable-x86_64-unknown-linux-gnu）中，没有安装 <code>rust-docs</code> 这个组件</strong>，而 <code>rustup doc</code> 正是依赖这个组件来打开离线文档的，因此无法执行该命令。</p>
+<h3 id="二、解决方案-1"><a href="#二、解决方案-1" class="headerlink" title="二、解决方案"></a>二、解决方案</h3><p>错误提示里已经给出了安装指令，我们只需按步骤执行即可解决问题：</p>
+<h4 id="1-第一步：安装-rust-docs-组件"><a href="#1-第一步：安装-rust-docs-组件" class="headerlink" title="1. 第一步：安装 rust-docs 组件"></a>1. 第一步：安装 <code>rust-docs</code> 组件</h4><p>在终端执行提示中的安装命令（也可以用简化版，效果完全一致）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 完整命令（和提示一致）</span><br>rustup component add --toolchain stable-x86_64-unknown-linux-gnu rust-docs<br><br><span class="hljs-comment"># 简化版（因为已经设置了默认工具链，可省略 --toolchain 参数）</span><br>rustup component add rust-docs<br></code></pre></div></td></tr></table></figure>
+<p>执行后会看到类似如下的输出，代表正在下载并安装文档组件：</p>
+<figure class="highlight apache"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs apache"><span class="hljs-attribute">info</span>: downloading component &#x27;rust-docs&#x27;<br> <span class="hljs-attribute">187</span>.<span class="hljs-number">2</span> MiB / <span class="hljs-number">187</span>.<span class="hljs-number">2</span> MiB (<span class="hljs-number">100</span> %)   <span class="hljs-number">8</span>.<span class="hljs-number">3</span> MiB/s in <span class="hljs-number">22</span>s ETA: <span class="hljs-number">0</span>s<br><span class="hljs-attribute">info</span>: installing component &#x27;rust-docs&#x27;<br></code></pre></div></td></tr></table></figure>
+
+<p><img src="/2026/01/05/2436306733/4.png"></p>
+<h4 id="2-第二步：重新执行-rustup-doc-打开文档"><a href="#2-第二步：重新执行-rustup-doc-打开文档" class="headerlink" title="2. 第二步：重新执行 rustup doc 打开文档"></a>2. 第二步：重新执行 <code>rustup doc</code> 打开文档</h4><p>安装完成后，再次执行你想要的命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">rustup doc<br></code></pre></div></td></tr></table></figure>
+<p>此时系统会自动启动默认浏览器，并打开 Rust 官方的离线文档主页，包含 Rust 语言、标准库、Cargo 等所有核心文档内容。</p>
+<h3 id="三、补充说明-1"><a href="#三、补充说明-1" class="headerlink" title="三、补充说明"></a>三、补充说明</h3><ul>
+<li><code>rust-docs</code> 是 Rust 的离线文档组件，体积约 200MB 左右，安装后无需联网即可查阅所有官方文档，比在线文档更便捷；</li>
+<li>若安装过程中网速慢，可临时配置 Rust 镜像源（以清华镜像为例），执行以下命令后再安装：<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">export</span> RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup<br></code></pre></div></td></tr></table></figure></li>
+<li>除了 <code>rust-docs</code>，Rust 还有其他常用组件（如代码格式化工具 <code>rustfmt</code>、静态检查工具 <code>clippy</code>），若需要可通过 <code>rustup component add rustfmt/clippy</code> 安装。</li>
+</ul>
+<h3 id="总结-3"><a href="#总结-3" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>错误根源是<strong>默认工具链缺少 <code>rust-docs</code> 文档组件</strong>，导致 <code>rustup doc</code> 无法调用离线文档；</li>
+<li>核心解决步骤：先执行 <code>rustup component add rust-docs</code> 安装文档组件，再执行 <code>rustup doc</code> 即可正常打开文档；</li>
+<li><code>rust-docs</code> 是离线文档组件，安装后无需联网即可查阅 Rust 全套官方文档。</li>
+</ol>
+<h1 id="rustup-doc-报错三"><a href="#rustup-doc-报错三" class="headerlink" title="rustup doc 报错三"></a>rustup doc 报错三</h1><p>输入rustup doc，kali linux的火狐浏览器显示access to the file was denied，我猜测是root权限不能访问html文件</p>
+<hr>
+<h3 id="核心矛盾"><a href="#核心矛盾" class="headerlink" title="核心矛盾"></a>核心矛盾</h3><p>Kali Linux 中的 Firefox 拥有 <strong>AppArmor（强制访问控制）</strong> 保护。即便你用 root 身份启动浏览器，Firefox 的渲染进程（Sandbox）依然被禁止跨入 <code>/root</code> 目录。软链接只是一个“快捷方式”，浏览器沿着快捷方式走到 <code>/root</code> 门口时，被系统内核直接拦住了。</p>
+<hr>
+<p>我们直接采用 <strong>物理隔离（复制）</strong> 或 <strong>服务化（HTTP）</strong>。</p>
+<h4 id="方法-A：物理复制（最快）"><a href="#方法-A：物理复制（最快）" class="headerlink" title="方法 A：物理复制（最快）"></a>方法 A：物理复制（最快）</h4><p>直接把文件搬离 <code>/root</code>。</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 1. 将整个文件夹物理复制到 /tmp（这样文件所属权就变了，且不再依赖 /root）</span><br><span class="hljs-built_in">cp</span> -r /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/share/doc/rust/html /tmp/rust-docs<br><br><span class="hljs-comment"># 2. 赋予公共读取权限</span><br><span class="hljs-built_in">chmod</span> -R 755 /tmp/rust-docs<br><br></code></pre></div></td></tr></table></figure>
+
+<p><strong>现在访问：</strong> <code>file:///tmp/rust-docs/index.html</code>。这次一定能打开，因为文件已经物理存在于 <code>/tmp</code> 空间。</p>
+<hr>
+<h4 id="方法-B：使用-Python-瞬间起一个-Web-Server（最优雅）"><a href="#方法-B：使用-Python-瞬间起一个-Web-Server（最优雅）" class="headerlink" title="方法 B：使用 Python 瞬间起一个 Web Server（最优雅）"></a>方法 B：使用 Python 瞬间起一个 Web Server（最优雅）</h4><p>作为未来的安全审计公司创始人，你应该更习惯于通过“服务”而不是“文件”来解决问题。这能完美绕过所有文件系统的协议限制。</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 进入文档目录</span><br><span class="hljs-built_in">cd</span> /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/share/doc/rust/html<br><br><span class="hljs-comment"># 启动 Python 简易服务器</span><br>python3 -m http.server 8082<br><br></code></pre></div></td></tr></table></figure>
+
+<p><strong>现在访问：</strong> <code>http://127.0.0.1:8082</code></p>
+<p><img src="/2026/01/05/2436306733/5.png"></p>
+<hr>
+<h3 id="为什么你之前的预判是准的？"><a href="#为什么你之前的预判是准的？" class="headerlink" title="为什么你之前的预判是准的？"></a>为什么你之前的预判是准的？</h3><p>你之前提到“破除对权威的迷信”，在 Linux 系统里，<strong>Root 并不代表绝对的通行证</strong>。现代安全系统（如 Kali 默认开启的 AppArmor）通过“最小权限原则”限制了 GUI 软件。</p>
+<p>这就是典型的：<strong>你以为你有最高权限，但你调用的工具（Firefox）被关在笼子里。</strong></p>
+<p><strong>建议：</strong><br>如果你打算长期在 Kali 下学习 Rust，建议把 <strong>方法 B</strong> 写成一个 Alias。你想让我帮你写一个能自动寻找路径并开启 8080 端口的 <code>rust-doc-server</code> 命令吗？</p>
+<h1 id="一键开启rust文档"><a href="#一键开启rust文档" class="headerlink" title="一键开启rust文档"></a>一键开启rust文档</h1><p>既然我们要追求效率，并彻底解决 Kali 下浏览器对 <code>/root</code> 目录的物理隔离问题，最稳健的逻辑就是通过 <strong>Python 启动一个本地 Web Server</strong>。</p>
+<p>这样你不仅能看 Rust 标准库文档，连 <code>cargo doc</code> 生成的项目文档也能一并解决。</p>
+<h3 id="1-编写-Alias"><a href="#1-编写-Alias" class="headerlink" title="1. 编写 Alias"></a>1. 编写 Alias</h3><p>将以下代码添加到你的 <code>~/.zshrc</code>（Kali 默认使用 Zsh）或 <code>~/.bashrc</code> 文件末尾：</p>
+<p>Rust 本地文档服务器：自动寻找路径并启动 HTTP 服务</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">alias</span> rdoc=<span class="hljs-string">&#x27;(cd $(rustup doc --path | xargs dirname) &amp;&amp; echo &quot;Rust docs serving at http://localhost:8082&quot; &amp;&amp; python3 -m http.server 8082)&#x27;</span><br></code></pre></div></td></tr></table></figure>
+
+
+<h3 id="2-使配置生效"><a href="#2-使配置生效" class="headerlink" title="2. 使配置生效"></a>2. 使配置生效</h3><p>在终端执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">source</span> ~/.zshrc<br><br></code></pre></div></td></tr></table></figure>
+
+<h3 id="3-如何使用"><a href="#3-如何使用" class="headerlink" title="3. 如何使用"></a>3. 如何使用</h3><p>以后你只需要输入一个单词：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">rdoc<br><br></code></pre></div></td></tr></table></figure>
+
+<p>然后按住 <strong>Ctrl 并点击</strong> 终端里显示的 <code>http://localhost:8080</code> 链接，或者直接在浏览器输入该地址即可。</p>
+<hr>
+<h3 id="为什么这个-Alias-是“正确选项”？"><a href="#为什么这个-Alias-是“正确选项”？" class="headerlink" title="为什么这个 Alias 是“正确选项”？"></a>为什么这个 Alias 是“正确选项”？</h3><ol>
+<li><strong>权限脱钩</strong>：通过 HTTP 协议传输数据，Firefox 认为它在访问网络，从而绕过了 AppArmor 对 <code>/root</code> 文件夹的物理路径限制。</li>
+<li><strong>即用即走</strong>：当你不想看了，在终端按 <code>Ctrl + C</code> 就能关闭服务，不会像 <code>cp</code> 命令那样在 <code>/tmp</code> 留下几百 MB 的垃圾文件。</li>
+<li><strong>多功能扩展</strong>：如果你以后想看自己写的项目的文档（通过 <code>cargo doc</code>），你只需要进入项目的 <code>target/doc</code> 目录运行 <code>python3 -m http.server</code> 即可。</li>
+</ol>
+<h3 id="进阶小技巧"><a href="#进阶小技巧" class="headerlink" title="进阶小技巧"></a>进阶小技巧</h3><p>如果你希望输入 <code>rdoc</code> 后<strong>自动打开</strong>浏览器，可以把 alias 改成这样：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">alias</span> rdoc=<span class="hljs-string">&#x27;(cd $(rustup doc --path | xargs dirname) &amp;&amp; echo &quot;Opening Rust docs...&quot; &amp;&amp; (python3 -m http.server 8080 &amp;) &amp;&amp; sleep 1 &amp;&amp; firefox http://localhost:8080)&#x27;</span><br><br></code></pre></div></td></tr></table></figure>
+
+<p><em>(注：这种方式会在后台运行 Python，关闭时可能需要手动 kill 进程，不如前一种简洁直观。)</em></p>
+<p><strong>你现在的 Rust 学习进度到哪里了？如果是刚开始看文档，我可以顺便推荐几个在 Kali 下配置 Rust 审计环境的必备 Cargo 工具。</strong></p>
+<h1 id="推荐几个在-Kali-下配置-Rust-审计环境的必备-Cargo-工具"><a href="#推荐几个在-Kali-下配置-Rust-审计环境的必备-Cargo-工具" class="headerlink" title="推荐几个在 Kali 下配置 Rust 审计环境的必备 Cargo 工具"></a>推荐几个在 Kali 下配置 Rust 审计环境的必备 Cargo 工具</h1><p>在 Kali Linux 下进行 Rust 审计，意味着你不仅在关注代码的<strong>逻辑安全性</strong>，还在关注<strong>供应链安全</strong>和<strong>二进制安全性</strong>。</p>
+<p>既然你已经通过 <code>rdoc</code> 解决了文档访问权限问题，为了构建一个高效的审计环境，我建议你安装以下几款“重型”或“精准”的 Cargo 工具。这些工具能够帮你从依赖项、代码质量和深层逻辑三个维度排除错误选项。</p>
+<hr>
+<h3 id="1-供应链安全：cargo-audit"><a href="#1-供应链安全：cargo-audit" class="headerlink" title="1. 供应链安全：cargo-audit"></a>1. 供应链安全：<code>cargo-audit</code></h3><p>这是审计的第一步：检查你的项目是否使用了已知存在漏洞的依赖库。</p>
+<ul>
+<li><strong>功能</strong>：自动扫描 <code>Cargo.lock</code> 文件，并比对 <a target="_blank" rel="noopener" href="https://rustsec.org/">RustSec</a> 咨询数据库。</li>
+<li><strong>安装</strong>：<code>cargo install cargo-audit</code></li>
+<li><strong>使用</strong>：在项目根目录运行 <code>cargo audit</code>。</li>
+<li><strong>审计视角</strong>：在开始手动读代码前，先排除那些由于第三方库带进来的“已知错误”。</li>
+</ul>
+<h3 id="2-二进制审计增强：cargo-auditable"><a href="#2-二进制审计增强：cargo-auditable" class="headerlink" title="2. 二进制审计增强：cargo-auditable"></a>2. 二进制审计增强：<code>cargo-auditable</code></h3><p>这是针对生产环境二进制文件的审计神器。</p>
+<ul>
+<li><strong>功能</strong>：在编译时将依赖树元数据嵌入到 ELF 二进制文件中。</li>
+<li><strong>意义</strong>：通常 Rust 编译后的二进制文件很难回溯依赖版本，该工具让 <code>cargo audit bin &lt;FILE&gt;</code> 成为可能，即便你没有源代码也能审计该程序。</li>
+<li><strong>安装</strong>：<code>cargo install cargo-auditable</code></li>
+</ul>
+<h3 id="3-代码质量与模式审计：clippy"><a href="#3-代码质量与模式审计：clippy" class="headerlink" title="3. 代码质量与模式审计：clippy"></a>3. 代码质量与模式审计：<code>clippy</code></h3><p>虽然它是官方工具，但在审计中它是发现“不安全坏味道”的第一现场。</p>
+<ul>
+<li><strong>审计用法</strong>：使用 <code>cargo clippy -- -W clippy::pedantic</code>。</li>
+<li><strong>审计视角</strong>：它能识别出非成俗的代码写法，这些地方往往是逻辑漏洞（如整数溢出、未处理的 Result 等）的藏身之处。</li>
+</ul>
+<h3 id="4-深度静态分析：rudra"><a href="#4-深度静态分析：rudra" class="headerlink" title="4. 深度静态分析：rudra"></a>4. 深度静态分析：<code>rudra</code></h3><p>这是一个专门用于查找 Rust 内存安全问题的静态分析工具。</p>
+<ul>
+<li><strong>功能</strong>：专注于扫描 <strong>Unsafe Rust</strong> 中的潜在漏洞，比如 <code>Send/Sync</code> 实现不当导致的 Race Condition。</li>
+<li><strong>地位</strong>：它曾扫描整个 <code>crates.io</code> 并发现了数百个 CVE。</li>
+<li><strong>使用建议</strong>：当你在审计涉及大量底层操作（如 Web3 合约、驱动程序）的项目时，这是必备项。</li>
+</ul>
+<h3 id="5-模糊测试：cargo-fuzz"><a href="#5-模糊测试：cargo-fuzz" class="headerlink" title="5. 模糊测试：cargo-fuzz"></a>5. 模糊测试：<code>cargo-fuzz</code></h3><p>对于逻辑极其复杂的函数（尤其是解析器、协议栈），手动审计很难穷尽边界条件。</p>
+<ul>
+<li><strong>功能</strong>：基于 LLVM 的 <code>libFuzzer</code>，自动生成海量输入来尝试让程序崩溃（Panic）。</li>
+<li><strong>安装</strong>：<code>cargo install cargo-fuzz</code></li>
+<li><strong>使用逻辑</strong>：如果你不确定某个函数是否安全，就让它“跑一万遍错误选项”，看它是否还活着。</li>
+</ul>
+<hr>
+<h3 id="总结建议工具表"><a href="#总结建议工具表" class="headerlink" title="总结建议工具表"></a>总结建议工具表</h3><table>
+<thead>
+<tr>
+<th>工具</th>
+<th>审计维度</th>
+<th>推荐理由</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>cargo-audit</strong></td>
+<td>供应链安全</td>
+<td>快速排除已知的 CVE 依赖漏洞</td>
+</tr>
+<tr>
+<td><strong>cargo-deny</strong></td>
+<td>策略控制</td>
+<td>限制特定许可证（License）或有风险的源</td>
+</tr>
+<tr>
+<td><strong>cargo-expand</strong></td>
+<td>宏审计</td>
+<td>看到宏展开后的真实代码（防止宏内藏毒）</td>
+</tr>
+<tr>
+<td><strong>cargo-fuzz</strong></td>
+<td>动态审计</td>
+<td>通过自动化输入探测崩溃点</td>
+</tr>
+</tbody></table>
+<h3 id="下一步：将审计流程自动化"><a href="#下一步：将审计流程自动化" class="headerlink" title="下一步：将审计流程自动化"></a>下一步：将审计流程自动化</h3><p>既然你在 Kali 下工作，可以考虑把这些工具组合成一个简单的 shell 脚本。你想让我帮你写一个名为 <code>rust-scan</code> 的脚本吗？它可以一键运行 <code>audit</code>、<code>clippy</code> 和权限检查，帮你快速对一个陌生项目进行初步的安全评估。</p>
+<p><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=2MZY7sgKzjM">Rust Project Security Auditing Workflow</a></p>
+<p>这视频展示了 2025 年及以后 Kali Linux 中最先进的安全工具趋势，虽然涵盖了更广的网络安全范畴，但其中关于漏洞扫描和自动化分析的逻辑，与我们在 Rust 审计中追求的“排除错误选项”思路不谋而合。</p>
+<h1 id="官方的-Rust-Playground"><a href="#官方的-Rust-Playground" class="headerlink" title="官方的 Rust Playground"></a>官方的 Rust Playground</h1><p><a target="_blank" rel="noopener" href="https://play.rust-lang.org/?version=stable&mode=debug&edition=2024">https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2024</a> 这个网站可以编译运行rust语言</p>
+<hr>
+<p>这个网站就是官方的 <strong>Rust Playground</strong>。正如你所说，它是学习和快速验证 Rust 代码最方便的工具。</p>
+<p>结合你在 Kali Linux 下配置环境的经历，这个网站在你的“预判逻辑”中可以作为以下几个用途：</p>
+<h3 id="1-跨平台验证的“控制变量”"><a href="#1-跨平台验证的“控制变量”" class="headerlink" title="1. 跨平台验证的“控制变量”"></a>1. 跨平台验证的“控制变量”</h3><p>当你怀疑某个错误（比如你刚遇到的权限问题）是 Kali 系统环境导致，还是 Rust 代码逻辑本身的问题时，你可以把代码直接粘贴到 Playground 运行：</p>
+<ul>
+<li><strong>如果在 Playground 成功，本地失败</strong>  说明是本地环境权限或配置问题（验证了你对 Kali 权限限制的猜想）。</li>
+<li><strong>如果 Playground 也失败</strong>  说明是代码逻辑错误。</li>
+</ul>
+<h3 id="2-预研-2024-Edition-新特性"><a href="#2-预研-2024-Edition-新特性" class="headerlink" title="2. 预研 2024 Edition 新特性"></a>2. 预研 2024 Edition 新特性</h3><p>你给出的 URL 中 <code>edition=2024</code> 是 Rust 的最新版本（目前处于稳定化阶段）。</p>
+<ul>
+<li>2024 Edition 引入了许多关于 <strong>异步（Async）</strong> 和 <strong>解耦（Gen blocks）</strong> 的改进。</li>
+<li>作为写书和做审计的人，你可以直接在这里测试最新的语法特性，而无需在本地频繁更新多个 Toolchains。</li>
+</ul>
+<h3 id="3-分享与协作"><a href="#3-分享与协作" class="headerlink" title="3. 分享与协作"></a>3. 分享与协作</h3><p>你在写书或记录复盘笔记时，如果想展示一段代码的运行结果，点击 Playground 页面上的 <strong>“Share”</strong> 按钮，会生成一个永久链接。这比发截图或代码片段更具有“可验证性”，非常符合你“相信逻辑、排除错误”的风格。</p>
+<h3 id="提醒：Playground-的局限性"><a href="#提醒：Playground-的局限性" class="headerlink" title="提醒：Playground 的局限性"></a>提醒：Playground 的局限性</h3><p>虽然它很强大，但对于你关注的“审计”和“复杂项目”来说，它有两个短板：</p>
+<ul>
+<li><strong>无法安装任意第三方库</strong>：它只支持排名前 100 左右的热门 Crate。</li>
+<li><strong>无法模拟系统底层操作</strong>：因为它运行在受限的沙盒环境中，你无法测试涉及 Kali 特有的网络协议栈或文件系统权限的代码。</li>
+</ul>
+<p><strong>既然你在用最新的 2024 Edition，是在研究什么新的语法特性吗？如果有具体的代码逻辑想验证，也可以发给我，我陪你一起“复盘”它的运行逻辑。</strong></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Web3/">Web3</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/01/05/1243294354.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">2026年我读过的书</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/01/04/1593365171.html">
+                        <span class="hidden-mobile">从土耳其的通胀，看 DeFi 的“封装”与我的三十年长征</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>

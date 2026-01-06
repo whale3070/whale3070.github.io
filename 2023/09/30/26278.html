@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -317,7 +332,7 @@
 <h2 id="一个初学-COBOL-程序员必须了解哪些内容才能成为经验丰富的-COBOL-程序员？"><a href="#一个初学-COBOL-程序员必须了解哪些内容才能成为经验丰富的-COBOL-程序员？" class="headerlink" title="一个初学 COBOL 程序员必须了解哪些内容才能成为经验丰富的 COBOL 程序员？"></a>一个初学 COBOL 程序员必须了解哪些内容才能成为经验丰富的 COBOL 程序员？</h2><p>本节旨在为读者提供必要的基础知识，以便理解后续部分提出的问题和答案。</p>
 <h3 id="编码规则和参考格式是什么？"><a href="#编码规则和参考格式是什么？" class="headerlink" title="编码规则和参考格式是什么？"></a>编码规则和参考格式是什么？</h3><p>COBOL 源代码遵循一种基于列的结构，这意味着特定的列具有明确定义的用途，并且必须严格遵守规则。每行 COBOL 源代码都包含五个区域，每个区域都有起始列和结束列。</p>
 <p>COBOL 源文本必须按照 COBOL 参考格式编写。参考格式包含图 1 中显示的各个区域，位于 72 个字符的行内。</p>
-<p><img src="/2023/09/30/26278/image033.jpg" srcset="/img/loading.gif"><br><em>图 1. COBOL 参考格式</em></p>
+<p><img src="/2023/09/30/26278/image033.jpg"><br><em>图 1. COBOL 参考格式</em></p>
 <p>COBOL 参考格式的格式如下：</p>
 <h4 id="序号区域（列-1-6）"><a href="#序号区域（列-1-6）" class="headerlink" title="序号区域（列 1 - 6）"></a>序号区域（列 1 - 6）</h4><ul>
 <li>空白或保留用于行序号。</li>
@@ -398,7 +413,7 @@
 <h3 id="什么是作用域终止符的含义？"><a href="#什么是作用域终止符的含义？" class="headerlink" title="什么是作用域终止符的含义？"></a>什么是作用域终止符的含义？</h3><p>作用域终止符可以是显式的或隐式的。显式的作用域终止符使用带有 “END-“ COBOL 保留字的某些 PROCEDURE DIVISION 语句的结束标记。任何总是有条件的 COBOL 动词（IF、EVALUATE）或具有条件子句（COMPUTE、PERFORM、READ）都将具有匹配的作用域终止符。隐式的作用域终止符是句点（.），它结束了所有尚未结束的先前语句的作用域。</p>
 <h3 id="什么是-COBOL-句子？"><a href="#什么是-COBOL-句子？" class="headerlink" title="什么是 COBOL 句子？"></a>什么是 COBOL 句子？</h3><p>COBOL 中的 “句子” 是一个或多个 “语句”，后面跟有一个句点（.），句点充当作用域终止符。</p>
 <h3 id="什么是-COBOL-段落？"><a href="#什么是-COBOL-段落？" class="headerlink" title="什么是 COBOL 段落？"></a>什么是 COBOL 段落？</h3><p>COBOL 中的 “段落” 是一个用户定义或预定义的名称，后面跟有一个句点。一个 “段落” 由零个或多个句子组成，是 “Section” 或 “Division” 的子部分，参见下面的示例 1。</p>
-<p><img src="/2023/09/30/26278/image003.png" srcset="/img/loading.gif" alt="Example 1. Division -&gt; paragraph -&gt; sentences"></p>
+<p><img src="/2023/09/30/26278/image003.png" alt="Example 1. Division -&gt; paragraph -&gt; sentences"></p>
 <p><em>示例 1. Division -&gt; paragraph -&gt; sentences</em></p>
 <h3 id="什么是-COBOL-部分？"><a href="#什么是-COBOL-部分？" class="headerlink" title="什么是 COBOL 部分？"></a>什么是 COBOL 部分？</h3><p>一个 “Section” 是一个用户定义或预定义的名称，后面跟有一个句点，由零个或多个句子组成。一个 “Section” 是段落的集合。</p>
 <h3 id="如何在-z-OS-上运行-COBOL-程序？"><a href="#如何在-z-OS-上运行-COBOL-程序？" class="headerlink" title="如何在 z&#x2F;OS 上运行 COBOL 程序？"></a>如何在 z&#x2F;OS 上运行 COBOL 程序？</h3><p>当您在 z&#x2F;OS 上处理 COBOL 时，您将会遇到 JCL 或作业控制语言。JCL 是一组告诉 z&#x2F;OS 操作系统要执行的任务的语句。</p>
@@ -489,7 +504,7 @@
 </ol>
 </li>
 </ol>
-<p><img src="/2023/09/30/26278/image044.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/26278/image044.png"></p>
 <p><em>图 2a. IBM Z Open Editor 和 Zowe Explorer 的 VS Code 扩展</em></p>
 <p>如果您安装了 Code4z，则列表应包括以下内容：</p>
 <ol>
@@ -503,108 +518,108 @@
 <li>Mainframe 数据编辑器</li>
 </ol>
 <p>在这些练习中，您只需要使用 COBOL 语言支持和 Zowe Explorer 扩展。</p>
-<p>   <img src="/2023/09/30/26278/image044b.png" srcset="/img/loading.gif"></p>
+<p>   <img src="/2023/09/30/26278/image044b.png"></p>
 <p><em>图 2b. VS Code 扩展的 Code4z 套件。</em></p>
 <p><strong>注意：</strong> 如果您的列表同时包含 Z Open Editor 和 COBOL 语言支持，请禁用其中一个，方法是点击扩展列表中扩展旁边的 <strong>齿轮</strong> 图标，然后选择 <strong>禁用</strong>。</p>
 <ol start="2">
 <li><p>点击如图 3 所示的 Zowe Explorer 图标。Zowe Explorer 可以列出数据集、Unix 系统服务 (USS) 文件和作业输出。</p>
-<p><img src="/2023/09/30/26278/image046.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/26278/image046.png"></p>
 </li>
 </ol>
 <p><em>图 3. Zowe Explorer 图标</em></p>
 <ol start="3">
 <li><p>为了连接到实验系统，请获取您的团队配置 zip 文件并解压缩它。您可以从<a target="_blank" rel="noopener" href="https://github.com/openmainframeproject/cobol-programming-course/releases/latest">课程的 GitHub 存储库的“Releases”部分</a>获取团队配置 zip 文件。</p>
-<p> <img src="/2023/09/30/26278/image0001.png" srcset="/img/loading.gif"></p>
+<p> <img src="/2023/09/30/26278/image0001.png"></p>
 <p> <em>图 4. 解压 ZIP 文件</em></p>
 </li>
 <li><p>打开已提取的文件夹。您将找到两个配置文件，如图 5 所示。</p>
-<p> <img src="/2023/09/30/26278/image0002.png" srcset="/img/loading.gif"></p>
+<p> <img src="/2023/09/30/26278/image0002.png"></p>
 <p> <em>图 5. 团队配置文件内部</em></p>
 </li>
 <li><p>现在回到您的 VS Code 窗口，选择“Explorer”选项卡，然后按左侧栏中的“打开文件夹”按钮。</p>
-<p> <img src="/2023/09/30/26278/vscode-add-folder.png" srcset="/img/loading.gif"></p>
+<p> <img src="/2023/09/30/26278/vscode-add-folder.png"></p>
 <p> <em>图 6. 单击打开文件夹按钮</em></p>
 </li>
 <li><p>弹出窗口会显示出来，请选择包含团队配置文件的文件夹。</p>
-<p> <img src="/2023/09/30/26278/image0003.png" srcset="/img/loading.gif"></p>
+<p> <img src="/2023/09/30/26278/image0003.png"></p>
 <p> <em>图 7a. 选择团队配置文件夹</em></p>
 <p> 如果提示信任文件夹中的文件的作者如图 7b 所示，请选择 <strong>是，我信任作者</strong>。</p>
-<p> <img src="/2023/09/30/26278/image0008.png" srcset="/img/loading.gif"></p>
+<p> <img src="/2023/09/30/26278/image0008.png"></p>
 <p> <em>图 7b. 信任文件夹中的文件的作者</em></p>
 </li>
 <li><p>您的连接应该会自动添加到数据集列表中，如图 8a 所示。</p>
-<p> <img src="/2023/09/30/26278/image0004.png" srcset="/img/loading.gif"></p>
+<p> <img src="/2023/09/30/26278/image0004.png"></p>
 <p> <em>图 8a. LearnCOBOL 连接</em></p>
 <p> 如果连接未显示，请将鼠标悬停在“Data Sets”行的最右边，然后按 + 图标。然后，如图 8b 所示，选择 <strong>LearnCOBOL</strong> 连接。</p>
-<p> <img src="/2023/09/30/26278/image0005.png" srcset="/img/loading.gif"></p>
+<p> <img src="/2023/09/30/26278/image0005.png"></p>
 <p> <em>图 8b. 手动添加 LearnCOBOL 连接</em></p>
 </li>
 <li><p>单击 LearnCOBOL 连接。</p>
-<p> <img src="/2023/09/30/26278/image0007.png" srcset="/img/loading.gif"></p>
+<p> <img src="/2023/09/30/26278/image0007.png"></p>
 <p> <em>图 9. 单击 LearnCOBOL 连接</em></p>
 </li>
 <li><p>连接会提示输入用户名，如图 10 所示。</p>
-<p> <img src="/2023/09/30/26278/image061.png" srcset="/img/loading.gif"></p>
+<p> <img src="/2023/09/30/26278/image061.png"></p>
 <p> <em>图 10. 用户名提示</em></p>
 </li>
 <li><p><strong>请输入分配给您的用户名！请勿使用示例用户名 Z99998。</strong> 如图 11 所示，输入示例用户名。ID 由系统管理员分配。</p>
-<p><img src="/2023/09/30/26278/image064.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/26278/image064.png"></p>
 <p><em>图 11. 指定用户名</em></p>
 </li>
 <li><p>连接会提示输入密码，如图 12 所示。</p>
-<p><img src="/2023/09/30/26278/image067.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/26278/image067.png"></p>
 <p><em>图 12. 密码提示</em></p>
 </li>
 <li><p>如图 13 所示，输入分配给您的密码。</p>
-<p><img src="/2023/09/30/26278/image070.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/26278/image070.png"></p>
 <p><em>图 13. 指定密码</em></p>
 </li>
 <li><p>展开 LearnCOBOL，显示“使用搜索按钮显示数据集”。单击放大镜图标，如图 14 所示。</p>
-<p><img src="/2023/09/30/26278/image084.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/26278/image084.png"></p>
 <p><em>图 14. 放大镜图标以设置筛选器</em></p>
 </li>
 <li><p>出现“搜索数据集”的提示，如图 15 所示。</p>
-<p><img src="/2023/09/30/26278/image086.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/26278/image086.png"></p>
 <p><em>图 15. 要搜索的筛选器名称</em></p>
 </li>
 <li><p>每个用户的高级限定符与其用户名相同。因此，请将您分配的用户名作为搜索条件，如图 16 所示。<strong>请提供分配给您的用户名！请勿使用示例用户名 Z99998。</strong></p>
-<p><img src="/2023/09/30/26278/image088.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/26278/image088.png"></p>
 <p><em>图 16. 输入的筛选器名称</em></p>
 </li>
 <li><p>出现以您的用户名开头的数据集名称列表，如图 17 所示。</p>
-<p><img src="/2023/09/30/26278/image090.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/26278/image090.png"></p>
 <p><em>图 17. 过滤后的数据集名称</em></p>
 </li>
 <li><p>展开 <strong><code>&lt;用户名&gt;.CBL</code></strong> 以查看 COBOL 源成员，然后选择成员 <strong>HELLO</strong>，以查看一个简单的 COBOL “Hello World！”程序，如图 18 所示。</p>
-<p><img src="/2023/09/30/26278/image093.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/26278/image093.png"></p>
 <p><em>图 18. <code>&lt;用户名&gt;.CBL</code></em></p>
 </li>
 <li><p>展开 <strong><code>&lt;用户名&gt;.JCL</code></strong> 以查看 JCL 成员，然后选择成员 HELLO，该成员是用于编译和执行简单的 “Hello World！” COBOL 源代码的 JCL，如图 19 所示。</p>
-<p><img src="/2023/09/30/26278/image095.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/26278/image095.png"></p>
 <p><em>图 19. <code>&lt;用户名&gt;.JCL</code></em></p>
 </li>
 <li><p>右键单击 JCL 成员 <strong>HELLO</strong>。会出现一个选项框。选择 <strong>Submit Job</strong>，系统将处理 HELLO JCL，如图 20 所示。提交的 JCL 作业会编译 COBOL HELLO 源代码，然后执行 COBOL HELLO 程序。</p>
-<p><img src="/2023/09/30/26278/image097.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/26278/image097.png"></p>
 <p><em>图 20. 提交作业</em></p>
 </li>
 <li><p>观察 Zowe Explorer 中的 ‘Jobs’ 部分，如图 21 所示。</p>
-<p><img src="/2023/09/30/26278/image098.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/26278/image098.png"></p>
 <p><em>图 21. JOBS 部分</em></p>
 </li>
 <li><p>再次单击 Jobs 选择右侧的 +。会出现另一个提示 “Create new”。从列表中选择 <strong>LearnCOBOL</strong>，如图 22 所示。</p>
-<p><img src="/2023/09/30/26278/image100.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/26278/image100.png"></p>
 <p><em>图 22. 选择 LearnCOBOL 连接</em></p>
 </li>
 <li><p>结果，您的用户名拥有的 JCL 作业将出现。HELLOCBL 是之前提交的 JCL 作业名称。展开 <strong>HELLOCBL</strong> 输出以查看输出的部分，如图 23 所示。</p>
-<p><img src="/2023/09/30/26278/image102.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/26278/image102.png"></p>
 <p><em>图 23. HELLOCBL 输出</em></p>
 </li>
 <li><p>选择 <strong>COBRUN:SYSPRINT(101)</strong> 以查看 COBOL 编译器输出。在 COBOL 编译中向前滚动，以找到编译为可执行模块的 COBOL 源代码，如图 24 所示。注意列 7 中的 Indicator 区域，列 8 中的 A 区域，以及列 12 中的 B 区域。此外，注意 COBOL 源代码中的句点 (.) 作用终止符。</p>
-<p><img src="/2023/09/30/26278/image104.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/26278/image104.png"></p>
 <p><em>图 24. COBOL 编译器输出</em></p>
 </li>
 <li><p>通过从 Zowe Explorer 的 LEARNCOBOL 中的 Jobs 部分选择 <strong>COBRUN:SYSOUT(104)</strong> 查看 COBOL 程序的执行，如图 25 所示。</p>
-<p><img src="/2023/09/30/26278/image106.png" srcset="/img/loading.gif"></p>
+<p><img src="/2023/09/30/26278/image106.png"></p>
 <p><em>图 25. COBOL 程序执行</em></p>
 </li>
 <li><p>请注意，每次连接到系统时，都需要打开 <strong>LearnCOBOL</strong> 文件夹，重复步骤 5 到 7。要使您的连接配置文件在计算机的任何位置都可访问，您需要将配置文件 (即 <code>zowe.config.json</code> 和 <code>zowe.schema.json</code>) 从 LearnCOBOL 文件夹移动到 Zowe 的全局位置。默认情况下，Windows 为 <code>C:\Users\%USERNAME%\.zowe</code>，Linux 和 macOS 为 <code>~/.zowe</code>。</p>
@@ -746,10 +761,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

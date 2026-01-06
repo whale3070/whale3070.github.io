@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -250,12 +265,12 @@
 <p>使用已部署合约的地址</p>
 <h2 id="使用-new-关键字"><a href="#使用-new-关键字" class="headerlink" title="使用 new 关键字"></a>使用 <code>new</code> 关键字</h2><p>Solidity 中的 <code>new</code> 关键字用于部署并创建一个新的合约实例。它通过部署合约、初始化状态变量、运行构造函数、将 nonce 值设置为 1 来初始化合约实例，最终将实例地址返回给调用者。部署合约包括检查请求者是否提供了足够的 gas 来完成部署，使用请求者的地址和 nonce 值生成一个新的账户&#x2F;地址用于合约部署，并将随附的任何以太币传递给该账户&#x2F;地址。</p>
 <p>在下一张截图中，定义了两个合约：HelloWorld 和 client。<br>在这种情况下，一个合约（client）部署并创建了另一个合约（HelloWorld）的一个新实例。<br>它使用 new 关键字来实现这一点，如下面的代码片段所示：</p>
-<p><code>HelloWorld myObj = new HelloWorld();</code><br><img src="/2025/11/09/44125/1.png" srcset="/img/loading.gif"></p>
+<p><code>HelloWorld myObj = new HelloWorld();</code><br><img src="/2025/11/09/44125/1.png"></p>
 <h2 id="使用已部署合约的地址"><a href="#使用已部署合约的地址" class="headerlink" title="使用已部署合约的地址"></a>使用已部署合约的地址</h2><p>当合约已部署并实例化时，可以使用此方法创建合约实例。此方法使用已部署合约的地址。不会创建新的实例；而是重用现有实例。<br>通过地址创建对现有合约的引用。</p>
 <p>在下一个代码示例中，定义了两个合约：HelloWorld 和 client。</p>
 <p>在这种情况下，一个合约（client）使用另一个合约（HelloWorld）的已知地址来创建对其的引用。</p>
 <p>它使用地址数据类型并将实际地址强制转换为 HelloWorld 合约类型。<br>myObj 对象包含现有合约的地址，</p>
-<p>如下面的代码片段所示：<br><img src="/2025/11/09/44125/2.png" srcset="/img/loading.gif"></p>
+<p>如下面的代码片段所示：<br><img src="/2025/11/09/44125/2.png"></p>
 <h1 id="构造函数（constructor）"><a href="#构造函数（constructor）" class="headerlink" title="构造函数（constructor）"></a>构造函数（constructor）</h1><p>Solidity 支持在合约中声明构造函数。</p>
 <p>构造函数在 Solidity 中是可选的。如果开发者没有显式定义构造函数，编译器会自动生成一个默认构造函数。</p>
 <p>构造函数在部署合约时执行一次。这与其他编程语言截然不同。<br>在其他语言中，每当创建一个对象实例时，构造函数都会被执行一次。</p>
@@ -267,7 +282,7 @@
 <p>当然可以 😊<br>下面是一个完整、适合在 <strong>Remix IDE</strong> 中直接运行的教学合约，<br>用于演示构造函数（constructor）的作用、参数传入、以及初始化状态变量的过程。</p>
 <h2 id="🧩-文件名：HelloWorld-sol"><a href="#🧩-文件名：HelloWorld-sol" class="headerlink" title="🧩 文件名：HelloWorld.sol"></a>🧩 文件名：<code>HelloWorld.sol</code></h2><figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">// SPDX-License-Identifier: MIT<br>pragma solidity ^0.8.24;<br><br>/// @title Constructor 教学合约<br>/// @notice 演示 constructor 的参数传递与状态变量初始化<br>contract HelloWorld &#123;<br>    string public name;<br>    uint public value;<br>    address public owner;<br><br>    // 构造函数：部署时自动执行一次<br>    constructor(string memory _name, uint _value) &#123;<br>        name = _name;      // 初始化字符串<br>        value = _value;    // 初始化数值<br>        owner = msg.sender; // 记录部署者地址<br>    &#125;<br><br>    // 普通函数：修改状态变量（可手动调用）<br>    function updateValue(uint newValue) public &#123;<br>        require(msg.sender == owner, &quot;Only owner can update value&quot;);<br>        value = newValue;<br>    &#125;<br><br>    // 只读函数：返回合约当前信息<br>    function getInfo() public view returns (string memory, uint, address) &#123;<br>        return (name, value, owner);<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
 
-<p><img src="/2025/11/09/44125/5.png" srcset="/img/loading.gif"></p>
+<p><img src="/2025/11/09/44125/5.png"></p>
 <h2 id="🧠-学习要点解析"><a href="#🧠-学习要点解析" class="headerlink" title="🧠 学习要点解析"></a>🧠 学习要点解析</h2><p>| 概念              | 说明                      |<br>| <code>constructor</code>   | 构造函数，在合约部署时自动执行，仅执行一次。  |<br>| <code>_name, _value</code> | 部署时传入的参数，用来初始化状态变量。     |<br>| <code>msg.sender</code>    | 部署合约的账户地址，会被存入 <code>owner</code>。 |<br>| <code>require</code>       | 确保只有合约部署者可以更新 <code>value</code>。  |<br>| <code>view</code>          | 表示只读函数，不会修改链上数据。        |</p>
 <h2 id="🧪-Remix-测试步骤"><a href="#🧪-Remix-测试步骤" class="headerlink" title="🧪 Remix 测试步骤"></a>🧪 Remix 测试步骤</h2><ol>
 <li><p>打开 <a target="_blank" rel="noopener" href="https://remix.ethereum.org/">Remix IDE</a></p>
@@ -326,7 +341,7 @@
 <h3 id="🧩-Solidity-示例：多层继承（Multi-level-Inheritance）"><a href="#🧩-Solidity-示例：多层继承（Multi-level-Inheritance）" class="headerlink" title="🧩 Solidity 示例：多层继承（Multi-level Inheritance）"></a>🧩 Solidity 示例：多层继承（Multi-level Inheritance）</h3><figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">// SPDX-License-Identifier: MIT<br>pragma solidity ^0.8.24;<br><br>// 🌱 最上层：基础合约<br>contract Base &#123;<br>    string internal message;<br><br>    function setMessage(string memory _msg) public &#123;<br>        message = _msg;<br>    &#125;<br><br>    function getMessage() public view returns (string memory) &#123;<br>        return message;<br>    &#125;<br>&#125;<br><br>// 🌿 中间层：扩展合约<br>contract Intermediate is Base &#123;<br>    function addExclamation() public &#123;<br>        message = string(abi.encodePacked(message, &quot;!&quot;));<br>    &#125;<br>&#125;<br><br>// 🌻 最底层：最终合约<br>contract Final is Intermediate &#123;<br>    function addSignature(string memory _sig) public &#123;<br>        message = string(abi.encodePacked(message, &quot; - &quot;, _sig));<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
 
 
-<h3 id="🧠-运行说明（在-Remix-中）"><a href="#🧠-运行说明（在-Remix-中）" class="headerlink" title="🧠 运行说明（在 Remix 中）"></a>🧠 运行说明（在 Remix 中）</h3><p><img src="/2025/11/09/44125/6.png" srcset="/img/loading.gif"></p>
+<h3 id="🧠-运行说明（在-Remix-中）"><a href="#🧠-运行说明（在-Remix-中）" class="headerlink" title="🧠 运行说明（在 Remix 中）"></a>🧠 运行说明（在 Remix 中）</h3><p><img src="/2025/11/09/44125/6.png"></p>
 <h3 id="🧭-结构图"><a href="#🧭-结构图" class="headerlink" title="🧭 结构图"></a>🧭 结构图</h3><figure class="highlight excel"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs excel"><span class="hljs-built_in">Base</span>  →  Intermediate  →  Final<br>（基础合约）    （中间层合约）     （最终合约）<br></code></pre></div></td></tr></table></figure>
 
 
@@ -335,7 +350,7 @@
 <figure class="highlight maxima"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs maxima"><span class="hljs-built_in">contract</span> A &#123;&#125;<br><br><span class="hljs-built_in">contract</span> B <span class="hljs-built_in">is</span> A &#123;&#125;<br><br><span class="hljs-built_in">contract</span> C <span class="hljs-built_in">is</span> A &#123;&#125;<br><br></code></pre></div></td></tr></table></figure>
 
 <h2 id="多重继承"><a href="#多重继承" class="headerlink" title="多重继承"></a>多重继承</h2><p>Solidity 支持多重继承。可以存在多级单继承（即一个合约继承自另一个合约，然后再被另一个合约继承）。然而，也可以有多个合约从同一个基合约派生出来。这些派生合约可以在进一步的子合约中作为基合约一起使用。当合约同时继承自这些子合约时，就形成了多重继承，如下图所示：</p>
-<p><img src="/2025/11/09/44125/7.png" srcset="/img/loading.gif"></p>
+<p><img src="/2025/11/09/44125/7.png"></p>
 <h3 id="✅-小结"><a href="#✅-小结" class="headerlink" title="✅ 小结"></a>✅ 小结</h3><p>| 类型   | 示例结构                        | 含义            |<br>| 单层继承 | Base → Derived              | 一层扩展关系        |<br>| 多层继承 | Base → Intermediate → Final | 多个层级连续扩展      |<br>| 多重继承 | A, B → C                    | 从多个基础合约继承     |<br>| 菱形继承 | A→B, A→C, B+C→D             | 需要线性化解决重复继承问题 |</p>
 <h2 id="封装"><a href="#封装" class="headerlink" title="封装"></a>封装</h2><p>封装是面向对象编程（OOP）最重要的支柱之一。<br>封装指的是隐藏状态变量或控制对其的直接访问，以改变其状态的过程。它指的是一种模式，即声明变量，使客户端无法直接访问这些变量，只能通过函数进行修改。这有助于对变量访问进行约束，同时又允许类提供足够的访问接口以便执行操作。Solidity 提供了多种可见性修饰符（visibility modifiers），如 <strong>external</strong>、<strong>public</strong>、<strong>internal</strong> 和 <strong>private</strong>，它们会影响状态变量在合约内部、继承的子合约或外部合约中的可见性。</p>
 
@@ -472,10 +487,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

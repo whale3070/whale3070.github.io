@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -238,27 +253,27 @@
 <h3 id="下载驱动"><a href="#下载驱动" class="headerlink" title="下载驱动"></a>下载驱动</h3><p>下载 <code>usb_driver_r13-windows</code><br><a target="_blank" rel="noopener" href="https://dl.google.com/android/repository/usb_driver_r13-windows.zip">https://dl.google.com/android/repository/usb_driver_r13-windows.zip</a></p>
 <p>下载解压<code>usb_driver_r13-windows.zip</code></p>
 <p>打开电脑设备管理器</p>
-<p><img src="https://i.imgur.com/Vtd7Vtu.png" srcset="/img/loading.gif" alt="24"><br>右键<code>更新驱动程序</code>-<code>浏览我的电脑以查找驱动程序</code></p>
+<p><img src="https://i.imgur.com/Vtd7Vtu.png" alt="24"><br>右键<code>更新驱动程序</code>-<code>浏览我的电脑以查找驱动程序</code></p>
 <p>选择 <code>usb_driver_r13-windows</code>的下载路径</p>
 <h2 id="步骤二"><a href="#步骤二" class="headerlink" title="步骤二"></a>步骤二</h2><p>电脑控制手机（adb）</p>
-<h3 id="下载adb"><a href="#下载adb" class="headerlink" title="下载adb"></a>下载adb</h3><p><a target="_blank" rel="noopener" href="https://droidfilehost.com/download/download-adb-fastboot-android-sdk-platform-tools-for-windows/">https://droidfilehost.com/download/download-adb-fastboot-android-sdk-platform-tools-for-windows/</a><br><img src="https://i.imgur.com/E2KH0HD.png" srcset="/img/loading.gif" alt="25"><br><img src="https://i.imgur.com/t2i8f6H.png" srcset="/img/loading.gif" alt="27"><br>在此路径打开cmd.exe，运行adb.exe<br>确保能正常运行<br><img src="https://i.imgur.com/vIQtsGA.png" srcset="/img/loading.gif" alt="28"></p>
-<h3 id="开启安卓手机开发者模式"><a href="#开启安卓手机开发者模式" class="headerlink" title="开启安卓手机开发者模式"></a>开启安卓手机开发者模式</h3><p>选择手机设置<br><img src="https://i.imgur.com/G7QqLgh.jpg" srcset="/img/loading.gif" alt="4"><br>选择关于手机<br><img src="https://i.imgur.com/kkHrhoV.jpg" srcset="/img/loading.gif" alt="2"><br>选择版本号，点数次，然后手机会提示打开开发者选项<br><img src="https://i.imgur.com/eBPwTxs.jpg" srcset="/img/loading.gif" alt="1"><br>返回上一步，选择开发者选项后，选择开启android调试<br><img src="https://i.imgur.com/eZsoGgu.jpg" srcset="/img/loading.gif" alt="3"></p>
+<h3 id="下载adb"><a href="#下载adb" class="headerlink" title="下载adb"></a>下载adb</h3><p><a target="_blank" rel="noopener" href="https://droidfilehost.com/download/download-adb-fastboot-android-sdk-platform-tools-for-windows/">https://droidfilehost.com/download/download-adb-fastboot-android-sdk-platform-tools-for-windows/</a><br><img src="https://i.imgur.com/E2KH0HD.png" alt="25"><br><img src="https://i.imgur.com/t2i8f6H.png" alt="27"><br>在此路径打开cmd.exe，运行adb.exe<br>确保能正常运行<br><img src="https://i.imgur.com/vIQtsGA.png" alt="28"></p>
+<h3 id="开启安卓手机开发者模式"><a href="#开启安卓手机开发者模式" class="headerlink" title="开启安卓手机开发者模式"></a>开启安卓手机开发者模式</h3><p>选择手机设置<br><img src="https://i.imgur.com/G7QqLgh.jpg" alt="4"><br>选择关于手机<br><img src="https://i.imgur.com/kkHrhoV.jpg" alt="2"><br>选择版本号，点数次，然后手机会提示打开开发者选项<br><img src="https://i.imgur.com/eBPwTxs.jpg" alt="1"><br>返回上一步，选择开发者选项后，选择开启android调试<br><img src="https://i.imgur.com/eZsoGgu.jpg" alt="3"></p>
 <h2 id="步骤三"><a href="#步骤三" class="headerlink" title="步骤三"></a>步骤三</h2><p>将rom放到系统根目录</p>
 <h3 id="下载rom"><a href="#下载rom" class="headerlink" title="下载rom"></a>下载rom</h3><p><a target="_blank" rel="noopener" href="https://build.nethunter.com/installer/nexus5/lineage-14.1-20171008-UNOFFICIAL-hammerhead.zip">https://build.nethunter.com/installer/nexus5/lineage-14.1-20171008-UNOFFICIAL-hammerhead.zip</a></p>
-<h2 id="开启安卓手机传输文件"><a href="#开启安卓手机传输文件" class="headerlink" title="开启安卓手机传输文件"></a>开启安卓手机传输文件</h2><p>安卓手机下拉，可以看到为此设备充电，选择传输文件。<br><img src="https://i.imgur.com/qWqShW6.jpg" srcset="/img/loading.gif" alt="7"><br><img src="https://i.imgur.com/b0Id8Wt.jpg" srcset="/img/loading.gif" alt="6"></p>
-<p><img src="https://i.imgur.com/C8OWYzq.png" srcset="/img/loading.gif" alt="8"></p>
-<p>不解压<code>lineage-14.1-20171008-UNOFFICIAL-hammerhead.zip</code>，直接放在根目录<br><img src="https://i.imgur.com/Xz6j00w.png" srcset="/img/loading.gif" alt="9"></p>
+<h2 id="开启安卓手机传输文件"><a href="#开启安卓手机传输文件" class="headerlink" title="开启安卓手机传输文件"></a>开启安卓手机传输文件</h2><p>安卓手机下拉，可以看到为此设备充电，选择传输文件。<br><img src="https://i.imgur.com/qWqShW6.jpg" alt="7"><br><img src="https://i.imgur.com/b0Id8Wt.jpg" alt="6"></p>
+<p><img src="https://i.imgur.com/C8OWYzq.png" alt="8"></p>
+<p>不解压<code>lineage-14.1-20171008-UNOFFICIAL-hammerhead.zip</code>，直接放在根目录<br><img src="https://i.imgur.com/Xz6j00w.png" alt="9"></p>
 <h2 id="步骤四"><a href="#步骤四" class="headerlink" title="步骤四"></a>步骤四</h2><p>下载twrp（Team Win Recovery Project），安装rom</p>
 <h3 id="下载twrp"><a href="#下载twrp" class="headerlink" title="下载twrp"></a>下载twrp</h3><p><a target="_blank" rel="noopener" href="https://dl.twrp.me/hammerhead/">https://dl.twrp.me/hammerhead/</a></p>
 <p>将下载的<code>twrp-3.5.2_9-0-hammerhead.img</code>放到<code>adb.exe</code>同目录下。不会请返回看步骤二</p>
 <figure class="highlight apache"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs apache"><span class="hljs-attribute">adb</span>.exe devices -l<br><span class="hljs-attribute">adb</span> reboot bootloader<br><span class="hljs-comment">#这条命令是进入Recovery mode</span><br><span class="hljs-attribute">fastboot</span>.exe flash recovery twrp-<span class="hljs-number">3</span>.<span class="hljs-number">5</span>.<span class="hljs-number">2</span>_9-<span class="hljs-number">0</span>-hammerhead.img<br><span class="hljs-comment">#这条命令是安装twrp</span><br><span class="hljs-attribute">fastboot</span> reboot<br><span class="hljs-comment">#这条命令是安卓手机重启</span><br></code></pre></div></td></tr></table></figure>
 
-<p><img src="https://i.imgur.com/uj7WsHx.png" srcset="/img/loading.gif" alt="23"></p>
+<p><img src="https://i.imgur.com/uj7WsHx.png" alt="23"></p>
 <p>重启手机后进入recovery mode，按一下电源键，即可进入下面的内容</p>
-<p><img src="https://i.imgur.com/0QVxgEX.jpg" srcset="/img/loading.gif" alt="5"></p>
+<p><img src="https://i.imgur.com/0QVxgEX.jpg" alt="5"></p>
 <h3 id="点击wipe"><a href="#点击wipe" class="headerlink" title="点击wipe"></a>点击wipe</h3><p>系统清理，将手机所有文件删除，包括图片、音乐、资料、微信聊天记录等等，目的是防止系统安装失败。</p>
 <h3 id="点击install"><a href="#点击install" class="headerlink" title="点击install"></a>点击install</h3><p>wipe结束后，点击install，此时，放在根目录的<code>lineage-14.1-20171008-UNOFFICIAL-hammerhead.zip</code>会自动解压安装。</p>
-<p>等待安装，系统重启后就会进入<code>lineage-14.1-20171008-UNOFFICIAL-hammerhead.zip</code>这个rom的系统，这里应该是安卓7<br><img src="https://i.imgur.com/AET9Czb.jpg" srcset="/img/loading.gif" alt="10"></p>
+<p>等待安装，系统重启后就会进入<code>lineage-14.1-20171008-UNOFFICIAL-hammerhead.zip</code>这个rom的系统，这里应该是安卓7<br><img src="https://i.imgur.com/AET9Czb.jpg" alt="10"></p>
 
             </div>
             <hr>
@@ -393,10 +408,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

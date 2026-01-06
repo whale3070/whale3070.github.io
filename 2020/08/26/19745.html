@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -229,13 +244,13 @@
             
             <div class="markdown-body">
               <p>一件事，只要是有价值的，花再长的时间去做也是值得的。</p>
-<h2 id="遇到问题"><a href="#遇到问题" class="headerlink" title="遇到问题"></a>遇到问题</h2><p>使用某些地区的网络就能访问，有些地区就不能。<br>挂梯子也访问不了了。（不知道是被墙了还是什么原因）<br><img src="/1.PNG" srcset="/img/loading.gif"></p>
+<h2 id="遇到问题"><a href="#遇到问题" class="headerlink" title="遇到问题"></a>遇到问题</h2><p>使用某些地区的网络就能访问，有些地区就不能。<br>挂梯子也访问不了了。（不知道是被墙了还是什么原因）<br><img src="/1.PNG"></p>
 <h2 id="本地测试"><a href="#本地测试" class="headerlink" title="本地测试"></a>本地测试</h2><figure class="highlight mipsasm"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs mipsasm">ruby -v<br>sqlite3 --version<br>gem <span class="hljs-keyword">install </span>rails<br>gem <span class="hljs-keyword">install </span><span class="hljs-keyword">jekyll</span><br><span class="hljs-keyword"></span><br>确保ruby环境已安装，数据库已安装。<br><span class="hljs-keyword">bundle </span><span class="hljs-keyword">install</span><br><span class="hljs-keyword"></span>开始安装<br></code></pre></div></td></tr></table></figure>
-<p><img src="/2.PNG" srcset="/img/loading.gif"><br>好像不能用root权限执行，新建一个普通用户</p>
+<p><img src="/2.PNG"><br>好像不能用root权限执行，新建一个普通用户</p>
 <figure class="highlight nginx"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs nginx"><span class="hljs-attribute">useradd</span> whale<br>passwd whale<br>visudo<br>添加whale到sudoer用户组<br></code></pre></div></td></tr></table></figure>
 <p>再次运行就没问题了。<br>bundle install<br>等待许久，安装依赖。</p>
 <h3 id="安装环境"><a href="#安装环境" class="headerlink" title="安装环境"></a>安装环境</h3><figure class="highlight mipsasm"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs mipsasm">先测试内网ip<br><span class="hljs-keyword">bundle </span>exec <span class="hljs-keyword">jekyll </span>serve<br><br><span class="hljs-keyword">bundle </span><br></code></pre></div></td></tr></table></figure>
-<p><img src="/3.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/3.PNG"></p>
 <p>没问题了，再运行在外网ip上。</p>
 <p>在vps上运行</p>
 <figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">git <span class="hljs-built_in">clone</span> https://github.com/Whale3070/Whale3070.github.io<br>bundle <span class="hljs-built_in">exec</span> jekyll serve --host=外网ip<br></code></pre></div></td></tr></table></figure>
@@ -249,18 +264,18 @@
 <ol start="2">
 <li>bundle install报错</li>
 </ol>
-<p><img src="/4.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/4.PNG"></p>
 <figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">apt-get install ruby-dev<br>执行成功<br>gem install commonmarker -v <span class="hljs-string">&#x27;0.17.13&#x27;</span> --<span class="hljs-built_in">source</span> <span class="hljs-string">&#x27;https://rubygems.org/&#x27;</span><br>执行失败<br>gem install commonmarker<br>执行失败，报错<br>ruby -v<br>执行成功<br>rvm<br>执行失败<br>curl -sSL https://rvm.io/mpapis.asc | <span class="hljs-built_in">sudo</span> gpg --import -<br>curl -sSL https://rvm.io/pkuczynski.asc | <span class="hljs-built_in">sudo</span> gpg --import -<br>curl -L https://get.rvm.io | bash -s stable<br>执行成功<br>rvm list<br>执行失败<br><span class="hljs-built_in">cd</span> /usr/local/rvm/bin;./rvm list known<br></code></pre></div></td></tr></table></figure>
 
-<p><img src="/5.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/5.PNG"></p>
 <figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">./rvm install 2.7.0<br></code></pre></div></td></tr></table></figure>
-<p><img src="/6.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/6.PNG"></p>
 <figure class="highlight jboss-cli"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs jboss-cli"><span class="hljs-string">./rvm</span> list<br><span class="hljs-string">./rvm</span> 2.7.0 <span class="hljs-params">--default</span><br><br>gem install rails<br>rails <span class="hljs-params">--version</span><br>bundle install<br>bundle exec jekyll serve<br>执行成功<br>访问http:<span class="hljs-string">//127.0.0.1</span><span class="hljs-function">:4000</span>，没问题以后，再架设到外部ip<br></code></pre></div></td></tr></table></figure>
 <h2 id="端口转发"><a href="#端口转发" class="headerlink" title="端口转发"></a>端口转发</h2><p>ifconfig，发现vps只有两个内网ip，并且无法绑定到弹性ip上。</p>
 <figure class="highlight perl"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs perl">ps -ef | <span class="hljs-keyword">grep</span> jekyll<br>bundle <span class="hljs-keyword">exec</span> jekyll serve --host=<span class="hljs-number">172.31</span><span class="hljs-number">.10</span><span class="hljs-number">.237</span><br></code></pre></div></td></tr></table></figure>
 <h2 id="图片挂了"><a href="#图片挂了" class="headerlink" title="图片挂了"></a>图片挂了</h2><p>发现raw.githubusercontent.com被墙了。<br>写一个脚本，将下列字符串做一个替换</p>
 <figure class="highlight jboss-cli"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs jboss-cli">raw.githubusercontent.com/Whale3070/Whale3070.github.io/master<br>替换为<br>18.166.144.145<span class="hljs-function">:4000</span><br><br>sed -i &#x27;s/https:\/\<span class="hljs-string">/raw.githubusercontent.com</span>\<span class="hljs-string">/Whale3070</span>\<span class="hljs-string">/Whale3070.github.io</span>\<span class="hljs-string">/master/http</span>:\/\<span class="hljs-string">/18.166.144.145</span><span class="hljs-function">:4000</span>/g&#x27; 2020-05-13*<br><br>测试没问题，图片好了以后，进行全局替换<br>sed -i &#x27;s/https:\/\<span class="hljs-string">/raw.githubusercontent.com</span>\<span class="hljs-string">/Whale3070</span>\<span class="hljs-string">/Whale3070.github.io</span>\<span class="hljs-string">/master/http</span>:\/\<span class="hljs-string">/18.166.144.145</span><span class="hljs-function">:4000</span>/g&#x27; _posts/*<span class="hljs-string">.md</span><br></code></pre></div></td></tr></table></figure>
-<p><img src="/7.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/7.PNG"></p>
 <p>确认没问题，在加-i参数<br>sed -i ‘s&#x2F;raw.githubusercontent.com/Whale3070/Whale3070.github.io/master&#x2F;18.166.144.145:4000&#x2F;g’ 2020-05-13*</p>
 <h2 id="ruby报错"><a href="#ruby报错" class="headerlink" title="ruby报错"></a>ruby报错</h2><p>&#x2F;usr&#x2F;lib&#x2F;ruby&#x2F;vendor_ruby&#x2F;rubygems&#x2F;defaults&#x2F;operating_system.rb:10: warning: constant Gem::ConfigMap is deprecated<br><a target="_blank" rel="noopener" href="https://github.com/rubygems/rubygems/issues/3068">https://github.com/rubygems/rubygems/issues/3068</a></p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://ruby-china.github.io/rails-guides/getting_started.html">https://ruby-china.github.io/rails-guides/getting_started.html</a></p>
@@ -288,9 +303,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2020/10/04/25286.html">
+                      <a href="/2020/08/26/3938.html">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">windows反弹shell(不免杀windows defender)</span>
+                        <span class="hidden-mobile">suid提权的三种思路</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -298,8 +313,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2020/08/26/3938.html">
-                        <span class="hidden-mobile">suid提权的三种思路</span>
+                      <a href="/2020/08/05/4776.html">
+                        <span class="hidden-mobile">实验域渗透（一）</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -399,10 +414,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

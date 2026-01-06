@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -235,26 +250,26 @@
 <h2 id="balanceOf是什么意思？"><a href="#balanceOf是什么意思？" class="headerlink" title="balanceOf是什么意思？"></a>balanceOf是什么意思？</h2><p>balanceOf[msg.sender] &#x3D; 1000;</p>
 <p>这行代码本质上就是：</p>
 <p>给当前调用者（msg.sender）在 balanceOf 这个“账本”里存一条记录：余额 &#x3D; 1000。</p>
-<h2 id="require的错误处理"><a href="#require的错误处理" class="headerlink" title="require的错误处理"></a>require的错误处理</h2><p><img src="/2025/11/11/29045/1.png" srcset="/img/loading.gif"><br>在上面的图中，输入一个eth地址，输入amount为10000，点击transact，于是就出现报错。</p>
-<p>报错如下图所示，Insufficient balance<br><img src="/2025/11/11/29045/2.png" srcset="/img/loading.gif"></p>
+<h2 id="require的错误处理"><a href="#require的错误处理" class="headerlink" title="require的错误处理"></a>require的错误处理</h2><p><img src="/2025/11/11/29045/1.png"><br>在上面的图中，输入一个eth地址，输入amount为10000，点击transact，于是就出现报错。</p>
+<p>报错如下图所示，Insufficient balance<br><img src="/2025/11/11/29045/2.png"></p>
 <p>如果把amount改成1，点击transact，就没有报错。</p>
 <p>看到sol的17-19行代码</p>
 <figure class="highlight livescript"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs livescript"><span class="hljs-keyword">function</span> transfer(address <span class="hljs-keyword">to</span>, uint256 amount) external &#123;<br>    <span class="hljs-built_in">require</span>(<span class="hljs-keyword">to</span> != address(<span class="hljs-number">0</span>), <span class="hljs-string">&quot;Invalid address&quot;</span>);<br>    <span class="hljs-built_in">require</span>(balanceOf[msg.sender] &gt;= amount, <span class="hljs-string">&quot;Insufficient balance&quot;</span>);<br></code></pre></div></td></tr></table></figure>
 
 <p>这就是require的错误处理</p>
-<h2 id="revert手工抛错"><a href="#revert手工抛错" class="headerlink" title="revert手工抛错"></a>revert手工抛错</h2><p>现在在withdraw函数的amount那里输入100000，点击transact。<br>报错提示要取100000 wei，但只剩下890 wei，所以报错了。<br><img src="/2025/11/11/29045/7.png" srcset="/img/loading.gif"></p>
-<p>现在在withdraw函数的amount那里输入1，点击transact。<br>因为余额超过了1，所以没有报错。<br><img src="/2025/11/11/29045/8.png" srcset="/img/loading.gif"></p>
+<h2 id="revert手工抛错"><a href="#revert手工抛错" class="headerlink" title="revert手工抛错"></a>revert手工抛错</h2><p>现在在withdraw函数的amount那里输入100000，点击transact。<br>报错提示要取100000 wei，但只剩下890 wei，所以报错了。<br><img src="/2025/11/11/29045/7.png"></p>
+<p>现在在withdraw函数的amount那里输入1，点击transact。<br>因为余额超过了1，所以没有报错。<br><img src="/2025/11/11/29045/8.png"></p>
 <p>这就是revert手工抛错</p>
 <h2 id="assert用于断言永远为真（仅内部检查）"><a href="#assert用于断言永远为真（仅内部检查）" class="headerlink" title="assert用于断言永远为真（仅内部检查）"></a>assert用于断言永远为真（仅内部检查）</h2><p>balanceOf &#x3D; 用户的余额（会变）<br>totalSupply &#x3D; 总发行量（示例里不会变）<br>withdraw 只改 balanceOf，不改 totalSupply</p>
 <p>所以断言永远为真</p>
-<p>如果 assert 失败，说明代码有 bug，而不是用户输入问题。<br><img src="/2025/11/11/29045/9.png" srcset="/img/loading.gif"></p>
+<p>如果 assert 失败，说明代码有 bug，而不是用户输入问题。<br><img src="/2025/11/11/29045/9.png"></p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>在错误处理的sol文件中，我学习了require，revert，assert的错误处理。</p>
 <h1 id="Fallback合约"><a href="#Fallback合约" class="headerlink" title="Fallback合约"></a>Fallback合约</h1><p>功能：<br>receive() 接受 ETH</p>
 <p>fallback() 记录调用信息</p>
 <p>getBalance() 查询余额</p>
 <h2 id="WalletWithFallback-sol"><a href="#WalletWithFallback-sol" class="headerlink" title="WalletWithFallback.sol"></a>WalletWithFallback.sol</h2><figure class="highlight scss"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs scss"><span class="hljs-comment">// SPDX-License-Identifier: MIT</span><br>pragma solidity ^<span class="hljs-number">0.8</span><span class="hljs-selector-class">.20</span>;<br><br>contract WalletWithFallback &#123;<br><br>    <span class="hljs-comment">// 记录 fallback 被调用时的信息</span><br>    event <span class="hljs-built_in">FallbackCalled</span>(address sender, uint value, bytes data);<br><br>    <span class="hljs-comment">// 接收 ETH 的 receive 函数，只要 msg.data 为空就触发</span><br>    <span class="hljs-built_in">receive</span>() external payable &#123;<br>        <span class="hljs-comment">// 可以不写内容，只要 payable 就能收 ETH</span><br>    &#125;<br><br>    <span class="hljs-comment">// fallback 函数：有 data，或找不到函数签名时触发</span><br>    <span class="hljs-built_in">fallback</span>() external payable &#123;<br>        emit <span class="hljs-built_in">FallbackCalled</span>(msg.sender, msg.value, msg.data);<br>    &#125;<br><br>    <span class="hljs-comment">// 查询当前合约内 ETH 余额</span><br>    function <span class="hljs-built_in">getBalance</span>() external view returns (uint) &#123;<br>        return <span class="hljs-selector-tag">address</span>(this)<span class="hljs-selector-class">.balance</span>;<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
 
-<h2 id="测试fallback-sol"><a href="#测试fallback-sol" class="headerlink" title="测试fallback.sol"></a>测试fallback.sol</h2><p><img src="/2025/11/11/29045/10.png" srcset="/img/loading.gif"><br>如上图所示，在value下方输入1，右边选择ether作为单位，然后点击下方的transact<br>最后点击getBalance，即可获得余额为 10^ 18 wei</p>
+<h2 id="测试fallback-sol"><a href="#测试fallback-sol" class="headerlink" title="测试fallback.sol"></a>测试fallback.sol</h2><p><img src="/2025/11/11/29045/10.png"><br>如上图所示，在value下方输入1，右边选择ether作为单位，然后点击下方的transact<br>最后点击getBalance，即可获得余额为 10^ 18 wei</p>
 <p>receive()</p>
 <p>只负责在纯转账且没有附带 calldata 时接收 ETH。<br>例如：</p>
 <p>在 Remix 部署后，打开 “Deploy &amp; Run”</p>
@@ -271,7 +286,7 @@
 <h2 id="fallback-会发出-event，方便你在-Remix-查看。那么event在那里查看呢？"><a href="#fallback-会发出-event，方便你在-Remix-查看。那么event在那里查看呢？" class="headerlink" title="fallback 会发出 event，方便你在 Remix 查看。那么event在那里查看呢？"></a>fallback 会发出 event，方便你在 Remix 查看。那么event在那里查看呢？</h2><p>部署合约后，在右侧的 Deployed Contracts 区域里，你调用了函数（例如 fallback 被触发）。</p>
 <p>在下面会出现一条新的 交易记录（Transactions）。</p>
 <p>点击这一条交易记录，会展开详细信息。<br>展开后你能看到类似内容：</p>
-<p><img src="/2025/11/11/29045/11.png" srcset="/img/loading.gif"></p>
+<p><img src="/2025/11/11/29045/11.png"></p>
 <figure class="highlight json"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs json"><span class="hljs-attr">&quot;event&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;FallbackCalled&quot;</span><br></code></pre></div></td></tr></table></figure>
 
 <h2 id="event是什么？"><a href="#event是什么？" class="headerlink" title="event是什么？"></a>event是什么？</h2><p>event 是 Solidity 中的“日志输出机制”（Log），写入到区块链的交易日志（Transaction Logs）中，用于让前端、脚本、分析程序监听你的合约行为。</p>
@@ -304,11 +319,11 @@
 <p>为什么 call 是唯一安全的低级调用<br>为什么 interface 更清晰<br>msg.sender 的变化</p>
 <h2 id="Callee-sol"><a href="#Callee-sol" class="headerlink" title="Callee.sol"></a>Callee.sol</h2><figure class="highlight zephir"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs zephir"><span class="hljs-comment">// SPDX-License-Identifier: MIT</span><br>pragma solidity ^<span class="hljs-number">0.8</span><span class="hljs-number">.20</span>;<br><br>contract Callee &#123;<br>    <span class="hljs-keyword">uint</span> <span class="hljs-keyword">public</span> number = <span class="hljs-number">2025</span>;<br><br>    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getNumber</span><span class="hljs-params">()</span> <span class="hljs-title">external</span> <span class="hljs-title">view</span> <span class="hljs-title">returns</span> <span class="hljs-params">(<span class="hljs-keyword">uint</span>)</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> number;<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
 
-<p><img src="/2025/11/11/29045/12.png" srcset="/img/loading.gif"><br>点getNumber， 返回2025<br>点number，还是返回2025</p>
-<p>该合约部署好后，接下来用caller来调用该合约。<br><img src="/2025/11/11/29045/14.png" srcset="/img/loading.gif"><br>上图点击copy address，即可复制该合约的地址，该合约地址在后面有用的。</p>
+<p><img src="/2025/11/11/29045/12.png"><br>点getNumber， 返回2025<br>点number，还是返回2025</p>
+<p>该合约部署好后，接下来用caller来调用该合约。<br><img src="/2025/11/11/29045/14.png"><br>上图点击copy address，即可复制该合约的地址，该合约地址在后面有用的。</p>
 <h2 id="caller-sol"><a href="#caller-sol" class="headerlink" title="caller.sol"></a>caller.sol</h2><figure class="highlight zephir"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs zephir"><span class="hljs-comment">// SPDX-License-Identifier: MIT</span><br>pragma solidity ^<span class="hljs-number">0.8</span><span class="hljs-number">.20</span>;<br><br><span class="hljs-comment">// 1. 定义接口</span><br><span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">ICallee</span> </span>&#123;<br>    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getNumber</span><span class="hljs-params">()</span> <span class="hljs-title">external</span> <span class="hljs-title">view</span> <span class="hljs-title">returns</span> <span class="hljs-params">(<span class="hljs-keyword">uint</span>)</span></span>;<br>&#125;<br><br>contract Caller &#123;<br><br>    <span class="hljs-comment">// 2. 用 interface 调用</span><br>    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">callByInterface</span><span class="hljs-params">(address calleeAddr)</span> </span><br><span class="hljs-function">        <span class="hljs-title">external</span> </span><br><span class="hljs-function">        <span class="hljs-title">view</span> </span><br><span class="hljs-function">        <span class="hljs-title">returns</span> <span class="hljs-params">(<span class="hljs-keyword">uint</span>)</span></span><br><span class="hljs-function">    </span>&#123;<br>        <span class="hljs-keyword">return</span> ICallee(calleeAddr).getNumber();<br>    &#125;<br><br>    <span class="hljs-comment">// 3. 用 low-level call 调用</span><br>    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">callByLowLevel</span><span class="hljs-params">(address calleeAddr)</span> </span><br><span class="hljs-function">        <span class="hljs-title">external</span> </span><br><span class="hljs-function">        <span class="hljs-title">view</span> </span><br><span class="hljs-function">        <span class="hljs-title">returns</span> <span class="hljs-params">(<span class="hljs-keyword">uint</span>)</span></span><br><span class="hljs-function">    </span>&#123;<br>        (<span class="hljs-keyword">bool</span> ok, bytes memory data) =<br>            calleeAddr.staticcall(<br>                abi.encodeWithSignature(<span class="hljs-string">&quot;getNumber()&quot;</span>)<br>            );<br><br>        <span class="hljs-keyword">require</span>(ok, <span class="hljs-string">&quot;low-level call failed&quot;</span>);<br><br>        <span class="hljs-keyword">return</span> abi.decode(data, (<span class="hljs-keyword">uint</span>));<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
 
-<p><img src="/2025/11/11/29045/13.png" srcset="/img/loading.gif"><br>复制callee合约的地址，在上图calleeAddr右侧粘贴，点击call。 即可成功调用callee<br>在decoded output可以看到2025这个字符串。</p>
+<p><img src="/2025/11/11/29045/13.png"><br>复制callee合约的地址，在上图calleeAddr右侧粘贴，点击call。 即可成功调用callee<br>在decoded output可以看到2025这个字符串。</p>
 <p>在下面callbylowerlever，使用同样的方法，复制callee合约的地址，粘贴，点击call。<br>同样得到2025的字符串。</p>
 <p>下面说明interface调用和call调用的区别</p>
 <h2 id="下面给你一套面向初学审计-开发者的清晰、正式解释，涵盖你要理解的四个核心点："><a href="#下面给你一套面向初学审计-开发者的清晰、正式解释，涵盖你要理解的四个核心点：" class="headerlink" title="下面给你一套面向初学审计 &#x2F; 开发者的清晰、正式解释，涵盖你要理解的四个核心点："></a>下面给你一套<strong>面向初学审计 &#x2F; 开发者</strong>的清晰、正式解释，涵盖你要理解的四个核心点：</h2><ol>
@@ -789,10 +804,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

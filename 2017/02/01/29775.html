@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -230,31 +245,31 @@
             <div class="markdown-body">
               <p>�钟提交答案。这里就需要写一个python脚本，用到web交互模块。</p>
 <p>先看看题目中是用POST，还是GET提交答案。</p>
-<p>::: {.image-package}<br><img src="http://upload-images.jianshu.io/upload_images/2883590-47a4aa6c23dbed79.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" srcset="/img/loading.gif">\</p>
+<p>::: {.image-package}<br><img src="http://upload-images.jianshu.io/upload_images/2883590-47a4aa6c23dbed79.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">\</p>
 <p>::: {.image-caption}<br>用firebug，F12打开<br>:::<br>:::</p>
 <p>多点几次会发现，每次获取到的sha1值都是不一样的,so……\</p>
 <p><strong>知识点一</strong>：自动获取该链接，导入到本地<strong>生成HTML文件</strong>。</p>
-<p>::: {.image-package}<br><img src="http://upload-images.jianshu.io/upload_images/2883590-98cd9b7c6712f2d1.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" srcset="/img/loading.gif">\</p>
+<p>::: {.image-package}<br><img src="http://upload-images.jianshu.io/upload_images/2883590-98cd9b7c6712f2d1.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">\</p>
 <p>::: {.image-caption}<br>照猫画虎写出代码<br>:::<br>:::</p>
 <p>知识点二：在获取到的html文件中<strong>找到sha1值</strong>。</p>
 <p><strong>正则表达式模块re</strong></p>
-<p>::: {.image-package}<br><img src="http://upload-images.jianshu.io/upload_images/2883590-b6fabb242fecfc92.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" srcset="/img/loading.gif">\</p>
+<p>::: {.image-package}<br><img src="http://upload-images.jianshu.io/upload_images/2883590-b6fabb242fecfc92.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">\</p>
 <p>::: {.image-caption}<br>:::<br>:::</p>
 <p>知识点三：获取到该sha1值，<strong>计算</strong>出符合该sha1值的整数</p>
-<p>::: {.image-package}<br><img src="http://upload-images.jianshu.io/upload_images/2883590-9c30233894944cec.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" srcset="/img/loading.gif">\</p>
+<p>::: {.image-package}<br><img src="http://upload-images.jianshu.io/upload_images/2883590-9c30233894944cec.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">\</p>
 <p>::: {.image-caption}<br>:::<br>:::</p>
 <p>知识点四：用urllib、urllib2模块<strong>提交</strong>答案</p>
-<p>::: {.image-package}<br><img src="http://upload-images.jianshu.io/upload_images/2883590-6b83d492f1add0bf.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" srcset="/img/loading.gif">\</p>
+<p>::: {.image-package}<br><img src="http://upload-images.jianshu.io/upload_images/2883590-6b83d492f1add0bf.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">\</p>
 <p>::: {.image-caption}<br>:::<br>:::</p>
 <p>将代码结合到一起，但是老是说时间超时。。。\</p>
-<p>::: {.image-package}<br><img src="http://upload-images.jianshu.io/upload_images/2883590-61bc7454468b98be.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" srcset="/img/loading.gif">\</p>
+<p>::: {.image-package}<br><img src="http://upload-images.jianshu.io/upload_images/2883590-61bc7454468b98be.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">\</p>
 <p>::: {.image-caption}<br>:::<br>:::</p>
 <p>。。。还是看看答案吧。。。</p>
-<p>::: {.image-package}<br><img src="http://upload-images.jianshu.io/upload_images/2883590-9f4f603a05b35f31.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" srcset="/img/loading.gif">\</p>
+<p>::: {.image-package}<br><img src="http://upload-images.jianshu.io/upload_images/2883590-9f4f603a05b35f31.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">\</p>
 <p>::: {.image-caption}<br>:::<br>:::</p>
 <p>好简洁，，现在学习下request模块，它是http客户端库。</p>
 <p><a target="_blank" rel="noopener" href="http://cn.python-requests.org/zh_CN/latest/">官方文档</a> \</p>
-<p>::: {.image-package}<br><img src="http://upload-images.jianshu.io/upload_images/2883590-6f22f66e425f687a.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" srcset="/img/loading.gif">\</p>
+<p>::: {.image-package}<br><img src="http://upload-images.jianshu.io/upload_images/2883590-6f22f66e425f687a.PNG?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">\</p>
 <p>::: {.image-caption}<br>pip安装该模块<br>:::<br>:::</p>
 <p>第四行，session保存cookies，在这里<strong>自动提供</strong>服务端需要的数据π_π，好方便哇。。</p>
 <p>第五行，获取url 的第580到620个字符，不用正则表达式搜索。</p>
@@ -275,9 +290,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2017/02/01/10672.html">
+                      <a href="/2017/02/01/28713.html">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">BC13</span>
+                        <span class="hidden-mobile">BC10字典（re模块）</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -285,8 +300,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2017/02/01/5012.html">
-                        <span class="hidden-mobile">BC15有关素数两道题</span>
+                      <a href="/2017/02/01/59441.html">
+                        <span class="hidden-mobile">BC11</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -386,10 +401,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

@@ -1,0 +1,469 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>从土耳其的通胀，看 DeFi 的“封装”与我的三十年长征 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/search/">
+                <i class="iconfont icon-search"></i>
+                搜索
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="从土耳其的通胀，看 DeFi 的“封装”与我的三十年长征">
+                      
+                        从土耳其的通胀，看 DeFi 的“封装”与我的三十年长征
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-01-04 07:04" pubdate>
+        2026年1月4日 早上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      865 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      9
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">从土耳其的通胀，看 DeFi 的“封装”与我的三十年长征</h1>
+            
+            <div class="markdown-body">
+              <h1 id="从土耳其的通胀，看-DeFi-的“封装”与我的三十年长征"><a href="#从土耳其的通胀，看-DeFi-的“封装”与我的三十年长征" class="headerlink" title="从土耳其的通胀，看 DeFi 的“封装”与我的三十年长征"></a>从土耳其的通胀，看 DeFi 的“封装”与我的三十年长征</h1><p>我在上一篇<a target="_blank" rel="noopener" href="https://whale3070.github.io/2024/10/01/2304.html">博文-土耳其的经济</a> 中复盘了土耳其的经济实验。埃尔多安试图挑战经济学常识，结果让里拉变成了灰烬。对于土耳其普通人来说，里拉已经是一个被证明的“错误选项”。按照我的逻辑，<strong>排除了所有错误选项，剩下的就是正确选项。</strong></p>
+<p>在宏观逻辑上，DeFi（去中心化金融）显然是那个正确选项。它不依赖于任何国家的央行，不受行政逻辑的朝令夕改。但现实很残酷：对于大多数人，DeFi 依然是一场极高门槛的“生存游戏”。</p>
+<h3 id="1-证据：为什么说-DeFi-开发者没做好“封装”？"><a href="#1-证据：为什么说-DeFi-开发者没做好“封装”？" class="headerlink" title="1. 证据：为什么说 DeFi 开发者没做好“封装”？"></a>1. 证据：为什么说 DeFi 开发者没做好“封装”？</h3><p>作为一名写代码也做安全审计的人，我非常看重 Python 中的**封装（Encapsulation）**思想：隐藏复杂的内部逻辑，只暴露简单的接口。</p>
+<p>但现在的 DeFi 开发者显然没做好封装，证据随处可见：</p>
+<ul>
+<li><strong>黑话堆砌</strong>：界面上写满了 APY、TVL、Slippage、LTV……这就像 Python 库强迫用户去理解底层的 C 语言指针一样荒谬。</li>
+<li><strong>反人类的私钥</strong>：12 个单词的助记词是“救命草”也是“索命绳”。一旦丢了或写错，没有任何 try-except 捕获异常的机会。</li>
+<li><strong>操作真空期</strong>：在链上交互时，用户经常面对转圈的 Loading 图和高昂的 Gas 费，这种极差的 UX（用户体验）让普通人望而却步。</li>
+</ul>
+<p><strong>现在的 DeFi 更像是极客给极客写的 Demo，而不是资本家给市场做的产品。</strong></p>
+<h3 id="2-破局：封装-保险-支付宝体验"><a href="#2-破局：封装-保险-支付宝体验" class="headerlink" title="2. 破局：封装 + 保险 &#x3D; 支付宝体验"></a>2. 破局：封装 + 保险 &#x3D; 支付宝体验</h3><p>要让 DeFi 真正成为土耳其人、拉美人的“避风港”，它必须变得像刷 TikTok 或用支付宝一样简单。逻辑其实非常清晰：</p>
+<ol>
+<li><strong>技术封装</strong>：利用账户抽象（Account Abstraction）和智能合约钱包，把私钥和 Gas 费全部封装进底层。用户只需要生物识别（面容&#x2F;指纹）就能登录。</li>
+<li><strong>保险前置</strong>：就像我打算做的安全审计和保险业务一样，通过代码审计排除掉逻辑漏洞，再给协议套上一层“资产保险”。</li>
+<li><strong>AI 化交互</strong>：不需要用户去研究滑点，只需要一句话：“帮我把 1000 里拉换成美元本位的稳健收益”。</li>
+</ol>
+<h3 id="3-三十年：从婴儿期到成年期"><a href="#3-三十年：从婴儿期到成年期" class="headerlink" title="3. 三十年：从婴儿期到成年期"></a>3. 三十年：从婴儿期到成年期</h3><p>有人问我，DeFi 诞生多久了？<br>从 MakerDAO 构思到现在，满打满算也就 <strong>11 年</strong>（App 实战也就 <strong>7 年</strong>左右）。它现在还只是个在泥地里打滚、逻辑漏洞百出的婴儿。</p>
+<p>我计划在这个行业投入 <strong>10 到 30 年</strong>的时间。</p>
+<ul>
+<li><strong>前 10 年</strong>：通过安全审计和产品封装，把“错误选项”逐一排除。</li>
+<li><strong>后 20 年</strong>：让资产保护权像呼吸一样自然，不再受限于一个人的出生地和那个国家的货币政策。</li>
+</ul>
+<p>我 12 岁发现数学老师逻辑有问题，16 岁发现“铁饭碗”不铁，2020 年买入比特币。这一切都在告诉我：<strong>当大多数人还在迷信权威时，谁能更早地看清底层逻辑并付诸行动，谁就能拿到未来的入场券。</strong></p>
+<p>DeFi 的成年礼，我打算亲手参与构建。</p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=sfpS-OMcKh0&t=7s">Why Spiraling Inflation is Pushing Turks Into Cryptocurrencies</a></li>
+</ul>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/View/">View</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/01/05/2436306733.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Polkadot Solidity开发-课程笔记7</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/01/03/3632233996.html">
+                        <span class="hidden-mobile">Polkadot Solidity开发-课程笔记6</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>

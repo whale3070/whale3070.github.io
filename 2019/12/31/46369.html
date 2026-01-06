@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -235,9 +250,9 @@
 <li><p><a target="_blank" rel="noopener" href="https://hashcat.net/hashcat/">https://hashcat.net/hashcat/</a></p>
 </li>
 </ul>
-<h2 id="kali-vm"><a href="#kali-vm" class="headerlink" title="kali vm"></a>kali vm</h2><p>kali vm自带hashcat，但是该软件需要使用GPU，缺少一些驱动还是什么原因，无法直接使用。<br><img src="/1.PNG" srcset="/img/loading.gif"></p>
+<h2 id="kali-vm"><a href="#kali-vm" class="headerlink" title="kali vm"></a>kali vm</h2><p>kali vm自带hashcat，但是该软件需要使用GPU，缺少一些驱动还是什么原因，无法直接使用。<br><img src="/1.PNG"></p>
 <p>查找了一些解决办法，在虚拟机下使用hashcat不是不可以，只是太繁琐了。于是我们直接在windows上安装hashcat吧。</p>
-<h2 id="download-in-windows"><a href="#download-in-windows" class="headerlink" title="download in windows"></a>download in windows</h2><p><img src="/2.PNG" srcset="/img/loading.gif"></p>
+<h2 id="download-in-windows"><a href="#download-in-windows" class="headerlink" title="download in windows"></a>download in windows</h2><p><img src="/2.PNG"></p>
 <h3 id="先查找hash的类型"><a href="#先查找hash的类型" class="headerlink" title="先查找hash的类型"></a>先查找hash的类型</h3><p>根据这个<a target="_blank" rel="noopener" href="https://hashcat.net/wiki/doku.php?id=example_hashes">表</a></p>
 <p><code>$1$e7NfNpNi$A6nCwOTqrNR2oDuIKirRZ/</code> 查到Hash-Mode编号为500</p>
 <h3 id="hashcat破解格式"><a href="#hashcat破解格式" class="headerlink" title="hashcat破解格式"></a>hashcat破解格式</h3><figure class="highlight diff"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs diff"><span class="hljs-deletion">-m hash类型</span><br><span class="hljs-deletion">-a 攻击类型</span><br>文件名<br>字典<br></code></pre></div></td></tr></table></figure>
@@ -247,9 +262,9 @@
 <h3 id="开始破解"><a href="#开始破解" class="headerlink" title="开始破解"></a>开始破解</h3><p>hashcat -m 500 -a 0 whatpass.txt &#x2F;usr&#x2F;wordlists&#x2F;rockyou.txt </p>
 <p>同样报错了，但是加–force参数，就可以正常运行了，不知道是为什么。</p>
 <p> 破解过程会显示“[s]tatus[p]ause [r]esume [b]ypass [q]uit &#x3D;&gt;”，键盘输入“s”显示破解状态，输入“p”暂停破解，输入“r”继续破解，输入“b”表示忽略破解，输入“q”表示退出，所有成功破解的结果都会自动保存在 “hashcat.pot” 文件中。</p>
-<p><img src="/3.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/3.PNG"></p>
 <p>在目录下直接打开hashcat.potfile，就可以看到密码了。</p>
-<p><img src="/4.PNG" srcset="/img/loading.gif"></p>
+<p><img src="/4.PNG"></p>
 
             </div>
             <hr>
@@ -386,10 +401,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -276,11 +291,11 @@
 </ul>
 <h2 id="COBOL写输出流程回顾"><a href="#COBOL写输出流程回顾" class="headerlink" title="COBOL写输出流程回顾"></a>COBOL写输出流程回顾</h2><p>本节简要回顾了环境部分的某些方面，以便理解它与本章内容的关联。</p>
 <h3 id="环境部分"><a href="#环境部分" class="headerlink" title="环境部分"></a>环境部分</h3><p>“文件处理”部分涵盖了SELECT和相应的ASSIGN程序员选择的名称，而本章关注输出。图1显示了一个使用PRINT-LINE作为程序员选择的COBOL内部文件名的编码示例。</p>
-<p><img src="/image141.png" srcset="/img/loading.gif"></p>
+<p><img src="/image141.png"></p>
 <p><em>图1. SELECT和ASSIGN</em></p>
 <h2 id="文件描述符"><a href="#文件描述符" class="headerlink" title="文件描述符"></a>文件描述符</h2><p>文件描述符（FD），先前在FILE-CONTROL段落部分描述，表示文件部分中组织的最高级别。FD条目描述了由前面的FILE-CONTROL SELECT语句定义的文件的布局。因此，FD条目将SELECT文件名与文件名的定义布局连接起来。图2显示了PRINT-LINE的示例文件描述符FD。文件描述符后面是PRINT-LINE的定义布局。</p>
 <h3 id="FILLER"><a href="#FILLER" class="headerlink" title="FILLER"></a>FILLER</h3><p>请注意数据名称FILLER。虽然大多数数据字段都有唯一的名称，但FILLER是COBOL保留字数据名称，用于输出格式化。这部分是因为FILLER分配内存空间而无需名称。此外，FILLER分配的内存在输出行中具有定义的长度，可以包含空格或任何文字。图2显示了多个FILLER的VALUE SPACES示例。SPACES在输出中创建数据项之间的空格，有助于保持代码的可读性。更具体地说，在图2中，FILLER PIC X(02) VALUE SPACES表示包含两个空格的输出行。</p>
-<p><img src="/image142.png" srcset="/img/loading.gif"></p>
+<p><img src="/image142.png"></p>
 <p><em>图2. FILLER</em></p>
 <h2 id="报告和列标题"><a href="#报告和列标题" class="headerlink" title="报告和列标题"></a>报告和列标题</h2><p>编写报告或列标题需要程序员设计的结构化输出布局。图3说明了这样的结构。设计的输出结构布局在DATA DIVISION中实现，并包括下面列出和定义的标题。</p>
 <ul>
@@ -332,13 +347,13 @@
 </ul>
 </li>
 </ul>
-<p><img src="/image143.png" srcset="/img/loading.gif"></p>
+<p><img src="/image143.png"></p>
 <p><em>图3. 设计的输出结构布局</em></p>
 <h3 id="HEADER-2"><a href="#HEADER-2" class="headerlink" title="HEADER-2"></a>HEADER-2</h3><p>HEADER-2包括报告的年份、月份、日期以及FILLER区域，它们在图3中创建了年份、月份和日期之间的空白间隔。图4是用于存储CURRENT-DATE值的数据名称布局示例。COBOL在CURRENT-DATE中提供的信息用于填充HEADER-2中的输出文件。</p>
-<p><img src="/image144.png" srcset="/img/loading.gif"></p>
+<p><img src="/image144.png"></p>
 <p><em>图4. CURRENT-DATE内部函数</em></p>
 <h2 id="PROCEDURE-DIVISION"><a href="#PROCEDURE-DIVISION" class="headerlink" title="PROCEDURE DIVISION"></a>PROCEDURE DIVISION</h2><p>图1到图4是一个设计的数据布局，包括数据行和报告标题。使用数据行和报告标题映射的存储，COBOL处理逻辑可以写入报头，然后是每个数据行。图5是一个示例，显示了用于在COBOL程序中编写报头布局结构的执行逻辑。</p>
-<p><img src="/image145.png" srcset="/img/loading.gif"></p>
+<p><img src="/image145.png"></p>
 <p><em>图5. 编写报头布局结构的执行逻辑</em></p>
 <h3 id="MOVE语句"><a href="#MOVE语句" class="headerlink" title="MOVE语句"></a>MOVE语句</h3><p>COBOL MOVE语句位于WRITE-HEADERS段落中的第1行，它从系统中收集当前日期信息并将该信息存储在定义的数据名称布局WS-CURRENT-DATE-DATA中。使用保留字FUNCTION意味着其后的内容是COBOL内部函数。第2、3和4行的语句将日期信息，年份、月份和日期，存储在HEADER-2定义的数据名称区域HDR-YR、HDR-MO和HDR-DAY中。第11行的语句，是段落中的最后一句，将空格写入PRINT-REC区域，以清除准备写入数据行的行存储区。</p>
 <h3 id="FROM语句的PRINT-REC"><a href="#FROM语句的PRINT-REC" class="headerlink" title="FROM语句的PRINT-REC"></a>FROM语句的PRINT-REC</h3><p>PRINT-REC已经以输出方式打开，接下来的PRINT-REC FROM将按照不同的报头或定义的数据名称布局写入PRINT-REC。第5和6行的语句将PRINT-REC FROM定义的报头数据名称HEADER-1和HEADER-2写入图3中。图2中的PRINT-REC文件描述符数据名称有效地被图3中报头数据名称的内容替换，写入输出。第7和8行的语句在报头之间写入了一行空白。第9和10行的语句将PRINT-REC FROM定义的HEADER-3和HEADER-4数据名称从图3中写入。图2中的PRINT-REC文件描述符数据名称有效地被图3中报头数据名称的内容替换。</p>
@@ -348,7 +363,7 @@
 <li><p>观察报告，其中包括如图6所示的报头。</p>
 </li>
 </ol>
-<p><img src="/image146.png" srcset="/img/loading.gif"></p>
+<p><img src="/image146.png"></p>
 <p><em>图6. 带有报头的报告</em></p>
 <ol start="3">
 <li><p>提交作业：CBL0005J</p>
@@ -356,7 +371,7 @@
 <li><p>观察报告数据行是没有美元货币符号的，如图7所示。</p>
 </li>
 </ol>
-<p><img src="/image147.png" srcset="/img/loading.gif"></p>
+<p><img src="/image147.png"></p>
 <p><em>图7. 输出中没有货币符号</em></p>
 <ol start="5">
 <li><p>修改id.CBL(CBL0005)以在报告中包含美元货币符号。</p>
@@ -367,7 +382,7 @@
 <li><p>观察报告数据行现在应该包含美元货币符号，如图8所示。</p>
 </li>
 </ol>
-<p><img src="/image148.png" srcset="/img/loading.gif"></p>
+<p><img src="/image148.png"></p>
 <p><em>图8. 输出中添加了货币符号</em></p>
 <p>\newpage</p>
 <h1 id="条件表达式"><a href="#条件表达式" class="headerlink" title="条件表达式"></a>条件表达式</h1><p>本章深入探讨了程序如何根据程序员编写的逻辑做出决策。具体来说，程序在源代码的PROCEDURE DIVISION中做出这些决策。我们将通过有用的解释、示例以及最终通过实验来练习实现，扩展关于在COBOL中编写的条件表达式的几个主题。</p>
@@ -429,11 +444,11 @@
 </li>
 </ol>
 <p>COBOL条件表达式的常见类型的每种类型的COBOL布尔关系运算符列表如下图1、图2和图3所示。</p>
-<p><img src="/image149.png" srcset="/img/loading.gif"></p>
+<p><img src="/image149.png"></p>
 <p><em>图1. 一般关系条件运算符</em></p>
-<p><img src="/image150.png" srcset="/img/loading.gif"></p>
+<p><img src="/image150.png"></p>
 <p><em>图2. 类条件运算符</em></p>
-<p><img src="/image151.png" srcset="/img/loading.gif"></p>
+<p><img src="/image151.png"></p>
 <p><em>图3. 符号条件运算符</em></p>
 <h3 id="使用布尔运算符的条件表达式示例"><a href="#使用布尔运算符的条件表达式示例" class="headerlink" title="使用布尔运算符的条件表达式示例"></a>使用布尔运算符的条件表达式示例</h3><p>一个简单的条件表达式可以写成：</p>
 <p><code>IF 5 &gt; 1 THEN DISPLAY &#39;5 is greater than 1&#39; ELSE DISPLAY &#39;1 is greater than 5&#39;。</code></p>
@@ -671,10 +686,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

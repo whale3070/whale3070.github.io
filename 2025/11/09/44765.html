@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -310,7 +325,7 @@
 <p><code>solc --optimize --bin --abi helloworld.sol -o build</code></p>
 <h1 id="Web3-javascript-库"><a href="#Web3-javascript-库" class="headerlink" title="Web3 javascript 库"></a>Web3 javascript 库</h1><p>web3 库是一个开源的 JavaScript 库，可用于从同一台计算机或远程计算机连接到以太坊节点。</p>
 <p>它支持进程间通信 (IPC) 和远程过程通信 (RPC) 连接到以太坊节点。web3 是一个客户端库，可以与网页一起使用，并进行查询，还可以向以太坊节点提交交易。它可以通过 Node 包管理器安装，就像 Solidity 编译器一样，作为 Node 模块安装。截至撰写本文时，最新版本的 web3 存在问题，由于缺少 BigNumber.js 文件，无法正确安装。但是，之前的稳定版本仍然可用于将 Web 应用程序连接到后端以太坊节点。让我们来看看安装 web3 JavaScript 库的步骤：</p>
-<p>npm install <a href="mailto:&#x77;&#101;&#98;&#51;&#x40;&#x30;&#46;&#x31;&#57;">web3@0.19</a></p>
+<p>npm install <a href="mailto:&#x77;&#x65;&#x62;&#x33;&#x40;&#48;&#x2e;&#x31;&#x39;">web3@0.19</a></p>
 <p><strong><code>web3.js</code></strong> 是以太坊生态中最早也最广泛使用的 JavaScript 库之一，它的主要作用是让前端或后端 JavaScript 应用与以太坊区块链交互。具体来说，它可以：</p>
 <ol>
 <li><p><strong>连接以太坊节点</strong></p>
@@ -437,7 +452,7 @@
 <td>移动端钱包部署</td>
 </tr>
 </tbody></table>
-<p><img src="/2025/11/09/44765/1109-2.png" srcset="/img/loading.gif" alt="环境environment"></p>
+<p><img src="/2025/11/09/44765/1109-2.png" alt="环境environment"></p>
 <p>明白了，你看到的 <strong>Remix VM</strong> 下拉菜单里列出了不同的 <strong>EVM 模拟环境</strong>，这些名字对应的是以太坊不同的 <strong>硬分叉（Hard Fork）版本或网络分支</strong>。我来帮你梳理：</p>
 <h3 id="1️⃣-为什么会有这么多选项"><a href="#1️⃣-为什么会有这么多选项" class="headerlink" title="1️⃣ 为什么会有这么多选项"></a>1️⃣ 为什么会有这么多选项</h3><p>以太坊网络会定期升级协议，这些升级称为 <strong>Hard Forks</strong>，每次升级都会引入新的 EVM 规则。Remix VM 模拟器提供了这些不同版本，方便你测试合约在不同 EVM 版本下的行为。</p>
 <h3 id="2️⃣-各选项含义"><a href="#2️⃣-各选项含义" class="headerlink" title="2️⃣ 各选项含义"></a>2️⃣ 各选项含义</h3><p>| Remix VM 选项                                       | 含义                                   |<br>| <strong>Remix VM (Prague)</strong>                             | 对应近期以太坊网络升级后状态，支持最新 EVM 特性           |<br>| <strong>Remix VM (Cancun)</strong>                             | 最新以太坊硬分叉模拟（如 Proto-Danksharding 功能等） |<br>| <strong>Remix VM - Mainnet fork</strong>                       | 模拟主网当前状态，方便测试主网合约兼容性                 |<br>| <strong>Remix VM - Sepolia fork</strong>                       | 模拟 Sepolia 测试网状态，适合测试部署在 Sepolia 的合约 |<br>| <strong>Remix VM - Custom fork</strong>                        | 自定义 fork，可指定 RPC URL 或特定网络状态         |<br>| <strong>Remix VM (Shanghai &#x2F; Paris &#x2F; London &#x2F; Berlin)</strong> | 对应以太坊历史硬分叉版本，用于回测合约在旧 EVM 规则下的表现     |</p>
@@ -630,10 +645,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

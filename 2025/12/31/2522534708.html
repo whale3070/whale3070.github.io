@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -236,9 +251,9 @@
 <h3 id="1-准备工作：Rust-环境配置"><a href="#1-准备工作：Rust-环境配置" class="headerlink" title="1. 准备工作：Rust 环境配置"></a>1. 准备工作：Rust 环境配置</h3><p>Polkadot SDK 是用 Rust 编写的，因此需要配置完整的 Rust 工具链。</p>
 <figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 安装 Rust 和 rustup</span><br>curl --proto <span class="hljs-string">&#x27;=https&#x27;</span> --tlsv1.2 -sSf https://sh.rustup.rs | sh<br><br><span class="hljs-comment"># 配置环境</span><br><span class="hljs-built_in">source</span> <span class="hljs-variable">$HOME</span>/.cargo/env<br><br><span class="hljs-comment"># 安装相关的依赖（以 Ubuntu 为例）</span><br><span class="hljs-built_in">sudo</span> apt update<br><span class="hljs-built_in">sudo</span> apt install --assume-yes git clang curl libssl-dev llvm libudev-dev make protobuf-compiler<br><br><span class="hljs-comment"># 设置 Rust 工具链为最新稳定版，并添加 Wasm 编译目标（区块链运行时的关键）</span><br>rustup default stable<br>rustup update<br>rustup target add wasm32-unknown-unknown<br></code></pre></div></td></tr></table></figure>
 
-<p><img src="/2016/01/01/18266" srcset="/img/loading.gif"></p>
+<p><img src="/2025/12/31/2522534708/2.png"></p>
 <h3 id="2-获取源码并编译"><a href="#2-获取源码并编译" class="headerlink" title="2. 获取源码并编译"></a>2. 获取源码并编译</h3><p>Polkadot SDK 仓库体积庞大（包含了 Substrate, Polkadot, Cumulus 等），建议使用 <code>--depth 1</code> 进行浅克隆以节省时间。</p>
-<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 克隆仓库</span><br>git <span class="hljs-built_in">clone</span> --depth 1 https://github.com/paritytech/polkadot-sdk.git<br><span class="hljs-built_in">cd</span> polkadot-sdk<br><br><span class="hljs-comment"># 编译所有二进制文件（耗时较长，建议在高性能机器上进行）</span><br><span class="hljs-comment"># 如果你只想跑一个简单的开发节点，可以使用单人链模板 (Solochain Template)</span><br>cargo build --release<br><br></code></pre></div></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 克隆仓库</span><br>git <span class="hljs-built_in">clone</span> --depth 1 https://github.com/paritytech/polkadot-sdk.git<br><span class="hljs-built_in">cd</span> polkadot-sdk<br><br><span class="hljs-comment"># 编译所有二进制文件（耗时较长，建议在高性能机器上进行）</span><br><span class="hljs-comment"># 如果你只想跑一个简单的开发节点，可以使用单人链模板 (Solochain Template)</span><br>cargo build --release<br></code></pre></div></td></tr></table></figure>
 
 <blockquote>
 <p><strong>注意：</strong> 编译过程通常需要 15-30 分钟，具体取决于你的 CPU。编译完成后，二进制文件位于 <code>target/release/polkadot</code>。</p>
@@ -248,8 +263,9 @@
 <h4 id="启动开发模式（本地单节点）"><a href="#启动开发模式（本地单节点）" class="headerlink" title="启动开发模式（本地单节点）"></a>启动开发模式（本地单节点）</h4><p>如果你只是为了本地调试，使用 <code>--dev</code> 标志：</p>
 <figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">./target/release/polkadot --dev<br><br></code></pre></div></td></tr></table></figure>
 
+<p><img src="/2025/12/31/2522534708/3.png"></p>
 <h4 id="配置-RPC-服务参数"><a href="#配置-RPC-服务参数" class="headerlink" title="配置 RPC 服务参数"></a>配置 RPC 服务参数</h4><p>如果你需要从外部（如 SubWallet、Polkadot{.js} 或自定义脚本）连接到该节点，需要显式开启 RPC 监听：</p>
-<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">./target/release/polkadot \<br>  --dev \<br>  --rpc-external \<br>  --rpc-methods Safe \<br>  --rpc-cors all \<br>  --rpc-port 9944 \<br>  --name <span class="hljs-string">&quot;Whale3070-Node&quot;</span><br><br></code></pre></div></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">./target/release/polkadot \<br>  --dev \<br>  --rpc-external \<br>  --rpc-methods Safe \<br>  --rpc-cors all \<br>  --rpc-port 9944 \<br>  --name <span class="hljs-string">&quot;Whale3070-Node&quot;</span><br></code></pre></div></td></tr></table></figure>
 
 <ul>
 <li><strong><code>--rpc-external</code></strong>: 允许非本地连接。</li>
@@ -655,10 +671,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 

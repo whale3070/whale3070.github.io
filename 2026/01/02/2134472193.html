@@ -9,7 +9,22 @@
     }
     </style>
 
-  
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
 
 <head>
   <meta charset="UTF-8">
@@ -61,7 +76,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -184,7 +199,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      0 字
+      6.6k 字
     </span>
   
 
@@ -194,7 +209,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      1
+      73
        分钟
     </span>
   
@@ -228,7 +243,395 @@
             <h1 style="display: none">Polkadot Solidity开发-课程笔记5</h1>
             
             <div class="markdown-body">
-              
+              <h1 id="revive对EVM账号的映射是什么意思"><a href="#revive对EVM账号的映射是什么意思" class="headerlink" title="revive对EVM账号的映射是什么意思"></a>revive对EVM账号的映射是什么意思</h1><p>简单来说，<strong>revive 对 EVM 账号的映射</strong>是为了让 Polkadot 的“原生账户”和 Ethereum 的“20 字节账户”能够互相识别并互通。</p>
+<p>由于你之前提到过，你预判了香港高才通并拿到了签证，这种通过特定标准（映射）获得新身份的逻辑，与 revive 处理账号的方式有异曲同工之妙。</p>
+<h3 id="1-为什么要映射？（核心背景）"><a href="#1-为什么要映射？（核心背景）" class="headerlink" title="1. 为什么要映射？（核心背景）"></a>1. 为什么要映射？（核心背景）</h3><p>在 Polkadot 生态中，账号通常是 <strong>32 字节（SS58 格式）</strong>，而以太坊（EVM）使用的是 <strong>20 字节（H160 格式）</strong>。</p>
+<ul>
+<li><strong>不映射的问题</strong>：如果你想在 Polkadot 上直接用 MetaMask（以太坊钱包）操作，或者让以太坊智能合约识别你的 Polkadot 原生账号，两者的“语言”是对不上的。</li>
+<li><strong>revive 的作用</strong>：<code>pallet-revive</code> 是 Polkadot 2.0 引入的新组件，它不仅支持以太坊虚拟机（EVM），还支持更先进的 PolkaVM（PVM）。映射就是为了让这两个世界的账号能“握手”。</li>
+</ul>
+<hr>
+<h3 id="2-映射的两种路径"><a href="#2-映射的两种路径" class="headerlink" title="2. 映射的两种路径"></a>2. 映射的两种路径</h3><p>根据技术实现，映射通常分为以下两种方式：</p>
+<h4 id="A-从-EVM-映射到-Polkadot-默认转换"><a href="#A-从-EVM-映射到-Polkadot-默认转换" class="headerlink" title="A. 从 EVM 映射到 Polkadot (默认转换)"></a>A. 从 EVM 映射到 Polkadot (默认转换)</h4><p>当你在 revive 上使用一个以太坊地址（如 <code>0x123...</code>）时，系统会自动通过一个确定的算法将其转换为 Polkadot 的 32 字节格式。</p>
+<ul>
+<li><strong>逻辑</strong>：通常是在以太坊地址前填充特定的后缀（如 <code>0xEE...</code>）或者进行哈希运算。</li>
+<li><strong>结果</strong>：这保证了每个以太坊账号在 Polkadot 链上都有一个对应的“影子账号”来持有资产。</li>
+</ul>
+<h4 id="B-从-Polkadot-映射到-EVM-状态映射"><a href="#B-从-Polkadot-映射到-EVM-状态映射" class="headerlink" title="B. 从 Polkadot 映射到 EVM (状态映射)"></a>B. 从 Polkadot 映射到 EVM (状态映射)</h4><p>这是你作为 Polkadot 原生用户最需要关注的。如果你有一个现有的 Polkadot 32 字节账号，想去玩 revive 上的 EVM 合约：</p>
+<ol>
+<li>**调用 <code>map_account**</code>：你需要发起一笔交易，显式地将你的 32 字节 ID 绑定到一个 20 字节的 EVM 地址。</li>
+<li><strong>存储绑定</strong>：这个映射关系会记录在链上状态中。</li>
+<li><strong>好处</strong>：这样你在使用以太坊工具（如 MetaMask）时，实际上操作的是你原本的 Polkadot 账户资产。</li>
+</ol>
+<hr>
+<h3 id="3-技术实现对比"><a href="#3-技术实现对比" class="headerlink" title="3. 技术实现对比"></a>3. 技术实现对比</h3><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>以太坊原生 (H160)</th>
+<th>Polkadot 原生 (AccountId32)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>长度</strong></td>
+<td>20 字节</td>
+<td>32 字节</td>
+</tr>
+<tr>
+<td><strong>映射方式</strong></td>
+<td>自动拼接后缀或哈希</td>
+<td>显式调用 <code>map_account</code> 绑定</td>
+</tr>
+<tr>
+<td><strong>兼容工具</strong></td>
+<td>MetaMask, Hardhat</td>
+<td>Polkadot{.js}, Talisman</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="4-这对你有什么意义？"><a href="#4-这对你有什么意义？" class="headerlink" title="4. 这对你有什么意义？"></a>4. 这对你有什么意义？</h3><p>revive 的映射机制是为了排除“账号不兼容”这个错误障碍。</p>
+<ul>
+<li><strong>资产互通</strong>：你可以直接在 Asset Hub 等平行链上，用以太坊的方式处理原本属于 Polkadot 格式的资产。</li>
+<li><strong>开发者友好</strong>：正如你提到的“获取全球信息权”的重要性，这种映射让开发者可以无缝把以太坊的 DApp 搬到 Polkadot 上，同时保留对原生生态的访问。</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=GPuTt10dxKI">Polkadot Revive 技术演示</a><br>这个视频详细介绍了 Project Revive 的架构，包括它是如何让 Solidity 合约在 PolkaVM 上运行以及账号处理的相关逻辑。</p>
+<p><strong>如果你需要，我可以为你演示如何在测试网（如 Westend）上实际操作这个账号映射过程，或者帮你分析它对你未来预判 Web3 行业机会有什么影响？</strong></p>
+<h1 id="cargo-build-–release-p-subkey是什么意思"><a href="#cargo-build-–release-p-subkey是什么意思" class="headerlink" title="cargo build –release -p subkey是什么意思"></a>cargo build –release -p subkey是什么意思</h1><h3 id="命令整体含义"><a href="#命令整体含义" class="headerlink" title="命令整体含义"></a>命令整体含义</h3><p><code>cargo build --release -p subkey</code> 是 <strong>Rust 项目构建工具 <code>cargo</code> 的专用命令</strong>，核心作用是：为指定的 Rust 项目（包）<code>subkey</code>，以 <strong>生产环境优化模式</strong> 构建可执行文件或库文件（<code>subkey</code> 通常是 Polkadot&#x2F;Substrate 生态中的密钥管理工具，此处作为包名）。</p>
+<p>下面我们拆分每个参数详细解释，帮你彻底理解：</p>
+<hr>
+<h2 id="一、核心命令：cargo-build"><a href="#一、核心命令：cargo-build" class="headerlink" title="一、核心命令：cargo build"></a>一、核心命令：<code>cargo build</code></h2><p><code>cargo</code> 是 Rust 官方的项目管理和构建工具（类似 Node.js 的 <code>npm</code>、Java 的 <code>maven</code>），而 <code>cargo build</code> 是 <code>cargo</code> 的核心子命令之一，<strong>基础功能是编译构建当前 Rust 工作区（workspace）中的项目代码</strong>，生成对应的二进制文件（可执行程序）或库文件。</p>
+<p>默认情况下（不带任何参数），<code>cargo build</code> 会以「调试模式（debug mode）」构建项目，该模式不开启代码优化，编译速度快，保留完整调试信息，方便开发阶段调试程序。</p>
+<hr>
+<h2 id="二、关键参数：-release"><a href="#二、关键参数：-release" class="headerlink" title="二、关键参数：--release"></a>二、关键参数：<code>--release</code></h2><p><code>--release</code> 是 <code>cargo build</code> 的核心优化参数，它的作用是：<strong>启用生产环境优化模式（发布模式）构建项目</strong>，对应的构建产物会输出到 <code>target/release/</code> 目录下（而非调试模式的 <code>target/debug/</code>）。</p>
+<p>该模式的核心特性：</p>
+<ol>
+<li>开启 Rust 编译器的最高级别优化（<code>-O3</code> 级别），会对代码进行常量折叠、死代码消除、循环优化等一系列优化操作，最终生成的二进制文件运行速度更快、体积更小；</li>
+<li>关闭调试信息，无法直接用于调试（<code>gdb</code> 等调试工具难以解析）；</li>
+<li>编译时间更长（因优化操作耗时）；</li>
+<li>适用于生产环境部署、性能测试等场景（而非开发调试阶段）。</li>
+</ol>
+<hr>
+<h2 id="三、指定包参数：-p-subkey（全称-package-subkey）"><a href="#三、指定包参数：-p-subkey（全称-package-subkey）" class="headerlink" title="三、指定包参数：-p subkey（全称 --package subkey）"></a>三、指定包参数：<code>-p subkey</code>（全称 <code>--package subkey</code>）</h2><h3 id="1-核心作用"><a href="#1-核心作用" class="headerlink" title="1. 核心作用"></a>1. 核心作用</h3><p><code>-p</code> 是 <code>--package</code> 的简写形式，该参数的作用是 <strong>在一个 Rust 工作区（多包项目）中，明确指定本次只构建 <code>subkey</code> 这个包（package&#x2F;crate），而非构建工作区中的所有包</strong>。</p>
+<h3 id="2-适用场景"><a href="#2-适用场景" class="headerlink" title="2. 适用场景"></a>2. 适用场景</h3><p>Rust 支持「工作区（workspace）」特性，一个项目根目录下可以包含多个子包（比如一个区块链项目可能同时包含 <code>node</code>、<code>cli</code>、<code>subkey</code> 等多个子包）。默认执行 <code>cargo build</code> 会构建工作区中所有可构建的包，而 <code>-p subkey</code> 可以精准指定只构建 <code>subkey</code>，避免不必要的编译，节省时间。</p>
+<h3 id="3-补充说明"><a href="#3-补充说明" class="headerlink" title="3. 补充说明"></a>3. 补充说明</h3><p><code>subkey</code> 是包的「名称」（对应包目录下 <code>Cargo.toml</code> 文件中的 <code>name = &quot;subkey&quot;</code> 配置），而非包的目录路径，<code>cargo</code> 会自动在工作区中查找该名称对应的包并构建。</p>
+<hr>
+<h2 id="四、补充细节"><a href="#四、补充细节" class="headerlink" title="四、补充细节"></a>四、补充细节</h2><ol>
+<li><strong>产物路径</strong>：该命令构建完成后，<code>subkey</code> 的可执行文件（或库文件）会生成在 <code>&lt;项目根目录&gt;/target/release/</code> 下（可执行文件直接名为 <code>subkey</code>（Linux&#x2F;Mac）或 <code>subkey.exe</code>（Windows））；</li>
+<li><strong>与 <code>cargo build --release</code> 的区别</strong>：后者会构建工作区所有包的 release 版本，前者只构建 <code>subkey</code> 一个包的 release 版本；</li>
+<li><strong><code>subkey</code> 背景</strong>：<code>subkey</code> 通常是 Polkadot、Substrate 区块链生态中的密钥生成、管理、签名验证工具，该命令常见于编译安装该工具的场景。</li>
+</ol>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>整体：编译 Rust 工作区中的 <code>subkey</code> 包，生成生产环境优化后的构建产物；</li>
+<li>各部分：<code>cargo build</code>（基础构建）→ <code>--release</code>（生产环境优化，输出到 target&#x2F;release）→ <code>-p subkey</code>（指定只构建 subkey 包，而非整个工作区）。</li>
+</ol>
+<h1 id="yarn-add-polkadot-api-是什么意思"><a href="#yarn-add-polkadot-api-是什么意思" class="headerlink" title="yarn add polkadot-api 是什么意思"></a>yarn add polkadot-api 是什么意思</h1><p>yarn add polkadot-api</p>
+<h3 id="命令整体含义-1"><a href="#命令整体含义-1" class="headerlink" title="命令整体含义"></a>命令整体含义</h3><p><code>yarn add polkadot-api</code> 是 <strong>JavaScript&#x2F;TypeScript 生态中的包管理命令</strong>，核心作用是：通过 <code>yarn</code> 包管理器，将名为 <code>polkadot-api</code> 的第三方依赖包<strong>安装到当前项目中</strong>，并自动完成依赖注册、版本锁定等相关配置，方便你在项目中使用该包提供的功能（<code>polkadot-api</code> 是专门用于与 Polkadot&#x2F;Substrate 区块链生态交互的开发工具包）。</p>
+<p>下面拆分核心组件和关键细节，帮你彻底理解：</p>
+<hr>
+<h2 id="一、核心组件解析"><a href="#一、核心组件解析" class="headerlink" title="一、核心组件解析"></a>一、核心组件解析</h2><h3 id="1-yarn：JavaScript-包管理器"><a href="#1-yarn：JavaScript-包管理器" class="headerlink" title="1.  yarn：JavaScript 包管理器"></a>1.  <code>yarn</code>：JavaScript 包管理器</h3><p><code>yarn</code> 是一款流行的开源包管理工具（由 Facebook 推出，替代早期的 <code>npm</code> 部分场景，也可与 <code>npm</code> 兼容），核心功能是：</p>
+<ul>
+<li>下载&#x2F;安装第三方依赖包到项目中；</li>
+<li>管理依赖版本，避免版本冲突；</li>
+<li>记录依赖信息到配置文件，方便团队协作和项目部署。<br>它的作用类似 Rust 中的 <code>cargo</code>、Java 中的 <code>maven</code>、Python 中的 <code>pip</code>。</li>
+</ul>
+<h3 id="2-add：yarn-的核心子命令"><a href="#2-add：yarn-的核心子命令" class="headerlink" title="2.  add：yarn 的核心子命令"></a>2.  <code>add</code>：yarn 的核心子命令</h3><p><code>yarn add &lt;包名&gt;</code> 是 <code>yarn</code> 的核心安装命令，作用是<strong>为当前项目安装指定的第三方依赖包</strong>。</p>
+<ul>
+<li>执行该命令后，<code>yarn</code> 会自动从官方包仓库（npm registry）下载 <code>polkadot-api</code> 的最新稳定版本（或指定版本，默认最新）；</li>
+<li>会将依赖包解压到项目的 <code>node_modules/</code> 目录（所有本地依赖的存放目录）；</li>
+<li>自动更新项目的配置文件，完成依赖注册。</li>
+</ul>
+<h3 id="3-polkadot-api：目标依赖包"><a href="#3-polkadot-api：目标依赖包" class="headerlink" title="3.  polkadot-api：目标依赖包"></a>3.  <code>polkadot-api</code>：目标依赖包</h3><p><code>polkadot-api</code> 是专门针对 <strong>Polkadot&#x2F;Substrate 区块链生态</strong>开发的 JavaScript&#x2F;TypeScript 工具包，核心用途是：</p>
+<ul>
+<li>让开发者在前端项目（Vue&#x2F;React 等）或 Node.js 后端项目中，轻松与 Polkadot 节点、Substrate 自定义链进行交互；</li>
+<li>提供密钥管理、交易签名与发送、链上数据查询（区块、账户、合约等）、事件监听等核心功能；</li>
+<li>是 Polkadot 生态前端&#x2F;Node.js 开发的核心依赖之一，替代早期的 <code>@polkadot/api</code> 部分功能（或作为其升级&#x2F;补充版本）。</li>
+</ul>
+<hr>
+<h2 id="二、关键执行结果（命令运行后会发生什么）"><a href="#二、关键执行结果（命令运行后会发生什么）" class="headerlink" title="二、关键执行结果（命令运行后会发生什么）"></a>二、关键执行结果（命令运行后会发生什么）</h2><ol>
+<li><p><strong>创建&#x2F;更新 <code>node_modules/</code> 目录</strong></p>
+<ul>
+<li>如果项目中没有 <code>node_modules/</code> 目录，<code>yarn</code> 会自动创建该目录，并将 <code>polkadot-api</code> 及其所有依赖（依赖的依赖，即间接依赖）下载并存放至此；</li>
+<li>如果已有该目录，会新增 <code>polkadot-api</code> 相关文件，同时更新可能存在的依赖版本。</li>
+</ul>
+</li>
+<li><p><strong>更新项目配置文件</strong></p>
+<ul>
+<li>自动更新 <code>package.json</code> 文件：在该文件的 <code>dependencies</code> 字段中，添加 <code>polkadot-api</code> 的版本记录（格式如 <code>&quot;polkadot-api&quot;: &quot;^x.y.z&quot;</code>），标记该包为项目的<strong>生产环境依赖</strong>（运行项目时必须的依赖，区别于开发环境依赖 <code>devDependencies</code>）；<br>示例 <code>package.json</code> 片段：<figure class="highlight json"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;your-project&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;version&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;1.0.0&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;dependencies&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;polkadot-api&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;^0.12.0&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-comment">// 安装后自动添加</span><br>    <span class="hljs-attr">&quot;other-package&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;^1.0.0&quot;</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></div></td></tr></table></figure></li>
+<li>自动更新&#x2F;创建 <code>yarn.lock</code> 文件：该文件是 <code>yarn</code> 的版本锁定文件，会精确记录 <code>polkadot-api</code> 的安装版本、所有间接依赖的版本及下载地址，确保团队其他成员或部署环境安装时，能获得完全一致的依赖版本，避免“本地能运行，线上报错”的版本冲突问题。</li>
+</ul>
+</li>
+<li><p><strong>可选：安装指定版本</strong><br>若你需要安装 <code>polkadot-api</code> 的特定版本（而非最新版），可在包名后添加版本号，格式如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 安装 0.12.0 精确版本</span><br>yarn add polkadot-api@0.12.0<br><span class="hljs-comment"># 安装 ^0.12.0 版本（兼容 0.12.x 系列更新，默认方式）</span><br>yarn add polkadot-api@^0.12.0<br></code></pre></div></td></tr></table></figure></li>
+</ol>
+<hr>
+<h2 id="三、补充说明"><a href="#三、补充说明" class="headerlink" title="三、补充说明"></a>三、补充说明</h2><ol>
+<li><strong>适用前提</strong>：执行该命令前，需确保当前目录是 JavaScript&#x2F;TypeScript 项目根目录（已通过 <code>yarn init</code> 或 <code>npm init</code> 初始化，存在 <code>package.json</code> 文件），否则会报错；</li>
+<li><strong>与 <code>npm install polkadot-api</code> 的区别</strong>：两者功能一致（均安装该包），只是包管理器不同（<code>yarn</code> vs <code>npm</code>），对应的锁定文件分别是 <code>yarn.lock</code> 和 <code>package-lock.json</code>；</li>
+<li><strong>开发环境安装</strong>：若仅在开发&#x2F;测试阶段使用该包（生产环境无需打包），可添加 <code>--dev</code> 参数（简写 <code>-D</code>），会将其注册到 <code>package.json</code> 的 <code>devDependencies</code> 字段：<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">yarn add polkadot-api --dev<br><span class="hljs-comment"># 简写</span><br>yarn add polkadot-api -D<br></code></pre></div></td></tr></table></figure></li>
+</ol>
+<h3 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>整体：通过 <code>yarn</code> 包管理器为当前 JS&#x2F;TS 项目安装 Polkadot 生态的 <code>polkadot-api</code> 依赖包；</li>
+<li>各部分：<code>yarn</code>（包管理器）→ <code>add</code>（安装命令）→ <code>polkadot-api</code>（目标依赖包，用于 Polkadot 链交互）；</li>
+<li>核心结果：依赖存入 <code>node_modules/</code>，版本记录到 <code>package.json</code> 和 <code>yarn.lock</code>，可在项目中引入并使用该包的功能。</li>
+</ol>
+<h1 id="波卡支持的签名算法有哪些"><a href="#波卡支持的签名算法有哪些" class="headerlink" title="波卡支持的签名算法有哪些"></a>波卡支持的签名算法有哪些</h1><p>波卡（基于Substrate）核心支持3种签名算法：sr25519（默认）、ed25519、ecdsa（secp256k1），均适配SS58地址体系，核心差异在曲线、签名特性与适用场景。以下从算法细节、特性对比与安全审计视角展开说明。</p>
+<hr>
+<h3 id="一、三大核心签名算法详解"><a href="#一、三大核心签名算法详解" class="headerlink" title="一、三大核心签名算法详解"></a>一、三大核心签名算法详解</h3><ol>
+<li><p><strong>sr25519（Schnorrkel&#x2F;Ristretto）</strong></p>
+<ul>
+<li>底层：基于Curve25519的Schnorr变体，用Ristretto点压缩剔除cofactor风险，哈希依赖merlin（基于Keccak‑f(1600)）。</li>
+<li>核心特性：支持HDKD（分层确定性密钥推导）、原生签名聚合多签、VRF（可验证随机函数），适合链上治理与验证人场景。</li>
+<li>适用：波卡&#x2F;Substrate默认账户算法，Polkadot‑JS扩展默认生成，适合日常转账、Staking、多签与平行链操作。</li>
+<li>地址：SS58前缀适配对应链，公钥32字节，校验和2&#x2F;4字节。</li>
+</ul>
+</li>
+<li><p><strong>ed25519（EdDSA）</strong></p>
+<ul>
+<li>底层：EdDSA变体，Curve25519+SHA‑512，确定性签名，无随机数依赖，抗侧信道攻击。</li>
+<li>核心特性：签名&#x2F;验签速度快，HSM（硬件安全模块）兼容性好，适合传统密钥管理方案。</li>
+<li>适用：需对接企业级HSM、冷钱包或外部KMS的场景，账户迁移与合规存储更友好。</li>
+<li>地址：与sr25519同属SS58体系，仅密钥推导与签名逻辑不同，地址格式兼容。</li>
+</ul>
+</li>
+<li><p><strong>ecdsa（secp256k1）</strong></p>
+<ul>
+<li>底层：ECDSA变体，基于secp256k1曲线，与比特币&#x2F;以太坊兼容，哈希常用SHA‑256。</li>
+<li>核心特性：生态工具成熟，私钥可复用至部分BTC&#x2F;ETH生态钱包，适合跨链资产互通场景。</li>
+<li>适用：兼容传统区块链账户体系，或需与EVM平行链（如Moonbeam）做签名互通的场景。</li>
+<li>地址：可映射为SS58格式（前缀适配链配置），也支持EVM兼容地址（如H160），需注意格式转换安全。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="二、关键特性对比表"><a href="#二、关键特性对比表" class="headerlink" title="二、关键特性对比表"></a>二、关键特性对比表</h3><table>
+<thead>
+<tr>
+<th align="left">维度</th>
+<th align="left">sr25519</th>
+<th align="left">ed25519</th>
+<th align="left">ecdsa（secp256k1）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">签名类型</td>
+<td align="left">Schnorr（Schnorrkel）</td>
+<td align="left">EdDSA（Schnorr变体）</td>
+<td align="left">ECDSA</td>
+</tr>
+<tr>
+<td align="left">曲线</td>
+<td align="left">Curve25519（Ristretto）</td>
+<td align="left">Curve25519</td>
+<td align="left">secp256k1</td>
+</tr>
+<tr>
+<td align="left">核心能力</td>
+<td align="left">HDKD、多签聚合、VRF</td>
+<td align="left">快速签名&#x2F;验签、HSM适配</td>
+<td align="left">跨链生态兼容、工具成熟</td>
+</tr>
+<tr>
+<td align="left">安全优势</td>
+<td align="left">剔除cofactor，多签更安全</td>
+<td align="left">确定性签名，抗侧信道</td>
+<td align="left">长期实践验证，攻击成本高</td>
+</tr>
+<tr>
+<td align="left">波卡默认</td>
+<td align="left">是</td>
+<td align="left">否</td>
+<td align="left">否</td>
+</tr>
+<tr>
+<td align="left">钱包支持</td>
+<td align="left">Polkadot‑JS、Talisman等</td>
+<td align="left">主流钱包均支持</td>
+<td align="left">需手动选择或适配</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="三、Web3安全审计视角的关键提示"><a href="#三、Web3安全审计视角的关键提示" class="headerlink" title="三、Web3安全审计视角的关键提示"></a>三、Web3安全审计视角的关键提示</h3><ol>
+<li><strong>账户选型安全</strong><ul>
+<li>日常操作优先sr25519，利用HDKD与多签提升安全性；大额资产用ed25519+HSM冷存储，降低私钥泄露风险。</li>
+<li>ecdsa跨链复用私钥时，需隔离波卡与BTC&#x2F;ETH生态操作，避免一链泄露全链受损。</li>
+</ul>
+</li>
+<li><strong>签名验证要点</strong><ul>
+<li>合约审计中，需确认签名算法与链配置匹配，如EVM平行链的ecdsa验签需适配secp256k1参数，避免验签逻辑漏洞。</li>
+<li>跨链消息验证时，注意不同算法的公钥格式差异，用Substrate API Sidecar的validate接口校验SS58地址与公钥对应关系。</li>
+</ul>
+</li>
+<li><strong>格式转换风险</strong><ul>
+<li>同一公钥在不同算法下地址不同，不可混淆；如sr25519与ed25519公钥不可互转，需通过钱包重新生成对应算法账户。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="四、快速实操指南"><a href="#四、快速实操指南" class="headerlink" title="四、快速实操指南"></a>四、快速实操指南</h3><ol>
+<li>在Polkadot‑JS扩展中创建账户时，可手动选择算法：默认sr25519，可选ed25519或ecdsa。</li>
+<li>验证签名算法：通过Subscan账户详情页查看公钥类型，或用Polkadot‑JS UI的“签名验证”工具校验交易签名算法。</li>
+<li>跨链&#x2F;跨算法迁移：需重新生成目标算法的密钥对，通过链上转账迁移资产，不可直接复用私钥。</li>
+</ol>
+<p>需要我按你常用的<strong>钱包（如Polkadot‑JS&#x2F;Talisman）</strong> 给出三种算法的<strong>账户创建步骤</strong>，并补充2个合约审计中<strong>签名算法校验</strong>的常见漏洞与修复方案吗？</p>
+<h1 id="波卡revive计算gas的维度-A-ref-time-B-proof-size-C-input-size-D-storage-deposit-这是多选题"><a href="#波卡revive计算gas的维度-A-ref-time-B-proof-size-C-input-size-D-storage-deposit-这是多选题" class="headerlink" title="波卡revive计算gas的维度 A. ref_time B. proof_size C input size D storage deposit 这是多选题"></a>波卡revive计算gas的维度 A. ref_time B. proof_size C input size D storage deposit 这是多选题</h1><p>这道题的正确答案是 <strong>A. ref_time</strong>、<strong>B. proof_size</strong>、<strong>D. storage deposit</strong>。</p>
+<h3 id="选项解析"><a href="#选项解析" class="headerlink" title="选项解析"></a>选项解析</h3><ol>
+<li><p><strong>A. ref_time（正确）</strong><br>ref_time 是 <strong>参考时间</strong>，用于衡量交易执行过程中消耗的计算资源（如指令执行、逻辑判断、数据处理等），是波卡（Substrate）网络中计算 Gas 的核心维度之一，直接对应交易的计算成本。</p>
+</li>
+<li><p><strong>B. proof_size（正确）</strong><br>proof_size 是 <strong>证明大小</strong>，用于衡量交易中携带的零知识证明（ZKP）或其他密码学证明的字节大小，针对需要验证证明的交易（如隐私交易、跨链消息），其大小会直接影响验证成本，属于 Gas 计算的重要维度。</p>
+</li>
+<li><p><strong>C. input size（错误）</strong><br>input size（输入大小）是交易的附带数据长度，但波卡网络<strong>不直接将其作为独立的 Gas 计算维度</strong>。输入数据的处理成本已被包含在 ref_time 中（如数据解析、存储读取等操作的计算时间），不会单独计费。</p>
+</li>
+<li><p><strong>D. storage deposit（正确）</strong><br>storage deposit 是 <strong>存储押金</strong>，用于衡量交易对链上存储的新增或修改成本。波卡采用“存储押金”机制：用户需要为占用的链上存储支付押金（可在存储释放时退还），这部分成本属于交易的<strong>必要费用</strong>，与 ref_time、proof_size 共同构成交易的总费用计算维度。</p>
+</li>
+</ol>
+<h3 id="补充说明"><a href="#补充说明" class="headerlink" title="补充说明"></a>补充说明</h3><p>波卡（Substrate）的交易费用计算公式可简化为：<br><strong>总费用 &#x3D; 基础费用 + (ref_time × 时间单价) + (proof_size × 证明单价) + storage deposit</strong></p>
+<p>其中：</p>
+<ul>
+<li>基础费用是网络固定收取的最低费用；</li>
+<li>ref_time 和 proof_size 是<strong>消耗型费用</strong>（交易执行后不退还）；</li>
+<li>storage deposit 是<strong>押金型费用</strong>（存储释放时可退还）。</li>
+</ul>
+<h3 id="干扰选项修正（针对你之前需要的混淆选项逻辑）"><a href="#干扰选项修正（针对你之前需要的混淆选项逻辑）" class="headerlink" title="干扰选项修正（针对你之前需要的混淆选项逻辑）"></a>干扰选项修正（针对你之前需要的混淆选项逻辑）</h3><p>若将选项 C 作为干扰项，其迷惑点在于：<strong>输入大小会影响交易处理效率，但波卡已将其成本整合到 ref_time 中，并非独立计费维度</strong>，容易让人误以为“数据量大就会单独加费”。</p>
+<p>需要我为你整理<strong>波卡交易费用计算的完整公式</strong>，并补充<strong>各维度在智能合约审计中的校验要点</strong>吗？</p>
+<h1 id="revive-precompile的地址分配-A-连续分配-B-不同类型有自己的空间"><a href="#revive-precompile的地址分配-A-连续分配-B-不同类型有自己的空间" class="headerlink" title="revive precompile的地址分配 A. 连续分配 B 不同类型有自己的空间"></a>revive precompile的地址分配 A. 连续分配 B 不同类型有自己的空间</h1><p>在 Ethereum 以及兼容 EVM 的链（如 Revive&#x2F;Rollup 等）中，<strong>Precompiles（预编译合约）</strong> 的地址分配逻辑通常遵循 <strong>B 方案：不同类型（或逻辑分组）有自己的空间</strong>，但在某些特定实现或升级阶段，也会表现出一定的连续性。</p>
+<p>针对 Revive 或类 EVM 架构，预编译地址的分配逻辑可以从以下几个维度来理解：</p>
+<hr>
+<h3 id="1-核心分配逻辑：分组空间-Namespace-Partitioning"><a href="#1-核心分配逻辑：分组空间-Namespace-Partitioning" class="headerlink" title="1. 核心分配逻辑：分组空间 (Namespace Partitioning)"></a>1. 核心分配逻辑：分组空间 (Namespace Partitioning)</h3><p>EVM 并不随机分配地址，而是预留了**低位地址空间（Low-address space）**专门给预编译合约。</p>
+<ul>
+<li><strong>标准 EVM 预编译 (Standard Range):</strong><br>地址范围通常从 <code>0x00...01</code> 到 <code>0x00...09</code>（目前以太坊主网）。这部分是<strong>连续分配</strong>的，每增加一个新功能（如 sha256, blake2f），地址就加 1。</li>
+<li><strong>特定链&#x2F;特定引擎扩展 (Custom Range):</strong><br>对于像 Revive 这种可能涉及跨链通信、L2 特性或特定加密算法的链，通常会开辟一个新的<strong>地址段</strong>，以防与以太坊未来的标准预编译地址冲突。例如：</li>
+<li><code>0x00...01</code> - <code>0x00...ffff</code>: 预留给标准以太坊。</li>
+<li><code>0x00...0100</code> 或更高: 预留给特定链的扩展功能（如存储证明、身份验证）。</li>
+</ul>
+<h3 id="2-Revive-中的具体体现"><a href="#2-Revive-中的具体体现" class="headerlink" title="2. Revive 中的具体体现"></a>2. Revive 中的具体体现</h3><p>在 Revive 的架构中，地址分配往往考虑到 <strong>RISC-V 兼容性</strong> 或 <strong>PVM (PolkaVM)</strong> 的特性。</p>
+<ul>
+<li><strong>固定偏移量:</strong> 开发者会定义一个起始 Base 地址，不同类型的预编译合约根据功能模块分布在不同的 Offset 上。</li>
+<li><strong>类型化空间:</strong></li>
+<li><strong>算力密集型:</strong> 放在标准 EVM 区间。</li>
+<li><strong>系统交互型:</strong> 可能会放在一个远高于标准区间的特定地址段（如 <code>0x...4000</code> 之后），形成一个“私有空间”。</li>
+</ul>
+<h3 id="3-为什么选择“不同类型有自己的空间”？"><a href="#3-为什么选择“不同类型有自己的空间”？" class="headerlink" title="3. 为什么选择“不同类型有自己的空间”？"></a>3. 为什么选择“不同类型有自己的空间”？</h3><p>这种设计主要为了解决以下三个问题：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>优势说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>防冲突</strong></td>
+<td>避免链升级时，自定义预编译地址被以太坊主网新出的预编译地址覆盖。</td>
+</tr>
+<tr>
+<td><strong>路由效率</strong></td>
+<td>节点在执行交易时，可以快速通过地址前缀判断该调用是走标准 EVM 逻辑、还是走 Revive 特有的系统调用。</td>
+</tr>
+<tr>
+<td><strong>权限隔离</strong></td>
+<td>不同空间的地址可以设置不同的访问权限或 Gas 计费模型（例如系统级合约与普通加密库）。</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="总结-2"><a href="#总结-2" class="headerlink" title="总结"></a>总结</h3><p>Revive 的预编译地址分配更倾向于 <strong>B（不同类型有自己的空间）</strong>。虽然在一个小类型内部（比如基础加密库）地址可能是连续的，但从宏观架构上看，为了保证兼容性和可扩展性，会为不同功能的预编译合约划分独立的地址区间。</p>
+<p>正如你之前“排除错误选项”的逻辑，这种<strong>空间隔离</strong>的设计正是为了排除“地址冲突”和“逻辑耦合”这两个错误选项，从而保证系统长期运行的稳健性。</p>
+<p><strong>如果你需要查看 Revive 特定的预编译地址映射表（如具体哪些地址对应哪些功能），需要我帮你检索其最新的技术文档或代码定义吗？</strong></p>
+<h1 id="revive-precompile应该如何调用？-A-没有selector，只能直接call-B-要根据每个precompile的定义，有的可以选择selector"><a href="#revive-precompile应该如何调用？-A-没有selector，只能直接call-B-要根据每个precompile的定义，有的可以选择selector" class="headerlink" title="revive precompile应该如何调用？ A 没有selector，只能直接call B 要根据每个precompile的定义，有的可以选择selector"></a>revive precompile应该如何调用？ A 没有selector，只能直接call B 要根据每个precompile的定义，有的可以选择selector</h1><p>针对 Revive (Pallet-revive &#x2F; PolkaVM) 的 Precompile 调用方式，正确答案更倾向于 <strong>B（根据定义而定，有的可以&#x2F;需要选择器）</strong>，但需要分层理解。</p>
+<p>这与原生以太坊（EVM）的逻辑略有不同。在 Revive 这种基于 RISC-V 的环境中，为了兼容性和扩展性，调用机制被设计得更加灵活：</p>
+<h3 id="1-标准以太坊预编译-0x01-0x09"><a href="#1-标准以太坊预编译-0x01-0x09" class="headerlink" title="1. 标准以太坊预编译 (0x01 - 0x09)"></a>1. 标准以太坊预编译 (0x01 - 0x09)</h3><p>对于这部分地址（如 <code>sha256</code>, <code>ecrecover</code>），Revive 保持了与 EVM 的<strong>完全一致性</strong>：</p>
+<ul>
+<li><strong>调用方式：</strong> <strong>没有 Selector</strong>。</li>
+<li><strong>逻辑：</strong> 它们被视为“黑盒”函数。你只需要将原始数据（Raw bytes）通过 <code>staticcall</code> 或 <code>call</code> 发送到对应的地址，预编译合约会处理整个 Input。</li>
+<li><strong>例子：</strong> 调用 <code>0x02</code> (sha256) 时，你发送的是要哈希的数据，而不是函数签名。</li>
+</ul>
+<h3 id="2-Revive-自定义-系统预编译-如-0x100-及以上"><a href="#2-Revive-自定义-系统预编译-如-0x100-及以上" class="headerlink" title="2. Revive 自定义&#x2F;系统预编译 (如 0x100 及以上)"></a>2. Revive 自定义&#x2F;系统预编译 (如 0x100 及以上)</h3><p>Revive 引入了一些特定的系统调用（如跨链 XCM、状态查询或特定的加密算法 <code>secp256r1</code> 等）。对于这些较复杂的预编译合约：</p>
+<ul>
+<li><strong>调用方式：</strong> <strong>支持并推荐使用 Selector</strong>。</li>
+<li><strong>原因：</strong> 这些预编译合约往往不只是一个功能，而是一个“系统合约”，内部可能包含多个方法（例如 <code>verify()</code>, <code>getQuota()</code>, <code>transfer()</code>）。</li>
+<li><strong>实现：</strong> Revive 使用了 <code>SolInterface</code> (基于 Alloy 库)。这意味着你可以像调用普通 Solidity 合约一样，通过 <strong>4 字节选择器 (Function Selector)</strong> 来分发（Dispatch）逻辑。</li>
+</ul>
+<hr>
+<h3 id="总结对比"><a href="#总结对比" class="headerlink" title="总结对比"></a>总结对比</h3><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>代表地址</th>
+<th>是否有 Selector</th>
+<th>调用建议</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>标准 EVM 预编译</strong></td>
+<td><code>0x01</code> ~ <code>0x09</code></td>
+<td><strong>无</strong></td>
+<td>直接发送 Raw Data</td>
+</tr>
+<tr>
+<td><strong>Revive 系统预编译</strong></td>
+<td><code>0x100</code> 以上</td>
+<td><strong>有</strong></td>
+<td>使用 ABI 编码（Selector + Params）</td>
+</tr>
+</tbody></table>
+<h3 id="为什么-Revive-选-B-而不是-A？"><a href="#为什么-Revive-选-B-而不是-A？" class="headerlink" title="为什么 Revive 选 B 而不是 A？"></a>为什么 Revive 选 B 而不是 A？</h3><p>这体现了你之前提到的“排除错误选项”的思维：</p>
+<ul>
+<li>如果全选 <strong>A (无 Selector)</strong>：那么当一个预编译合约需要增加新功能时，就必须分配一个新地址。这会导致地址空间极度碎片化，管理成本极高。</li>
+<li>如果选 <strong>B (支持 Selector)</strong>：可以将逻辑相关的多种功能整合在同一个地址下。这不仅符合 Solidity 开发者的习惯（可以直接定义 Interface 并调用），也让系统扩展更加优雅。</li>
+</ul>
+<p><strong>既然你在写书并研究 Revive，需要我为你提供一个在 Solidity 中调用 Revive 特有预编译合约（带 Selector）的代码示例吗？</strong></p>
+<h1 id="波卡的SS58账号在每天链上都一样吗-A-一样-B-根据prefix不同"><a href="#波卡的SS58账号在每天链上都一样吗-A-一样-B-根据prefix不同" class="headerlink" title="波卡的SS58账号在每天链上都一样吗 A. 一样 B. 根据prefix不同"></a>波卡的SS58账号在每天链上都一样吗 A. 一样 B. 根据prefix不同</h1><p>在波卡（Polkadot）生态中，关于 SS58 账号的呈现方式，正确答案是 <strong>B（根据 prefix 不同，看起来不一样，但本质是同一个账号）</strong>。</p>
+<p>你可以这样理解波卡的地址逻辑：</p>
+<h3 id="1-核心逻辑：一个公钥，多种皮肤"><a href="#1-核心逻辑：一个公钥，多种皮肤" class="headerlink" title="1. 核心逻辑：一个公钥，多种皮肤"></a>1. 核心逻辑：一个公钥，多种皮肤</h3><p>波卡地址的底层是一个 <strong>32 字节的公钥 (Public Key)</strong>。SS58 是一种编码格式，它的公式大致是：<br><code>SS58 = Base58(Prefix + Public Key + Checksum)</code></p>
+<ul>
+<li><p><strong>Prefix（前缀）</strong>：每个链都有自己的编号。</p>
+</li>
+<li><p><strong>Polkadot</strong>: Prefix 0 (地址通常以 <code>1</code> 开头)</p>
+</li>
+<li><p><strong>Kusama</strong>: Prefix 2 (地址通常以大写字母开头，如 <code>C, D, E...</code>)</p>
+</li>
+<li><p><strong>Generic Substrate</strong>: Prefix 42 (地址通常以 <code>5</code> 开头)</p>
+</li>
+<li><p><strong>外观不同</strong>：由于前缀不同，同一个公钥在不同的链上生成的字符串（地址）是完全不同的。</p>
+</li>
+<li><p><strong>本质相同</strong>：虽然看起来不一样，但由于它们对应同一个私钥&#x2F;公钥对，你在一条链上拥有的私钥，可以推导出并在所有链上使用。</p>
+</li>
+</ul>
+<h3 id="2-为什么设计成“外观不一样”？"><a href="#2-为什么设计成“外观不一样”？" class="headerlink" title="2. 为什么设计成“外观不一样”？"></a>2. 为什么设计成“外观不一样”？</h3><p>这其实是波卡为了防止用户<strong>误转账</strong>的一种保护机制（排除“用户在错误链上转账”这个错误选项）：</p>
+<ul>
+<li>如果你想往 Polkadot 转账，却输入了一个以 <code>5</code> 开头的 Generic 地址，钱包或交易所会立刻提示“地址格式不匹配”，从而避免资金进入错误的链。</li>
+</ul>
+<hr>
+<h3 id="3-行业新趋势：地址统一化-Unifying"><a href="#3-行业新趋势：地址统一化-Unifying" class="headerlink" title="3. 行业新趋势：地址统一化 (Unifying)"></a>3. 行业新趋势：地址统一化 (Unifying)</h3><p>你在 2026 年关注这个话题非常敏锐。波卡社区（包括 Gavin Wood 的提议）正在推进 <strong>“统一地址格式”</strong>：</p>
+<ul>
+<li><strong>现状</strong>：各链各样，用户很晕。</li>
+<li><strong>目标</strong>：未来可能倾向于在 UI 层统一使用 Polkadot 的 Prefix 0 或统一的 EVM 风格地址（尤其是随着 <strong>pallet-revive</strong> 的普及），让用户感知到“我在所有链上都是同一个号”。</li>
+</ul>
+<hr>
+<h3 id="总结与复盘"><a href="#总结与复盘" class="headerlink" title="总结与复盘"></a>总结与复盘</h3><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>视觉表现</strong></td>
+<td><strong>不一样</strong> (由 Prefix 决定)</td>
+</tr>
+<tr>
+<td><strong>底层公钥</strong></td>
+<td><strong>完全一样</strong></td>
+</tr>
+<tr>
+<td><strong>转账兼容性</strong></td>
+<td>无法直接混用（需转换），但私钥通用</td>
+</tr>
+</tbody></table>
+<p>这就呼应了你之前的预判：<strong>“获得全球信息获取权的重要性”</strong>。在波卡生态中，如果你能理解 SS58 的编码原理，你就能在不同链之间自由“转换”身份，而普通用户可能会被这一串看似不同的字符困住。</p>
+<p><strong>你想让我为你展示如何用同一个公钥，通过工具转换出 Polkadot、Kusama 和 Astar 等不同链的地址吗？</strong></p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li>【第二课-2.1：波卡账号和签名体系等概念介绍｜Polkadot 上的 Solidity 与 EVM 开发者路径】 <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV13SiuBqECs/?share_source=copy_web&vd_source=eba7ead3baa3d262a5be9ffe7184d3b4">https://www.bilibili.com/video/BV13SiuBqECs/?share_source=copy_web&amp;vd_source=eba7ead3baa3d262a5be9ffe7184d3b4</a></li>
+</ul>
+
             </div>
             <hr>
             <div>
@@ -250,6 +653,12 @@
                 <div class="post-prevnext">
                   <article class="post-prev col-6">
                     
+                    
+                      <a href="/2026/01/03/3222622531.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">技术日志：破除内网“安全壁垒”，实现 Hexo 加密与搜索的本地化</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
                     
                   </article>
                   <article class="post-next col-6">
@@ -356,10 +765,6 @@
 
 <!-- Plugins -->
 
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
 
 
 
