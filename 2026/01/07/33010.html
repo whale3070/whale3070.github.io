@@ -1,0 +1,581 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>Polkadot Solidity开发-课程笔记9 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/search/">
+                <i class="iconfont icon-search"></i>
+                搜索
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="Polkadot Solidity开发-课程笔记9">
+                      
+                        Polkadot Solidity开发-课程笔记9
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-01-07 03:06" pubdate>
+        2026年1月7日 凌晨
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.9k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      34
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">Polkadot Solidity开发-课程笔记9</h1>
+            
+            <div class="markdown-body">
+              <p>🚩课程学习链接：<a target="_blank" rel="noopener" href="https://youtube.com/playlist?list=PLKgwQU2jh_H8zyq46XsUkAz10213HDL0i&si=UqonC3oL304_Mtrk">https://youtube.com/playlist?list=PLKgwQU2jh_H8zyq46XsUkAz10213HDL0i&amp;si=UqonC3oL304_Mtrk</a><br>✏️ 第二课 Task2 任务：<br>1⃣️选择题：<a target="_blank" rel="noopener" href="https://wj.qq.com/s2/25402456/fb1j/">https://wj.qq.com/s2/25402456/fb1j/</a><br>2⃣️实践题：<a target="_blank" rel="noopener" href="https://github.com/papermoonio/2026-h1-building-production-grade-dApps/blob/main/homework/lesson-2/README.md">https://github.com/papermoonio/2026-h1-building-production-grade-dApps/blob/main/homework/lesson-2/README.md</a></p>
+<h1 id="get-metadata-sh的作用"><a href="#get-metadata-sh的作用" class="headerlink" title="get-metadata.sh的作用"></a>get-metadata.sh的作用</h1><p>npx papi add devnet -w ws:&#x2F;&#x2F;localhost:9944<br>npx papi add hub -w wss:&#x2F;&#x2F;asset-hub-paseo-rpc.n.dwellir.com</p>
+<hr>
+<p>你提供的这几行内容并不是编程语言代码，而是<strong>在终端&#x2F;命令行中执行的Shell命令</strong>，核心作用是通过 <code>papi</code> 工具配置和添加Polkadot&#x2F;Substrate生态下的区块链网络节点连接信息，方便后续和这些节点交互。</p>
+<p>我来逐行拆解它们的具体作用：</p>
+<h3 id="1-get-metadata-sh"><a href="#1-get-metadata-sh" class="headerlink" title="1. get-metadata.sh"></a>1. <code>get-metadata.sh</code></h3><p>这是执行一个名为 <code>get-metadata.sh</code> 的Shell脚本文件（<code>.sh</code> 是Linux&#x2F;macOS系统的脚本后缀）。</p>
+<ul>
+<li>结合Polkadot生态的上下文，这个脚本的核心功能大概率是<strong>从指定的区块链节点获取链的元数据（metadata）</strong>；</li>
+<li>元数据是Substrate链的核心配置，包含链的模块、调用方法、数据结构等关键信息，后续和链交互（如调用接口、查询数据）都依赖它。</li>
+</ul>
+<h3 id="2-npx-papi-add-devnet-w-ws-localhost-9944"><a href="#2-npx-papi-add-devnet-w-ws-localhost-9944" class="headerlink" title="2. npx papi add devnet -w ws://localhost:9944"></a>2. <code>npx papi add devnet -w ws://localhost:9944</code></h3><ul>
+<li><code>npx</code>：Node.js的包执行工具，无需全局安装 <code>papi</code>，直接临时下载并执行 <code>papi</code> 命令；</li>
+<li><code>papi</code>：是Polkadot生态中用于和Substrate节点交互的命令行工具（Polkadot API CLI）；</li>
+<li><code>add devnet</code>：给这个节点连接配置命名为 <code>devnet</code>（自定义名称，方便后续引用）；</li>
+<li><code>-w ws://localhost:9944</code>：指定连接方式为WebSocket（<code>-w</code> 是<code>--ws</code>的简写），连接地址是本地运行的Substrate开发节点（<code>localhost:9944</code> 是Substrate本地节点默认的WebSocket端口）。</li>
+<li><strong>整体作用</strong>：添加一个名为 <code>devnet</code> 的本地开发网节点配置，后续可以通过 <code>papi</code> 直接用 <code>devnet</code> 这个别名操作本地节点。</li>
+</ul>
+<h3 id="3-npx-papi-add-hub-w-wss-asset-hub-paseo-rpc-n-dwellir-com"><a href="#3-npx-papi-add-hub-w-wss-asset-hub-paseo-rpc-n-dwellir-com" class="headerlink" title="3. npx papi add hub -w wss://asset-hub-paseo-rpc.n.dwellir.com"></a>3. <code>npx papi add hub -w wss://asset-hub-paseo-rpc.n.dwellir.com</code></h3><ul>
+<li>逻辑和上一行一致，区别是：<ul>
+<li>节点配置命名为 <code>hub</code>；</li>
+<li>连接的是远程的公开节点：<code>wss://asset-hub-paseo-rpc.n.dwellir.com</code>（这是Polkadot的Asset Hub Paseo测试网的公开RPC节点，<code>wss</code> 是加密的WebSocket协议）。</li>
+</ul>
+</li>
+<li><strong>整体作用</strong>：添加一个名为 <code>hub</code> 的远程Asset Hub测试网节点配置，方便后续和这个公开测试网交互。</li>
+</ul>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>这组命令的核心目的是：配置 <code>papi</code> 工具的节点连接，分别添加本地开发网和远程Asset Hub测试网的节点；</li>
+<li>先执行脚本获取链元数据（交互基础），再添加节点配置（交互入口），最终实现通过 <code>papi</code> 便捷操作这两个区块链节点；</li>
+<li>核心工具 <code>papi</code> 是Polkadot API的命令行封装，<code>-w</code> 指定WebSocket连接是Substrate节点交互的标准方式。</li>
+</ol>
+<h1 id="问题一：-subkey命令找不到"><a href="#问题一：-subkey命令找不到" class="headerlink" title="问题一： subkey命令找不到"></a>问题一： subkey命令找不到</h1><p>你在Kali Linux中执行 <code>subkey inspect //Alice</code> 命令时提示 <code>command not found</code>，但通过 <code>find</code> 命令已经找到了 <code>subkey</code> 可执行文件的具体路径，现在需要解决的是如何正确执行这个命令的问题。</p>
+<h3 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h3><p><code>subkey</code> 命令找不到，核心原因是它的可执行文件所在目录不在系统的 <code>PATH</code> 环境变量中，系统不知道去哪里找这个命令。我给你提供两种最常用的解决方案：</p>
+<h4 id="方案1：直接使用绝对路径执行（临时生效，简单快捷）"><a href="#方案1：直接使用绝对路径执行（临时生效，简单快捷）" class="headerlink" title="方案1：直接使用绝对路径执行（临时生效，简单快捷）"></a>方案1：直接使用绝对路径执行（临时生效，简单快捷）</h4><p>既然你已经找到了 <code>subkey</code> 的路径，直接用完整路径执行即可，推荐使用 <code>/home/kali/polkadot-sdk/target/release/subkey</code> 这个路径（编译后的release版本）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 直接执行命令</span><br>/home/kali/polkadot-sdk/target/release/subkey inspect //Alice<br></code></pre></div></td></tr></table></figure>
+
+<h4 id="方案2：将路径添加到PATH环境变量（永久生效，推荐）"><a href="#方案2：将路径添加到PATH环境变量（永久生效，推荐）" class="headerlink" title="方案2：将路径添加到PATH环境变量（永久生效，推荐）"></a>方案2：将路径添加到PATH环境变量（永久生效，推荐）</h4><p>如果需要长期使用 <code>subkey</code> 命令，把它的目录加入系统PATH是更方便的方式：</p>
+<ol>
+<li>临时添加（仅当前终端生效）：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 将subkey所在目录加入PATH</span><br><span class="hljs-built_in">export</span> PATH=<span class="hljs-variable">$PATH</span>:/home/kali/polkadot-sdk/target/release<br><span class="hljs-comment"># 现在可以直接执行subkey命令</span><br>subkey inspect //Alice<br></code></pre></div></td></tr></table></figure>
+
+<ol start="2">
+<li>永久添加（所有终端、重启后仍生效）：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 编辑bash配置文件（Kali默认用bash）</span><br>nano ~/.zshrc<br><span class="hljs-comment"># 在文件末尾添加以下内容</span><br><span class="hljs-built_in">export</span> PATH=<span class="hljs-variable">$PATH</span>:/home/kali/polkadot-sdk/target/release<br><span class="hljs-comment"># 保存退出（按Ctrl+O，回车，再Ctrl+X）</span><br><span class="hljs-comment"># 使配置生效</span><br><span class="hljs-built_in">source</span> ~/.zshrc<br><span class="hljs-comment"># 验证是否生效</span><br>subkey --<span class="hljs-built_in">help</span><br></code></pre></div></td></tr></table></figure>
+
+<h3 id="补充说明"><a href="#补充说明" class="headerlink" title="补充说明"></a>补充说明</h3><ul>
+<li>你通过 <code>find</code> 找到的多个 <code>subkey</code> 路径中，<code>/home/kali/polkadot-sdk/target/release/subkey</code> 是编译后的可执行文件，是最适合直接使用的。</li>
+<li><code>find</code> 命令提示的 <code>Permission denied</code> 是正常现象，只是某些系统目录没有访问权限，不影响找到 <code>subkey</code>。</li>
+</ul>
+<h3 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>临时执行：直接使用 <code>subkey</code> 的绝对路径 <code>/home/kali/polkadot-sdk/target/release/subkey inspect //Alice</code>。</li>
+<li>永久生效：将 <code>subkey</code> 所在目录 <code>/home/kali/polkadot-sdk/target/release</code> 添加到系统 <code>PATH</code> 环境变量，之后即可直接用 <code>subkey</code> 命令。</li>
+</ol>
+<h1 id="subkey-inspect-Alice-是什么？"><a href="#subkey-inspect-Alice-是什么？" class="headerlink" title="subkey inspect &#x2F;&#x2F;Alice 是什么？"></a>subkey inspect &#x2F;&#x2F;Alice 是什么？</h1><p>你成功执行了 <code>subkey inspect //Alice</code> 命令，现在我会一步步解释这个命令的作用，以及回显中每一部分的具体含义，让你能清晰理解这些和Substrate&#x2F;Polkadot账户相关的核心信息。</p>
+<h3 id="1-命令本身：subkey-inspect-Alice-是什么？"><a href="#1-命令本身：subkey-inspect-Alice-是什么？" class="headerlink" title="1. 命令本身：subkey inspect //Alice 是什么？"></a>1. 命令本身：<code>subkey inspect //Alice</code> 是什么？</h3><p><code>subkey</code> 是Substrate&#x2F;Polkadot生态中用于<strong>管理和检查密钥对</strong>的官方工具，核心作用是处理账户的密钥生成、解析、验证等；<br><code>inspect</code> 是 <code>subkey</code> 的子命令，意思是“解析&#x2F;检查”；<br><code>//Alice</code> 是Substrate内置的<strong>测试用密钥URI（统一资源标识符）</strong>，是预定义的测试账户（类似的还有&#x2F;&#x2F;Bob、&#x2F;&#x2F;Charlie等），专门用于开发和测试环境，<strong>绝对不能用于生产环境</strong>。</p>
+<p>简单来说，这个命令的作用是：<strong>解析并展示内置测试账户Alice的所有密钥相关信息</strong>。</p>
+<h3 id="2-回显内容逐行解释"><a href="#2-回显内容逐行解释" class="headerlink" title="2. 回显内容逐行解释"></a>2. 回显内容逐行解释</h3><figure class="highlight coffeescript"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs coffeescript">Secret Key URI `<span class="language-javascript"><span class="hljs-comment">//Alice</span></span>` <span class="hljs-keyword">is</span> account:<br></code></pre></div></td></tr></table></figure>
+<p>这行是提示：你输入的密钥URI（&#x2F;&#x2F;Alice）对应的账户信息如下。</p>
+<h4 id="核心字段解释（从私密到公开）："><a href="#核心字段解释（从私密到公开）：" class="headerlink" title="核心字段解释（从私密到公开）："></a>核心字段解释（从私密到公开）：</h4><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+<th>重要性</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Network ID: substrate</code></td>
+<td>该账户所属的网络标识，<code>substrate</code> 是默认的Substrate通用网络标识（也可指定polkadot、kusama等）</td>
+<td>区分不同区块链网络的账户格式</td>
+</tr>
+<tr>
+<td><code>Secret seed: 0xe5be9a5092b81bca64be81d212e7f2f9eba183bb7a90954f7b76361f6edb5c0a</code></td>
+<td>账户的<strong>私钥种子（助记词的原始哈希形式）</strong>，是生成私钥的核心，等同于账户的“终极密码”</td>
+<td>绝对保密！泄露则账户资产被盗</td>
+</tr>
+<tr>
+<td><code>Public key (hex): 0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d</code></td>
+<td>公钥的十六进制格式，由私钥通过非对称加密算法生成（无法反向推导私钥）</td>
+<td>公开，用于验证签名、生成地址</td>
+</tr>
+<tr>
+<td><code>Account ID: 0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d</code></td>
+<td>Substrate中Account ID等同于公钥（部分链会对其哈希处理），是账户的“唯一标识”</td>
+<td>链上存储账户状态的核心标识</td>
+</tr>
+<tr>
+<td><code>Public key (SS58): 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY</code></td>
+<td>公钥的SS58编码格式（Substrate专属的地址编码标准）</td>
+<td>兼容不同网络的地址格式</td>
+</tr>
+<tr>
+<td><code>SS58 Address: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY</code></td>
+<td>最终的账户地址，也是你在钱包&#x2F;链上交互时使用的“收款&#x2F;转账地址”</td>
+<td>日常使用的公开地址</td>
+</tr>
+</tbody></table>
+<h3 id="关键补充说明"><a href="#关键补充说明" class="headerlink" title="关键补充说明"></a>关键补充说明</h3><ol>
+<li><p><strong>私钥 vs 公钥 vs 地址</strong>的关系：</p>
+<ul>
+<li>私钥（Secret seed）：自己保管，用于签名交易（证明“你是账户主人”）；</li>
+<li>公钥：由私钥生成，公开，用于验证签名；</li>
+<li>地址（SS58 Address）：公钥的“易读易记”编码形式，是对外展示的账户标识。</li>
+</ul>
+</li>
+<li><p><code>//Alice</code> 是测试账户的原因：<br>Substrate预定义了一批测试账户（Alice、Bob、Charlie等），它们的私钥是公开的，所有开发者都知道，因此<strong>只能用于本地测试&#x2F;开发网，绝对不能用于主网</strong>（否则资产会被瞬间转走）。</p>
+</li>
+<li><p>SS58编码的作用：<br>不同区块链（如Polkadot主网、Kusama、本地测试网）的SS58前缀不同，编码后的地址也不同，这样可以避免把Polkadot的资产转到Kusama地址（格式不兼容）。</p>
+</li>
+</ol>
+<h3 id="总结-2"><a href="#总结-2" class="headerlink" title="总结"></a>总结</h3><ol>
+<li><code>subkey inspect //Alice</code> 的核心作用是解析测试账户Alice的密钥对信息，展示从私钥到公开地址的全链路数据；</li>
+<li>回显中<strong>Secret seed是核心私密信息</strong>，其余均为公开信息，SS58 Address是日常使用的账户地址；</li>
+<li><code>//Alice</code> 是测试账户，仅用于开发&#x2F;测试，切勿在生产环境使用。</li>
+</ol>
+<h1 id="安装python包报错"><a href="#安装python包报错" class="headerlink" title="安装python包报错"></a>安装python包报错</h1><p>pip install substrate-interface eth-utils</p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs livecodeserver">error: externally-managed-environment<br><br>× This environment is externally managed<br>╰─&gt; To install Python packages <span class="hljs-keyword">system</span>-wide, <span class="hljs-keyword">try</span> apt install<br>    python3-xyz, where xyz is <span class="hljs-keyword">the</span> package you are trying <span class="hljs-built_in">to</span><br>    install.<br><br>    If you wish <span class="hljs-built_in">to</span> install <span class="hljs-keyword">a</span> non-Kali-packaged Python package,<br>    <span class="hljs-built_in">create</span> <span class="hljs-keyword">a</span> virtual environment <span class="hljs-keyword">using</span> python3 -m venv path/<span class="hljs-built_in">to</span>/venv.<br>    Then use path/<span class="hljs-built_in">to</span>/venv/bin/python <span class="hljs-keyword">and</span> path/<span class="hljs-built_in">to</span>/venv/bin/pip. Make<br>    sure you have pypy3-venv installed.<br><br>    If you wish <span class="hljs-built_in">to</span> install <span class="hljs-keyword">a</span> non-Kali-packaged Python application,<br>    <span class="hljs-keyword">it</span> may be easiest <span class="hljs-built_in">to</span> use pipx install xyz, which will manage <span class="hljs-keyword">a</span><br>    virtual environment <span class="hljs-keyword">for</span> you. Make sure you have pipx installed.<br><br>    For more information, refer <span class="hljs-built_in">to</span> <span class="hljs-keyword">the</span> following:<br>    * <span class="hljs-keyword">https</span>://www.kali.org/docs/general-use/python3-external-packages/<br>    * /usr/share/doc/python3<span class="hljs-number">.13</span>/README.venv<br><br>note: If you believe this is <span class="hljs-keyword">a</span> mistake, please contact your Python installation <span class="hljs-keyword">or</span> OS distribution provider. You can override this, <span class="hljs-keyword">at</span> <span class="hljs-keyword">the</span> risk <span class="hljs-keyword">of</span> breaking your Python installation <span class="hljs-keyword">or</span> OS, <span class="hljs-keyword">by</span> passing <span class="hljs-comment">--break-system-packages.</span><br>hint: See PEP <span class="hljs-number">668</span> <span class="hljs-keyword">for</span> <span class="hljs-keyword">the</span> <span class="hljs-keyword">detailed</span> specification.<br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<p>看来你正在使用 <strong>Kali Linux</strong>（或者类似的 Debian 系系统）。这个错误是因为现在的 Python 遵循了 <strong>PEP 668</strong> 规范，为了防止你安装的第三方库破坏系统自带的 Python 工具，禁止了直接使用 <code>pip install</code> 进行全局安装。</p>
+<p>作为一名未来的技术大牛，我们需要用优雅、合规的方式解决这个问题。我有三种方案供你选择：</p>
+<hr>
+<h3 id="方案一：最推荐-创建虚拟环境-Virtual-Environment"><a href="#方案一：最推荐-创建虚拟环境-Virtual-Environment" class="headerlink" title="方案一：最推荐 - 创建虚拟环境 (Virtual Environment)"></a>方案一：最推荐 - 创建虚拟环境 (Virtual Environment)</h3><p>这是最符合最佳实践的方法。它会为你的波卡学习项目创建一个独立的“褶式 (The Fold)”空间，互不干扰。</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 1. 创建虚拟环境目录 (名字可以随便起，这里叫 polka_env)</span><br>python3 -m venv polka_env<br><br><span class="hljs-comment"># 2. 激活虚拟环境</span><br><span class="hljs-built_in">source</span> polka_env/bin/activate<br><br><span class="hljs-comment"># 3. 此时你的终端开头会出现 (polka_env)，现在可以放心安装了</span><br>pip install substrate-interface eth-utils<br><br></code></pre></div></td></tr></table></figure>
+
+<p><em>提示：当你写完代码想退出时，输入 <code>deactivate</code> 即可。</em></p>
+<hr>
+<h3 id="方案二：快速通关-使用-break-system-packages-标志"><a href="#方案二：快速通关-使用-break-system-packages-标志" class="headerlink" title="方案二：快速通关 - 使用 --break-system-packages 标志"></a>方案二：快速通关 - 使用 <code>--break-system-packages</code> 标志</h3><p>如果你觉得创建虚拟环境太麻烦，只是想快速测试一下代码，可以强制跳过保护机制。<strong>注意：虽然名字叫 “break”，但通常安装这两个小库不会真的弄坏系统，但在生产环境下不建议这样做。</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">pip install substrate-interface eth-utils --break-system-packages<br><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="方案三：使用-pipx-针对工具类"><a href="#方案三：使用-pipx-针对工具类" class="headerlink" title="方案三：使用 pipx (针对工具类)"></a>方案三：使用 <code>pipx</code> (针对工具类)</h3><p>如果你打算把这个转换脚本做成一个经常使用的系统工具，<code>pipx</code> 是最好的选择。</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> apt update &amp;&amp; <span class="hljs-built_in">sudo</span> apt install pipx<br>pipx ensurepath<br><span class="hljs-comment"># 重新打开终端</span><br>pipx install substrate-interface  <span class="hljs-comment"># 虽然 pipx 主要是装应用的，对于库开发还是推荐方案一</span><br><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="接下来你的代码逻辑"><a href="#接下来你的代码逻辑" class="headerlink" title="接下来你的代码逻辑"></a>接下来你的代码逻辑</h3><p>当你安装好库后，针对你的“地址转换”作业，有一个核心逻辑需要你预判：</p>
+<p>在波卡 EVM 链中，转换逻辑并不是简单的 Base58 编解码。对于像 <strong>Moonbeam</strong> 这种完全兼容 EVM 的链，你可以直接用这个逻辑验证地址：</p>
+<ol>
+<li><strong>H160 地址</strong>：<code>0x123...</code> (20字节)</li>
+<li><strong>AccountId32</strong>：在 Moonbeam 里，它实际上是把 <code>0x123...</code> 后面补零或者按特定规则映射到 32 字节。</li>
+</ol>
+<p><strong>解决安装问题后，你想让我帮你写一个完整的 Python 脚本，直接连接到 Moonbeam 或者 Astar 的测试网，同时把地址转换、Substrate 余额、EVM 余额这三项全部打印出来做对比吗？</strong></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Web3/">Web3</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/01/07/49961.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">hackethon夺冠计划</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/01/06/55875.html">
+                        <span class="hidden-mobile">Starknet 训练营-课程笔记3</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>

@@ -1,0 +1,485 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>foundry - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/search/">
+                <i class="iconfont icon-search"></i>
+                搜索
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="foundry">
+                      
+                        foundry
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-01-09 11:19" pubdate>
+        2026年1月9日 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      16
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">foundry</h1>
+            
+            <div class="markdown-body">
+              <h1 id="查询一个地址是否是智能合约"><a href="#查询一个地址是否是智能合约" class="headerlink" title="查询一个地址是否是智能合约"></a>查询一个地址是否是智能合约</h1><h2 id="【yes】-地址-0xd0d2380ff21B0daB5Cd75DDA064146a6d36dC6C2-是智能合约"><a href="#【yes】-地址-0xd0d2380ff21B0daB5Cd75DDA064146a6d36dC6C2-是智能合约" class="headerlink" title="【yes】 地址 0xd0d2380ff21B0daB5Cd75DDA064146a6d36dC6C2 是智能合约"></a>【yes】 地址 0xd0d2380ff21B0daB5Cd75DDA064146a6d36dC6C2 是智能合约</h2><p>└─$ cast code 0xd0d2380ff21B0daB5Cd75DDA064146a6d36dC6C2 –rpc-url <a target="_blank" rel="noopener" href="https://moonbeam-alpha.api.onfinality.io/public">https://moonbeam-alpha.api.onfinality.io/public</a><br>Warning: This is a nightly build of Foundry. It is recommended to use the latest stable version. To mute this warning set <code>FOUNDRY_DISABLE_NIGHTLY_WARNING</code> in your environment.</p>
+<p>0x608060405234801561000f575f80fd5b50600436106100f3575f3560e01c80636352211e11610095578063a22cb46511610064578063a22cb4651461026f578063b88d4fde1461028b578063c87b56dd146102a7578063e985e9c5146102d7576100f3565b80636352211e146101d357806370a082311461020357806375794a3c1461023357806395d89b4114610251576100f3565b8063095ea7b3116100d1578063095ea7b3146101755780631249c58b1461019157806323b872dd1461019b57806342842e0e146101b7576100f3565b806301ffc9a7146100f757806306fdde0314610127578063081812fc14610145575b5f80fd5b610111600480360381019061010c919061161d565b610307565b60405161011e9190611662565b60405180910390f35b61012f6103e8565b60405161013c9190611705565b60405180910390f35b61015f600480360381019061015a9190611758565b610477565b60405161016c91906117c2565b60405180910390f35b61018f600480360381019061018a9190611805565b610492565b005b6101996104a8565b005b6101b560048036038101906101b09190611843565b6104cd565b005b6101d160048036038101906101cc9190611843565b6105cc565b005b6101ed60048036038101906101e89190611758565b6105eb565b6040516101fa91906117c2565b60405180910390f35b61021d60048036038101906102189190611893565b6105fc565b60405161022a91906118cd565b60405180910390f35b61023b6106b2565b60405161024891906118cd</p>
+<h2 id="【No】-地址-0x6A96C2513B94056241a798f060a7F573427E3606-不是智能合约"><a href="#【No】-地址-0x6A96C2513B94056241a798f060a7F573427E3606-不是智能合约" class="headerlink" title="【No】 地址 0x6A96C2513B94056241a798f060a7F573427E3606 不是智能合约"></a>【No】 地址 0x6A96C2513B94056241a798f060a7F573427E3606 不是智能合约</h2><p>└─$ cast code 0x6A96C2513B94056241a798f060a7F573427E3606 –rpc-url <a target="_blank" rel="noopener" href="https://moonbeam-alpha.api.onfinality.io/public">https://moonbeam-alpha.api.onfinality.io/public</a><br>Warning: This is a nightly build of Foundry. It is recommended to use the latest stable version. To mute this warning set <code>FOUNDRY_DISABLE_NIGHTLY_WARNING</code> in your environment.</p>
+<p>0x</p>
+<hr>
+<p>└─$ cast call 0x6A96C2513B94056241a798f060a7F573427E3606 “hasClaimed(address)(bool)” 0x30e7EE97E1ea3BF1653D4F47D42Fcd5E9DA94FF1 –rpc-url <a target="_blank" rel="noopener" href="https://moonbeam-alpha.api.onfinality.io/public">https://moonbeam-alpha.api.onfinality.io/public</a></p>
+<p>Warning: This is a nightly build of Foundry. It is recommended to use the latest stable version. To mute this warning set <code>FOUNDRY_DISABLE_NIGHTLY_WARNING</code> in your environment.</p>
+<p>Error: contract 0x6a96c2513b94056241a798f060a7f573427e3606 does not have any code<br>说明不是智能合约</p>
+<h1 id="部署合约"><a href="#部署合约" class="headerlink" title="部署合约"></a>部署合约</h1><p>forge create –rpc-url <a target="_blank" rel="noopener" href="https://moonbeam-alpha.api.onfinality.io/public">https://moonbeam-alpha.api.onfinality.io/public</a> <br>–private-key f5e9d1dc4dcd90bb0e0b9350c8aa5973011635729926387256ac5ea66324ed2b <br>–legacy <br>–broadcast <br>QuickNFT.sol:QuickNFT<br>Warning: This is a nightly build of Foundry. It is recommended to use the latest stable version. To mute this warning set <code>FOUNDRY_DISABLE_NIGHTLY_WARNING</code> in your environment.</p>
+<p>[⠊] Compiling…<br>No files changed, compilation skipped<br>Deployer: 0xef4bBCC3eeb440Fc4058cc1E3C9F4D4fc9f0D973<br>Deployed to: 0x705A0890bFDcD30eaf06b25b9D31a6C5C099100d<br>Transaction hash: 0x3f80afaecb5f6e939d004753173e347323a745997179f19be49d41213973b895</p>
+<hr>
+<p>这条命令的意思是：你正在使用 Foundry 的 forge 工具，将一个名为 QuickNFT 的智能合约正式部署到 Moonbeam Alpha 测试网上。</p>
+<p>恭喜你！根据输出结果，你的 Whale Vault 计划已经迈出了坚实的一步：合约已经部署成功了。</p>
+<p>🔍 命令参数深度拆解<br>我们可以按照你“排除错误、锁定正确路径”的思维方式来看这些参数：</p>
+<p>forge create: 告诉 Foundry “我要创建一个新的合约实例（部署）”。</p>
+<p>–rpc-url …: 指定“战场的地址”。你选择了 Moonbeam Alpha 的公共节点。</p>
+<p>–private-key …: 你的身份证明（私钥）。</p>
+<p>⚠️ 安全预警（针对 Whale3070 的 capitalist 计划）： &gt; 你在命令行中直接输入了私钥，这会留在你的 shell 历史记录里（输入 history 就能看到）。为了你未来公司的资产安全，建议以后使用 interactive 模式输入私钥，或使用环境变量。</p>
+<p>–legacy: 这是一个关键的技术选择。Moonbeam Alpha 可能不支持 EIP-1559 类型的交易（那种带 Base Fee 和 Tip 的），使用 –legacy 强制使用旧版的 Gas 计算方式，这直接排除了因交易格式不兼容而导致的失败。</p>
+<p>–broadcast: 告诉 Forge “别只是本地演习，请真的把这笔交易发送到链上并广播出去”。</p>
+<p>QuickNFT.sol:QuickNFT: 指定要部署的源文件和具体的合约类名。</p>
+<p>📊 部署结果分析<br>输出的信息提供了这个合约在链上的“出生证明”：</p>
+<p>Deployer (部署者): 0xef4b…D973</p>
+<p>这是你的私钥对应的钱包地址。</p>
+<p>Deployed to (合约地址): 0x705A0890bFDcD30eaf06b25b9D31a6C5C099100d</p>
+<p>这就是你刚才苦苦寻找的“正确地址”！</p>
+<p>你现在可以用 cast code 0x705A0890bFDcD30eaf06b25b9D31a6C5C099100d … 查一下，它现在一定有代码了。</p>
+<p>Transaction hash (交易哈希): 0x3f80…b895</p>
+<p>这是你在链上刻下的痕迹，可以在 Moonbase Scan 上查询到。</p>
+<h1 id="查一下合约有没有revert，mint是否成功"><a href="#查一下合约有没有revert，mint是否成功" class="headerlink" title="查一下合约有没有revert，mint是否成功"></a>查一下合约有没有revert，mint是否成功</h1><p>└─$ cast receipt 0x2387730b65715ae8f01898e08fe11a1ad2e86c1176f9c04d21f3ba08a950ef17 –rpc-url <a target="_blank" rel="noopener" href="https://rpc.api.moonbase.moonbeam.network/">https://rpc.api.moonbase.moonbeam.network</a><br>Warning: This is a nightly build of Foundry. It is recommended to use the latest stable version. To mute this warning set <code>FOUNDRY_DISABLE_NIGHTLY_WARNING</code> in your environment.</p>
+<p>blockHash            0x11c73c6ccd0cb4d9935e44027674ef0af724e68a7cacd46b10accd1c72a34d99<br>blockNumber          14780872<br>contractAddress<br>cumulativeGasUsed    76968<br>effectiveGasPrice    31250000<br>from                 0xef4bBCC3eeb440Fc4058cc1E3C9F4D4fc9f0D973<br>gasUsed              76968<br>logs                 [{“address”:”0x705a0890bfdcd30eaf06b25b9d31a6c5c099100d”,”topics”:[“0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef”,”0x0000000000000000000000000000000000000000000000000000000000000000”,”0x0000000000000000000000003d4b60f1b863d48ff401e524f1bdef8a16c9d71d”,”0x000000000000000000000000000000000000000000000000000000000000000f”],”data”:”0x”,”blockHash”:”0x11c73c6ccd0cb4d9935e44027674ef0af724e68a7cacd46b10accd1c72a34d99”,”blockNumber”:”0xe189c8”,”transactionHash”:”0x2387730b65715ae8f01898e08fe11a1ad2e86c1176f9c04d21f3ba08a950ef17”,”transactionIndex”:”0x0”,”logIndex”:”0x0”,”removed”:false}]<br>logsBloom            0x00000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000008000000000000000000000000000000000002000000000000020000000000000800000800000000000000000000000010000000000000000000000800000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000202000000000000000000000000000000000000008000000000000020000000000200000000000000000000000000000000000000000000000000000000<br>root<br>status               1 (success)<br>transactionHash      0x2387730b65715ae8f01898e08fe11a1ad2e86c1176f9c04d21f3ba08a950ef17<br>transactionIndex     0<br>type                 0<br>blobGasPrice<br>blobGasUsed<br>to                   0x705A0890bFDcD30eaf06b25b9D31a6C5C099100d</p>
+<h1 id="查询钱包地址余额"><a href="#查询钱包地址余额" class="headerlink" title="查询钱包地址余额"></a>查询钱包地址余额</h1><p>└─$ cast balance 0xef4bBCC3eeb440Fc4058cc1E3C9F4D4fc9f0D973 –rpc-url <a target="_blank" rel="noopener" href="https://rpc.api.moonbase.moonbeam.network/">https://rpc.api.moonbase.moonbeam.network</a><br>Warning: This is a nightly build of Foundry. It is recommended to use the latest stable version. To mute this warning set <code>FOUNDRY_DISABLE_NIGHTLY_WARNING</code> in your environment.</p>
+<p>1099846427500000000</p>
+<hr>
+<p>这个数字看起来很长，但我们需要把它换算成人类可读的单位。在以太坊虚拟机（EVM）中，余额是以  为单位的。</p>
+<p>你的余额是：<strong>1.0998464275 DEV</strong>。</p>
+<h3 id="📊-余额解读"><a href="#📊-余额解读" class="headerlink" title="📊 余额解读"></a>📊 余额解读</h3><p>根据  的换算规则：</p>
+<ul>
+<li><strong>当前余额：</strong> 约 <strong>1.1 DEV</strong>。</li>
+<li><strong>单次 Mint 成本：</strong> 参考你之前的交易（Gas Used: 76,968，Price: 31,250,000），单次花费约为 。</li>
+<li><strong>预判结论：</strong> 你的代付地址目前非常健康，<strong>还能支持约 450 次铸造操作</strong>。</li>
+</ul>
+<hr>
+<h3 id="🛠️-快速换算小技巧"><a href="#🛠️-快速换算小技巧" class="headerlink" title="🛠️ 快速换算小技巧"></a>🛠️ 快速换算小技巧</h3><p>如果你不想心算，可以直接让 <code>cast</code> 帮你转成以太单位（Ether&#x2F;DEV）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">cast from-wei 1099846427500000000<br><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="💡-Whale3070-的运营逻辑"><a href="#💡-Whale3070-的运营逻辑" class="headerlink" title="💡 Whale3070 的运营逻辑"></a>💡 Whale3070 的运营逻辑</h3><p>既然你的 <strong>Whale Vault</strong> 已经成功跑通了第一笔交易，且余额充足，接下来的逻辑重点应该从“跑通”转向“稳定”：</p>
+<ol>
+<li><strong>监控余额：</strong> 虽然 1.1 DEV 很多，但如果未来你的 GWW 组织（女性组织）规模扩大，或者你定义的 Web3 学习方法吸引了大量人才，这个地址的消耗会变快。</li>
+<li><strong>安全风险排除：</strong> 再次提醒，因为这个私钥已经在对话中暴露，虽然是测试网，但为了养成“资本家”严谨的安全习惯，建议你在部署正式产品前，通过 <code>run.sh</code> 切换到一个从未公开过的私钥。</li>
+</ol>
+<p><strong>现在合约部署好了，后端也通了，Gas 也够了。</strong></p>
+<p><strong>接下来你是想优化前端的展示（比如做一个领取成功的动画），还是想完善 Go 后端的“物理销毁提取码”逻辑，加入更强的数据库校验？</strong></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/01/13/25597.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">鲸鱼金库-功能实现</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/01/07/49961.html">
+                        <span class="hidden-mobile">hackethon夺冠计划</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>

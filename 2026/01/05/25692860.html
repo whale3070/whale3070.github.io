@@ -55,8 +55,6 @@
   
 
   
-    <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
-  
 
 
 
@@ -76,7 +74,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -199,7 +197,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      4.1k 字
+      5.9k 字
     </span>
   
 
@@ -209,7 +207,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      44
+      67
        分钟
     </span>
   
@@ -460,6 +458,94 @@
 <li><strong>Verbose 模式开启后</strong>：你会看到大量的 <code>Downloading...</code> 或 <code>Compiling...</code> 字样。</li>
 <li><strong>编译成功标志</strong>：最后会看到一行绿色的：<br><code>[5/5] Generating bundle book_nft.contract</code></li>
 </ul>
+<h1 id="第二课的重点"><a href="#第二课的重点" class="headerlink" title="第二课的重点"></a>第二课的重点</h1><p>第二课你理解下边几个逻辑就可以get到重点了： 1，波卡地址与evm地址之间是怎么转换的； 2，evm通常交互是使用ether.js，在波卡中我们有着自己的一套交互api，所以我们要学习一下； 3，波卡交互与evm交互方式之间其实是有互通的，我们学习一下怎么互通；</p>
+<hr>
+<p>你想掌握波卡生态交互的核心逻辑，重点是理解“波卡地址↔EVM地址转换”“波卡专属交互API”“波卡与EVM交互的互通性”这三个关键点，我会从<strong>核心概念+实操逻辑+对比互通</strong>三个维度拆解，让你快速抓住重点。</p>
+<h3 id="一、波卡地址与EVM地址的转换逻辑（核心是“映射关系”）"><a href="#一、波卡地址与EVM地址的转换逻辑（核心是“映射关系”）" class="headerlink" title="一、波卡地址与EVM地址的转换逻辑（核心是“映射关系”）"></a>一、波卡地址与EVM地址的转换逻辑（核心是“映射关系”）</h3><p>波卡（Polkadot）原生地址和EVM地址是两套完全不同的编码体系，但在支持EVM的波卡平行链（如Moonbeam、Moonriver、Astar）中，二者是<strong>一一映射</strong>的（由链上合约&#x2F;底层逻辑固化），转换的核心是“编码规则互转”。</p>
+<h4 id="1-两套地址的本质区别"><a href="#1-两套地址的本质区别" class="headerlink" title="1. 两套地址的本质区别"></a>1. 两套地址的本质区别</h4><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>编码规则</th>
+<th>长度&#x2F;格式</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>波卡原生地址</td>
+<td>SS58编码（Substrate标准）</td>
+<td>以<code>5</code>&#x2F;<code>9</code>&#x2F;<code>0x</code>开头（不同链前缀不同），如Moonbeam原生地址<code>5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY</code></td>
+<td>波卡跨链转账、原生合约交互</td>
+</tr>
+<tr>
+<td>EVM地址</td>
+<td>H160编码（以太坊标准）</td>
+<td>固定<code>0x</code>开头+40位十六进制，如<code>0x1234567890abcdef1234567890abcdef12345678</code></td>
+<td>EVM合约交互、DeFi操作</td>
+</tr>
+</tbody></table>
+<h4 id="2-转换规则（以Moonbeam为例，最典型的EVM兼容平行链）"><a href="#2-转换规则（以Moonbeam为例，最典型的EVM兼容平行链）" class="headerlink" title="2. 转换规则（以Moonbeam为例，最典型的EVM兼容平行链）"></a>2. 转换规则（以Moonbeam为例，最典型的EVM兼容平行链）</h4><ul>
+<li><strong>核心逻辑</strong>：波卡原生地址的公钥哈希 → 截取后20字节 → 转为H160格式 &#x3D; EVM地址；反之，EVM地址也可逆向映射回波卡原生地址（由链上<code>EvmAddress</code>预编译合约实现）。</li>
+<li><strong>实操方式</strong>：<ul>
+<li>工具转换：用Moonbeam官网的<a target="_blank" rel="noopener" href="https://moonbeam.network/tools/address-converter/">地址转换器</a>、Substrate.js&#x2F;Polkadot.js库；</li>
+<li>代码转换（JavaScript示例）：<figure class="highlight javascript"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs javascript"><span class="hljs-comment">// 用@polkadot/util库实现波卡地址→EVM地址</span><br><span class="hljs-keyword">import</span> &#123; encodeAddress, decodeAddress &#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@polkadot/util-crypto&#x27;</span>;<br><span class="hljs-keyword">import</span> &#123; hexToU8a, u8aToHex &#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@polkadot/util&#x27;</span>;<br><br><span class="hljs-comment">// 波卡原生地址转EVM地址</span><br><span class="hljs-keyword">function</span> <span class="hljs-title function_">polkadotToEvm</span>(<span class="hljs-params">polkadotAddr</span>) &#123;<br>  <span class="hljs-keyword">const</span> pubKey = <span class="hljs-title function_">decodeAddress</span>(polkadotAddr); <span class="hljs-comment">// 解码SS58为公钥字节数组</span><br>  <span class="hljs-keyword">const</span> evmAddr = <span class="hljs-title function_">u8aToHex</span>(pubKey.<span class="hljs-title function_">slice</span>(<span class="hljs-number">0</span>, <span class="hljs-number">20</span>)); <span class="hljs-comment">// 截取前20字节→H160</span><br>  <span class="hljs-keyword">return</span> evmAddr;<br>&#125;<br><br><span class="hljs-comment">// EVM地址转波卡原生地址（Moonbeam前缀为128）</span><br><span class="hljs-keyword">function</span> <span class="hljs-title function_">evmToPolkadot</span>(<span class="hljs-params">evmAddr</span>) &#123;<br>  <span class="hljs-keyword">const</span> evmBytes = <span class="hljs-title function_">hexToU8a</span>(evmAddr); <span class="hljs-comment">// 解码EVM地址为字节数组</span><br>  <span class="hljs-keyword">const</span> polkadotAddr = <span class="hljs-title function_">encodeAddress</span>(evmBytes, <span class="hljs-number">128</span>); <span class="hljs-comment">// 按Moonbeam SS58前缀编码</span><br>  <span class="hljs-keyword">return</span> polkadotAddr;<br>&#125;<br></code></pre></div></td></tr></table></figure></li>
+</ul>
+</li>
+<li><strong>关键注意</strong>：转换仅在“支持EVM的波卡平行链”上有效，纯原生波卡链（如Polkadot中继链）无EVM地址概念。</li>
+</ul>
+<h3 id="二、波卡的专属交互API（区别于Ethers-js）"><a href="#二、波卡的专属交互API（区别于Ethers-js）" class="headerlink" title="二、波卡的专属交互API（区别于Ethers.js）"></a>二、波卡的专属交互API（区别于Ethers.js）</h3><p>EVM生态用Ethers.js&#x2F;Web3.js交互，而波卡基于Substrate框架，有自己的交互体系——核心是<strong>Polkadot.js API</strong>（也叫<code>@polkadot/api</code>），它是对接波卡原生链、平行链的核心工具。</p>
+<h4 id="1-Polkadot-js-API-vs-Ethers-js-核心差异"><a href="#1-Polkadot-js-API-vs-Ethers-js-核心差异" class="headerlink" title="1. Polkadot.js API vs Ethers.js 核心差异"></a>1. Polkadot.js API vs Ethers.js 核心差异</h4><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Ethers.js（EVM）</th>
+<th>Polkadot.js API（波卡）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>核心对接对象</td>
+<td>EVM智能合约（ABI+地址）</td>
+<td>Substrate运行时模块（Pallet）</td>
+</tr>
+<tr>
+<td>交互方式</td>
+<td>调用合约方法（<code>contract.call()</code>）</td>
+<td>调用链上RPC&#x2F;提交交易（<code>api.tx</code>&#x2F;<code>api.query</code>）</td>
+</tr>
+<tr>
+<td>核心概念</td>
+<td>Gas、Nonce、ABI</td>
+<td>Weight（替代Gas）、Extrinsic（替代交易）、Pallet</td>
+</tr>
+</tbody></table>
+<h4 id="2-波卡交互的核心操作（实操逻辑）"><a href="#2-波卡交互的核心操作（实操逻辑）" class="headerlink" title="2. 波卡交互的核心操作（实操逻辑）"></a>2. 波卡交互的核心操作（实操逻辑）</h4><p>以Moonbeam链为例，用Polkadot.js API实现“查询余额+转账”（对比Ethers.js）：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs javascript"><span class="hljs-comment">// 1. 初始化Polkadot.js API（替代Ethers.js的provider初始化）</span><br><span class="hljs-keyword">import</span> &#123; <span class="hljs-title class_">ApiPromise</span>, <span class="hljs-title class_">WsProvider</span> &#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@polkadot/api&#x27;</span>;<br><br><span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">initApi</span>(<span class="hljs-params"></span>) &#123;<br>  <span class="hljs-keyword">const</span> wsProvider = <span class="hljs-keyword">new</span> <span class="hljs-title class_">WsProvider</span>(<span class="hljs-string">&#x27;wss://wss.api.moonbeam.network&#x27;</span>); <span class="hljs-comment">// 波卡WS节点（替代EVM的RPC）</span><br>  <span class="hljs-keyword">const</span> api = <span class="hljs-keyword">await</span> <span class="hljs-title class_">ApiPromise</span>.<span class="hljs-title function_">create</span>(&#123; <span class="hljs-attr">provider</span>: wsProvider &#125;);<br>  <span class="hljs-keyword">return</span> api;<br>&#125;<br><br><span class="hljs-comment">// 2. 查询余额（对比Ethers.js的getBalance）</span><br><span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">getBalance</span>(<span class="hljs-params">api, polkadotAddr</span>) &#123;<br>  <span class="hljs-comment">// 调用balances pallet的查询方法（波卡原生方式）</span><br>  <span class="hljs-keyword">const</span> balance = <span class="hljs-keyword">await</span> api.<span class="hljs-property">query</span>.<span class="hljs-property">system</span>.<span class="hljs-title function_">account</span>(polkadotAddr);<br>  <span class="hljs-comment">// 转换为可读格式（单位：GLMR，Moonbeam原生代币）</span><br>  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&#x27;余额：&#x27;</span>, balance.<span class="hljs-property">data</span>.<span class="hljs-property">free</span>.<span class="hljs-title function_">toHuman</span>());<br>&#125;<br><br><span class="hljs-comment">// 3. 转账（对比Ethers.js的sendTransaction）</span><br><span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">transfer</span>(<span class="hljs-params">api, fromAddr, toAddr, amount, signer</span>) &#123;<br>  <span class="hljs-comment">// 构造Extrinsic（波卡的交易对象，替代EVM的tx对象）</span><br>  <span class="hljs-keyword">const</span> transferTx = api.<span class="hljs-property">tx</span>.<span class="hljs-property">balances</span>.<span class="hljs-title function_">transfer</span>(toAddr, amount * <span class="hljs-number">10</span>**<span class="hljs-number">18</span>); <span class="hljs-comment">// 单位转换</span><br>  <span class="hljs-comment">// 签名并发送交易（替代Ethers.js的signer.sendTransaction）</span><br>  <span class="hljs-keyword">const</span> txHash = <span class="hljs-keyword">await</span> transferTx.<span class="hljs-title function_">signAndSend</span>(signer);<br>  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&#x27;交易哈希：&#x27;</span>, txHash.<span class="hljs-title function_">toHex</span>());<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<ul>
+<li><strong>核心概念</strong>：<ul>
+<li><code>Pallet</code>：波卡的功能模块（如<code>balances</code>处理转账、<code>evm</code>处理EVM合约），替代EVM的“合约地址+ABI”；</li>
+<li><code>Extrinsic</code>：波卡的交易对象，包含调用的模块、方法、参数，替代EVM的交易结构体；</li>
+<li><code>Weight</code>：波卡的“Gas替代物”，按操作复杂度计费，而非EVM的GasLimit×GasPrice。</li>
+</ul>
+</li>
+</ul>
+<h3 id="三、波卡与EVM交互的互通性（核心是“双向兼容”）"><a href="#三、波卡与EVM交互的互通性（核心是“双向兼容”）" class="headerlink" title="三、波卡与EVM交互的互通性（核心是“双向兼容”）"></a>三、波卡与EVM交互的互通性（核心是“双向兼容”）</h3><p>波卡（尤其是Moonbeam&#x2F;Astar这类EVM兼容链）并非和EVM生态割裂，而是通过“预编译合约+跨API适配”实现互通，核心逻辑是：<strong>在波卡链上既能用Polkadot.js调原生功能，也能用Ethers.js调EVM合约，且二者可互通操作同一份资产</strong>。</p>
+<h4 id="1-互通的核心实现：预编译合约"><a href="#1-互通的核心实现：预编译合约" class="headerlink" title="1. 互通的核心实现：预编译合约"></a>1. 互通的核心实现：预编译合约</h4><p>波卡EVM兼容链内置了一批“预编译合约”（如<code>0xfffffffffffffffffffffffffffffffffffffffe</code>对应<code>EvmAddress</code>），让EVM合约能调用波卡原生功能，反之亦然：</p>
+<ul>
+<li><strong>场景1</strong>：用Ethers.js（EVM方式）调用波卡原生功能（如查询波卡地址余额）<figure class="highlight javascript"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs javascript"><span class="hljs-keyword">import</span> &#123; ethers &#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;ethers&#x27;</span>;<br><br><span class="hljs-comment">// 连接Moonbeam的EVM RPC（和以太坊RPC用法一致）</span><br><span class="hljs-keyword">const</span> provider = <span class="hljs-keyword">new</span> ethers.<span class="hljs-property">providers</span>.<span class="hljs-title class_">JsonRpcProvider</span>(<span class="hljs-string">&#x27;https://rpc.api.moonbeam.network&#x27;</span>);<br><span class="hljs-comment">// 调用预编译合约，将EVM地址转为波卡地址</span><br><span class="hljs-keyword">const</span> evmToPolkadotContract = <span class="hljs-keyword">new</span> ethers.<span class="hljs-title class_">Contract</span>(<br>  <span class="hljs-string">&#x27;0xfffffffffffffffffffffffffffffffffffffffe&#x27;</span>, <span class="hljs-comment">// EvmAddress预编译合约地址</span><br>  [<span class="hljs-string">&#x27;function toAccountId(address evmAddress) returns (bytes32)&#x27;</span>], <span class="hljs-comment">// ABI</span><br>  provider<br>);<br><span class="hljs-comment">// EVM地址转波卡地址（EVM方式调用波卡原生功能）</span><br><span class="hljs-keyword">const</span> polkadotAddrBytes = <span class="hljs-keyword">await</span> evmToPolkadotContract.<span class="hljs-title function_">toAccountId</span>(<span class="hljs-string">&#x27;0x1234567890abcdef1234567890abcdef12345678&#x27;</span>);<br></code></pre></div></td></tr></table></figure></li>
+<li><strong>场景2</strong>：用Polkadot.js（波卡方式）调用EVM合约（如部署&#x2F;调用ERC20）<figure class="highlight javascript"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> api = <span class="hljs-keyword">await</span> <span class="hljs-title function_">initApi</span>(); <span class="hljs-comment">// 初始化Polkadot.js API</span><br><span class="hljs-comment">// 调用evm pallet的call方法，执行EVM合约调用</span><br><span class="hljs-keyword">const</span> evmCallTx = api.<span class="hljs-property">tx</span>.<span class="hljs-property">evm</span>.<span class="hljs-title function_">call</span>(<br>  <span class="hljs-string">&#x27;0x1234567890abcdef1234567890abcdef12345678&#x27;</span>, <span class="hljs-comment">// EVM合约地址</span><br>  <span class="hljs-string">&#x27;0xa9059cbb&#x27;</span>, <span class="hljs-comment">// transfer方法的ABI编码</span><br>  <span class="hljs-string">&#x27;0x00000000000000000000000011111111111111111111111111111111111111110000000000000000000000000000000000000000000000000000000000000001&#x27;</span> <span class="hljs-comment">// 参数编码</span><br>);<br><span class="hljs-keyword">await</span> evmCallTx.<span class="hljs-title function_">signAndSend</span>(signer);<br></code></pre></div></td></tr></table></figure></li>
+</ul>
+<h4 id="2-互通的核心原则"><a href="#2-互通的核心原则" class="headerlink" title="2. 互通的核心原则"></a>2. 互通的核心原则</h4><ul>
+<li>资产互通：波卡原生代币（如GLMR）可在EVM中以ERC20形式（预编译的ERC20合约）交互，反之EVM代币也可通过波卡原生API查询；</li>
+<li>地址互通：同一用户的波卡地址和EVM地址映射，资产共用，操作互通；</li>
+<li>工具互通：可混合使用Polkadot.js和Ethers.js，比如用Polkadot.js签名、Ethers.js发送交易，或反之。</li>
+</ul>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ol>
+<li><strong>地址转换</strong>：核心是SS58（波卡）和H160（EVM）的编码互转，由EVM兼容平行链的预编译合约&#x2F;工具实现一一映射；</li>
+<li><strong>波卡专属API</strong>：Polkadot.js API替代Ethers.js，核心是调用Pallet模块、构造Extrinsic，而非EVM的合约ABI调用；</li>
+<li><strong>交互互通</strong>：通过预编译合约实现“EVM工具调波卡原生功能”“波卡API调EVM合约”，资产和地址共用，工具可混合使用。</li>
+</ol>
+<p>这三个点的核心是“波卡EVM兼容链的双向适配”——既保留波卡原生特性，又兼容EVM生态的使用习惯，理解这一点就抓住了波卡与EVM交互的核心逻辑。</p>
+<p>如果需要，我可以整理一份「波卡+EVM互通实操清单」，包含地址转换、API调用、跨体系合约交互的完整代码示例，方便你直接上手测试。</p>
 
             </div>
             <hr>
@@ -604,8 +690,6 @@
   <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
 
 
-
-  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
 
 
 
