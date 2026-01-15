@@ -1,0 +1,479 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>whale-valut-redis数据库 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/search/">
+                <i class="iconfont icon-search"></i>
+                搜索
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="whale-valut-redis数据库">
+                      
+                        whale-valut-redis数据库
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-01-15 13:43" pubdate>
+        2026年1月15日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.7k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      22
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">whale-valut-redis数据库</h1>
+            
+            <div class="markdown-body">
+              <p>出现了这个提示，说明你的<strong>后端逻辑</strong>正在发挥作用，但它目前陷入了一个“逻辑陷阱”。</p>
+<p>既然你之前误删了 Redis 中的数据，现在的报错是因为：<strong>后端在验证你 URL 里的这个 Hash 时，在 Redis 的 <code>vault:codes:valid</code>（合法池）里找不到它，或者在 <code>ADMIN_CODE_HASH</code> 的比对中失败了。</strong></p>
+<p>要修复这个问题并找回权限，请按照以下步骤操作：</p>
+<h3 id="1-核心原因排查"><a href="#1-核心原因排查" class="headerlink" title="1. 核心原因排查"></a>1. 核心原因排查</h3><p>你的 URL 尾部那一串 <code>9f6571aa...</code> 正是你之前提到的 <code>ADMIN_CODE_HASH</code>。<br>后端在收到这个请求时，通常会执行以下逻辑：</p>
+<ul>
+<li><strong>逻辑 A</strong>：检查这个 Hash 是否等于 Redis 里的 <code>ADMIN_CODE_HASH</code>。如果是，放行进入管理员页面。</li>
+<li><strong>逻辑 B</strong>：如果不是管理员，则检查它是否在 <code>vault:codes:valid</code> 集合中。如果都不在，就报错“无效的兑换码”。</li>
+</ul>
+<p><strong>因为你删除了 Redis 数据，逻辑 A 失效了，系统把它当成了一个普通的（且不存在的）兑换码。</strong></p>
+<hr>
+<h3 id="2-立即修复操作（在-Kali-终端执行）"><a href="#2-立即修复操作（在-Kali-终端执行）" class="headerlink" title="2. 立即修复操作（在 Kali 终端执行）"></a>2. 立即修复操作（在 Kali 终端执行）</h3><p>请回到你的 <code>redis-cli</code> 窗口，确保执行以下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 1. 重新设置管理员 Hash 映射</span><br>SET ADMIN_CODE_HASH <span class="hljs-string">&quot;9f6571aaeaa048ffd4df9150cf99b5f720949e85902dc21c33a3f4bc556a97d0&quot;</span><br><br><span class="hljs-comment"># 2. 重新设置管理员地址（确保跳转逻辑一致）</span><br>SET ADMIN_ADDRESS <span class="hljs-string">&quot;0x0e5e93be7628CCC25108548c9Db83fDfB196B64f&quot;</span><br><br><span class="hljs-comment"># 3. (关键) 如果你的后端验证逻辑是去 valid 集合里查：</span><br>SADD vault:codes:valid <span class="hljs-string">&quot;9f6571aaeaa048ffd4df9150cf99b5f720949e85902dc21c33a3f4bc556a97d0&quot;</span><br><br></code></pre></div></td></tr></table></figure>
+
+<p>执行完这三条后，刷新网页。如果后端逻辑是基于这些 Key 校验的，你应该就能进去了。</p>
+<hr>
+<h3 id="3-针对“作者页面”实现的建议"><a href="#3-针对“作者页面”实现的建议" class="headerlink" title="3. 针对“作者页面”实现的建议"></a>3. 针对“作者页面”实现的建议</h3><p>既然你现在正在攻克“输入作者地址跳转作者页面”的功能，这里有一个防止再次“权限失败”的设计逻辑：</p>
+<p><strong>不要把管理员&#x2F;作者的 Hash 混在普通读者的 <code>vault:codes:valid</code> 集合里。</strong></p>
+<p>建议在后端代码中做一个<strong>三级拦截</strong>：</p>
+<ol>
+<li><strong>Level 1 (Admin)</strong>: <code>if (hash === process.env.ADMIN_CODE_HASH)</code> -&gt; 进入出版社后台。</li>
+<li><strong>Level 2 (Author)</strong>: <code>if (isAuthor(walletAddress))</code> -&gt; 进入作者后台。</li>
+<li><strong>Level 3 (Reader)</strong>: <code>if (redis.sismember(&#39;vault:codes:valid&#39;, hash))</code> -&gt; 进入 Mint 页面。</li>
+</ol>
+<hr>
+<h3 id="4-为什么会提示“无效兑换码”？"><a href="#4-为什么会提示“无效兑换码”？" class="headerlink" title="4. 为什么会提示“无效兑换码”？"></a>4. 为什么会提示“无效兑换码”？</h3><p>这说明你的系统安全性其实做得不错。它默认“拒绝所有非白名单请求”。<br>正如你说的：<strong>“排除掉所有错误选项，剩下的就是正确选项。”</strong> 现在的“错误选项”是 Redis 里的数据缺失。补齐了数据，正确选项（成功跳转）自然会出现。</p>
+<p><strong>检查一下：</strong><br>当你执行完 <code>SADD vault:codes:valid ...</code> 后，再次访问链接，如果能进去，说明你的权限校验强依赖于这个 <code>valid</code> 集合。</p>
+<p><strong>你现在需要我帮你查看一下具体的后端 Node.js 校验逻辑代码（比如 <code>verify</code> 路由部分）来确认它到底在读哪个 Key 吗？</strong></p>
+<h1 id="你现在给我的main-go加上ip记录，作者跳转功能"><a href="#你现在给我的main-go加上ip记录，作者跳转功能" class="headerlink" title="你现在给我的main.go加上ip记录，作者跳转功能"></a>你现在给我的main.go加上ip记录，作者跳转功能</h1><p>这个版本是在你最新的 <code>wallet-not-have-mon.go</code>（带余额检查和 Nonce 管理的版本）基础上进行的升级。</p>
+<p>我为你新增了 <strong>IP 追踪逻辑</strong> 和 <strong>作者（Author）角色判定</strong>。</p>
+<h3 id="修改后的-main-go-核心部分"><a href="#修改后的-main-go-核心部分" class="headerlink" title="修改后的 main.go 核心部分"></a>修改后的 <code>main.go</code> 核心部分</h3><figure class="highlight go"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs go"><span class="hljs-comment">// --- 1. 修改 verifyHandler 实现作者跳转 ---</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">verifyHandler</span><span class="hljs-params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;<br>	h := r.URL.Query().Get(<span class="hljs-string">&quot;codeHash&quot;</span>)<br>	a := strings.ToLower(strings.TrimSpace(r.URL.Query().Get(<span class="hljs-string">&quot;address&quot;</span>)))<br>	adminAddr := strings.ToLower(strings.TrimSpace(os.Getenv(<span class="hljs-string">&quot;ADMIN_ADDRESS&quot;</span>)))<br><br>	<span class="hljs-comment">// 首先检查是否是管理员 (出版社)</span><br>	<span class="hljs-keyword">if</span> adminAddr != <span class="hljs-string">&quot;&quot;</span> &amp;&amp; a == adminAddr &#123;<br>		sendJSON(w, http.StatusOK, CommonResponse&#123;Ok: <span class="hljs-literal">true</span>, Status: <span class="hljs-string">&quot;ADMIN&quot;</span>, Role: <span class="hljs-string">&quot;publisher&quot;</span>&#125;)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-comment">// 检查是否是作者 (新增逻辑：从 Redis 的 vault:authors 集合查询)</span><br>	isAuthor, _ := rdb.SIsMember(ctx, <span class="hljs-string">&quot;vault:authors&quot;</span>, a).Result()<br>	<span class="hljs-keyword">if</span> isAuthor &#123;<br>		sendJSON(w, http.StatusOK, CommonResponse&#123;Ok: <span class="hljs-literal">true</span>, Status: <span class="hljs-string">&quot;AUTHOR&quot;</span>, Role: <span class="hljs-string">&quot;author&quot;</span>&#125;)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-comment">// 检查是否是合法读者</span><br>	isValid, _ := rdb.SIsMember(ctx, <span class="hljs-string">&quot;vault:codes:valid&quot;</span>, h).Result()<br>	<span class="hljs-keyword">if</span> isValid &#123;<br>		sendJSON(w, http.StatusOK, CommonResponse&#123;Ok: <span class="hljs-literal">true</span>, Status: <span class="hljs-string">&quot;VALID_READER&quot;</span>, Role: <span class="hljs-string">&quot;reader&quot;</span>&#125;)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	sendJSON(w, http.StatusForbidden, CommonResponse&#123;Ok: <span class="hljs-literal">false</span>, Error: <span class="hljs-string">&quot;INVALID_CODE&quot;</span>&#125;)<br>&#125;<br><br><span class="hljs-comment">// --- 2. 修改 mintHandler 增加 IP 记录 ---</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">mintHandler</span><span class="hljs-params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;<br>	<span class="hljs-keyword">var</span> req <span class="hljs-keyword">struct</span> &#123;<br>		Dest     <span class="hljs-type">string</span> <span class="hljs-string">`json:&quot;dest&quot;`</span><br>		CodeHash <span class="hljs-type">string</span> <span class="hljs-string">`json:&quot;codeHash&quot;`</span><br>	&#125;<br>	<span class="hljs-keyword">if</span> err := json.NewDecoder(r.Body).Decode(&amp;req); err != <span class="hljs-literal">nil</span> &#123;<br>		sendJSON(w, http.StatusBadRequest, CommonResponse&#123;Error: <span class="hljs-string">&quot;参数错误&quot;</span>&#125;)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-comment">// 获取 IP 地址逻辑</span><br>	clientIP := r.Header.Get(<span class="hljs-string">&quot;X-Forwarded-For&quot;</span>)<br>	<span class="hljs-keyword">if</span> clientIP == <span class="hljs-string">&quot;&quot;</span> &#123;<br>		clientIP = r.Header.Get(<span class="hljs-string">&quot;X-Real-IP&quot;</span>)<br>	&#125;<br>	<span class="hljs-keyword">if</span> clientIP == <span class="hljs-string">&quot;&quot;</span> &#123;<br>		clientIP = strings.Split(r.RemoteAddr, <span class="hljs-string">&quot;:&quot;</span>)[<span class="hljs-number">0</span>]<br>	&#125;<br><br>	<span class="hljs-comment">// 原子化销毁有效码</span><br>	removed, _ := rdb.SRem(ctx, <span class="hljs-string">&quot;vault:codes:valid&quot;</span>, req.CodeHash).Result()<br>	<span class="hljs-keyword">if</span> removed == <span class="hljs-number">0</span> &#123;<br>		sendJSON(w, http.StatusForbidden, CommonResponse&#123;Error: <span class="hljs-string">&quot;此码已失效或已领取&quot;</span>&#125;)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	txHash, err := executeMintLegacy(req.Dest)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		rdb.SAdd(ctx, <span class="hljs-string">&quot;vault:codes:valid&quot;</span>, req.CodeHash) <span class="hljs-comment">// 失败归还</span><br>		sendJSON(w, http.StatusInternalServerError, CommonResponse&#123;Error: err.Error()&#125;)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-comment">// --- 记录 IP 和 详细信息到 Redis ---</span><br>	pipe := rdb.Pipeline()<br>	pipe.SAdd(ctx, <span class="hljs-string">&quot;vault:codes:used&quot;</span>, req.CodeHash)<br>	pipe.HIncrBy(ctx, <span class="hljs-string">&quot;whale_vault:daily_mints&quot;</span>, time.Now().Format(<span class="hljs-string">&quot;2006-01-02&quot;</span>), <span class="hljs-number">1</span>)<br>	<br>	<span class="hljs-comment">// 保存该 Hash 对应的 Mint 详情 (IP, 钱包, 时间)</span><br>	mintDetail := <span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]<span class="hljs-keyword">interface</span>&#123;&#125;&#123;<br>		<span class="hljs-string">&quot;ip&quot;</span>:      clientIP,<br>		<span class="hljs-string">&quot;address&quot;</span>: req.Dest,<br>		<span class="hljs-string">&quot;time&quot;</span>:    time.Now().Format(time.RFC3339),<br>	&#125;<br>	pipe.HSet(ctx, <span class="hljs-string">&quot;vault:mint_info:&quot;</span>+req.CodeHash, mintDetail)<br>	<br>	<span class="hljs-comment">// 记录所有读者的 IP 集合，用于统计地理分布</span><br>	pipe.SAdd(ctx, <span class="hljs-string">&quot;vault:reader_ips&quot;</span>, clientIP)<br>	<br>	pipe.Exec(ctx)<br><br>	fmt.Printf(<span class="hljs-string">&quot;✅ [成功] 目标: %s | IP: %s | Tx: %s\n&quot;</span>, req.Dest, clientIP, txHash)<br>	sendJSON(w, http.StatusOK, CommonResponse&#123;Ok: <span class="hljs-literal">true</span>, Status: <span class="hljs-string">&quot;submitted&quot;</span>, TxHash: txHash&#125;)<br>&#125;<br><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="如何配合实现功能？"><a href="#如何配合实现功能？" class="headerlink" title="如何配合实现功能？"></a>如何配合实现功能？</h3><h4 id="1-设置作者地址"><a href="#1-设置作者地址" class="headerlink" title="1. 设置作者地址"></a>1. 设置作者地址</h4><p>在你的 Kali 终端中，运行以下命令手动将作者（比如余弦或你自己）的钱包地址加入白名单：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">redis-cli SADD vault:authors <span class="hljs-string">&quot;0x你的作者钱包地址&quot;</span><br><br></code></pre></div></td></tr></table></figure>
+
+<h4 id="2-前端跳转逻辑参考"><a href="#2-前端跳转逻辑参考" class="headerlink" title="2. 前端跳转逻辑参考"></a>2. 前端跳转逻辑参考</h4><p>在你的前端（React&#x2F;Vue）调用 <code>/secret/verify</code> 接口后，根据返回的 <code>role</code> 字段进行逻辑分流：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> &#123; role &#125; = response.<span class="hljs-property">data</span>;<br><span class="hljs-keyword">if</span> (role === <span class="hljs-string">&#x27;publisher&#x27;</span>) &#123;<br>    router.<span class="hljs-title function_">push</span>(<span class="hljs-string">&#x27;/admin/overview&#x27;</span>); <span class="hljs-comment">// 出版社界面</span><br>&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (role === <span class="hljs-string">&#x27;author&#x27;</span>) &#123;<br>    router.<span class="hljs-title function_">push</span>(<span class="hljs-string">&#x27;/author/dashboard&#x27;</span>); <span class="hljs-comment">// 作者界面</span><br>&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (role === <span class="hljs-string">&#x27;reader&#x27;</span>) &#123;<br>    router.<span class="hljs-title function_">push</span>(<span class="hljs-string">&#x27;/mint&#x27;</span>); <span class="hljs-comment">// 普通 Mint 页面</span><br>&#125;<br><br></code></pre></div></td></tr></table></figure>
+
+<h4 id="3-IP-数据的价值"><a href="#3-IP-数据的价值" class="headerlink" title="3. IP 数据的价值"></a>3. IP 数据的价值</h4><p>现在 Redis 里已经有了 <code>vault:reader_ips</code>。你之后可以利用这个集合在 <code>admin/overview</code> 页面实现一个**“实时反作弊”**列表，查看是否有同一个 IP 在短时间内大量调用 <code>/relay/mint</code>，从而揪出那些想白嫖你“代付 Gas 服务费”的脚本党。</p>
+<h3 id="你的“预判”逻辑体现"><a href="#你的“预判”逻辑体现" class="headerlink" title="你的“预判”逻辑体现"></a>你的“预判”逻辑体现</h3><p>这个版本通过 <code>Relayer</code> 结构体和锁机制，排除了“余额不足”和“Nonce 冲突”这两个错误选项，留下的就是最稳健的代付路径。</p>
+<p><strong>下一步建议：</strong><br>既然你已经记录了 IP，是否需要我帮你写一个简单的 <strong>统计接口</strong>，用来在后台显示“当前有多少来自不同 IP 的读者”？</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Web3/">Web3</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/01/15/38822.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">python-virtual</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/01/15/60120.html">
+                        <span class="hidden-mobile">whale-valut-monad高并发</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>

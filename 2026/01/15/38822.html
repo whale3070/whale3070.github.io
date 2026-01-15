@@ -1,0 +1,531 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>python-virtual - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/search/">
+                <i class="iconfont icon-search"></i>
+                搜索
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="python-virtual">
+                      
+                        python-virtual
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-01-15 15:13" pubdate>
+        2026年1月15日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      11
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">python-virtual</h1>
+            
+            <div class="markdown-body">
+              <h1 id="python进入虚拟终端的命令是什么"><a href="#python进入虚拟终端的命令是什么" class="headerlink" title="python进入虚拟终端的命令是什么"></a>python进入虚拟终端的命令是什么</h1><p>在 Python 开发中，进入“虚拟终端”通常指的是激活<strong>虚拟环境（Virtual Environment）</strong>。根据你使用的操作系统和创建环境的方式，命令略有不同。</p>
+<hr>
+<h2 id="1-常见环境的激活命令"><a href="#1-常见环境的激活命令" class="headerlink" title="1. 常见环境的激活命令"></a>1. 常见环境的激活命令</h2><p>如果你使用的是 Python 自带的 <code>venv</code> 模块创建的环境（假设你的环境文件夹名为 <code>venv</code>）：</p>
+<table>
+<thead>
+<tr>
+<th>操作系统</th>
+<th>壳层 (Shell)</th>
+<th>激活命令</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Windows</strong></td>
+<td>Command Prompt (cmd)</td>
+<td><code>venv\Scripts\activate</code></td>
+</tr>
+<tr>
+<td></td>
+<td>PowerShell</td>
+<td><code>.\venv\Scripts\Activate.ps1</code></td>
+</tr>
+<tr>
+<td><strong>macOS &#x2F; Linux</strong></td>
+<td>bash &#x2F; zsh</td>
+<td><code>source venv/bin/activate</code></td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>注意</strong>：激活成功后，你的命令行提示符前面通常会出现 <code>(venv)</code> 字样，表示你现在的操作都在该虚拟环境下。</p>
+</blockquote>
+<hr>
+<h2 id="2-其他工具的进入方式"><a href="#2-其他工具的进入方式" class="headerlink" title="2. 其他工具的进入方式"></a>2. 其他工具的进入方式</h2><p>如果你使用的是其他流行的包管理工具：</p>
+<ul>
+<li><strong>Conda (Anaconda&#x2F;Miniconda):</strong></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">conda activate 环境名称<br><br></code></pre></div></td></tr></table></figure>
+
+
+<ul>
+<li><strong>Pipenv:</strong></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">pipenv shell<br><br></code></pre></div></td></tr></table></figure>
+
+
+<ul>
+<li><strong>Poetry:</strong></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">poetry shell<br><br></code></pre></div></td></tr></table></figure>
+
+
+
+<hr>
+<h2 id="3-退出虚拟环境"><a href="#3-退出虚拟环境" class="headerlink" title="3. 退出虚拟环境"></a>3. 退出虚拟环境</h2><p>无论你在哪个系统上，想要退出当前的虚拟环境并回到系统全局环境，直接输入：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">deactivate<br><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="💡-职业建议小贴士"><a href="#💡-职业建议小贴士" class="headerlink" title="💡 职业建议小贴士"></a>💡 职业建议小贴士</h3><p>既然你之前提到过<strong>预判了游戏原画行业的下行</strong>并关注高才通，在转向技术或网络安全领域（比如和余弦、李芸这类大咖交流）时，熟练使用虚拟环境是基础中的基础。这能保证你的项目依赖清晰，不会因为版本冲突搞砸你的代码演示。</p>
+<p><strong>需要我帮你写一个自动创建并激活虚拟环境的 Python 脚本吗？</strong></p>
+<h1 id="redis查看方法"><a href="#redis查看方法" class="headerlink" title="redis查看方法"></a>redis查看方法</h1><p>根据你提供的 <code>main.go</code> 逻辑和 Redis 数据结构，查询有效的 Hash Code（即尚未被使用的正版验证码）主要通过 <code>vault:codes:valid</code> 这个集合（Set）来进行。</p>
+<p>以下是具体的查询方法：</p>
+<h3 id="1-使用命令行-redis-cli"><a href="#1-使用命令行-redis-cli" class="headerlink" title="1. 使用命令行 (redis-cli)"></a>1. 使用命令行 (redis-cli)</h3><p>在 Kali 终端进入 <code>redis-cli</code> 后，你可以使用以下命令：</p>
+<ul>
+<li><strong>查看所有有效的 Hash Code：</strong></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">SMEMBERS vault:codes:valid<br><br></code></pre></div></td></tr></table></figure>
+
+
+<p>这条命令会列出集合中所有的字符串，每一个都是一个待使用的有效 Hash。</p>
+<ul>
+<li><strong>统计还有多少个有效码（库存）：</strong></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">SCARD vault:codes:valid<br><br></code></pre></div></td></tr></table></figure>
+
+
+<ul>
+<li><strong>检查某个具体的 Hash 是否有效：</strong></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">SISMEMBER vault:codes:valid <span class="hljs-string">&quot;你的哈希值&quot;</span><br><br></code></pre></div></td></tr></table></figure>
+
+
+<p>如果返回 <code>(integer) 1</code> 表示有效；返回 <code>0</code> 表示无效或已被删除。</p>
+<hr>
+<h3 id="2-在-Go-后端代码中查询"><a href="#2-在-Go-后端代码中查询" class="headerlink" title="2. 在 Go 后端代码中查询"></a>2. 在 Go 后端代码中查询</h3><p>在你的 <code>main.go</code> 中，验证逻辑其实已经体现了如何查询。如果你想在后台管理界面实现一个“查看剩余码”的接口，可以参考以下代码片段：</p>
+<figure class="highlight go"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs go"><span class="hljs-comment">// 查询所有有效码的示例函数</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">getAllValidCodes</span><span class="hljs-params">()</span></span> ([]<span class="hljs-type">string</span>, <span class="hljs-type">error</span>) &#123;<br>    <span class="hljs-comment">// 使用 SMembers 获取集合内所有成员</span><br>    codes, err := rdb.SMembers(ctx, <span class="hljs-string">&quot;vault:codes:valid&quot;</span>).Result()<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err<br>    &#125;<br>    <span class="hljs-keyword">return</span> codes, <span class="hljs-literal">nil</span><br>&#125;<br><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="3-数据流向说明"><a href="#3-数据流向说明" class="headerlink" title="3. 数据流向说明"></a>3. 数据流向说明</h3><p>为了让你更清晰地理解这些 Hash Code 的状态变化，可以参考以下逻辑模型：</p>
+<ul>
+<li><strong>初始状态</strong>：你（或出版社）生成的正版 Hash 存放在 <code>vault:codes:valid</code>。</li>
+<li><strong>Mint 触发</strong>：当读者调用 <code>/relay/mint</code> 接口时，程序会执行 <code>SRem(ctx, &quot;vault:codes:valid&quot;, req.CodeHash)</code>。</li>
+<li><strong>转移状态</strong>：紧接着程序执行 <code>SAdd(ctx, &quot;vault:codes:used&quot;, req.CodeHash)</code>。</li>
+<li><strong>结果</strong>：此时，该 Hash 从“有效”变为“已使用”，实现了你提到的“一书一码”逻辑，彻底排除了重复领取的“错误选项”。</li>
+</ul>
+<h3 id="4-预警提示"><a href="#4-预警提示" class="headerlink" title="4. 预警提示"></a>4. 预警提示</h3><p>如果你发现执行 <code>SMEMBERS vault:codes:valid</code> 返回结果为空，这可能意味着：</p>
+<ol>
+<li><strong>库存耗尽</strong>：所有正版书都被领完了。</li>
+<li><strong>数据意外丢失</strong>：就像你之前不小心删掉了 <code>ADMIN_CODE_HASH</code> 一样。</li>
+</ol>
+<p><strong>建议：</strong> 既然你在实现出版社后台，可以在 <code>/admin/overview</code> 页面加一个<strong>库存报警</strong>功能，当 <code>SCARD vault:codes:valid</code> 的值低于某个阈值（例如 50）时，给你发个提示，以便你及时补货。</p>
+<p>你想让我帮你写一个<strong>批量导入新 Hash Code 到 Redis</strong> 的脚本工具吗？这样你可以一次性录入成千上万个正版验证码。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/01/15/27589.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Polkadot Solidity开发-课程笔记10</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/01/15/59539.html">
+                        <span class="hidden-mobile">whale-valut-redis数据库</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>

@@ -1,0 +1,642 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>Polkadot Solidity开发-课程笔记10 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"192.168.126.129","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/search/">
+                <i class="iconfont icon-search"></i>
+                搜索
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="Polkadot Solidity开发-课程笔记10">
+                      
+                        Polkadot Solidity开发-课程笔记10
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-01-15 16:15" pubdate>
+        2026年1月15日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.6k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      40
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">Polkadot Solidity开发-课程笔记10</h1>
+            
+            <div class="markdown-body">
+              <p>第三课 Task3 任务：<br>选择题：<a target="_blank" rel="noopener" href="https://wj.qq.com/s2/25474939/aofv/">https://wj.qq.com/s2/25474939/aofv/</a><br>实践题：<a target="_blank" rel="noopener" href="https://github.com/papermoonio/2026-h1-building-production-grade-dApps/tree/main/homework/lesson-3">https://github.com/papermoonio/2026-h1-building-production-grade-dApps/tree/main/homework/lesson-3</a></p>
+<h1 id="Uniswap-V2-使用-UQ112-数据类型的主要原因是？"><a href="#Uniswap-V2-使用-UQ112-数据类型的主要原因是？" class="headerlink" title="Uniswap V2 使用 UQ112 数据类型的主要原因是？"></a>Uniswap V2 使用 UQ112 数据类型的主要原因是？</h1><p>A. 提高交易手续费的计算精度<br>B. 存储价格时节省 Gas 并保证小数精度<br>C. 支持跨链交易<br>D. 优化智能合约的编译速度</p>
+<p>正确答案是 <strong>B. 存储价格时节省 Gas 并保证小数精度</strong>。</p>
+<h3 id="核心原因解析"><a href="#核心原因解析" class="headerlink" title="核心原因解析"></a>核心原因解析</h3><p>在 Uniswap V2 的设计中，选择 <strong>UQ112.112</strong> 数据类型是一个在 EVM（以太坊虚拟机）限制下的精妙平衡：</p>
+<ul>
+<li><p><strong>保证小数精度：</strong><br>由于以太坊原生不支持浮点数（Floating Point），在处理代币价格这种需要高精度的小数时，必须使用<strong>定点数（Fixed-point arithmetic）</strong>。UQ112.112 格式将 224 位整数拆分为：</p>
+</li>
+<li><p><strong>前 112 位</strong>存储整数部分。</p>
+</li>
+<li><p><strong>后 112 位</strong>存储小数部分。<br>这确保了在计算“价格累积器（Price Cumulative）”时，即便是价格波动极小，也能保持足够的精度。</p>
+</li>
+<li><p><strong>极致的 Gas 优化：</strong><br>EVM 的字长是 <strong>256 位</strong>。Uniswap V2 需要在同一个存储槽（Storage Slot）中同时存储两个代币的储备量（<code>reserve0</code> 和 <code>reserve1</code>）。</p>
+</li>
+<li><p>位。</p>
+</li>
+<li><p>剩下的  位正好可以用来存储时间戳（<code>blockTimestampLast</code>）。<br>这样，通过将储备量限制在 <code>uint112</code>，Uniswap 可以在<strong>一个 <code>sstore</code> 操作</strong>中更新所有核心变量，从而大幅降低交易的 Gas 消耗。</p>
+</li>
+<li><p><strong>A 选项：</strong> 手续费通常是直接按比例扣除，不涉及复杂的 UQ112 转换。</p>
+</li>
+<li><p><strong>C 选项：</strong> UQ112 是合约内部的数据结构，与跨链协议无关。</p>
+</li>
+<li><p><strong>D 选项：</strong> 复杂的数据类型反而可能略微增加编译开销，而非优化。</p>
+</li>
+</ul>
+<h1 id="UQ112-数据类型是什么"><a href="#UQ112-数据类型是什么" class="headerlink" title="UQ112 数据类型是什么"></a>UQ112 数据类型是什么</h1><p><strong>UQ112</strong>（全称 <strong>UQ112.112</strong>）是 Uniswap V2 中用于处理**定点数（Fixed-point arithmetic）**的一种数据格式。</p>
+<p>由于以太坊虚拟机（EVM）不支持像 <code>1.5</code> 或 <code>0.0003</code> 这样的浮点数，开发者必须通过“放大”整数的方法来手动处理小数。UQ112.112 就是为了解决代币价格计算精度与存储效率之间的矛盾而设计的。</p>
+<hr>
+<h3 id="1-结构拆解：UQ112-112-是什么意思？"><a href="#1-结构拆解：UQ112-112-是什么意思？" class="headerlink" title="1. 结构拆解：UQ112.112 是什么意思？"></a>1. 结构拆解：UQ112.112 是什么意思？</h3><p>这个名字描述了二进制位（Bits）的分配方式：</p>
+<ul>
+<li><p><strong>U (Unsigned):</strong> 代表无符号，即只有正数，没有负数。</p>
+</li>
+<li><p><strong>Q:</strong> 代表 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Q_(number_format)">Q 格式</a>，一种定点数表示法。</p>
+</li>
+<li><p><strong>112.112:</strong> * <strong>整数部分（Integer Part）:</strong> 占用 112 位。</p>
+</li>
+<li><p><strong>小数部分（Fractional Part）:</strong> 占用 112 位。</p>
+</li>
+<li><p><strong>总计:</strong>  位。</p>
+</li>
+</ul>
+<h3 id="2-它在代码中是如何工作的？"><a href="#2-它在代码中是如何工作的？" class="headerlink" title="2. 它在代码中是如何工作的？"></a>2. 它在代码中是如何工作的？</h3><p>当 Uniswap 计算价格（例如 ）时，如果直接用整数除法，结果往往是 0（例如 ）。<br>为了保留精度，它会先将分子左移 112 位（相当于乘以 ），然后再进行除法：</p>
+<p>这样得到的结果，其前 112 位代表整数，后 112 位代表极其精确的小数位。</p>
+<h3 id="3-为什么偏偏选择-112-位？（Gas-的艺术）"><a href="#3-为什么偏偏选择-112-位？（Gas-的艺术）" class="headerlink" title="3. 为什么偏偏选择 112 位？（Gas 的艺术）"></a>3. 为什么偏偏选择 112 位？（Gas 的艺术）</h3><p>这和你之前提到的“排除所有错误选项”后的最优选逻辑异曲同工。</p>
+<ul>
+<li><strong>EVM 槽位限制：</strong> 一个以太坊存储槽（Storage Slot）是 <strong>256 位</strong>。</li>
+<li><strong>极致紧凑：</strong> * <code>reserve0</code> 占用 <strong>112 位</strong>。</li>
+<li><code>reserve1</code> 占用 <strong>112 位</strong>。</li>
+<li><code>blockTimestampLast</code>（时间戳）占用 <strong>32 位</strong>。</li>
+<li><strong>总和：</strong>  位！</li>
+</ul>
+<p>这意味着 Uniswap V2 可以在<strong>一个 <code>sstore</code> 操作</strong>（修改存储的指令）中，同时更新两个代币的余额和时间戳。这极大地节省了 Gas 费。</p>
+<hr>
+<h3 id="总结表"><a href="#总结表" class="headerlink" title="总结表"></a>总结表</h3><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>详情</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>存储类型</strong></td>
+<td><code>uint224</code></td>
+</tr>
+<tr>
+<td><strong>最大整数</strong></td>
+<td>(足以支撑万亿亿级别的代币总量)</td>
+</tr>
+<tr>
+<td><strong>最小精度</strong></td>
+<td>(精度极高，几乎忽略不计的舍入误差)</td>
+</tr>
+<tr>
+<td><strong>核心优势</strong></td>
+<td>满足价格预测（TWAP）所需的精度，同时通过位打包节省 Gas</td>
+</tr>
+</tbody></table>
+<p>正如你对那个“数学逻辑有问题”的老师的预判，Uniswap 的设计者也破除了常规使用 <code>uint256</code> 的迷信，转而利用位运算在有限的 256 位空间里构建了一个极其精密的数学模型。</p>
+<p>你想看一段具体的 Solidity 代码来看看它是如何进行这种位移操作（<code>encode</code>）的吗？</p>
+<p><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=Ar4Ik7Bov0U">Uniswap V2 价格预言机与 UQ112 的数学逻辑</a><br>这段视频通过代码实例讲解了 Uniswap V2 如何利用这种定点数格式来实现抗操纵的价格预言机（TWAP），非常适合深入理解其数学原理。</p>
+<h1 id="关于无常损失，下面说法正确的是？"><a href="#关于无常损失，下面说法正确的是？" class="headerlink" title="关于无常损失，下面说法正确的是？"></a>关于无常损失，下面说法正确的是？</h1><p>A. 无常损失对于流动性提供者是可以避免的<br>B. 无常损失的根本原因是利润被其他交易者赚走了<br>C. Uniswap V2 通过无常损失来获取利润<br>D. 如果二个Token的价格一直不变就不会有无常损失</p>
+<p>正确答案是 <strong>D. 如果二个Token的价格一直不变就不会有无常损失</strong>。</p>
+<h3 id="核心原理深度解析"><a href="#核心原理深度解析" class="headerlink" title="核心原理深度解析"></a>核心原理深度解析</h3><p>无常损失（Impermanent Loss）是自动化做市商（AMM）机制中特有的风险。</p>
+<ul>
+<li><strong>根本原因：</strong> 当外部市场价格发生变化时，AMM 合约内部的价格并不会自动调整，而是需要套利者（Arbitrageurs）通过交易来抹平价差。在抹平价差的过程中，LP（流动性提供者）被迫“卖出”升值的资产，“买入”贬值的资产。</li>
+<li><strong>为何 D 是正确的：</strong> 如果代币相对于彼此的价格比例保持不变，套利者就没有操作空间，LP 手中的资产比例也就不会发生变化，最终价值等同于单纯持币（HODL）。</li>
+</ul>
+<hr>
+<h3 id="错误选项分析（带入你的“排除法”逻辑）"><a href="#错误选项分析（带入你的“排除法”逻辑）" class="headerlink" title="错误选项分析（带入你的“排除法”逻辑）"></a>错误选项分析（带入你的“排除法”逻辑）</h3><ul>
+<li><strong>A 选项（可以避免）：</strong> 在 Uniswap V2 这种标准的恒定乘积（）模型中，只要价格有波动，无常损失就会产生。它是模型自带的副作用，LP 无法“主动避免”，只能通过收取的交易手续费来抵消这部分损失。</li>
+<li><strong>B 选项（利润被赚走）：</strong> 这句话带有一种误导性。无常损失的利润确实被套利者赚走了，但那是<strong>结果</strong>而非<strong>根本原因</strong>。根本原因在于资产权重的重新平衡（Rebalancing）。</li>
+<li><strong>C 选项（Uniswap 获利）：</strong> Uniswap 是去中心化协议，它本身不获利。协议赚取的 0.3% 手续费是分给 LP 的。无常损失反而是 LP 的成本。</li>
+</ul>
+<hr>
+<h3 id="无常损失与资产偏离的关系"><a href="#无常损失与资产偏离的关系" class="headerlink" title="无常损失与资产偏离的关系"></a>无常损失与资产偏离的关系</h3><p>如上图所示，无论价格是上涨还是下跌，只要偏离了你提供流动性时的<strong>初始价格比</strong>，无常损失就会存在。</p>
+<table>
+<thead>
+<tr>
+<th>价格变动 (倍数)</th>
+<th>无常损失 (%)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2x</td>
+<td>5.7%</td>
+</tr>
+<tr>
+<td>3x</td>
+<td>13.4%</td>
+</tr>
+<tr>
+<td>5x</td>
+<td>25.5%</td>
+</tr>
+</tbody></table>
+<h1 id="Uniswap-V2-不支持以下哪种功能？"><a href="#Uniswap-V2-不支持以下哪种功能？" class="headerlink" title="Uniswap V2 不支持以下哪种功能？"></a>Uniswap V2 不支持以下哪种功能？</h1><p>A. 闪电贷（Flash Loan）<br>B. ERC20 Token 互换<br>C. 原生的跨链资产交换<br>D. 流动性挖矿</p>
+<p>正确答案是 <strong>C. 原生的跨链资产交换</strong>。</p>
+<h3 id="选项详细解析"><a href="#选项详细解析" class="headerlink" title="选项详细解析"></a>选项详细解析</h3><ul>
+<li><strong>A. 闪电贷（Flash Loan）：</strong><br>Uniswap V2 引入了 <strong>Flash Swaps</strong>（闪电交换）。它允许用户在不支付预付款的情况下取出池中的任何资产，只要在同一个交易结束前，用户能够归还该资产（加上 0.3% 的手续费）或者支付等值的另一种资产。其本质与闪电贷是一致的。</li>
+<li><strong>B. ERC20 Token 互换：</strong><br>这是 Uniswap V2 最核心的改进。相比 V1 必须经过 ETH（例如：Token A → ETH → Token B），V2 允许直接创建两个任意 ERC20 代币之间的交易对（Token A → Token B），大大降低了手续费和交易滑点。</li>
+<li><strong>C. 原生的跨链资产交换（不支持）：</strong><br>Uniswap V2 的智能合约是<strong>单链部署</strong>的（最初是在以太坊主网）。它本身不具备跨链通信或跨链结算的底层协议。虽然现在的 Uniswap 前端支持通过 Across 等第三方协议进行跨链，但那是“外挂”的功能，并非 V2 协议本身的合约逻辑。</li>
+<li><strong>D. 流动性挖矿：</strong><br>Uniswap V2 协议本身支持通过发行 <strong>LP Tokens</strong>（UNI-V2）来代表流动性份额。这种份额代币是标准 ERC20，可以被质押到其他挖矿合约（如 UNI 创世挖矿）中。因此，它是支持流动性挖矿生态的。</li>
+</ul>
+<hr>
+<h3 id="核心知识点补充"><a href="#核心知识点补充" class="headerlink" title="核心知识点补充"></a>核心知识点补充</h3><table>
+<thead>
+<tr>
+<th>功能</th>
+<th>Uniswap V2 是否支持</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>任意 ERC20 交易对</strong></td>
+<td><strong>是</strong></td>
+<td>V2 最大的升级点</td>
+</tr>
+<tr>
+<td><strong>闪电交换 (Flash Swap)</strong></td>
+<td><strong>是</strong></td>
+<td>开发者可实现无成本套利</td>
+</tr>
+<tr>
+<td><strong>价格预测机 (TWAP)</strong></td>
+<td><strong>是</strong></td>
+<td>基于 UQ112 的时间加权平均价格</td>
+</tr>
+<tr>
+<td><strong>原生跨链</strong></td>
+<td><strong>否</strong></td>
+<td>需要依靠 Layer 2 或第三方桥接</td>
+</tr>
+</tbody></table>
+<p>这个结构图展示了 V2 的工厂合约（Factory）如何生成相互隔离的交易对（Pair）合约。由于每个 Pair 合约只存在于特定的区块链上，它们无法在合约层面直接感知或操作其他链上的资产。</p>
+<p>如果你在更新博客时需要更生动地解释“闪电贷”和“流动性挖矿”的区别，可以关注以下视频。</p>
+<p><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=Ar4Ik7Bov0U">Uniswap V2 Flash Swaps explained with code</a></p>
+<p>这个视频深入浅出地解释了 Uniswap V2 闪电贷的数学逻辑和合约调用流程，能帮你更清晰地理解为什么选项 A 是其原生支持的功能。</p>
+<h1 id="Uniswap-V2-的流动性池创建机制是？"><a href="#Uniswap-V2-的流动性池创建机制是？" class="headerlink" title="Uniswap V2 的流动性池创建机制是？"></a>Uniswap V2 的流动性池创建机制是？</h1><p>A. 需项目方许可才能创建<br>B. 任何用户可自由创建任意 Token 对<br>C. 仅支持稳定币交易对<br>D. 由 Polkadot 中继链统一管理</p>
+<p>正确答案是 <strong>B. 任何用户可自由创建任意 Token 对</strong>。</p>
+<h3 id="核心机制：Permissionless（无需许可）"><a href="#核心机制：Permissionless（无需许可）" class="headerlink" title="核心机制：Permissionless（无需许可）"></a>核心机制：Permissionless（无需许可）</h3><p>Uniswap V2 的核心灵魂在于它的<strong>去中心化</strong>和<strong>无需许可性</strong>。这一点在它的工厂合约（Factory Contract）设计中体现得淋漓尽致：</p>
+<ul>
+<li><strong>任何人（Anyone）：</strong> 协议不设门槛，不需要项目方审核，也不需要联系 Uniswap 团队。只要你拥有两种不同的 ERC20 代币，你就可以通过调用工厂合约的 <code>createPair</code> 函数来创建一个新的交易对池。</li>
+<li><strong>任意 Token 对（Any Token Pair）：</strong> 相比 V1 必须以 ETH 作为中介桥梁，V2 支持两个任意 ERC20 代币直接组成交易对（例如：DAI&#x2F;USDC，或者两个全新的、刚发行的土狗币）。</li>
+<li><strong>首次定价权：</strong> 每一个流动性池的第一个创建者（第一个提供流动性的人）拥有<strong>初始定价权</strong>。他们通过注入两种代币的比例来决定初始价格（即 ）。</li>
+</ul>
+<hr>
+<h3 id="选项干扰项拆解"><a href="#选项干扰项拆解" class="headerlink" title="选项干扰项拆解"></a>选项干扰项拆解</h3><ul>
+<li><strong>A 选项（需许可）：</strong> 这是传统中心化交易所（CEX）的逻辑。在 CEX 上币需要经过上币委员会审核、交费；而 Uniswap 是代码即法律，技术上无法阻止任何人创建池子。</li>
+<li><strong>C 选项（仅限稳定币）：</strong> 稳定币交易对只是池子的一种。由于 V2 采用的是恒定乘积公式 ，它其实更适合波动性大的资产。对于稳定币，后来出现的 Curve 协议使用了更优化的曲线。</li>
+<li><strong>D 选项（Polkadot 管理）：</strong> 这是一个明显的逻辑混淆。Uniswap V2 是原生于**以太坊（Ethereum）**的协议。Polkadot（波卡）的中继链管理的是其平行链的安全性，与以太坊上的智能合约逻辑无关。</li>
+</ul>
+<h3 id="给博客更新的总结要点"><a href="#给博客更新的总结要点" class="headerlink" title="给博客更新的总结要点"></a>给博客更新的总结要点</h3><p>在博客中，你可以将这个机制总结为**“流动性民主化”**：</p>
+<ol>
+<li><strong>零成本上币：</strong> 除了支付给以太坊网络的 Gas 费，没有任何额外费用。</li>
+<li><strong>长尾资产的乐园：</strong> 大量交易量较小、无法登陆大型交易所的代币，通过这种自由创建机制获得了最初的流动性。</li>
+<li><strong>确定性：</strong> 一旦创建，该池子的地址是根据两种代币的地址通过 <code>CREATE2</code> 算法唯一确定的，任何人无法篡改。</li>
+</ol>
+<p>你想了解 Uniswap V2 是如何利用 <code>CREATE2</code> 预计算池子地址，从而让用户在池子还没创建时就知道它的合约地址吗？</p>
+<h1 id="在恒定乘积公式-x-y-k-中，若用户用-DAI-购买-ETH，对交易池来说，以下描述正确的是？"><a href="#在恒定乘积公式-x-y-k-中，若用户用-DAI-购买-ETH，对交易池来说，以下描述正确的是？" class="headerlink" title="在恒定乘积公式 x * y &#x3D; k 中，若用户用 DAI 购买 ETH，对交易池来说，以下描述正确的是？"></a>在恒定乘积公式 x * y &#x3D; k 中，若用户用 DAI 购买 ETH，对交易池来说，以下描述正确的是？</h1><p>A. ETH 供应量增加，DAI 减少，k 值增大<br>B. ETH 供应量减少，DAI 增加，k 值不变<br>C. ETH 和 DAI 供应量均减少，k 值下降<br>D. ETH 和 DAI 供应量均增加，k 值上升</p>
+<p>正确答案是 <strong>B. ETH 供应量减少，DAI 增加，k 值不变</strong>。</p>
+<h3 id="核心原理解析"><a href="#核心原理解析" class="headerlink" title="核心原理解析"></a>核心原理解析</h3><p>这是理解自动化做市商（AMM）最基础也是最重要的逻辑。我们可以从“能量守恒”的角度来拆解这个过程：</p>
+<h4 id="1-资产的“一进一出”"><a href="#1-资产的“一进一出”" class="headerlink" title="1. 资产的“一进一出”"></a>1. 资产的“一进一出”</h4><ul>
+<li><strong>用户行为：</strong> 用户用 DAI <strong>买入</strong> ETH。</li>
+<li><strong>池子视角：</strong> * 用户把 DAI 丢进池子  池子里的 <strong>DAI 供应量增加</strong>。</li>
+<li>池子把 ETH 给用户  池子里的 <strong>ETH 供应量减少</strong>。</li>
+</ul>
+<h4 id="2-值的“恒定”属性"><a href="#2-值的“恒定”属性" class="headerlink" title="2.  值的“恒定”属性"></a>2.  值的“恒定”属性</h4><p>根据 Uniswap V2 的核心公式 ：</p>
+<ul>
+<li>在<strong>理想交易</strong>（不计手续费）的情况下， 值在交易前后是保持<strong>不变</strong>的。</li>
+<li>公式的意义在于：池子通过调整  和  的数量，使得它们的乘积始终等于一个常数。为了维持  不变，当你拿走一部分 ETH 时，必须存入足够比例的 DAI 来补偿。</li>
+</ul>
+<h4 id="3-价格的变化逻辑（深度解读）"><a href="#3-价格的变化逻辑（深度解读）" class="headerlink" title="3. 价格的变化逻辑（深度解读）"></a>3. 价格的变化逻辑（深度解读）</h4><p>虽然  不变，但池子里的资产比例变了：</p>
+<ul>
+<li>DAI 变多了，ETH 变少了。</li>
+<li>根据公式，下一次购买 ETH 的代价会更高（即 ETH 价格上涨）。这就是 AMM 如何通过交易自动实现“价格发现”的。</li>
+</ul>
+<hr>
+<h3 id="干扰项排除"><a href="#干扰项排除" class="headerlink" title="干扰项排除"></a>干扰项排除</h3><ul>
+<li><strong>A 选项：</strong> 描述反了。买 ETH 会导致 ETH 减少。且理想状态下  不会主动增大。</li>
+<li><strong>C &amp; D 选项：</strong> 违背了“交换”的本质。交换必然是一种资产增加，另一种减少。</li>
+</ul>
+<h3 id="进阶笔记（适合更新博客）"><a href="#进阶笔记（适合更新博客）" class="headerlink" title="进阶笔记（适合更新博客）"></a>进阶笔记（适合更新博客）</h3><p>在实际的代码实现中，其实 ** 值会略微增大**。<br>为什么？因为每笔交易会扣除 <strong>0.3% 的手续费</strong>。</p>
+<ul>
+<li>这部分手续费会留在池子里，并没有被公式里的  或  抵消。</li>
+<li>因此，每一笔交易结束后，新的  实际上会比交易前的  稍微大一点点。</li>
+<li><strong>但在基础理论题中，我们默认遵循“恒定乘积”定义，即  值不变。</strong></li>
+</ul>
+<blockquote>
+<p><strong>小贴士：</strong> 在博客中解释这个点时，可以把  比作一个天平的滑块。滑块在曲线上移动（ 不变），但如果我们往盘子里撒点“小费”（手续费），整个曲线就会微微向右上方移动（ 增大）。</p>
+</blockquote>
+<p>你想了解一下带手续费后的实际公式  是如何推导的吗？</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Web3/">Web3</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/01/15/38822.html">
+                        <span class="hidden-mobile">python-virtual</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>
