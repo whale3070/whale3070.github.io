@@ -1,0 +1,644 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>Polkadot Solidity开发-课程笔记13 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/search/">
+                <i class="iconfont icon-search"></i>
+                搜索
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="Polkadot Solidity开发-课程笔记13">
+                      
+                        Polkadot Solidity开发-课程笔记13
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-01-22 05:27" pubdate>
+        2026年1月22日 凌晨
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      6.8k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      82
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">Polkadot Solidity开发-课程笔记13</h1>
+            
+            <div class="markdown-body">
+              <p>第四课 Task4 任务：<br>1⃣️选择题：<a target="_blank" rel="noopener" href="https://wj.qq.com/s2/25539056/yfun/">https://wj.qq.com/s2/25539056/yfun/</a><br>2⃣️实践题：<a target="_blank" rel="noopener" href="https://github.com/papermoonio/2026-h1-building-production-grade-dApps/blob/main/homework/lesson-4/README.md">https://github.com/papermoonio/2026-h1-building-production-grade-dApps/blob/main/homework/lesson-4/README.md</a></p>
+<h1 id="关于内存的排列，以下哪一项描述是正确的？"><a href="#关于内存的排列，以下哪一项描述是正确的？" class="headerlink" title="关于内存的排列，以下哪一项描述是正确的？"></a>关于内存的排列，以下哪一项描述是正确的？</h1><p>A. Slot的大小只需要是8的倍数<br>B. 不同的存储单元可以放在同一个Slot里面<br>C. 动态大小的类型不需要额外的信息<br>D. 当前可分配内存指针存放在寄存器中</p>
+<p>B. 不同的存储单元可以放在同一个Slot里面<br>（正确答案）</p>
+<h3 id="豆包AI的错误核心解析"><a href="#豆包AI的错误核心解析" class="headerlink" title="豆包AI的错误核心解析"></a>豆包AI的错误核心解析</h3><p>这道题聚焦<strong>Polkadot&#x2F;Substrate 合约开发（如ink!）的底层内存模型</strong>，并非此前的Cairo虚拟机，核心围绕区块链通用内存设计+Polkadot专属内存规则展开，<strong>当前可分配内存指针存放在寄存器中</strong>是唯一正确描述，也是各类虚拟机&#x2F;执行环境的通用底层设计。</p>
+<p>Polkadot的合约执行基于Substrate的<strong>Wasm虚拟机</strong>（合约最终编译为Wasm运行），而Wasm虚拟机对内存的动态分配、寻址完全依赖<strong>寄存器</strong>——专门的寄存器会存储<strong>当前可分配内存指针（也叫内存游标&#x2F;分配指针）</strong>，标记下一个可分配的内存起始地址，内存分配、数据写入都会基于该寄存器的指针值执行，分配后指针自动偏移更新，这是Polkadot合约底层内存操作的核心逻辑。</p>
+<h3 id="选项排除逻辑（Polkadot-Substrate-内存规则专属解析）"><a href="#选项排除逻辑（Polkadot-Substrate-内存规则专属解析）" class="headerlink" title="选项排除逻辑（Polkadot&#x2F;Substrate 内存规则专属解析）"></a>选项排除逻辑（Polkadot&#x2F;Substrate 内存规则专属解析）</h3><h4 id="A错误：Slot的大小只需要是8的倍数"><a href="#A错误：Slot的大小只需要是8的倍数" class="headerlink" title="A错误：Slot的大小只需要是8的倍数"></a>A错误：Slot的大小只需要是8的倍数</h4><p>Polkadot&#x2F;Substrate中，内存Slot（内存槽，最小寻址&#x2F;分配单元）的大小是<strong>固定按64位（8字节）对齐</strong>，而非「只需要是8的倍数」（比如16、32字节并非合法Slot大小）。<br>这里的关键是<strong>强制8字节对齐</strong>（Slot固定8字节），是Substrate为适配Wasm虚拟机的64位指令集、保证内存访问效率的硬性规范，而非灵活的倍数要求。</p>
+<h4 id="B错误：不同的存储单元可以放在同一个Slot里面"><a href="#B错误：不同的存储单元可以放在同一个Slot里面" class="headerlink" title="B错误：不同的存储单元可以放在同一个Slot里面"></a>B错误：不同的存储单元可以放在同一个Slot里面</h4><p>Polkadot的内存是<strong>线性连续的寻址结构</strong>，<strong>每个存储单元对应唯一的Slot&#x2F;内存地址</strong>，Slot是内存的最小操作单元，不同存储单元会被分配到不同的Slot地址中。<br>若多个存储单元共享一个Slot，会直接导致数据覆盖、寻址混乱，Substrate的Wasm虚拟机也做了严格的内存隔离，从底层杜绝了这种情况。</p>
+<h4 id="C错误：动态大小的类型不需要额外的信息"><a href="#C错误：动态大小的类型不需要额外的信息" class="headerlink" title="C错误：动态大小的类型不需要额外的信息"></a>C错误：动态大小的类型不需要额外的信息</h4><p>Polkadot的ink!合约中，<strong>动态大小类型（如<code>Vec&lt;T&gt;</code>、<code>String</code>、动态字节数组）必须携带额外元信息</strong>，核心是<strong>长度信息</strong>（部分还会携带容量信息）。<br>因为Wasm虚拟机无法预知动态类型的实际内存占用大小，必须通过首地址存储的长度信息确定数据的内存寻址边界，否则会触发内存越界、数据解析失败，这也是所有区块链合约开发中动态类型的通用规则。</p>
+<h3 id="补充：Polkadot-ink-内存模型核心考点（适配本题）"><a href="#补充：Polkadot-ink-内存模型核心考点（适配本题）" class="headerlink" title="补充：Polkadot&#x2F;ink! 内存模型核心考点（适配本题）"></a>补充：Polkadot&#x2F;ink! 内存模型核心考点（适配本题）</h3><ol>
+<li><strong>寄存器与内存指针</strong>：Wasm虚拟机的<strong>通用寄存器</strong>负责存储内存分配指针、栈指针等核心地址，所有内存操作均基于寄存器中的指针值，是底层执行的基础；</li>
+<li><strong>内存Slot规则</strong>：固定64位（8字节）且强制对齐，是Substrate为Wasm虚拟机做的专属优化，提升内存访问和指令执行效率；</li>
+<li><strong>动态类型内存设计</strong>：ink!中的动态类型（如<code>Vec</code>）遵循「<strong>长度+实际数据</strong>」的存储结构，长度作为额外元信息存在首地址，是解析动态数据的必要条件。</li>
+</ol>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>本题针对Polkadot&#x2F;Substrate内存模型，<strong>唯一正确描述为D（当前可分配内存指针存放在寄存器中）</strong>，这也是Wasm虚拟机的通用底层设计；</li>
+<li>避坑核心：Polkadot的Slot是<strong>固定8字节（64位）对齐</strong>而非8的倍数、存储单元与Slot<strong>一对一寻址</strong>、动态类型<strong>必须携带长度等额外信息</strong>；</li>
+<li>该考点是ink!合约开发的底层基础，也是Polkadot生态面试&#x2F;考题的高频知识点。</li>
+</ol>
+<h1 id="在Solidity中，call和delegatecall的区别是什么？，-单选"><a href="#在Solidity中，call和delegatecall的区别是什么？，-单选" class="headerlink" title="在Solidity中，call和delegatecall的区别是什么？， 单选"></a>在Solidity中，call和delegatecall的区别是什么？， 单选</h1><p>A. call在调用合约时保留了上下文的状态，而delegatecall则更改了上下文<br>B. delegatecall会创建新的合约实例<br>C. call保持合约上下文，而delegatecall在调用合约时使用调用者上下文<br>D. call总是返回布尔值，而delegatecall不返回值</p>
+<p>正确答案：<strong>C</strong></p>
+<h3 id="核心解析"><a href="#核心解析" class="headerlink" title="核心解析"></a>核心解析</h3><p>这是Solidity中合约间调用的核心考点，<code>call</code> 和 <code>delegatecall</code> 最本质的区别在于<strong>执行目标合约代码时，使用的「上下文（合约地址&#x2F;状态存储）」不同</strong>，选项C精准概括了这一核心差异：<br><code>call</code> 是<strong>普通的合约外部调用</strong>，执行目标合约代码时，全程使用<strong>目标合约自身的上下文</strong>（操作的是目标合约的状态变量、以目标合约地址为msg.sender）；<br><code>delegatecall</code> 是<strong>委托调用</strong>，执行目标合约代码时，会<strong>借用调用者（发起委托的合约）的上下文</strong>（操作的是<strong>调用者</strong>的状态变量、以调用者的调用方为msg.sender），目标合约仅作为「代码逻辑的提供者」。</p>
+<p>简单理解：</p>
+<ul>
+<li><code>A.call(B)</code>：让B的代码在<strong>B的地盘</strong>执行，改B的状态；</li>
+<li><code>A.delegatecall(B)</code>：让B的代码在<strong>A的地盘</strong>执行，改A的状态。</li>
+</ul>
+<h3 id="选项排除逻辑"><a href="#选项排除逻辑" class="headerlink" title="选项排除逻辑"></a>选项排除逻辑</h3><h4 id="A错误"><a href="#A错误" class="headerlink" title="A错误"></a>A错误</h4><p>描述完全颠倒——<code>call</code> 不会保留调用者上下文，而是使用目标合约上下文；<code>delegatecall</code> 并非更改上下文，而是<strong>直接使用调用者的上下文</strong>执行目标合约代码。</p>
+<h4 id="B错误"><a href="#B错误" class="headerlink" title="B错误"></a>B错误</h4><p><code>delegatecall</code> 只是<strong>委托执行目标合约的现有代码</strong>，不会创建任何新的合约实例，也不会部署新合约。合约实例的创建只有<code>new 合约名()</code>或<code>create2</code>两种方式，与委托调用无关。</p>
+<h4 id="D错误"><a href="#D错误" class="headerlink" title="D错误"></a>D错误</h4><p><code>call</code> 和 <code>delegatecall</code> 是Solidity中<strong>同类型的底层调用方法</strong>，返回值规则完全一致：均返回**(bool, bytes)** 元组——第一个布尔值表示调用是否成功，第二个字节数组是调用的返回数据（可解析为具体结果）。二者都能返回布尔值，也都能获取返回数据。</p>
+<h3 id="补充：Solidity中call-delegatecall核心对比（开发必记）"><a href="#补充：Solidity中call-delegatecall核心对比（开发必记）" class="headerlink" title="补充：Solidity中call&#x2F;delegatecall核心对比（开发必记）"></a>补充：Solidity中call&#x2F;delegatecall核心对比（开发必记）</h3><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>call（普通调用）</th>
+<th>delegatecall（委托调用）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>执行上下文</td>
+<td>目标合约的上下文（改目标状态）</td>
+<td>调用者的上下文（改调用者状态）</td>
+</tr>
+<tr>
+<td>核心用途</td>
+<td>调用其他合约的普通方法、转账ETH</td>
+<td>实现<strong>库合约（Library）</strong> 调用、代理合约（Proxy）逻辑</td>
+</tr>
+<tr>
+<td>msg.sender&#x2F;msg.value</td>
+<td>指向发起call的合约&#x2F;账户</td>
+<td>继承原调用链的msg.sender&#x2F;msg.value</td>
+</tr>
+<tr>
+<td>返回值</td>
+<td>(bool, bytes) （成功标识+返回数据）</td>
+<td>(bool, bytes) （与call完全一致）</td>
+</tr>
+</tbody></table>
+<p><strong>典型应用</strong>：OpenZeppelin的代理合约（如TransparentProxy）就是基于<code>delegatecall</code>实现——代理合约作为调用者，委托逻辑合约的代码在自身上下文中执行，实现「逻辑与存储分离」的可升级合约。</p>
+<h3 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h3><ol>
+<li><code>call</code>和<code>delegatecall</code>的核心区别是<strong>执行代码时的上下文不同</strong>，<code>call</code>用目标合约上下文，<code>delegatecall</code>用调用者上下文（对应选项C）；</li>
+<li>二者均返回<code>(bool, bytes)</code>，都不会创建新合约实例；</li>
+<li><code>delegatecall</code>的核心价值是实现库合约、可升级代理合约，使用时需严格校验目标合约地址，避免重入&#x2F;状态篡改漏洞。</li>
+</ol>
+<h1 id="Solidity中的assembly-code主要用于什么目的？"><a href="#Solidity中的assembly-code主要用于什么目的？" class="headerlink" title="Solidity中的assembly code主要用于什么目的？"></a>Solidity中的assembly code主要用于什么目的？</h1><p>A. 提高合约的可读性<br>B. 对智能合约进行高级功能的编码并优化字节码<br>C. 增加编程的复杂度<br>D. 使合约更容易审查</p>
+<h3 id="正确答案：B"><a href="#正确答案：B" class="headerlink" title="正确答案：B"></a>正确答案：<strong>B</strong></h3><h3 id="核心解析-1"><a href="#核心解析-1" class="headerlink" title="核心解析"></a>核心解析</h3><p>Solidity中的<strong>汇编代码（assembly code）</strong> 是直接操作EVM（以太坊虚拟机）底层的低级代码，它绕开了Solidity高级语言的部分封装，核心目的是<strong>为智能合约实现高级&#x2F;底层功能，同时手动优化编译后的字节码</strong>（减小合约体积、降低Gas消耗、提升执行效率），对应选项B。</p>
+<p>简单来说，Solidity是面向开发者的<strong>高级封装语言</strong>，但它的部分语法会对EVM能力做限制，且自动编译的字节码可能存在冗余；而汇编可以直接操作EVM的栈、内存、存储、寄存器，既能实现Solidity原生语法无法完成的<strong>底层高级功能</strong>（比如精准的内存操作、自定义的Gas控制、特殊的指令调用），又能手动精简字节码，<strong>优化合约的Gas消耗和执行效率</strong>（这是区块链合约开发的核心需求，Gas越低越友好）。</p>
+<h3 id="选项排除逻辑-1"><a href="#选项排除逻辑-1" class="headerlink" title="选项排除逻辑"></a>选项排除逻辑</h3><h4 id="A错误-1"><a href="#A错误-1" class="headerlink" title="A错误"></a>A错误</h4><p>汇编是<strong>低级底层代码</strong>，完全基于EVM指令集编写（如<code>MLOAD</code>&#x2F;<code>SSTORE</code>&#x2F;<code>CALL</code>等），语法简洁且高度依赖EVM底层知识，可读性远低于结构化的Solidity代码，反而会降低合约可读性。</p>
+<h4 id="C错误"><a href="#C错误" class="headerlink" title="C错误"></a>C错误</h4><p>增加编程复杂度是使用汇编的<strong>副作用</strong>，而非目的。开发者写汇编需要掌握EVM底层原理，编程难度和出错概率都会提升，没人会为了增加复杂度而使用汇编，复杂度只是实现功能&#x2F;优化的附带结果。</p>
+<h4 id="D错误-1"><a href="#D错误-1" class="headerlink" title="D错误"></a>D错误</h4><p>汇编代码的审查难度远高于Solidity：一方面其可读性差，审计人员需要精通EVM才能理解逻辑；另一方面汇编直接操作底层存储&#x2F;内存，一旦出现逻辑错误（如内存越界、存储写错槽位），更难被发现。因此汇编会<strong>让合约的审查难度大幅提升</strong>，而非更容易。</p>
+<h3 id="补充：Solidity中汇编的使用场景（开发高频）"><a href="#补充：Solidity中汇编的使用场景（开发高频）" class="headerlink" title="补充：Solidity中汇编的使用场景（开发高频）"></a>补充：Solidity中汇编的使用场景（开发高频）</h3><p>Solidity支持<strong>内联汇编</strong>（<code>assembly &#123; ... &#125;</code>），开发者通常会在<strong>局部关键逻辑</strong>中使用，而非整合约编写，典型场景包括：</p>
+<ol>
+<li>实现<strong>Solidity原生不支持的底层功能</strong>：比如精准计算合约地址、自定义的跨合约调用逻辑、直接操作EVM的返回数据；</li>
+<li><strong>极致优化Gas消耗</strong>：比如精简存储操作、减少栈操作的冗余指令，适合DeFi、NFT等对Gas敏感的高频合约；</li>
+<li>实现<strong>高级合约特性</strong>：比如可升级代理合约的底层逻辑、重入保护的精准控制、自定义的事件触发规则。</li>
+</ol>
+<p><strong>典型示例</strong>：OpenZeppelin等主流合约库中，会在核心工具函数（如地址计算、Gas优化）中嵌入内联汇编，既保证功能实现，又优化性能。</p>
+<h3 id="总结-2"><a href="#总结-2" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>Solidity汇编的核心目的是<strong>实现高级&#x2F;底层功能+优化字节码（减体积、降Gas）</strong>（对应选项B）；</li>
+<li>汇编的副作用是<strong>降低可读性、增加编程复杂度、提升审查难度</strong>，因此开发中遵循「<strong>能不用就不用，局部使用而非全局</strong>」的原则，仅在Solidity无法实现或需要极致优化时使用；</li>
+<li>汇编是区块链高级开发的必备技能，主要用于合约核心逻辑的底层优化和功能拓展。</li>
+</ol>
+<h1 id="在设计可升级合约时，下述哪种模式通常被使用？"><a href="#在设计可升级合约时，下述哪种模式通常被使用？" class="headerlink" title="在设计可升级合约时，下述哪种模式通常被使用？"></a>在设计可升级合约时，下述哪种模式通常被使用？</h1><p>A. 静态合约<br>B. 单一合约模式<br>C. 代理合约模式<br>D. 自动优化合约</p>
+<hr>
+<p>正确答案：<strong>C</strong></p>
+<h3 id="核心解析-2"><a href="#核心解析-2" class="headerlink" title="核心解析"></a>核心解析</h3><p>Solidity开发可升级合约的<strong>核心主流模式就是代理合约模式（Proxy Pattern）</strong>，这也是行业通用的最佳实践，对应选项C。</p>
+<p>可升级合约的核心需求是<strong>将合约的「状态存储」和「业务逻辑」分离</strong>，而代理合约模式正是实现这一需求的核心设计：该模式下会拆分出<strong>代理合约</strong>和<strong>逻辑合约</strong>两个核心部分</p>
+<ul>
+<li><strong>代理合约</strong>：作为用户唯一交互的入口，<strong>仅负责存储所有合约状态</strong>（用户余额、NFT所有权、业务配置等），且代理合约本身<strong>永不升级、代码固定</strong>；</li>
+<li><strong>逻辑合约</strong>：专门承载所有的业务逻辑代码（转账、铸造、交易规则等），<strong>支持随时替换&#x2F;升级</strong>。</li>
+</ul>
+<p>用户所有的操作都会发送到代理合约，代理合约会通过Solidity中的<code>delegatecall</code>（委托调用），让新的逻辑合约代码在<strong>代理合约的上下文</strong>中执行（操作的还是代理合约里的状态），从而实现「逻辑升级但状态不丢失」的核心目标，这也是可升级合约的关键诉求。</p>
+<h3 id="选项排除逻辑-2"><a href="#选项排除逻辑-2" class="headerlink" title="选项排除逻辑"></a>选项排除逻辑</h3><h4 id="A错误-2"><a href="#A错误-2" class="headerlink" title="A错误"></a>A错误</h4><p><strong>静态合约</strong>指的是部署后代码、逻辑完全固定，无法进行任何修改&#x2F;升级的合约，这与「可升级合约」的设计需求完全相反，是不可升级合约的基础形式。</p>
+<h4 id="B错误-1"><a href="#B错误-1" class="headerlink" title="B错误"></a>B错误</h4><p><strong>单一合约模式</strong>是将「状态存储」和「业务逻辑」写在同一个合约中，部署后合约字节码永久上链且无法修改，一旦发现漏洞或需要迭代功能，完全无法升级，只能重新部署新合约（原合约的所有状态也会丢失），不具备可升级能力。</p>
+<h4 id="D错误-2"><a href="#D错误-2" class="headerlink" title="D错误"></a>D错误</h4><p><strong>自动优化合约</strong>只是对合约字节码、代码逻辑做Gas消耗、执行效率的优化（比如用汇编精简代码、优化存储结构），核心是「提升合约性能」，而非「实现合约可升级」，优化和升级是两个完全不同的合约开发需求，该选项与问题无关。</p>
+<h3 id="补充：代理合约模式的主流细分类型（行业常用）"><a href="#补充：代理合约模式的主流细分类型（行业常用）" class="headerlink" title="补充：代理合约模式的主流细分类型（行业常用）"></a>补充：代理合约模式的主流细分类型（行业常用）</h3><p>代理合约模式是可升级合约的基础框架，业内基于此衍生出了3种成熟的细分模式，均被OpenZeppelin等主流合约库封装，开箱即用：</p>
+<ol>
+<li><strong>透明代理（Transparent Proxy）</strong>：最经典的模式，区分<strong>管理员</strong>和<strong>普通用户</strong>操作，避免管理员操作与用户操作的逻辑冲突，适合大部分常规DApp；</li>
+<li><strong>UUPS代理（Universal Upgradeable Proxy Standard）</strong>：目前的<strong>主流优选模式</strong>，将升级逻辑直接写在<strong>逻辑合约</strong>中，代理合约代码更精简、Gas消耗更低，适合对合约体积和Gas敏感的场景（如DeFi）；</li>
+<li><strong>可升级的Beacon代理（Beacon Proxy）</strong>：适合<strong>多个代理合约共享同一个可升级逻辑</strong>的场景（比如批量发行的NFT合约），通过Beacon合约统一管理逻辑合约地址，实现多代理的一键升级。</li>
+</ol>
+<p>这三种细分模式的核心底层逻辑一致：均基于<code>delegatecall</code>实现「代理存状态，逻辑承业务」的分离设计。</p>
+<h3 id="总结-3"><a href="#总结-3" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>设计可升级合约的核心模式是<strong>代理合约模式（选项C）</strong>，也是行业通用最佳实践；</li>
+<li>该模式通过拆分「代理合约（存状态，不升级）」和「逻辑合约（承业务，可升级）」，结合<code>delegatecall</code>实现「逻辑升级、状态不丢」；</li>
+<li>静态合约、单一合约模式均为<strong>不可升级</strong>的合约设计，自动优化合约仅针对性能，与可升级需求无关。</li>
+</ol>
+<h1 id="Diamonds在可升级合约结构中是什么？"><a href="#Diamonds在可升级合约结构中是什么？" class="headerlink" title="Diamonds在可升级合约结构中是什么？"></a>Diamonds在可升级合约结构中是什么？</h1><p>A. 一种用于存储大数据的专用合约<br>B. 一种通过允许模块动态添加的代理合约模式<br>C. 用于加密交易的算法<br>D. 一种确保交易隐私的协议</p>
+<h3 id="正确答案：B-1"><a href="#正确答案：B-1" class="headerlink" title="正确答案：B"></a>正确答案：<strong>B</strong></h3><h3 id="核心解析-3"><a href="#核心解析-3" class="headerlink" title="核心解析"></a>核心解析</h3><p>Diamonds（钻石模式，也叫<strong>钻石代理模式 Diamond Proxy Pattern</strong>）是Solidity可升级合约领域<strong>进阶的代理合约模式</strong>，是对传统单逻辑合约代理模式的扩展，核心定义是<strong>允许动态添加、替换、移除模块化合约（钻石的「切面&#x2F;Facet」）的代理合约模式</strong>，对应选项B。</p>
+<p>简单来说，传统代理合约模式（如UUPS、透明代理）是<strong>一个代理合约对应一个逻辑合约</strong>，升级仅能替换整个逻辑合约；而钻石模式将合约逻辑做了<strong>极致的模块化拆分</strong>——把不同业务逻辑拆分为独立的<strong>Facet（切面合约）</strong>（比如转账Facet、铸造Facet、权限Facet），核心的<strong>钻石代理合约</strong>负责将不同的函数调用路由到对应的Facet合约，同时支持<strong>动态新增Facet、替换已有Facet、删除无用Facet</strong>，实现「按需升级、模块化拓展」的可升级能力，这也是它被称为「钻石」的原因：核心代理是「钻石主体」，各类模块化逻辑是「钻石的切面」。</p>
+<p>钻石模式完全遵循<strong>EIP-2535 钻石标准</strong>，是目前可升级合约中<strong>扩展性最强</strong>的模式，适合大型复杂DApp（如多业务模块的DeFi协议、综合型NFT平台）。</p>
+<h3 id="选项排除逻辑-3"><a href="#选项排除逻辑-3" class="headerlink" title="选项排除逻辑"></a>选项排除逻辑</h3><h4 id="A错误-3"><a href="#A错误-3" class="headerlink" title="A错误"></a>A错误</h4><p>钻石模式的核心是<strong>模块化可升级的代理设计</strong>，并非用于存储大数据的专用合约。区块链中存储大数据通常会采用「链下存储+链上存哈希」的方式，与钻石模式无关。</p>
+<h4 id="C错误-1"><a href="#C错误-1" class="headerlink" title="C错误"></a>C错误</h4><p>钻石模式是<strong>合约架构设计模式</strong>，属于智能合约的开发规范，并非加密交易的算法。加密交易的算法通常指非对称加密（如ECDSA）、哈希算法（如Keccak256）等密码学内容，二者分属不同领域。</p>
+<h4 id="D错误-3"><a href="#D错误-3" class="headerlink" title="D错误"></a>D错误</h4><p>钻石模式不涉及交易隐私保护，它的核心是合约的可升级和模块化，而确保交易隐私的协议&#x2F;模式主要有零知识证明（ZKP）、混币协议、隐私合约（如zkSync合约）等，与钻石模式无关联。</p>
+<h3 id="补充：钻石模式（EIP-2535）核心组成（开发必知）"><a href="#补充：钻石模式（EIP-2535）核心组成（开发必知）" class="headerlink" title="补充：钻石模式（EIP-2535）核心组成（开发必知）"></a>补充：钻石模式（EIP-2535）核心组成（开发必知）</h3><p>钻石模式的架构由4个核心部分组成，各司其职且遵循EIP-2535标准，保证兼容性和可升级性：</p>
+<ol>
+<li><strong>Diamond Proxy（钻石代理合约）</strong>：核心入口，存储所有合约状态，负责将函数调用路由到对应的Facet合约，是用户唯一交互的合约；</li>
+<li><strong>Facet（切面合约）</strong>：模块化的逻辑合约，每个Facet实现一个独立的业务模块（如转账、权限、铸造），可动态新增&#x2F;替换&#x2F;删除；</li>
+<li><strong>Diamond Loupe（钻石放大镜合约）</strong>：提供标准化的查询接口，用于查询「哪个函数对应哪个Facet」「当前所有Facet列表」等路由信息，方便开发和审计；</li>
+<li><strong>Diamond Cut（钻石切割合约）</strong>：提供标准化的升级接口，用于执行「新增&#x2F;替换&#x2F;删除Facet」的操作，由合约管理员调用，实现模块化升级。</li>
+</ol>
+<h3 id="总结-4"><a href="#总结-4" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>Diamonds（钻石模式）是<strong>遵循EIP-2535的、支持模块化逻辑动态添加的代理合约模式</strong>（对应选项B），是传统代理模式的进阶扩展；</li>
+<li>核心优势是<strong>模块化拆分、按需升级、无限拓展</strong>，适合大型复杂DApp的可升级设计；</li>
+<li>它是合约架构模式，并非存储方案、加密算法或隐私协议，这是本题的核心避坑点。</li>
+</ol>
+<h1 id="合约部署"><a href="#合约部署" class="headerlink" title="合约部署"></a>合约部署</h1><p>&#x2F;home&#x2F;kali&#x2F;Desktop&#x2F;2026-h1-building-production-grade-dApps&#x2F;homework&#x2F;lesson-4&#x2F;2070</p>
+<figure class="highlight gams"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs gams">└─# forge script script/FullWorkflow.s.sol --rpc-url https:<span class="hljs-comment">//rpc.api.moonbase.moonbeam.network --broadcast --legacy --interactive</span><br>Warning: This is a nightly build of Foundry. It is recommended to use the latest stable version. To mute this warning <span class="hljs-keyword">set</span> `FOUNDRY_DISABLE_NIGHTLY_WARNING` in <span class="hljs-comment">your environment.</span><br><br>[⠊] Compiling...<br>[⠒] Compiling <span class="hljs-comment">33 files with Solc 0.8.30</span><br>[⠢] Solc <span class="hljs-comment">0.8.30 finished in 1.99s</span><br>Compiler <span class="hljs-comment">run successful!</span><br>Warning: EIP-3855 is <span class="hljs-comment">not supported in one or more of the RPCs used.</span><br>Unsupported <span class="hljs-comment">Chain IDs: 1287.</span><br>Contracts <span class="hljs-comment">deployed with a Solidity version equal or higher than 0.8.20 might not work properly.</span><br>For <span class="hljs-comment">more information, please see https:</span>//<span class="hljs-comment">eips.ethereum.org</span>/EIPS/<span class="hljs-comment">eip-3855</span><br>Script <span class="hljs-comment">ran successfully.</span><br><br>== Logs <span class="hljs-comment">==</span><br>  Proxy <span class="hljs-comment">Address: 0x5D7FaF885525Cb948f320FdA9E9c19Be0a3FCc1e</span><br>  ProxyAdmin <span class="hljs-comment">Address: 0x2E3c3E56e1c7549fE274AFf0D4b48770763b35f0</span><br>  V1 <span class="hljs-comment">Implementation: 0x14B86F42Aed2ed44578014Bf839599fCE0807bFb</span><br><br>## Setting <span class="hljs-comment">up 1 EVM.</span><br><br>==========================<br><br>Chain <span class="hljs-comment">1287</span><br><br>Estimated <span class="hljs-comment">gas price: 0.03125 gwei</span><br><br>Estimated <span class="hljs-comment">total gas used for script: 3091112</span><br><br>Estimated <span class="hljs-comment">amount required: 0.00009659725 ETH</span><br><br>==========================<br>Enter <span class="hljs-comment">private key:</span><br><br>##### moonbase<br>✅  [Success] Hash: 0xc2316107ca3e35e937fbd9c0a1e6138e9ed22ed56d879c7560ed2604863b749d<br>Contract <span class="hljs-comment">Address: 0x14B86F42Aed2ed44578014Bf839599fCE0807bFb</span><br>Block: 14944184<br>Paid: 0.0000134161875 ETH <span class="hljs-comment">(429318 gas * 0.03125 gwei)</span><br><br><br>##### moonbase<br>✅  [Success] Hash: 0x90f95b6ffe42c594bd3f70fb7d862ba8626123ababc376895af2531061170ea0<br>Contract <span class="hljs-comment">Address: 0x2E3c3E56e1c7549fE274AFf0D4b48770763b35f0</span><br>Block: 14944185<br>Paid: 0.0000247393125 ETH <span class="hljs-comment">(791658 gas * 0.03125 gwei)</span><br><br><br>##### moonbase<br>✅  [Success] Hash: 0xc2250f3ed6111e00865e3c13e3d04fcbdea8a476bcc0cd15b5ec029c760500fc<br>Contract <span class="hljs-comment">Address: 0x5D7FaF885525Cb948f320FdA9E9c19Be0a3FCc1e</span><br>Block: 14944187<br>Paid: 0.0000541108125 ETH <span class="hljs-comment">(1731546 gas * 0.03125 gwei)</span><br><br>✅ Sequence <span class="hljs-comment">#1 on moonbase</span> | <span class="hljs-comment">Total Paid: 0.0000922663125 ETH (2952522 gas * avg 0.03125 gwei)</span><br><br><br>==========================<br><br>ONCHAIN <span class="hljs-comment">EXECUTION COMPLETE &amp; SUCCESSFUL.</span><br><br>Transactions <span class="hljs-comment">saved to:</span> /home/<span class="hljs-comment">kali</span>/Desktop/<span class="hljs-comment">2026-h1-building-production-grade-dApps</span>/homework/<span class="hljs-comment">lesson-4</span>/<span class="hljs-number">2070</span>/<span class="hljs-comment">broadcast</span>/FullWorkflow.s.sol/<span class="hljs-comment">1287</span>/run-latest.json<br><br>Sensitive values saved to: /<span class="hljs-comment">home</span>/kali/<span class="hljs-comment">Desktop</span>/<span class="hljs-number">2026</span>-h1-building-production-grade-dApps/<span class="hljs-comment">homework</span>/lesson<span class="hljs-number">-4</span>/<span class="hljs-comment">2070</span>/cache/<span class="hljs-comment">FullWorkflow.s.sol</span>/<span class="hljs-number">1287</span>/<span class="hljs-comment">run-latest.json</span><br></code></pre></div></td></tr></table></figure>
+
+<h1 id="部署版本2"><a href="#部署版本2" class="headerlink" title="部署版本2"></a>部署版本2</h1><p>forge create src&#x2F;VaultV2.sol:VaultV2 <br>–rpc-url <a target="_blank" rel="noopener" href="https://rpc.api.moonbase.moonbeam.network/">https://rpc.api.moonbase.moonbeam.network</a> <br>–private-key &lt;你的私钥&gt; <br>–legacy <br>–broadcast</p>
+<p>[⠒] Compiling…<br>No files changed, compilation skipped<br>Deployer: 0x9F75b6674128CADA1C2bDc9a0a3B72ec9E4625a0<br>Deployed to: 0xDC6B6549F512A1e79715aB4c8C28366132Df8C4B<br>Transaction hash: 0x369d609374463d165709d77633e941d030eb83d880dd6d21202b9097246e395a</p>
+<h1 id="交易升级"><a href="#交易升级" class="headerlink" title="交易升级"></a>交易升级</h1><p>Proxy 部署交易</p>
+<p>└─# forge script script&#x2F;FinalSuccess.s.sol –rpc-url <a target="_blank" rel="noopener" href="https://rpc.api.moonbase.moonbeam.network/">https://rpc.api.moonbase.moonbeam.network</a> –broadcast –legacy –interactive<br>Warning: This is a nightly build of Foundry. It is recommended to use the latest stable version. To mute this warning set <code>FOUNDRY_DISABLE_NIGHTLY_WARNING</code> in your environment.</p>
+<p>[⠒] Compiling…<br>[⠘] Compiling 1 files with Solc 0.8.30<br>[⠃] Solc 0.8.30 finished in 1.60s<br>Compiler run successful!<br>Warning: EIP-3855 is not supported in one or more of the RPCs used.<br>Unsupported Chain IDs: 1287.<br>Contracts deployed with a Solidity version equal or higher than 0.8.20 might not work properly.<br>For more information, please see <a target="_blank" rel="noopener" href="https://eips.ethereum.org/EIPS/eip-3855">https://eips.ethereum.org/EIPS/eip-3855</a><br>Script ran successfully.</p>
+<h2 id="Logs"><a href="#Logs" class="headerlink" title="&#x3D;&#x3D; Logs &#x3D;&#x3D;"></a>&#x3D;&#x3D; Logs &#x3D;&#x3D;</h2><h2 id="Proxy-Address-0xe80B5ec8276d3f0443106a3AFf81cF9e46E22674-V1-Implementation-0x6FCD3f636A04057ff0985C2871DC67597658A2EA-V2-Implementation-0x4437591162B0400a8C8FD7c977D43083D4409c3B"><a href="#Proxy-Address-0xe80B5ec8276d3f0443106a3AFf81cF9e46E22674-V1-Implementation-0x6FCD3f636A04057ff0985C2871DC67597658A2EA-V2-Implementation-0x4437591162B0400a8C8FD7c977D43083D4409c3B" class="headerlink" title="  Proxy Address: 0xe80B5ec8276d3f0443106a3AFf81cF9e46E22674  V1 Implementation: 0x6FCD3f636A04057ff0985C2871DC67597658A2EA  V2 Implementation: 0x4437591162B0400a8C8FD7c977D43083D4409c3B"></a>  Proxy Address: 0xe80B5ec8276d3f0443106a3AFf81cF9e46E22674<br>  V1 Implementation: 0x6FCD3f636A04057ff0985C2871DC67597658A2EA<br>  V2 Implementation: 0x4437591162B0400a8C8FD7c977D43083D4409c3B</h2><h2 id="Setting-up-1-EVM"><a href="#Setting-up-1-EVM" class="headerlink" title="Setting up 1 EVM."></a>Setting up 1 EVM.</h2><p>&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</p>
+<p>Chain 1287</p>
+<p>Estimated gas price: 0.03125 gwei</p>
+<p>Estimated total gas used for script: 2670117</p>
+<p>Estimated amount required: 0.00008344115625 ETH</p>
+<p>&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;<br>Enter private key:</p>
+<h5 id="moonbase"><a href="#moonbase" class="headerlink" title="moonbase"></a>moonbase</h5><p>✅  [Success] Hash: 0xcd3a21d0d096b51977995a11a75652e22a73b1ffaa019f7bfe72045148082381<br>Contract Address: 0x6FCD3f636A04057ff0985C2871DC67597658A2EA<br>Block: 14944413<br>Paid: 0.0000134161875 ETH (429318 gas * 0.03125 gwei)</p>
+<h5 id="moonbase-1"><a href="#moonbase-1" class="headerlink" title="moonbase"></a>moonbase</h5><p>✅  [Success] Hash: 0x2bd145baf42c534ea938d44f604459c32ad4ed108d64786923ffcc934a4c1268<br>Contract Address: 0xe80B5ec8276d3f0443106a3AFf81cF9e46E22674<br>Block: 14944417<br>Paid: 0.0000541108125 ETH (1731546 gas * 0.03125 gwei)</p>
+<h5 id="moonbase-2"><a href="#moonbase-2" class="headerlink" title="moonbase"></a>moonbase</h5><p>✅  [Success] Hash: 0xd6d5eddc8f5585df6120e4aa6ac3c49c1a1d052d7a6a288ad19ffae20930e939<br>Contract Address: 0x4437591162B0400a8C8FD7c977D43083D4409c3B<br>Block: 14944420<br>Paid: 0.0000149259375 ETH (477630 gas * 0.03125 gwei)</p>
+<p>✅ Sequence #1 on moonbase | Total Paid: 0.0000824529375 ETH (2638494 gas * avg 0.03125 gwei)</p>
+<p>&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</p>
+<p>ONCHAIN EXECUTION COMPLETE &amp; SUCCESSFUL.</p>
+<p>Transactions saved to: &#x2F;home&#x2F;kali&#x2F;Desktop&#x2F;2026-h1-building-production-grade-dApps&#x2F;homework&#x2F;lesson-4&#x2F;2070&#x2F;broadcast&#x2F;FinalSuccess.s.sol&#x2F;1287&#x2F;run-latest.json</p>
+<p>Sensitive values saved to: &#x2F;home&#x2F;kali&#x2F;Desktop&#x2F;2026-h1-building-production-grade-dApps&#x2F;homework&#x2F;lesson-4&#x2F;2070&#x2F;cache&#x2F;FinalSuccess.s.sol&#x2F;1287&#x2F;run-latest.json</p>
+<h1 id="金库协议-V2-已经正式通过透明代理逻辑部署并升级成功。"><a href="#金库协议-V2-已经正式通过透明代理逻辑部署并升级成功。" class="headerlink" title="金库协议 V2 已经正式通过透明代理逻辑部署并升级成功。"></a>金库协议 V2 已经正式通过透明代理逻辑部署并升级成功。</h1><p>└─# cast send 0xf1D8e4a8Be1923ca91b882CC61F0704fc5287BFc <br>“upgradeAndCall(address,address,bytes)” <br>0x81f846C663Dc94cA5E6e4b57Cf5A9178a00ADF5B <br>0xa43ACce286bcc09C45F426Cd154A37f2daf0ff7e <br>0x <br>–rpc-url <a target="_blank" rel="noopener" href="https://rpc.api.moonbase.moonbeam.network/">https://rpc.api.moonbase.moonbeam.network</a> <br>–private-key 0x610bf33b53b737fe92cb01112342176e79b9988b51a3c42d89eff83cadd96ab4 <br>–legacy<br>Warning: This is a nightly build of Foundry. It is recommended to use the latest stable version. To mute this warning set <code>FOUNDRY_DISABLE_NIGHTLY_WARNING</code> in your environment.</p>
+<p>blockHash            0x59aa7b416422555fe0b549f9666021180aaf33b277c45cc502fee0aef15bbdac<br>blockNumber          14944495<br>contractAddress<br>cumulativeGasUsed    23670<br>effectiveGasPrice    31250000<br>from                 0x9F75b6674128CADA1C2bDc9a0a3B72ec9E4625a0<br>gasUsed              23670<br>logs                 []<br>logsBloom            0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000<br>root<br>status               1 (success)<br>transactionHash      0x639149232819de7da2e933e8310bdf83cfb398042e9db77c818f5cac110a8c8e<br>transactionIndex     0<br>type                 0<br>blobGasPrice<br>blobGasUsed<br>to                   0xf1D8e4a8Be1923ca91b882CC61F0704fc5287BFc</p>
+<h1 id="Checklist"><a href="#Checklist" class="headerlink" title="Checklist"></a>Checklist</h1><p>你的进度非常快！你已经完成了<strong>合约编写</strong>和<strong>初步部署</strong>。从你之前的日志看，你已经在 Moonbase 上部署了三个合约地址（推测分别是 <code>ProxyAdmin</code>、<code>VaultV1</code> 逻辑合约和 <code>TransparentUpgradeableProxy</code> 代理合约）。</p>
+<p>要完成这份作业，你接下来需要攻克 <strong>UUPs&#x2F;Transparent 代理模式的交互</strong> 以及 <strong>合约升级逻辑</strong>。</p>
+<p>以下是你完成任务的三个关键步骤：</p>
+<hr>
+<h3 id="第一步：弄清楚你的“代理合约”地址"><a href="#第一步：弄清楚你的“代理合约”地址" class="headerlink" title="第一步：弄清楚你的“代理合约”地址"></a>第一步：弄清楚你的“代理合约”地址</h3><p>在可升级架构中，你永远不直接和 <code>VaultV1</code> 地址交互。你需要找到那个 <strong>Proxy（代理合约）</strong> 的地址，因为它是存储（Storage）所在的地方。</p>
+<ol>
+<li>**检查 <code>run-latest.json**</code>：查看日志，确认哪个地址是 <code>TransparentUpgradeableProxy</code>。</li>
+<li><strong>测试脚本验证</strong>：编写一个简单的脚本（可以用 Foundry 的 <code>cast</code> 命令或你要求的 TypeScript），调用 <code>version()</code>。</li>
+</ol>
+<ul>
+<li><strong>预期结果：</strong> 如果你初始化成功，应该返回 <code>1</code>。</li>
+</ul>
+<hr>
+<h3 id="第二步：执行“升级”操作（核心知识点）"><a href="#第二步：执行“升级”操作（核心知识点）" class="headerlink" title="第二步：执行“升级”操作（核心知识点）"></a>第二步：执行“升级”操作（核心知识点）</h3><p>你需要将代理合约指向的“逻辑实现”从 <code>VaultV1</code> 更改为 <code>VaultV2</code>。</p>
+<p><strong>你需要学习的知识：</strong></p>
+<ul>
+<li><strong>ProxyAdmin 的权限管理：</strong> 通常 <code>TransparentUpgradeableProxy</code> 的升级权限由一个 <code>ProxyAdmin</code> 合约控制。你不能直接调用代理合约来升级，必须通过管理员。</li>
+<li><strong>Foundry 升级脚本：</strong> 编写一个新的脚本 <code>Upgrade.s.sol</code>。</li>
+</ul>
+<p><strong>脚本逻辑：</strong></p>
+<ol>
+<li>部署 <code>VaultV2.sol</code>（得到新逻辑地址）。</li>
+<li>调用 <code>ProxyAdmin.upgrade(proxy, v2_implementation)</code>。</li>
+<li>调用 <code>VaultV2(proxy).updateVersion()</code> 来修改存储中的版本号。</li>
+</ol>
+<hr>
+<h3 id="第三步：编写-TypeScript-验证代码（作业要求）"><a href="#第三步：编写-TypeScript-验证代码（作业要求）" class="headerlink" title="第三步：编写 TypeScript 验证代码（作业要求）"></a>第三步：编写 TypeScript 验证代码（作业要求）</h3><p>这是你作业中明确要求的。你需要使用 <code>ethers.ts</code> 或 <code>viem</code> 来演示“存储在升级后被保留”以及“新变量生效”。</p>
+<p><strong>代码逻辑示例：</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs typescript"><span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">verify</span>(<span class="hljs-params"></span>) &#123;<br>  <span class="hljs-keyword">const</span> proxyAddress = <span class="hljs-string">&quot;你的代理合约地址&quot;</span>;<br>  <span class="hljs-keyword">const</span> vault = <span class="hljs-keyword">new</span> ethers.<span class="hljs-title class_">Contract</span>(proxyAddress, <span class="hljs-variable constant_">ABI</span>, wallet);<br><br>  <span class="hljs-comment">// 1. 显示升级后的版本（证明 version 变量在 V2 中被成功修改）</span><br>  <span class="hljs-keyword">const</span> version = <span class="hljs-keyword">await</span> vault.<span class="hljs-title function_">version</span>(); <br>  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Current Version:&quot;</span>, version.<span class="hljs-title function_">toString</span>()); <span class="hljs-comment">// 应该是 2</span><br><br>  <span class="hljs-comment">// 2. 显示 V1 留下的数据（证明 totalSales 没有丢失）</span><br>  <span class="hljs-keyword">const</span> sales = <span class="hljs-keyword">await</span> vault.<span class="hljs-title function_">totalSales</span>();<br>  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Total Sales (Retained):&quot;</span>, sales.<span class="hljs-title function_">toString</span>());<br><br>  <span class="hljs-comment">// 3. 调用 V2 特有的新功能</span><br>  <span class="hljs-keyword">await</span> vault.<span class="hljs-title function_">setBonusPool</span>(<span class="hljs-number">100</span>);<br>  <span class="hljs-keyword">const</span> bonus = <span class="hljs-keyword">await</span> vault.<span class="hljs-title function_">bonusPool</span>();<br>  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;New V2 Variable (bonusPool):&quot;</span>, bonus.<span class="hljs-title function_">toString</span>());<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="总结：你现在的-Checklist"><a href="#总结：你现在的-Checklist" class="headerlink" title="总结：你现在的 Checklist"></a>总结：你现在的 Checklist</h3><ol>
+<li><input disabled="" type="checkbox"> <strong>确认代理地址</strong>：从部署日志中提取 <code>Proxy</code> 和 <code>ProxyAdmin</code> 的地址。</li>
+<li><input disabled="" type="checkbox"> <strong>部署 V2</strong>：运行 <code>forge create</code> 或脚本部署 <code>VaultV2</code>。</li>
+<li><input disabled="" type="checkbox"> <strong>执行升级交易</strong>：通过 <code>ProxyAdmin</code> 完成指向切换（这是你作业要求的“升级交易 Hash”来源）。</li>
+<li><input disabled="" type="checkbox"> <strong>完成 README</strong>：</li>
+</ol>
+<ul>
+<li><strong>部署 Hash</strong>：已有的日志里那几个。</li>
+<li><strong>升级 Hash</strong>：执行 <code>upgrade</code> 操作的交易。</li>
+<li><strong>TS 调用结果</strong>：运行你的 TS 脚本并截图&#x2F;复制日志。</li>
+</ul>
+<h1 id="第一步-确认代理地址"><a href="#第一步-确认代理地址" class="headerlink" title="第一步 - 确认代理地址"></a>第一步 - 确认代理地址</h1><p>寻找run-latest.json</p>
+<p>run-latest.json 的具体路径<br>根据你之前的执行日志，它存放在这里： &#x2F;home&#x2F;kali&#x2F;Desktop&#x2F;2026-h1-building-production-grade-dApps&#x2F;homework&#x2F;lesson-4&#x2F;2070&#x2F;broadcast&#x2F;Deploy.s.sol&#x2F;1287&#x2F;run-latest.json</p>
+<h2 id="jq查看run-latest-json"><a href="#jq查看run-latest-json" class="headerlink" title="jq查看run-latest.json"></a>jq查看run-latest.json</h2><figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">┌──(root㉿kali)-[/home/…/2026-h1-building-production-grade-dApps/homework/lesson-4/2070]<br>└─# <span class="hljs-built_in">cat</span> broadcast/Deploy.s.sol/1287/run-latest.json | jq <span class="hljs-string">&#x27;.transactions[] | select(.contractAddress != null) | &#123;name: .contractName, address: .contractAddress&#125;&#x27;</span><br>&#123;<br>  <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;VaultV1&quot;</span>,<br>  <span class="hljs-string">&quot;address&quot;</span>: <span class="hljs-string">&quot;0x82c349e21761f044147b12bbd9e64513bb46d974&quot;</span><br>&#125;<br>&#123;<br>  <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;ProxyAdmin&quot;</span>,<br>  <span class="hljs-string">&quot;address&quot;</span>: <span class="hljs-string">&quot;0x2e7e268ef5a4181692c10f39e4e7d0f0e6828e8d&quot;</span><br>&#125;<br>&#123;<br>  <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;TransparentUpgradeableProxy&quot;</span>,<br>  <span class="hljs-string">&quot;address&quot;</span>: <span class="hljs-string">&quot;0x88fe9f8d8660626c9f894920a60ef9e47a1facb5&quot;</span><br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p>是的，你已经成功完成了第一步“确认代理地址”。<br>根据你通过 jq 过滤出来的 JSON 日志，你的合约架构地址已经非常清晰了：<br>• 逻辑合约 V1 (Implementation): 0x82c349e21761f044147b12bbd9e64513bb46d974<br>• 管理合约 (ProxyAdmin): 0x2e7e268ef5a4181692c10f39e4e7d0f0e6828e8d<br>• 交互门户 (Proxy): 0x88fe9f8d8660626c9f894920a60ef9e47a1facb5（这是你之后所有操作的核心地址）</p>
+<h1 id="第二步-部署-V2"><a href="#第二步-部署-V2" class="headerlink" title="第二步 - 部署 V2"></a>第二步 - 部署 V2</h1><figure class="highlight n1ql"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs n1ql">└─# forge <span class="hljs-keyword">create</span> src/VaultV2.sol:VaultV2 \<br>--rpc-url https://rpc.api.moonbase.moonbeam.network \<br>--<span class="hljs-keyword">private</span>-<span class="hljs-keyword">key</span> &lt;私钥&gt; \<br>--legacy<br>Warning: This <span class="hljs-keyword">is</span> a nightly <span class="hljs-keyword">build</span> of Foundry. It <span class="hljs-keyword">is</span> recommended <span class="hljs-keyword">to</span> <span class="hljs-keyword">use</span> the latest stable version. <span class="hljs-keyword">To</span> mute this warning <span class="hljs-keyword">set</span> <span class="hljs-symbol">`FOUNDRY_DISABLE_NIGHTLY_WARNING`</span> <span class="hljs-keyword">in</span> your environment.<br><br>[⠢] Compiling...<br>No files changed, compilation skipped<br>Warning: Dry run enabled, <span class="hljs-keyword">not</span> broadcasting <span class="hljs-keyword">transaction</span><br><br>Contract: VaultV2<br><span class="hljs-keyword">Transaction</span>: &#123;<br>  <span class="hljs-string">&quot;from&quot;</span>: <span class="hljs-string">&quot;0x9f75b6674128cada1c2bdc9a0a3b72ec9e4625a0&quot;</span>,<br>  <span class="hljs-string">&quot;to&quot;</span>: <span class="hljs-literal">null</span>,<br>  <span class="hljs-string">&quot;gasPrice&quot;</span>: <span class="hljs-string">&quot;0x1dcd650&quot;</span>,<br>  <span class="hljs-string">&quot;gas&quot;</span>: <span class="hljs-string">&quot;0x867da&quot;</span>,<br>  <span class="hljs-string">&quot;input&quot;</span>: <span class="hljs-string">&quot;0x60</span><br></code></pre></div></td></tr></table></figure>
+
+<p>第二遍运行加上广播参数</p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs jboss-cli">└─<span class="hljs-comment"># forge create src/VaultV2.sol:VaultV2 \</span><br><span class="hljs-params">--rpc-url</span> https:<span class="hljs-string">//rpc.api.moonbase.moonbeam.network</span> \<br><span class="hljs-params">--private-key</span> &lt;私钥&gt; \<br><span class="hljs-params">--legacy</span> <span class="hljs-params">--broadcast</span><br><br>[⠊] Compiling.<span class="hljs-string">..</span><br>No files changed, compilation skipped<br>Deployer: 0x9F75b6674128CADA1C2bDc9a0a3B72ec9E4625a0<br>Deployed to: 0x198a563e04B67608e1D1AF9eFeC206C6F241Fa09<br>Transaction hash: 0x89b84edf23ce7d213ea4306bbc908c68baf5c148dba41b3d2d64eeacacb875a5<br></code></pre></div></td></tr></table></figure>
+
+<h1 id="第三步：执行升级交易"><a href="#第三步：执行升级交易" class="headerlink" title="第三步：执行升级交易"></a>第三步：执行升级交易</h1><h1 id="调用-ProxyAdmin-的-upgrade-方法"><a href="#调用-ProxyAdmin-的-upgrade-方法" class="headerlink" title="调用 ProxyAdmin 的 upgrade 方法"></a>调用 ProxyAdmin 的 upgrade 方法</h1><p>cast send 0x1Bb9780c8b74B84F2e3883df2eC994A8f5940F08 <br>“upgrade(address,address)” <br>0x2325E5f1B997dfc6B300439D6f04Fdae4C6E46b8 <br>0x198a563e04B67608e1D1AF9eFeC206C6F241Fa09 <br>–rpc-url <a target="_blank" rel="noopener" href="https://rpc.api.moonbase.moonbeam.network/">https://rpc.api.moonbase.moonbeam.network</a> <br>–private-key &lt;你的私钥&gt; <br>–legacy</p>
+<p>失败</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Web3/">Web3</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Polkadot/">Polkadot</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/01/22/55831.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Starknet 训练营-课程笔记4</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/01/20/22035.html">
+                        <span class="hidden-mobile">金库协议-团队启动会</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>

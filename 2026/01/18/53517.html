@@ -1,0 +1,493 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>whale-valut-重构代码 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/search/">
+                <i class="iconfont icon-search"></i>
+                搜索
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="whale-valut-重构代码">
+                      
+                        whale-valut-重构代码
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-01-18 06:38" pubdate>
+        2026年1月18日 早上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.4k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      55
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">whale-valut-重构代码</h1>
+            
+            <div class="markdown-body">
+              <p>根据你的金库协议三大模块，我将重构 <code>Validate2.go</code>，采用模块化的Go项目结构。我会创建清晰的包结构和接口，为未来功能扩展打下基础。</p>
+<h2 id="📁-项目结构规划"><a href="#📁-项目结构规划" class="headerlink" title="📁 项目结构规划"></a>📁 <strong>项目结构规划</strong></h2><figure class="highlight nix"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs nix">whale-vault-backend<span class="hljs-symbol">/</span><br>├── go.mod<br>├── go.sum<br>├── main.go                    <span class="hljs-comment"># 主入口文件</span><br>├── config<span class="hljs-symbol">/</span><br>│   ├── config.go              <span class="hljs-comment"># 配置管理</span><br>│   └── env.go                 <span class="hljs-comment"># 环境变量</span><br>├── handlers<span class="hljs-symbol">/</span>                  <span class="hljs-comment"># HTTP处理器</span><br>│   ├── reader_handler.go      <span class="hljs-comment"># 读者模块处理器</span><br>│   ├── author_handler.go      <span class="hljs-comment"># 作者模块处理器</span><br>│   ├── publisher_handler.go   <span class="hljs-comment"># 出版社模块处理器</span><br>│   └── common_handler.go      <span class="hljs-comment"># 通用处理器</span><br>├── services<span class="hljs-symbol">/</span>                  <span class="hljs-comment"># 业务服务层</span><br>│   ├── reader_service.go      <span class="hljs-comment"># 读者服务</span><br>│   ├── author_service.go      <span class="hljs-comment"># 作者服务</span><br>│   ├── publisher_service.go   <span class="hljs-comment"># 出版社服务</span><br>│   ├── blockchain_service.go  <span class="hljs-comment"># 区块链服务</span><br>│   ├── nft_service.go         <span class="hljs-comment"># NFT服务</span><br>│   ├── staking_service.go     <span class="hljs-comment"># 质押服务</span><br>│   ├── marketplace_service.go <span class="hljs-comment"># 交易市场服务</span><br>│   ├── analytics_service.go   <span class="hljs-comment"># 数据分析服务</span><br>│   └── matrix_service.go      <span class="hljs-comment"># Matrix聊天服务</span><br>├── models<span class="hljs-symbol">/</span>                    <span class="hljs-comment"># 数据模型</span><br>│   ├── reader.go              <span class="hljs-comment"># 读者模型</span><br>│   ├── author.go              <span class="hljs-comment"># 作者模型</span><br>│   ├── publisher.go           <span class="hljs-comment"># 出版社模型</span><br>│   ├── book.go                <span class="hljs-comment"># 书籍模型</span><br>│   ├── nft.go                 <span class="hljs-comment"># NFT模型</span><br>│   ├── transaction.go         <span class="hljs-comment"># 交易模型</span><br>│   └── response.go            <span class="hljs-comment"># 响应模型</span><br>├── repositories<span class="hljs-symbol">/</span>              <span class="hljs-comment"># 数据访问层</span><br>│   ├── redis_repo.go          <span class="hljs-comment"># Redis存储</span><br>│   └── cache_repo.go          <span class="hljs-comment"># 缓存管理</span><br>├── blockchain<span class="hljs-symbol">/</span>                <span class="hljs-comment"># 区块链交互</span><br>│   ├── monad_client.go        <span class="hljs-comment"># Monad客户端</span><br>│   ├── contract_interactor.go <span class="hljs-comment"># 合约交互</span><br>│   └── transaction_manager.go <span class="hljs-comment"># 交易管理</span><br>├── middleware<span class="hljs-symbol">/</span>                <span class="hljs-comment"># 中间件</span><br>│   ├── auth_middleware.go     <span class="hljs-comment"># 认证中间件</span><br>│   ├── role_middleware.go     <span class="hljs-comment"># 角色中间件</span><br>│   ├── rate_limit.go          <span class="hljs-comment"># 限流中间件</span><br>│   └── cors_middleware.go     <span class="hljs-comment"># CORS中间件</span><br>├── routes<span class="hljs-symbol">/</span>                    <span class="hljs-comment"># 路由定义</span><br>│   ├── reader_routes.go       <span class="hljs-comment"># 读者路由</span><br>│   ├── author_routes.go       <span class="hljs-comment"># 作者路由</span><br>│   ├── publisher_routes.go    <span class="hljs-comment"># 出版社路由</span><br>│   └── api_routes.go          <span class="hljs-comment"># API路由</span><br>├── utils<span class="hljs-symbol">/</span>                     <span class="hljs-comment"># 工具函数</span><br>│   ├── validator.go           <span class="hljs-comment"># 验证工具</span><br>│   ├── crypto.go              <span class="hljs-comment"># 加密工具</span><br>│   ├── logger.go              <span class="hljs-comment"># 日志工具</span><br>│   └── helpers.go             <span class="hljs-comment"># 辅助函数</span><br>└── pkg<span class="hljs-symbol">/</span>                       <span class="hljs-comment"># 内部包</span><br>    ├── concurrency<span class="hljs-symbol">/</span>           <span class="hljs-comment"># 并发控制</span><br>    └── monitor<span class="hljs-symbol">/</span>               <span class="hljs-comment"># 监控工具</span><br></code></pre></div></td></tr></table></figure>
+
+<h2 id="🔧-重构后的代码"><a href="#🔧-重构后的代码" class="headerlink" title="🔧 重构后的代码"></a>🔧 <strong>重构后的代码</strong></h2><h3 id="1-main-go-主入口文件"><a href="#1-main-go-主入口文件" class="headerlink" title="1. main.go (主入口文件)"></a><strong>1. main.go (主入口文件)</strong></h3><figure class="highlight go"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;log&quot;</span><br>    <span class="hljs-string">&quot;whale-vault-backend/config&quot;</span><br>    <span class="hljs-string">&quot;whale-vault-backend/routes&quot;</span><br>    <span class="hljs-string">&quot;whale-vault-backend/middleware&quot;</span><br>    <span class="hljs-string">&quot;whale-vault-backend/utils&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-comment">// 1. 加载配置</span><br>    cfg := config.LoadConfig()<br>    <br>    <span class="hljs-comment">// 2. 初始化日志</span><br>    utils.InitLogger(cfg.LogLevel)<br>    <br>    <span class="hljs-comment">// 3. 初始化服务依赖</span><br>    services := InitializeServices(cfg)<br>    <br>    <span class="hljs-comment">// 4. 设置路由</span><br>    router := routes.SetupRouter(services)<br>    <br>    <span class="hljs-comment">// 5. 添加中间件</span><br>    app := middleware.WithCORS(router)<br>    app = middleware.WithRateLimit(app, cfg.RateLimit)<br>    <br>    <span class="hljs-comment">// 6. 启动服务器</span><br>    log.Printf(<span class="hljs-string">&quot;🚀 Whale Vault 后端启动成功，端口: %s&quot;</span>, cfg.Port)<br>    log.Printf(<span class="hljs-string">&quot;📊 已启用模块: 读者 | 作者 | 出版社&quot;</span>)<br>    log.Fatal(app.Listen(<span class="hljs-string">&quot;:&quot;</span> + cfg.Port))<br>&#125;<br><br><span class="hljs-comment">// InitializeServices 初始化所有服务依赖</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">InitializeServices</span><span class="hljs-params">(cfg *config.Config)</span></span> *Services &#123;<br>    <span class="hljs-keyword">return</span> &amp;Services&#123;<br>        Redis:        initRedis(cfg),<br>        Blockchain:   initBlockchain(cfg),<br>        NFT:          initNFTService(cfg),<br>        Staking:      initStakingService(cfg),<br>        Marketplace:  initMarketplaceService(cfg),<br>        Analytics:    initAnalyticsService(cfg),<br>        Matrix:       initMatrixService(cfg),<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="2-config-config-go-配置管理"><a href="#2-config-config-go-配置管理" class="headerlink" title="2. config&#x2F;config.go (配置管理)"></a><strong>2. config&#x2F;config.go (配置管理)</strong></h3><figure class="highlight go"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs go"><span class="hljs-keyword">package</span> config<br><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;os&quot;</span><br><br><span class="hljs-keyword">type</span> Config <span class="hljs-keyword">struct</span> &#123;<br>    Port         <span class="hljs-type">string</span><br>    RedisAddr    <span class="hljs-type">string</span><br>    RPCURL       <span class="hljs-type">string</span><br>    ChainID      <span class="hljs-type">int64</span><br>    PrivateKeys  []<span class="hljs-type">string</span><br>    MatrixURL    <span class="hljs-type">string</span><br>    MatrixRoomID <span class="hljs-type">string</span><br>    LogLevel     <span class="hljs-type">string</span><br>    RateLimit    RateLimitConfig<br>&#125;<br><br><span class="hljs-keyword">type</span> RateLimitConfig <span class="hljs-keyword">struct</span> &#123;<br>    RequestsPerMinute <span class="hljs-type">int</span><br>    Burst             <span class="hljs-type">int</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">LoadConfig</span><span class="hljs-params">()</span></span> *Config &#123;<br>    <span class="hljs-keyword">return</span> &amp;Config&#123;<br>        Port:         getEnv(<span class="hljs-string">&quot;PORT&quot;</span>, <span class="hljs-string">&quot;8080&quot;</span>),<br>        RedisAddr:    getEnv(<span class="hljs-string">&quot;REDIS_ADDR&quot;</span>, <span class="hljs-string">&quot;localhost:6379&quot;</span>),<br>        RPCURL:       getEnv(<span class="hljs-string">&quot;RPC_URL&quot;</span>, <span class="hljs-string">&quot;&quot;</span>),<br>        ChainID:      getEnvAsInt64(<span class="hljs-string">&quot;CHAIN_ID&quot;</span>, <span class="hljs-number">1234</span>),<br>        PrivateKeys:  getEnvSlice(<span class="hljs-string">&quot;PRIVATE_KEYS&quot;</span>, <span class="hljs-string">&quot;,&quot;</span>),<br>        MatrixURL:    getEnv(<span class="hljs-string">&quot;MATRIX_URL&quot;</span>, <span class="hljs-string">&quot;&quot;</span>),<br>        MatrixRoomID: getEnv(<span class="hljs-string">&quot;MATRIX_ROOM_ID&quot;</span>, <span class="hljs-string">&quot;&quot;</span>),<br>        LogLevel:     getEnv(<span class="hljs-string">&quot;LOG_LEVEL&quot;</span>, <span class="hljs-string">&quot;info&quot;</span>),<br>        RateLimit: RateLimitConfig&#123;<br>            RequestsPerMinute: getEnvAsInt(<span class="hljs-string">&quot;RATE_LIMIT_PER_MINUTE&quot;</span>, <span class="hljs-number">100</span>),<br>            Burst:             getEnvAsInt(<span class="hljs-string">&quot;RATE_LIMIT_BURST&quot;</span>, <span class="hljs-number">20</span>),<br>        &#125;,<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="3-handlers-reader-handler-go-读者模块处理器"><a href="#3-handlers-reader-handler-go-读者模块处理器" class="headerlink" title="3. handlers&#x2F;reader_handler.go (读者模块处理器)"></a><strong>3. handlers&#x2F;reader_handler.go (读者模块处理器)</strong></h3><figure class="highlight go"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs go"><span class="hljs-keyword">package</span> handlers<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;net/http&quot;</span><br>    <span class="hljs-string">&quot;encoding/json&quot;</span><br>    <span class="hljs-string">&quot;whale-vault-backend/services&quot;</span><br>    <span class="hljs-string">&quot;whale-vault-backend/models&quot;</span><br>)<br><br><span class="hljs-keyword">type</span> ReaderHandler <span class="hljs-keyword">struct</span> &#123;<br>    service *services.ReaderService<br>    nftService *services.NFTService<br>    stakingService *services.StakingService<br>    marketplaceService *services.MarketplaceService<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">NewReaderHandler</span><span class="hljs-params">(</span></span><br><span class="hljs-params"><span class="hljs-function">    readerService *services.ReaderService,</span></span><br><span class="hljs-params"><span class="hljs-function">    nftService *services.NFTService,</span></span><br><span class="hljs-params"><span class="hljs-function">    stakingService *services.StakingService,</span></span><br><span class="hljs-params"><span class="hljs-function">    marketplaceService *services.MarketplaceService,</span></span><br><span class="hljs-params"><span class="hljs-function">)</span></span> *ReaderHandler &#123;<br>    <span class="hljs-keyword">return</span> &amp;ReaderHandler&#123;<br>        service: readerService,<br>        nftService: nftService,<br>        stakingService: stakingService,<br>        marketplaceService: marketplaceService,<br>    &#125;<br>&#125;<br><br><span class="hljs-comment">// ClaimNFT - 功能一：点击即可领取NFT</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(h *ReaderHandler)</span></span> ClaimNFT(w http.ResponseWriter, r *http.Request) &#123;<br>    <span class="hljs-keyword">var</span> req models.ClaimNFTRequest<br>    <span class="hljs-keyword">if</span> err := json.NewDecoder(r.Body).Decode(&amp;req); err != <span class="hljs-literal">nil</span> &#123;<br>        respondWithError(w, http.StatusBadRequest, <span class="hljs-string">&quot;无效的请求参数&quot;</span>)<br>        <span class="hljs-keyword">return</span><br>    &#125;<br>    <br>    <span class="hljs-comment">// 验证激活码</span><br>    <span class="hljs-keyword">if</span> !h.service.ValidateActivationCode(req.CodeHash, req.WalletAddress) &#123;<br>        respondWithError(w, http.StatusForbidden, <span class="hljs-string">&quot;无效的激活码&quot;</span>)<br>        <span class="hljs-keyword">return</span><br>    &#125;<br>    <br>    <span class="hljs-comment">// 并发安全的NFT铸造</span><br>    txHash, err := h.nftService.MintNFTConcurrent(req.WalletAddress, req.CodeHash)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>        respondWithError(w, http.StatusInternalServerError, <span class="hljs-string">&quot;NFT铸造失败: &quot;</span>+err.Error())<br>        <span class="hljs-keyword">return</span><br>    &#125;<br>    <br>    <span class="hljs-comment">// 记录激活码使用</span><br>    h.service.RecordCodeUsage(req.CodeHash, req.WalletAddress)<br>    <br>    respondWithSuccess(w, models.ClaimNFTResponse&#123;<br>        TxHash: txHash,<br>        Status: <span class="hljs-string">&quot;success&quot;</span>,<br>    &#125;)<br>&#125;<br><br><span class="hljs-comment">// GetExclusiveContent - 功能二：获取专属新资料</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(h *ReaderHandler)</span></span> GetExclusiveContent(w http.ResponseWriter, r *http.Request) &#123;<br>    walletAddress := r.URL.Query().Get(<span class="hljs-string">&quot;address&quot;</span>)<br>    <br>    <span class="hljs-comment">// 验证读者权限</span><br>    <span class="hljs-keyword">if</span> !h.service.HasReaderAccess(walletAddress) &#123;<br>        respondWithError(w, http.StatusForbidden, <span class="hljs-string">&quot;无访问权限&quot;</span>)<br>        <span class="hljs-keyword">return</span><br>    &#125;<br>    <br>    content, err := h.service.GetDynamicContent(walletAddress)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>        respondWithError(w, http.StatusInternalServerError, <span class="hljs-string">&quot;获取内容失败&quot;</span>)<br>        <span class="hljs-keyword">return</span><br>    &#125;<br>    <br>    respondWithSuccess(w, content)<br>&#125;<br><br><span class="hljs-comment">// PromoteBooks - 功能三：推广新书获取奖励</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(h *ReaderHandler)</span></span> PromoteBooks(w http.ResponseWriter, r *http.Request) &#123;<br>    <span class="hljs-keyword">var</span> req models.PromoteRequest<br>    <span class="hljs-keyword">if</span> err := json.NewDecoder(r.Body).Decode(&amp;req); err != <span class="hljs-literal">nil</span> &#123;<br>        respondWithError(w, http.StatusBadRequest, <span class="hljs-string">&quot;无效的请求参数&quot;</span>)<br>        <span class="hljs-keyword">return</span><br>    &#125;<br>    <br>    <span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> 实现推广逻辑</span><br>    <span class="hljs-comment">// 1. 验证读者身份</span><br>    <span class="hljs-comment">// 2. 记录推广行为</span><br>    <span class="hljs-comment">// 3. 计算并发放DOT奖励（双倍书价）</span><br>    <br>    respondWithSuccess(w, models.PromoteResponse&#123;<br>        RewardDOT: <span class="hljs-string">&quot;100.0&quot;</span>,<br>        Status:    <span class="hljs-string">&quot;推广记录成功&quot;</span>,<br>    &#125;)<br>&#125;<br><br><span class="hljs-comment">// StakeDOT - 功能四：质押DOT预测销量</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(h *ReaderHandler)</span></span> StakeDOT(w http.ResponseWriter, r *http.Request) &#123;<br>    <span class="hljs-keyword">var</span> req models.StakeRequest<br>    <span class="hljs-keyword">if</span> err := json.NewDecoder(r.Body).Decode(&amp;req); err != <span class="hljs-literal">nil</span> &#123;<br>        respondWithError(w, http.StatusBadRequest, <span class="hljs-string">&quot;无效的请求参数&quot;</span>)<br>        <span class="hljs-keyword">return</span><br>    &#125;<br>    <br>    <span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> 实现质押逻辑</span><br>    <span class="hljs-comment">// 1. 验证质押金额</span><br>    <span class="hljs-comment">// 2. 记录质押预测</span><br>    <span class="hljs-comment">// 3. 10天后根据结果分配奖金池</span><br>    <br>    respondWithSuccess(w, models.StakeResponse&#123;<br>        StakeID:   <span class="hljs-string">&quot;stake_123&quot;</span>,<br>        Amount:    req.Amount,<br>        EndTime:   <span class="hljs-string">&quot;10天后&quot;</span>,<br>        Status:    <span class="hljs-string">&quot;质押成功&quot;</span>,<br>    &#125;)<br>&#125;<br><br><span class="hljs-comment">// SellUsedBook - 功能五：二手书交易</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(h *ReaderHandler)</span></span> SellUsedBook(w http.ResponseWriter, r *http.Request) &#123;<br>    <span class="hljs-keyword">var</span> req models.SellBookRequest<br>    <span class="hljs-keyword">if</span> err := json.NewDecoder(r.Body).Decode(&amp;req); err != <span class="hljs-literal">nil</span> &#123;<br>        respondWithError(w, http.StatusBadRequest, <span class="hljs-string">&quot;无效的请求参数&quot;</span>)<br>        <span class="hljs-keyword">return</span><br>    &#125;<br>    <br>    <span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> 实现二手书交易逻辑</span><br>    <span class="hljs-comment">// 1. 验证NFT所有权</span><br>    <span class="hljs-comment">// 2. 处理DOT支付</span><br>    <span class="hljs-comment">// 3. 转移NFT所有权</span><br>    <span class="hljs-comment">// 4. 分配利润（作者、出版社、系统奖励）</span><br>    <br>    respondWithSuccess(w, models.SellBookResponse&#123;<br>        TransactionID: <span class="hljs-string">&quot;tx_456&quot;</span>,<br>        SellerReward:  req.Price * <span class="hljs-number">0.8</span>,    <span class="hljs-comment">// 卖家获得80%</span><br>        AuthorShare:   req.Price * <span class="hljs-number">0.1</span>,    <span class="hljs-comment">// 作者获得10%</span><br>        PublisherShare: req.Price * <span class="hljs-number">0.05</span>,  <span class="hljs-comment">// 出版社获得5%</span><br>        SystemReward:  req.Price * <span class="hljs-number">0.05</span>,   <span class="hljs-comment">// 系统奖励5%</span><br>        Status:        <span class="hljs-string">&quot;交易成功&quot;</span>,<br>    &#125;)<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="4-handlers-author-handler-go-作者模块处理器"><a href="#4-handlers-author-handler-go-作者模块处理器" class="headerlink" title="4. handlers&#x2F;author_handler.go (作者模块处理器)"></a><strong>4. handlers&#x2F;author_handler.go (作者模块处理器)</strong></h3><figure class="highlight go"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs go"><span class="hljs-keyword">package</span> handlers<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;net/http&quot;</span><br>    <span class="hljs-string">&quot;encoding/json&quot;</span><br>    <span class="hljs-string">&quot;whale-vault-backend/services&quot;</span><br>    <span class="hljs-string">&quot;whale-vault-backend/models&quot;</span><br>)<br><br><span class="hljs-keyword">type</span> AuthorHandler <span class="hljs-keyword">struct</span> &#123;<br>    service *services.AuthorService<br>    nftService *services.NFTService<br>    analyticsService *services.AnalyticsService<br>    matrixService *services.MatrixService<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">NewAuthorHandler</span><span class="hljs-params">(</span></span><br><span class="hljs-params"><span class="hljs-function">    authorService *services.AuthorService,</span></span><br><span class="hljs-params"><span class="hljs-function">    nftService *services.NFTService,</span></span><br><span class="hljs-params"><span class="hljs-function">    analyticsService *services.AnalyticsService,</span></span><br><span class="hljs-params"><span class="hljs-function">    matrixService *services.MatrixService,</span></span><br><span class="hljs-params"><span class="hljs-function">)</span></span> *AuthorHandler &#123;<br>    <span class="hljs-keyword">return</span> &amp;AuthorHandler&#123;<br>        service: authorService,<br>        nftService: nftService,<br>        analyticsService: analyticsService,<br>        matrixService: matrixService,<br>    &#125;<br>&#125;<br><br><span class="hljs-comment">// UploadNFTImage - 功能1：上传NFT图片</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(h *AuthorHandler)</span></span> UploadNFTImage(w http.ResponseWriter, r *http.Request) &#123;<br>    <span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> 实现图片上传逻辑</span><br>    <span class="hljs-comment">// 1. 验证作者身份</span><br>    <span class="hljs-comment">// 2. 处理图片文件</span><br>    <span class="hljs-comment">// 3. 存储到IPFS/Arweave</span><br>    <span class="hljs-comment">// 4. 更新NFT元数据</span><br>    <br>    respondWithSuccess(w, models.UploadResponse&#123;<br>        ImageURL: <span class="hljs-string">&quot;ipfs://Qm...&quot;</span>,<br>        Status:   <span class="hljs-string">&quot;图片上传成功&quot;</span>,<br>    &#125;)<br>&#125;<br><br><span class="hljs-comment">// UploadDynamicContent - 功能2：上传动态更新的书籍资料</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(h *AuthorHandler)</span></span> UploadDynamicContent(w http.ResponseWriter, r *http.Request) &#123;<br>    <span class="hljs-keyword">var</span> req models.UploadContentRequest<br>    <span class="hljs-keyword">if</span> err := json.NewDecoder(r.Body).Decode(&amp;req); err != <span class="hljs-literal">nil</span> &#123;<br>        respondWithError(w, http.StatusBadRequest, <span class="hljs-string">&quot;无效的请求参数&quot;</span>)<br>        <span class="hljs-keyword">return</span><br>    &#125;<br>    <br>    <span class="hljs-comment">// 验证作者权限</span><br>    <span class="hljs-keyword">if</span> !h.service.VerifyAuthorOwnership(req.AuthorAddress, req.BookID) &#123;<br>        respondWithError(w, http.StatusForbidden, <span class="hljs-string">&quot;无操作权限&quot;</span>)<br>        <span class="hljs-keyword">return</span><br>    &#125;<br>    <br>    contentID, err := h.service.UploadContent(req.AuthorAddress, req.BookID, req.Content)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>        respondWithError(w, http.StatusInternalServerError, <span class="hljs-string">&quot;上传失败&quot;</span>)<br>        <span class="hljs-keyword">return</span><br>    &#125;<br>    <br>    respondWithSuccess(w, models.UploadContentResponse&#123;<br>        ContentID: contentID,<br>        Status:    <span class="hljs-string">&quot;内容上传成功&quot;</span>,<br>    &#125;)<br>&#125;<br><br><span class="hljs-comment">// ChatWithReaders - 功能3：在Matrix和粉丝聊天</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(h *AuthorHandler)</span></span> ChatWithReaders(w http.ResponseWriter, r *http.Request) &#123;<br>    authorAddress := r.URL.Query().Get(<span class="hljs-string">&quot;author&quot;</span>)<br>    <br>    <span class="hljs-comment">// 获取作者的Matrix聊天室</span><br>    chatRooms, err := h.matrixService.GetAuthorChatRooms(authorAddress)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>        respondWithError(w, http.StatusInternalServerError, <span class="hljs-string">&quot;获取聊天室失败&quot;</span>)<br>        <span class="hljs-keyword">return</span><br>    &#125;<br>    <br>    respondWithSuccess(w, models.ChatRoomsResponse&#123;<br>        Rooms: chatRooms,<br>    &#125;)<br>&#125;<br><br><span class="hljs-comment">// GetFanAnalytics - 功能4：查看粉丝分布和版税信息</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(h *AuthorHandler)</span></span> GetFanAnalytics(w http.ResponseWriter, r *http.Request) &#123;<br>    authorAddress := r.URL.Query().Get(<span class="hljs-string">&quot;author&quot;</span>)<br>    period := r.URL.Query().Get(<span class="hljs-string">&quot;period&quot;</span>) <span class="hljs-comment">// daily, weekly, monthly</span><br>    <br>    analytics, err := h.analyticsService.GetAuthorAnalytics(authorAddress, period)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>        respondWithError(w, http.StatusInternalServerError, <span class="hljs-string">&quot;获取分析数据失败&quot;</span>)<br>        <span class="hljs-keyword">return</span><br>    &#125;<br>    <br>    respondWithSuccess(w, analytics)<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="5-handlers-publisher-handler-go-出版社模块处理器"><a href="#5-handlers-publisher-handler-go-出版社模块处理器" class="headerlink" title="5. handlers&#x2F;publisher_handler.go (出版社模块处理器)"></a><strong>5. handlers&#x2F;publisher_handler.go (出版社模块处理器)</strong></h3><figure class="highlight go"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs go"><span class="hljs-keyword">package</span> handlers<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;net/http&quot;</span><br>    <span class="hljs-string">&quot;whale-vault-backend/services&quot;</span><br>    <span class="hljs-string">&quot;whale-vault-backend/models&quot;</span><br>)<br><br><span class="hljs-keyword">type</span> PublisherHandler <span class="hljs-keyword">struct</span> &#123;<br>    service *services.PublisherService<br>    analyticsService *services.AnalyticsService<br>    matrixService *services.MatrixService<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">NewPublisherHandler</span><span class="hljs-params">(</span></span><br><span class="hljs-params"><span class="hljs-function">    publisherService *services.PublisherService,</span></span><br><span class="hljs-params"><span class="hljs-function">    analyticsService *services.AnalyticsService,</span></span><br><span class="hljs-params"><span class="hljs-function">    matrixService *services.MatrixService,</span></span><br><span class="hljs-params"><span class="hljs-function">)</span></span> *PublisherHandler &#123;<br>    <span class="hljs-keyword">return</span> &amp;PublisherHandler&#123;<br>        service: publisherService,<br>        analyticsService: analyticsService,<br>        matrixService: matrixService,<br>    &#125;<br>&#125;<br><br><span class="hljs-comment">// GetRegionalSales - 功能1：查看地区销量排行</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(h *PublisherHandler)</span></span> GetRegionalSales(w http.ResponseWriter, r *http.Request) &#123;<br>    publisherAddress := r.URL.Query().Get(<span class="hljs-string">&quot;publisher&quot;</span>)<br>    <br>    salesData, err := h.analyticsService.GetRegionalSales(publisherAddress)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>        respondWithError(w, http.StatusInternalServerError, <span class="hljs-string">&quot;获取销量数据失败&quot;</span>)<br>        <span class="hljs-keyword">return</span><br>    &#125;<br>    <br>    respondWithSuccess(w, salesData)<br>&#125;<br><br><span class="hljs-comment">// GetReaderHeatmap - 功能2：查看读者分布热力图</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(h *PublisherHandler)</span></span> GetReaderHeatmap(w http.ResponseWriter, r *http.Request) &#123;<br>    publisherAddress := r.URL.Query().Get(<span class="hljs-string">&quot;publisher&quot;</span>)<br>    <br>    heatmapData, err := h.analyticsService.GetReaderHeatmap(publisherAddress)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>        respondWithError(w, http.StatusInternalServerError, <span class="hljs-string">&quot;获取热力图数据失败&quot;</span>)<br>        <span class="hljs-keyword">return</span><br>    &#125;<br>    <br>    respondWithSuccess(w, heatmapData)<br>&#125;<br><br><span class="hljs-comment">// GetRealSales - 功能3：查看书籍真实销量</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(h *PublisherHandler)</span></span> GetRealSales(w http.ResponseWriter, r *http.Request) &#123;<br>    publisherAddress := r.URL.Query().Get(<span class="hljs-string">&quot;publisher&quot;</span>)<br>    bookID := r.URL.Query().Get(<span class="hljs-string">&quot;book_id&quot;</span>)<br>    <br>    sales, err := h.analyticsService.GetRealSales(publisherAddress, bookID)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>        respondWithError(w, http.StatusInternalServerError, <span class="hljs-string">&quot;获取销量数据失败&quot;</span>)<br>        <span class="hljs-keyword">return</span><br>    &#125;<br>    <br>    respondWithSuccess(w, sales)<br>&#125;<br><br><span class="hljs-comment">// BroadcastNewBook - 功能4：Matrix Bot一键推送新书</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(h *PublisherHandler)</span></span> BroadcastNewBook(w http.ResponseWriter, r *http.Request) &#123;<br>    publisherAddress := r.URL.Query().Get(<span class="hljs-string">&quot;publisher&quot;</span>)<br>    bookID := r.URL.Query().Get(<span class="hljs-string">&quot;book_id&quot;</span>)<br>    <br>    <span class="hljs-comment">// 验证出版社权限</span><br>    <span class="hljs-keyword">if</span> !h.service.VerifyPublisherOwnership(publisherAddress, bookID) &#123;<br>        respondWithError(w, http.StatusForbidden, <span class="hljs-string">&quot;无操作权限&quot;</span>)<br>        <span class="hljs-keyword">return</span><br>    &#125;<br>    <br>    <span class="hljs-comment">// 获取存量读者列表</span><br>    readers, err := h.service.GetPublisherReaders(publisherAddress)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>        respondWithError(w, http.StatusInternalServerError, <span class="hljs-string">&quot;获取读者列表失败&quot;</span>)<br>        <span class="hljs-keyword">return</span><br>    &#125;<br>    <br>    <span class="hljs-comment">// 通过Matrix Bot推送</span><br>    successCount, err := h.matrixService.BroadcastToReaders(readers, bookID)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>        respondWithError(w, http.StatusInternalServerError, <span class="hljs-string">&quot;推送失败&quot;</span>)<br>        <span class="hljs-keyword">return</span><br>    &#125;<br>    <br>    respondWithSuccess(w, models.BroadcastResponse&#123;<br>        TotalReaders: <span class="hljs-built_in">len</span>(readers),<br>        SuccessCount: successCount,<br>        Status:       <span class="hljs-string">&quot;推送完成&quot;</span>,<br>    &#125;)<br>&#125;<br><br><span class="hljs-comment">// GetSalesLeaderboard - 功能5：获取图书销量排名看板</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(h *PublisherHandler)</span></span> GetSalesLeaderboard(w http.ResponseWriter, r *http.Request) &#123;<br>    publisherAddress := r.URL.Query().Get(<span class="hljs-string">&quot;publisher&quot;</span>)<br>    timeRange := r.URL.Query().Get(<span class="hljs-string">&quot;time_range&quot;</span>) <span class="hljs-comment">// today, week, month, year</span><br>    <br>    leaderboard, err := h.analyticsService.GetSalesLeaderboard(publisherAddress, timeRange)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>        respondWithError(w, http.StatusInternalServerError, <span class="hljs-string">&quot;获取排行榜失败&quot;</span>)<br>        <span class="hljs-keyword">return</span><br>    &#125;<br>    <br>    respondWithSuccess(w, leaderboard)<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="6-services-nft-service-go-NFT服务-支持高并发"><a href="#6-services-nft-service-go-NFT服务-支持高并发" class="headerlink" title="6. services&#x2F;nft_service.go (NFT服务 - 支持高并发)"></a><strong>6. services&#x2F;nft_service.go (NFT服务 - 支持高并发)</strong></h3><figure class="highlight go"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs go"><span class="hljs-keyword">package</span> services<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;sync&quot;</span><br>    <span class="hljs-string">&quot;context&quot;</span><br>    <span class="hljs-string">&quot;whale-vault-backend/blockchain&quot;</span><br>    <span class="hljs-string">&quot;whale-vault-backend/utils&quot;</span><br>)<br><br><span class="hljs-keyword">type</span> NFTService <span class="hljs-keyword">struct</span> &#123;<br>    blockchainClient *blockchain.MonadClient<br>    relayerPool      []*Relayer<br>    relayerIndex     <span class="hljs-type">uint64</span><br>    mu               sync.RWMutex<br>    batchMutex       sync.Mutex<br>&#125;<br><br><span class="hljs-keyword">type</span> Relayer <span class="hljs-keyword">struct</span> &#123;<br>    PrivateKey <span class="hljs-type">string</span><br>    Address    <span class="hljs-type">string</span><br>    Nonce      <span class="hljs-type">uint64</span><br>    mu         sync.Mutex<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">NewNFTService</span><span class="hljs-params">(client *blockchain.MonadClient)</span></span> *NFTService &#123;<br>    <span class="hljs-keyword">return</span> &amp;NFTService&#123;<br>        blockchainClient: client,<br>        relayerPool:      initializeRelayerPool(),<br>    &#125;<br>&#125;<br><br><span class="hljs-comment">// MintNFTConcurrent - 并发安全的NFT铸造（支持万级并发）</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(s *NFTService)</span></span> MintNFTConcurrent(walletAddress, codeHash <span class="hljs-type">string</span>) (<span class="hljs-type">string</span>, <span class="hljs-type">error</span>) &#123;<br>    <span class="hljs-comment">// 使用轮询策略选择中继器</span><br>    relayer := s.selectRelayer()<br>    <br>    relayer.mu.Lock()<br>    <span class="hljs-keyword">defer</span> relayer.mu.Unlock()<br>    <br>    <span class="hljs-comment">// 准备交易</span><br>    tx, err := s.blockchainClient.PrepareMintTransaction(<br>        relayer.Address,<br>        walletAddress,<br>        relayer.Nonce,<br>    )<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;&quot;</span>, err<br>    &#125;<br>    <br>    <span class="hljs-comment">// 签名交易</span><br>    signedTx, err := s.blockchainClient.SignTransaction(tx, relayer.PrivateKey)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;&quot;</span>, err<br>    &#125;<br>    <br>    <span class="hljs-comment">// 发送交易（Monad支持高并发）</span><br>    txHash, err := s.blockchainClient.SendTransaction(context.Background(), signedTx)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;&quot;</span>, err<br>    &#125;<br>    <br>    <span class="hljs-comment">// 更新Nonce</span><br>    relayer.Nonce++<br>    <br>    <span class="hljs-comment">// 记录交易日志</span><br>    utils.LogMintEvent(walletAddress, codeHash, txHash)<br>    <br>    <span class="hljs-keyword">return</span> txHash, <span class="hljs-literal">nil</span><br>&#125;<br><br><span class="hljs-comment">// BatchMintNFT - 批量铸造（用于出版社发放）</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(s *NFTService)</span></span> BatchMintNFT(addresses []<span class="hljs-type">string</span>) ([]<span class="hljs-type">string</span>, <span class="hljs-type">error</span>) &#123;<br>    <span class="hljs-keyword">var</span> wg sync.WaitGroup<br>    results := <span class="hljs-built_in">make</span>([]<span class="hljs-type">string</span>, <span class="hljs-built_in">len</span>(addresses))<br>    errors := <span class="hljs-built_in">make</span>([]<span class="hljs-type">error</span>, <span class="hljs-built_in">len</span>(addresses))<br>    <br>    <span class="hljs-comment">// 使用工作池控制并发</span><br>    semaphore := <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> <span class="hljs-keyword">struct</span>&#123;&#125;, <span class="hljs-number">100</span>) <span class="hljs-comment">// 限制并发数为100</span><br>    <br>    <span class="hljs-keyword">for</span> i, addr := <span class="hljs-keyword">range</span> addresses &#123;<br>        wg.Add(<span class="hljs-number">1</span>)<br>        <span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(index <span class="hljs-type">int</span>, address <span class="hljs-type">string</span>)</span></span> &#123;<br>            <span class="hljs-keyword">defer</span> wg.Done()<br>            <br>            semaphore &lt;- <span class="hljs-keyword">struct</span>&#123;&#125;&#123;&#125;<br>            <span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123; &lt;-semaphore &#125;()<br>            <br>            txHash, err := s.MintNFTConcurrent(address, <span class="hljs-string">&quot;batch_mint&quot;</span>)<br>            results[index] = txHash<br>            errors[index] = err<br>        &#125;(i, addr)<br>    &#125;<br>    <br>    wg.Wait()<br>    <br>    <span class="hljs-comment">// 检查是否有错误</span><br>    <span class="hljs-keyword">for</span> _, err := <span class="hljs-keyword">range</span> errors &#123;<br>        <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err<br>        &#125;<br>    &#125;<br>    <br>    <span class="hljs-keyword">return</span> results, <span class="hljs-literal">nil</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(s *NFTService)</span></span> selectRelayer() *Relayer &#123;<br>    s.mu.Lock()<br>    <span class="hljs-keyword">defer</span> s.mu.Unlock()<br>    <br>    index := s.relayerIndex % <span class="hljs-type">uint64</span>(<span class="hljs-built_in">len</span>(s.relayerPool))<br>    s.relayerIndex++<br>    <span class="hljs-keyword">return</span> s.relayerPool[index]<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="7-routes-api-routes-go-路由定义"><a href="#7-routes-api-routes-go-路由定义" class="headerlink" title="7. routes&#x2F;api_routes.go (路由定义)"></a><strong>7. routes&#x2F;api_routes.go (路由定义)</strong></h3><figure class="highlight go"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs go"><span class="hljs-keyword">package</span> routes<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;github.com/gorilla/mux&quot;</span><br>    <span class="hljs-string">&quot;whale-vault-backend/handlers&quot;</span><br>    <span class="hljs-string">&quot;whale-vault-backend/middleware&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">SetupRouter</span><span class="hljs-params">(services *Services)</span></span> *mux.Router &#123;<br>    router := mux.NewRouter()<br>    <br>    <span class="hljs-comment">// 初始化处理器</span><br>    readerHandler := handlers.NewReaderHandler(<br>        services.Reader,<br>        services.NFT,<br>        services.Staking,<br>        services.Marketplace,<br>    )<br>    <br>    authorHandler := handlers.NewAuthorHandler(<br>        services.Author,<br>        services.NFT,<br>        services.Analytics,<br>        services.Matrix,<br>    )<br>    <br>    publisherHandler := handlers.NewPublisherHandler(<br>        services.Publisher,<br>        services.Analytics,<br>        services.Matrix,<br>    )<br>    <br>    <span class="hljs-comment">// 读者模块路由</span><br>    readerRouter := router.PathPrefix(<span class="hljs-string">&quot;/api/reader&quot;</span>).Subrouter()<br>    readerRouter.Use(middleware.ReaderAuth)<br>    &#123;<br>        readerRouter.HandleFunc(<span class="hljs-string">&quot;/claim-nft&quot;</span>, readerHandler.ClaimNFT).Methods(<span class="hljs-string">&quot;POST&quot;</span>)<br>        readerRouter.HandleFunc(<span class="hljs-string">&quot;/exclusive-content&quot;</span>, readerHandler.GetExclusiveContent).Methods(<span class="hljs-string">&quot;GET&quot;</span>)<br>        readerRouter.HandleFunc(<span class="hljs-string">&quot;/promote-books&quot;</span>, readerHandler.PromoteBooks).Methods(<span class="hljs-string">&quot;POST&quot;</span>)<br>        readerRouter.HandleFunc(<span class="hljs-string">&quot;/stake-dot&quot;</span>, readerHandler.StakeDOT).Methods(<span class="hljs-string">&quot;POST&quot;</span>)<br>        readerRouter.HandleFunc(<span class="hljs-string">&quot;/sell-book&quot;</span>, readerHandler.SellUsedBook).Methods(<span class="hljs-string">&quot;POST&quot;</span>)<br>    &#125;<br>    <br>    <span class="hljs-comment">// 作者模块路由</span><br>    authorRouter := router.PathPrefix(<span class="hljs-string">&quot;/api/author&quot;</span>).Subrouter()<br>    authorRouter.Use(middleware.AuthorAuth)<br>    &#123;<br>        authorRouter.HandleFunc(<span class="hljs-string">&quot;/upload-image&quot;</span>, authorHandler.UploadNFTImage).Methods(<span class="hljs-string">&quot;POST&quot;</span>)<br>        authorRouter.HandleFunc(<span class="hljs-string">&quot;/upload-content&quot;</span>, authorHandler.UploadDynamicContent).Methods(<span class="hljs-string">&quot;POST&quot;</span>)<br>        authorRouter.HandleFunc(<span class="hljs-string">&quot;/chat-rooms&quot;</span>, authorHandler.ChatWithReaders).Methods(<span class="hljs-string">&quot;GET&quot;</span>)<br>        authorRouter.HandleFunc(<span class="hljs-string">&quot;/analytics&quot;</span>, authorHandler.GetFanAnalytics).Methods(<span class="hljs-string">&quot;GET&quot;</span>)<br>    &#125;<br>    <br>    <span class="hljs-comment">// 出版社模块路由</span><br>    publisherRouter := router.PathPrefix(<span class="hljs-string">&quot;/api/publisher&quot;</span>).Subrouter()<br>    publisherRouter.Use(middleware.PublisherAuth)<br>    &#123;<br>        publisherRouter.HandleFunc(<span class="hljs-string">&quot;/regional-sales&quot;</span>, publisherHandler.GetRegionalSales).Methods(<span class="hljs-string">&quot;GET&quot;</span>)<br>        publisherRouter.HandleFunc(<span class="hljs-string">&quot;/reader-heatmap&quot;</span>, publisherHandler.GetReaderHeatmap).Methods(<span class="hljs-string">&quot;GET&quot;</span>)<br>        publisherRouter.HandleFunc(<span class="hljs-string">&quot;/real-sales&quot;</span>, publisherHandler.GetRealSales).Methods(<span class="hljs-string">&quot;GET&quot;</span>)<br>        publisherRouter.HandleFunc(<span class="hljs-string">&quot;/broadcast-book&quot;</span>, publisherHandler.BroadcastNewBook).Methods(<span class="hljs-string">&quot;POST&quot;</span>)<br>        publisherRouter.HandleFunc(<span class="hljs-string">&quot;/sales-leaderboard&quot;</span>, publisherHandler.GetSalesLeaderboard).Methods(<span class="hljs-string">&quot;GET&quot;</span>)<br>    &#125;<br>    <br>    <span class="hljs-comment">// 公共API路由（兼容老版本）</span><br>    router.HandleFunc(<span class="hljs-string">&quot;/secret/verify&quot;</span>, handlers.VerifyActivationCode).Methods(<span class="hljs-string">&quot;GET&quot;</span>)<br>    router.HandleFunc(<span class="hljs-string">&quot;/relay/mint&quot;</span>, handlers.MintNFTLegacy).Methods(<span class="hljs-string">&quot;POST&quot;</span>)<br>    <br>    <span class="hljs-keyword">return</span> router<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<h2 id="📝-go-mod-文件"><a href="#📝-go-mod-文件" class="headerlink" title="📝 go.mod 文件"></a>📝 <strong>go.mod 文件</strong></h2><figure class="highlight go"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs go">module whale-vault-backend<br><br><span class="hljs-keyword">go</span> <span class="hljs-number">1.21</span><br><br>require (<br>    github.com/ethereum/<span class="hljs-keyword">go</span>-ethereum v1<span class="hljs-number">.13</span><span class="hljs-number">.5</span><br>    github.com/gorilla/mux v1<span class="hljs-number">.8</span><span class="hljs-number">.0</span><br>    github.com/redis/<span class="hljs-keyword">go</span>-redis/v9 v9<span class="hljs-number">.3</span><span class="hljs-number">.0</span><br>    github.com/joho/godotenv v1<span class="hljs-number">.5</span><span class="hljs-number">.1</span><br>    github.com/sirupsen/logrus v1<span class="hljs-number">.9</span><span class="hljs-number">.3</span><br>    golang.org/x/time v0<span class="hljs-number">.3</span><span class="hljs-number">.0</span> <span class="hljs-comment">// 限流使用</span><br>)<br></code></pre></div></td></tr></table></figure>
+
+<h2 id="🚀-部署和运行"><a href="#🚀-部署和运行" class="headerlink" title="🚀 部署和运行"></a>🚀 <strong>部署和运行</strong></h2><h3 id="启动命令"><a href="#启动命令" class="headerlink" title="启动命令"></a><strong>启动命令</strong></h3><figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 1. 初始化模块</span><br>go mod init whale-vault-backend<br>go mod tidy<br><br><span class="hljs-comment"># 2. 编译项目</span><br>go build -o whale-vault main.go<br><br><span class="hljs-comment"># 3. 运行服务</span><br>./whale-vault<br><br><span class="hljs-comment"># 或直接运行</span><br>go run main.go<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="环境变量配置-env"><a href="#环境变量配置-env" class="headerlink" title="环境变量配置 (.env)"></a><strong>环境变量配置 (.env)</strong></h3><figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs env">PORT=8080<br>REDIS_ADDR=localhost:6379<br>RPC_URL=https://rpc.monad.xyz<br>CHAIN_ID=1234<br>PRIVATE_KEYS=key1,key2,key3<br>MATRIX_URL=https://matrix.org<br>MATRIX_ROOM_ID=!room:matrix.org<br>MATRIX_ACCESS_TOKEN=your_token<br>LOG_LEVEL=debug<br></code></pre></div></td></tr></table></figure>
+
+<h2 id="🎯-重构优势"><a href="#🎯-重构优势" class="headerlink" title="🎯 重构优势"></a>🎯 <strong>重构优势</strong></h2><ol>
+<li><strong>模块清晰</strong>：三大功能模块分离，易于维护</li>
+<li><strong>扩展性强</strong>：新增功能只需在对应模块添加</li>
+<li><strong>并发支持</strong>：Monad高并发优化，支持万级请求</li>
+<li><strong>代码复用</strong>：通用功能抽离为工具函数</li>
+<li><strong>易于测试</strong>：每个模块可独立测试</li>
+<li><strong>团队协作</strong>：不同开发者可负责不同模块</li>
+</ol>
+<h2 id="📈-下一步开发建议"><a href="#📈-下一步开发建议" class="headerlink" title="📈 下一步开发建议"></a>📈 <strong>下一步开发建议</strong></h2><ol>
+<li><p><strong>优先实现核心功能</strong>：</p>
+<ul>
+<li>NFT铸造（Monad集成）</li>
+<li>Redis激活码管理</li>
+<li>基本身份验证</li>
+</ul>
+</li>
+<li><p><strong>逐步添加高级功能</strong>：</p>
+<ul>
+<li>DOT质押系统</li>
+<li>二手书交易市场</li>
+<li>Matrix集成</li>
+</ul>
+</li>
+<li><p><strong>优化和监控</strong>：</p>
+<ul>
+<li>添加Prometheus监控</li>
+<li>实现链路追踪</li>
+<li>性能测试和优化</li>
+</ul>
+</li>
+</ol>
+<p>这个重构方案为你的金库协议提供了良好的架构基础，未来可以轻松扩展新功能而不会让代码变得混乱。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Web3/">Web3</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/01/18/27590.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Polkadot Solidity开发-课程笔记12</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/01/18/55831.html">
+                        <span class="hidden-mobile">Starknet 训练营-课程笔记4</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>

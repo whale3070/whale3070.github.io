@@ -1,0 +1,571 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>Global Web3 Dev Con黑客松 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/search/">
+                <i class="iconfont icon-search"></i>
+                搜索
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="Global Web3 Dev Con黑客松">
+                      
+                        Global Web3 Dev Con黑客松
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-01-17 11:24" pubdate>
+        2026年1月17日 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.3k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      24
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">Global Web3 Dev Con黑客松</h1>
+            
+            <div class="markdown-body">
+              <h1 id="大会报名地址"><a href="#大会报名地址" class="headerlink" title="大会报名地址"></a>大会报名地址</h1><p><a target="_blank" rel="noopener" href="https://luma.com/spz5c884">https://luma.com/spz5c884</a></p>
+<p>时间： 2月8日-9日<br>地点： 香港数码港</p>
+<p>官方联系方式：</p>
+<p>Email: <a href="mailto:&#x69;&#x6e;&#102;&#x6f;&#64;&#x77;&#x65;&#98;&#x33;&#108;&#x61;&#x62;&#115;&#46;&#99;&#108;&#117;&#98;">info@web3labs.club</a><br>官方赞助 TG: @eddiedede<br>官方媒体 TG: @hhtyng</p>
+<h1 id="参赛报名地址"><a href="#参赛报名地址" class="headerlink" title="参赛报名地址"></a>参赛报名地址</h1><p><a target="_blank" rel="noopener" href="https://www.gwdc.net/hackathon.html">https://www.gwdc.net/hackathon.html</a></p>
+<h1 id="资料"><a href="#资料" class="headerlink" title="资料"></a>资料</h1><p><a target="_blank" rel="noopener" href="https://docsend.com/view/cvx6e59v6wdasb9w">https://docsend.com/view/cvx6e59v6wdasb9w</a></p>
+<p>分为 1. 主舞台<br>2. 黑客松区<br>3. 创新展位区<br>4. 招聘区</p>
+<p>总奖金池高达10万美元，获奖项目直送顶级孵化器，获得一站式加速支持。</p>
+<p>目标受众：<br>核心参与者： 全球Web3开发者、计算机&#x2F;金融相关专业学生<br>行业观察者： 公链基金会、风险投资机构VC、交易所<br>潜在合作方： 寻求Web3转型的传统企业<br>生态共建者： Web3 KOL、行业媒体、社区领袖</p>
+<h1 id="时间安排"><a href="#时间安排" class="headerlink" title="时间安排"></a>时间安排</h1><h2 id="第一天"><a href="#第一天" class="headerlink" title="第一天"></a>第一天</h2><p>主题： 思想碰撞，明确方向<br>内容： 开发者集结、公联任务发布、黑客松启动</p>
+<h2 id="第二天"><a href="#第二天" class="headerlink" title="第二天"></a>第二天</h2><p>主题： 技术深耕，极限创造<br>内容： 主会场：前言技术深度分享，行业领军人物解析未来趋势<br>开发者工作坊、48小时黑客松冲刺</p>
+<h2 id="第三天"><a href="#第三天" class="headerlink" title="第三天"></a>第三天</h2><p>主题： 成果展示，加冕未来<br>内容： 决赛项目路演、颁奖典礼、闭幕式、After Party</p>
+<h1 id="主会场介绍"><a href="#主会场介绍" class="headerlink" title="主会场介绍"></a>主会场介绍</h1><p>主题演讲+圆桌讨论+技术分享</p>
+<p>核心话题：<br>Layer2创新、ZK技术、Defi新范式、AI与Web3融合等</p>
+<p>特色环境：<br>创始人对话、协议深度解析、亚洲市场专场</p>
+<h1 id="主舞台"><a href="#主舞台" class="headerlink" title="主舞台"></a>主舞台</h1><p><img src="/2026/01/17/8147/1.png"></p>
+<p><img src="/2026/01/17/8147/2.png"></p>
+<p><img src="/2026/01/17/8147/3.png"></p>
+<p>生态支持： 主流链赛道 + 开放创新赛道 （AI x Web3、 Defi、 GameFi）<br>评委维度：<br>技术创新 40%<br>代码品质与完成度 30%<br>商业潜力与实用性 20%<br>现场展示表现 10%</p>
+<p>配套资源： 专业工作站、24小时供应+顶级API支持</p>
+<h1 id="招聘展位"><a href="#招聘展位" class="headerlink" title="招聘展位"></a>招聘展位</h1><p>2*2.4m 2000 USD</p>
+<p>所有展位都要收钱</p>
+<p>whale3070的评价： 让我想起菜市场的摊位</p>
+<h1 id="Web3Labs是什么？"><a href="#Web3Labs是什么？" class="headerlink" title="Web3Labs是什么？"></a>Web3Labs是什么？</h1><p>web3labs是WEb 3 新创新企业的一站式入口，支持全球企业在香港落地并连接国际市场。<br>在香港，新加坡，马来西亚，南韩，杭州与北京设有孵化器。<br>web3labs 与 Neo, Zetrix, ICP, KuCoin labs等顶尖机构合作。</p>
+<p>Web3Labs 合作的顶尖机构 Neo、Zetrix、ICP（DFINITY 基金会）、KuCoin Labs 均为 Web3 领域具有重要影响力的区块链平台或投资机构，以下是详细介绍：</p>
+<table>
+<thead>
+<tr>
+<th>机构名称</th>
+<th>机构类型</th>
+<th>核心定位与特点</th>
+<th>合作方向</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Neo</td>
+<td>Layer1公链</td>
+<td>开源智能合约平台，专注数字资产与智能经济，采用dBFT共识机制，支持多种编程语言开发智能合约，生态聚焦DeFi、NFT等场景</td>
+<td>与Web3Labs联合推出Web3.0全球加速计划，助力香港Web3创新项目</td>
+</tr>
+<tr>
+<td>Zetrix</td>
+<td>Layer1公链</td>
+<td>面向政府与企业的区块链基础设施，主打跨境贸易、数字身份、供应链金融等应用，由马来西亚 MYEG 公司开发</td>
+<td>联合发起全球加速器计划，扶持Web3新创团队</td>
+</tr>
+<tr>
+<td>ICP（DFINITY基金会）</td>
+<td>区块链研发机构</td>
+<td>开发互联网计算机（ICP）区块链，旨在让去中心化应用像Web2服务一样快速、可扩展，DFINITY基金会为瑞士非营利组织</td>
+<td>Web3Labs加入ICP亚洲联盟，推动亚洲区块链生态升级</td>
+</tr>
+<tr>
+<td>KuCoin Labs</td>
+<td>加密投资机构</td>
+<td>KuCoin交易所的投资与研究部门，聚焦Web3早期项目投资与孵化，提供资金、资源对接与合规指导</td>
+<td>与Web3Labs推出百万美元全球加速计划，发掘优质Web3项目</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="核心价值与合作意义"><a href="#核心价值与合作意义" class="headerlink" title="核心价值与合作意义"></a>核心价值与合作意义</h3><ol>
+<li><strong>技术赋能</strong>：Neo、Zetrix、ICP 提供底层区块链技术支持，帮助 Web3Labs 孵化项目解决技术架构与性能问题。</li>
+<li><strong>资金支持</strong>：KuCoin Labs 联合提供百万美元级加速资金，降低创业团队融资门槛。</li>
+<li><strong>生态资源</strong>：机构间共享全球市场渠道、政府合作资源与行业人脉，助力项目快速落地香港并链接国际市场。</li>
+<li><strong>合规指导</strong>：KuCoin Labs 等机构具备丰富的合规经验，为 Web3Labs 入驻企业提供政策解读与合规路径规划。</li>
+</ol>
+<p>需要我补充这些机构与 Web3Labs 在<strong>孵化流程、资金支持、合规服务</strong>上的具体合作条款吗？</p>
+<h1 id="如何获得KuCoin-Labs的风投？"><a href="#如何获得KuCoin-Labs的风投？" class="headerlink" title="如何获得KuCoin Labs的风投？"></a>如何获得KuCoin Labs的风投？</h1><p>获得KuCoin Labs的风险投资是一个系统性的过程，需要项目在<strong>质量、契合度和准备度</strong>上都达到很高的标准。作为顶级加密货币交易所旗下的投资部门，它们的筛选极为严格。</p>
+<p>以下是获得KuCoin Labs投资的清晰路径与核心建议：</p>
+<h3 id="第一步：深刻理解KuCoin-Labs要什么（投资逻辑）"><a href="#第一步：深刻理解KuCoin-Labs要什么（投资逻辑）" class="headerlink" title="第一步：深刻理解KuCoin Labs要什么（投资逻辑）"></a><strong>第一步：深刻理解KuCoin Labs要什么（投资逻辑）</strong></h3><p>在接触之前，你必须明白他们的核心诉求不仅仅是财务回报，更是<strong>战略协同</strong>。他们投资的项目通常需要能<strong>强化或丰富KuCoin生态系统</strong>。具体来说，他们青睐：</p>
+<ol>
+<li><strong>生态驱动型项目</strong>：能直接为KuCoin带来新用户、增加交易量、提升流动性的项目。例如：<ul>
+<li><strong>DeFi协议</strong>：创新的交易、借贷、衍生品、收益聚合协议。</li>
+<li><strong>NFT与GameFi</strong>：能创造活跃市场和交易需求的项目。</li>
+<li><strong>基础设施</strong>：钱包、数据分析工具、开发者工具、跨链桥等。</li>
+<li><strong>新兴赛道</strong>：RWA、DePIN、AI与Crypto结合等前沿领域。</li>
+</ul>
+</li>
+<li><strong>强大且可执行的团队</strong>：团队成员需具备相关的技术、运营和商业背景，有成功记录或展现出色的执行力。</li>
+<li><strong>清晰的代币经济学与增长潜力</strong>：项目需要有合理且可持续的代币模型，并有明确的用户增长和收入获取路径。</li>
+<li><strong>一定的产品与市场验证</strong>：最好有可用的MVP、早期用户数据、社区热度或合作伙伴，而不是仅仅停留在概念阶段。</li>
+</ol>
+<h3 id="第二步：充分准备你的项目（内功修炼）"><a href="#第二步：充分准备你的项目（内功修炼）" class="headerlink" title="第二步：充分准备你的项目（内功修炼）"></a><strong>第二步：充分准备你的项目（内功修炼）</strong></h3><ol>
+<li><p><strong>完善商业计划书与融资材料</strong>：</p>
+<ul>
+<li><strong>清晰的愿景与解决的问题</strong>：一页纸说清楚核心价值。</li>
+<li><strong>详细的产品与技术架构</strong>：展示你的技术优势和创新点。</li>
+<li><strong>市场分析与竞争定位</strong>：证明市场规模和你独特的优势。</li>
+<li><strong>成熟的代币经济学</strong>：包括发行、分配、解锁、效用和治理模型。</li>
+<li><strong>清晰的路线图与资金使用计划</strong>：说明融资将如何推动项目发展。</li>
+<li><strong>团队介绍</strong>：突出成员的背景和相关成就。</li>
+</ul>
+</li>
+<li><p><strong>打造产品与数据</strong>：</p>
+<ul>
+<li>拥有一个<strong>可运行、安全审计过的产品原型或主网</strong>是巨大加分项。</li>
+<li><strong>关键数据指标</strong>：如TVL、用户数、交易量、社区规模（Twitter、Discord成员活跃度）等。</li>
+</ul>
+</li>
+<li><p><strong>建立行业关系与背书</strong>：</p>
+<ul>
+<li>积极参与行业会议和黑客松。</li>
+<li>寻求其他知名投资人、顾问或合作伙伴的推荐。<strong>这正是您提到的Web3Labs等孵化器的价值所在</strong>——通过它们获得孵化和推荐，能极大增加接触到KuCoin Labs核心团队并取得信任的机会。</li>
+</ul>
+</li>
+</ol>
+<h3 id="第三步：主动且专业的接触（外功展示）"><a href="#第三步：主动且专业的接触（外功展示）" class="headerlink" title="第三步：主动且专业的接触（外功展示）"></a><strong>第三步：主动且专业的接触（外功展示）</strong></h3><ol>
+<li><p><strong>寻找官方渠道</strong>：</p>
+<ul>
+<li>关注KuCoin Labs的<strong>官方网站、博客和官方社交媒体</strong>（Twitter, LinkedIn），了解他们最新的投资主题、投资组合和团队动态。</li>
+<li>查看他们是否公布了<strong>官方投递邮箱</strong>或合作伙伴申请入口。</li>
+</ul>
+</li>
+<li><p><strong>利用网络引荐（最有效的方式）</strong>：</p>
+<ul>
+<li>通过<strong>共同的投资人、已投项目创始人、行业KOL或合作孵化器（如您提到的Web3Labs）</strong> 进行内部推荐。这远比冷邮件有效得多。</li>
+<li>参加KuCoin Labs主办或赞助的活动，争取与团队直接交流的机会。</li>
+</ul>
+</li>
+<li><p><strong>准备一场精彩的演讲</strong>：</p>
+<ul>
+<li>如果获得会议机会，在15-20分钟内清晰地阐述你的项目亮点、与KuCoin生态的协同效应以及为什么需要他们的资金和资源支持。</li>
+</ul>
+</li>
+</ol>
+<h3 id="第四步：保持耐心，建立长期关系"><a href="#第四步：保持耐心，建立长期关系" class="headerlink" title="第四步：保持耐心，建立长期关系"></a><strong>第四步：保持耐心，建立长期关系</strong></h3><p>风投决策流程通常较长，可能涉及多轮会议、技术尽调、团队访谈和条款谈判。即使暂时没有获得投资，保持专业、定期更新项目进展，建立长期关系对未来合作也有利。</p>
+<h3 id="关键总结与提醒"><a href="#关键总结与提醒" class="headerlink" title="关键总结与提醒"></a><strong>关键总结与提醒</strong></h3><ul>
+<li><strong>核心价值是生态协同</strong>：始终思考并展示“我的项目如何能让KuCoin变得更好？”</li>
+<li><strong>质量高于一切</strong>：扎实的产品、数据和团队是根本。</li>
+<li><strong>善用桥梁</strong>：像<strong>Web3Labs</strong>这样的合作伙伴，不仅了解KuCoin Labs的偏好，还能提供孵化和引荐，是利用您现有信息的关键一步。</li>
+<li><strong>警惕诈骗</strong>：所有接触应通过官方渠道验证。真正的风投不会在投资前要求支付任何费用。</li>
+</ul>
+<p><strong>最终，获得KuCoin Labs投资是一场关于项目质量、战略契合度和团队执行力的综合考试。</strong> 做好充分准备，并利用好生态内的资源网络，将能显著提高成功概率。祝您好运！</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Web3/">Web3</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/01/18/55831.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Starknet 训练营-课程笔记4</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/01/17/55872.html">
+                        <span class="hidden-mobile">whale-valut-三方角色网关 (Tri-Role Gateway)</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>

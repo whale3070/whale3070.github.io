@@ -1,0 +1,590 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>Starknet 训练营-课程笔记4 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/search/">
+                <i class="iconfont icon-search"></i>
+                搜索
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="Starknet 训练营-课程笔记4">
+                      
+                        Starknet 训练营-课程笔记4
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-01-22 10:24" pubdate>
+        2026年1月22日 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      34
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">Starknet 训练营-课程笔记4</h1>
+            
+            <div class="markdown-body">
+              <p>Task4：<a target="_blank" rel="noopener" href="https://wj.qq.com/s2/25470592/18pd/">https://wj.qq.com/s2/25470592/18pd/</a></p>
+<h1 id="为什么仅有智能合约还不足以发布一个完整应用？"><a href="#为什么仅有智能合约还不足以发布一个完整应用？" class="headerlink" title="为什么仅有智能合约还不足以发布一个完整应用？"></a>为什么仅有智能合约还不足以发布一个完整应用？</h1><p>A. 合约不能部署到主网<br>B. 合约无法处理用户输入<br>C. 应用还需要前端或移动端与合约进行交互<br>D. 合约无法存储状态</p>
+<h3 id="正确答案：C"><a href="#正确答案：C" class="headerlink" title="正确答案：C"></a>正确答案：<strong>C</strong></h3><h3 id="核心原因解析"><a href="#核心原因解析" class="headerlink" title="核心原因解析"></a>核心原因解析</h3><p>智能合约本质是<strong>运行在区块链上的后端逻辑代码</strong>，负责处理业务规则、状态存储、交易执行等核心功能，但它本身无法直接触达终端用户。一个完整的去中心化应用（DApp）需要<strong>前端&#x2F;移动端与智能合约协同工作</strong>，原因如下：</p>
+<ol>
+<li><p><strong>用户交互层缺失</strong><br>智能合约没有可视化界面，普通用户无法直接通过区块链节点调用合约方法（如发起转账、铸造NFT）。必须通过前端页面（Web&#x2F;H5）、移动端App等载体，将用户操作（点击按钮、填写表单）转化为区块链交易请求，再通过钱包（如MetaMask、Trust Wallet）签名后发送至合约。</p>
+</li>
+<li><p><strong>选项排除逻辑</strong></p>
+<ul>
+<li><strong>A错误</strong>：智能合约的核心价值就是部署到主网（如以太坊、Monad）才能实现去中心化运行，部署是发布应用的必要步骤而非障碍。</li>
+<li><strong>B错误</strong>：合约可以通过<strong>交易参数</strong>接收用户输入（例如调用<code>mintNFT(address to, uint256 tokenId)</code>时，<code>to</code>和<code>tokenId</code>就是用户传入的参数），只是需要前端作为参数传递的中介。</li>
+<li><strong>D错误</strong>：智能合约的核心特性之一就是<strong>状态存储</strong>（例如NFT合约存储所有权映射、DeFi合约存储用户余额），区块链的持久化特性保证了合约状态的不可篡改。</li>
+</ul>
+</li>
+</ol>
+<h3 id="补充：完整DApp的技术架构（以你的「图书金库NFT终焉大盘系统」为例）"><a href="#补充：完整DApp的技术架构（以你的「图书金库NFT终焉大盘系统」为例）" class="headerlink" title="补充：完整DApp的技术架构（以你的「图书金库NFT终焉大盘系统」为例）"></a>补充：完整DApp的技术架构（以你的「图书金库NFT终焉大盘系统」为例）</h3><table>
+<thead>
+<tr>
+<th>层级</th>
+<th>核心功能</th>
+<th>技术示例（Web3场景）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>前端层</strong></td>
+<td>用户交互、数据展示、交易签名</td>
+<td>React&#x2F;Vue构建页面，Ethers.js&#x2F;Web3.js对接合约</td>
+</tr>
+<tr>
+<td><strong>智能合约层</strong></td>
+<td>业务逻辑、状态管理、交易执行</td>
+<td>Solidity&#x2F;Monad合约编写，实现NFT铸造&#x2F;查询逻辑</td>
+</tr>
+<tr>
+<td><strong>区块链层</strong></td>
+<td>合约部署、交易上链、状态共识</td>
+<td>Monad主网&#x2F;测试网，节点验证与数据存储</td>
+</tr>
+</tbody></table>
+<p>对于黑客松开发或生产级DApp而言，前端与合约的交互效率（如通过RPC节点优化请求速度、处理链上数据异步返回）直接影响用户体验，这也是Web3开发者需要重点打磨的环节。</p>
+<h1 id="Starknet-js-中，Account-类的主要职责是？，-单选"><a href="#Starknet-js-中，Account-类的主要职责是？，-单选" class="headerlink" title="Starknet.js 中，Account 类的主要职责是？， 单选"></a>Starknet.js 中，Account 类的主要职责是？， 单选</h1><p>A. 编译合约<br>B. 管理账户、签名并发送交易<br>C. 监听事件<br>D. 存储合约 ABI</p>
+<p>正确答案：<strong>B</strong></p>
+<h3 id="核心解析"><a href="#核心解析" class="headerlink" title="核心解析"></a>核心解析</h3><p>Starknet.js 中的 <code>Account</code> 类是<strong>与Starknet账户交互的核心类</strong>，专门封装了账户相关的核心能力，也是开发者操作Starknet账户的主要入口，其核心职责就是<strong>管理账户、对交易进行签名并发送至Starknet网络</strong>，对应选项B。</p>
+<p>简单来说，<code>Account</code> 类就像你在Starknet网络中的「操作终端」，所有需要以账户身份执行的操作（比如调用合约、发起转账），都需要通过它完成<strong>签名（证明是账户持有者操作）</strong> 和<strong>交易发送（提交到网络执行）</strong>，同时它会管理账户地址、私钥&#x2F;签名器等核心账户信息。</p>
+<h3 id="选项排除逻辑"><a href="#选项排除逻辑" class="headerlink" title="选项排除逻辑"></a>选项排除逻辑</h3><ul>
+<li><strong>A错误</strong>：Starknet.js中<strong>编译合约</strong>的能力由专门的工具&#x2F;类实现（如<code>starknet-compile</code>、<code>ContractCompiler</code>等），<code>Account</code> 类不涉及编译逻辑。</li>
+<li><strong>C错误</strong>：<strong>监听链上事件</strong>是Starknet.js中 <code>Provider</code> 类的核心能力之一（通过<code>provider.onEvent()</code>等方法），<code>Account</code> 类无事件监听的封装，事件监听是网络层的能力，而非账户层。</li>
+<li><strong>D错误</strong>：<strong>合约ABI</strong> 是开发者在创建<code>Contract</code>实例时手动传入的参数，仅作为合约交互的「接口说明」，不会由<code>Account</code> 类存储，<code>Account</code> 也不负责管理ABI相关数据。</li>
+</ul>
+<h3 id="补充：Starknet-js中核心类的职责区分（易混点）"><a href="#补充：Starknet-js中核心类的职责区分（易混点）" class="headerlink" title="补充：Starknet.js中核心类的职责区分（易混点）"></a>补充：Starknet.js中核心类的职责区分（易混点）</h3><table>
+<thead>
+<tr>
+<th>核心类</th>
+<th>核心职责</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Account</code></td>
+<td>账户管理、交易签名、交易发送</td>
+</tr>
+<tr>
+<td><code>Provider</code></td>
+<td>网络连接、事件监听、查询链上数据（如区块、交易状态）</td>
+</tr>
+<tr>
+<td><code>Contract</code></td>
+<td>对接智能合约、调用合约方法（需结合Account签名）</td>
+</tr>
+</tbody></table>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>Starknet.js中<code>Account</code>类的核心是<strong>账户操作与交易签名发送</strong>，是执行账户级操作的核心入口，也是区分「无签名的合约调用」和「有效链上交易」的关键类。</p>
+<h1 id="用于读取合约状态的-Starknet-react-Hook-是？"><a href="#用于读取合约状态的-Starknet-react-Hook-是？" class="headerlink" title="用于读取合约状态的 Starknet-react Hook 是？"></a>用于读取合约状态的 Starknet-react Hook 是？</h1><p>A. useSendTransaction<br>B. useAccount<br>C. useReadContract<br>D. useProvider</p>
+<p>正确答案：<strong>C</strong></p>
+<h3 id="核心解析-1"><a href="#核心解析-1" class="headerlink" title="核心解析"></a>核心解析</h3><p>Starknet-react 是专门为 Starknet 生态设计的 React 开发库，其封装的 Hook 严格遵循<strong>功能单一性</strong>原则，<code>useReadContract</code> 是专门用于<strong>读取Starknet智能合约的状态&#x2F;只读方法</strong>的 Hook，直接对应「读取合约状态」的需求。</p>
+<p>简单来说，合约中无需签名、仅做数据查询的方法（比如查询NFT余额、代币持仓、合约配置参数等只读操作），都通过 <code>useReadContract</code> 实现，它会封装好与合约的只读交互逻辑，自动处理请求、返回数据和加载&#x2F;错误状态，是前端读取Starknet合约状态的核心Hook。</p>
+<h3 id="选项排除逻辑-1"><a href="#选项排除逻辑-1" class="headerlink" title="选项排除逻辑"></a>选项排除逻辑</h3><ul>
+<li><strong>A错误</strong>：<code>useSendTransaction</code> 用于<strong>发送需要签名的链上交易</strong>（比如调用合约的转账、铸造、修改状态方法），是「写操作」Hook，与「读取合约状态」的读操作完全相反。</li>
+<li><strong>B错误</strong>：<code>useAccount</code> 用于<strong>获取当前连接的Starknet钱包账户信息</strong>（比如账户地址、是否连接、签名器实例等），仅管理账户相关状态，不涉及合约交互。</li>
+<li><strong>D错误</strong>：<code>useProvider</code> 用于<strong>获取Starknet的Provider实例</strong>，Provider是网络连接核心，仅提供底层的链上查询、事件监听能力，不直接封装「合约状态读取」的业务逻辑，需手动结合合约ABI调用，而非专用的合约读Hook。</li>
+</ul>
+<h3 id="补充：Starknet-react-核心常用Hook-职责区分（开发高频用）"><a href="#补充：Starknet-react-核心常用Hook-职责区分（开发高频用）" class="headerlink" title="补充：Starknet-react 核心常用Hook 职责区分（开发高频用）"></a>补充：Starknet-react 核心常用Hook 职责区分（开发高频用）</h3><table>
+<thead>
+<tr>
+<th>Hook 名称</th>
+<th>核心职责</th>
+<th>操作类型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>useReadContract</code></td>
+<td>读取合约状态&#x2F;调用合约只读方法</td>
+<td>读操作（无需签名）</td>
+</tr>
+<tr>
+<td><code>useSendTransaction</code></td>
+<td>发送签名交易、调用合约写方法</td>
+<td>写操作（需要账户）</td>
+</tr>
+<tr>
+<td><code>useAccount</code></td>
+<td>获取当前连接的钱包账户信息</td>
+<td>账户状态管理</td>
+</tr>
+<tr>
+<td><code>useProvider</code></td>
+<td>获取Starknet Provider实例</td>
+<td>底层网络能力</td>
+</tr>
+<tr>
+<td><code>useContract</code></td>
+<td>初始化合约实例（结合ABI&#x2F;地址）</td>
+<td>合约实例封装</td>
+</tr>
+</tbody></table>
+<h3 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>Starknet-react 中<strong>读合约状态的专用Hook是useReadContract</strong>，适配所有合约只读操作；</li>
+<li>读操作（useReadContract）无需账户签名，写操作（useSendTransaction）依赖useAccount获取的账户；</li>
+<li>useProvider&#x2F;useAccount是基础能力Hook，不直接负责合约的读&#x2F;写交互。</li>
+</ol>
+<h1 id="Scaffold-Stark-在工具抽象层级上属于哪一类？"><a href="#Scaffold-Stark-在工具抽象层级上属于哪一类？" class="headerlink" title="Scaffold Stark 在工具抽象层级上属于哪一类？"></a>Scaffold Stark 在工具抽象层级上属于哪一类？</h1><p>A. 最底层 SDK<br>B. 仅合约工具<br>C. 前端组件库<br>D. 全栈开发脚手架</p>
+<p>正确答案：<strong>D</strong></p>
+<h3 id="核心解析-2"><a href="#核心解析-2" class="headerlink" title="核心解析"></a>核心解析</h3><p>Scaffold Stark 是<strong>Starknet生态专属的全栈开发脚手架</strong>，它并非单一功能的工具&#x2F;库，而是整合了Starknet开发全流程所需的<strong>合约层、前端层、开发工具链、部署脚本</strong>等所有核心能力的一站式开发框架，能让开发者快速初始化一个可直接开发、调试、部署的Starknet去中心化应用（DApp）项目，对应选项D。</p>
+<p>简单来说，Scaffold Stark 就像Starknet开发的「项目模板+工具集」，开箱即用包含<strong>Solidity&#x2F;Cairo合约模板、React+Starknet-react的前端工程、合约编译&#x2F;部署&#x2F;测试脚本、链上交互封装</strong>等全栈能力，开发者无需从零搭建项目架构，直接基于它开发业务逻辑即可，大幅降低Starknet全栈DApp的开发门槛。</p>
+<h3 id="选项排除逻辑-2"><a href="#选项排除逻辑-2" class="headerlink" title="选项排除逻辑"></a>选项排除逻辑</h3><ul>
+<li><strong>A错误</strong>：最底层SDK指的是Starknet.js、Starkli这类直接对接Starknet底层协议的工具，Scaffold Stark<strong>基于这些底层SDK进行了更高层级的封装</strong>，并非底层SDK本身。</li>
+<li><strong>B错误</strong>：Scaffold Stark 不仅包含合约相关工具（编译、部署、测试），还整合了完整的前端工程、交互逻辑、开发环境配置，<strong>远不止合约工具的范畴</strong>。</li>
+<li><strong>C错误</strong>：前端组件库仅聚焦前端UI&#x2F;交互组件的封装（如Starknet的钱包连接组件、交易按钮组件），而Scaffold Stark 是<strong>全栈架构</strong>，前端只是其一部分，核心价值是整合全栈开发流程，并非单纯的前端组件库。</li>
+</ul>
+<h3 id="补充：Scaffold-Stark-的核心整合能力（全栈特性）"><a href="#补充：Scaffold-Stark-的核心整合能力（全栈特性）" class="headerlink" title="补充：Scaffold Stark 的核心整合能力（全栈特性）"></a>补充：Scaffold Stark 的核心整合能力（全栈特性）</h3><p>Scaffold Stark 作为全栈脚手架，核心整合了Starknet开发的「合约+前端+工具」三大核心模块，典型能力包括：</p>
+<ol>
+<li><strong>合约层</strong>：内置Cairo合约模板（如ERC20&#x2F;ERC721）、合约编译&#x2F;部署&#x2F;测试脚本、本地节点适配；</li>
+<li><strong>前端层</strong>：基于React+Starknet-react搭建的前端工程，封装钱包连接、合约读写、交易状态展示等通用逻辑；</li>
+<li><strong>工具链</strong>：整合Starkli、Scarb、Hardhat-Starknet等Starknet核心开发工具，统一开发&#x2F;调试&#x2F;部署命令。</li>
+</ol>
+<h3 id="总结-2"><a href="#总结-2" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>Scaffold Stark 是Starknet生态的<strong>全栈开发脚手架</strong>，核心价值是整合全栈开发能力、快速初始化DApp项目；</li>
+<li>它基于Starknet.js等底层SDK封装，并非单一的合约工具&#x2F;前端组件库；</li>
+<li>这类脚手架的核心作用是<strong>提效</strong>，让开发者从「搭建项目架构」转向「专注业务开发」。</li>
+</ol>
+<h1 id="使用-Scaffold-Stark-的一个核心优势是？，-单选"><a href="#使用-Scaffold-Stark-的一个核心优势是？，-单选" class="headerlink" title="使用 Scaffold Stark 的一个核心优势是？， 单选"></a>使用 Scaffold Stark 的一个核心优势是？， 单选</h1><p>A. 自动帮你写合约逻辑<br>B. 减少版本兼容问题并提供最佳实践模板<br>C. 不需要学习 Cairo<br>D. 自动通过安全审计</p>
+<p>正确答案：<strong>B</strong></p>
+<h3 id="核心解析-3"><a href="#核心解析-3" class="headerlink" title="核心解析"></a>核心解析</h3><p>Scaffold Stark 作为Starknet生态的<strong>全栈开发脚手架</strong>，其核心设计目标是<strong>标准化Starknet DApp的开发流程</strong>——它会提前整合好生态中兼容的工具链、依赖版本，同时内置经过验证的Starknet开发最佳实践模板（合约层、前端层、部署流程均遵循生态规范），让开发者无需手动调试各类工具的版本适配问题，也不用从零摸索合规的开发架构，这是使用它的核心优势，直接对应选项B。</p>
+<p>简单来说，Scaffold Stark 帮开发者做好了<strong>开发环境的「底层基建」和「规范模板」</strong>，解决了Starknet开发中工具多、版本杂、新手易踩适配坑的核心痛点，大幅提升开发效率。</p>
+<h3 id="选项排除逻辑-3"><a href="#选项排除逻辑-3" class="headerlink" title="选项排除逻辑"></a>选项排除逻辑</h3><ul>
+<li><strong>A错误</strong>：Scaffold Stark 仅提供<strong>合约基础模板</strong>（如ERC20&#x2F;ERC721的Cairo基础代码），但<strong>不会自动编写业务相关的合约逻辑</strong>（比如NFT的铸造规则、DeFi的计息逻辑），核心业务逻辑仍需开发者根据需求自主开发。</li>
+<li><strong>C错误</strong>：使用Scaffold Stark 开发Starknet合约，本质还是基于<strong>Cairo语言</strong>进行开发（脚手架内置的是Cairo合约模板），开发者仍需掌握Cairo的基础语法和开发规范，无法跳过Cairo的学习。</li>
+<li><strong>D错误</strong>：Scaffold Stark 仅提供<strong>开发层面的最佳实践</strong>，但<strong>不会自动完成安全审计</strong>，也无法保证开发者基于模板编写的业务代码无安全漏洞。智能合约的安全审计需要专业的审计团队&#x2F;工具（如Slither、CertiK）完成，脚手架不具备该能力。</li>
+</ul>
+<h3 id="补充：Scaffold-Stark-优势的实际开发体现"><a href="#补充：Scaffold-Stark-优势的实际开发体现" class="headerlink" title="补充：Scaffold Stark 优势的实际开发体现"></a>补充：Scaffold Stark 优势的实际开发体现</h3><p>在实际开发中，选项B的优势会直接体现在两个核心场景：</p>
+<ol>
+<li><strong>版本兼容</strong>：无需手动匹配Scarb、Starkli、Starknet.js、Starknet-react的版本，脚手架已整合好相互兼容的版本组合，避免出现「工具版本冲突导致编译&#x2F;部署失败」的问题；</li>
+<li><strong>最佳实践</strong>：前端层封装了标准化的钱包连接、合约读写、交易状态展示逻辑，合约层遵循Starknet生态的合约开发规范，部署层提供了测试网&#x2F;主网的标准化部署脚本，新手可直接基于规范开发，避免不规范的代码设计。</li>
+</ol>
+<h3 id="总结-3"><a href="#总结-3" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>Scaffold Stark 的核心优势是<strong>解决版本兼容痛点+提供生态最佳实践模板</strong>，让开发者聚焦业务开发而非环境搭建；</li>
+<li>它是「开发提效工具」，而非「代开发&#x2F;免学习&#x2F;自动审计工具」，核心业务开发、语言学习、安全审计仍需开发者自主完成；</li>
+<li>该优势对Starknet新手尤为重要，能大幅降低入门的试错成本。</li>
+</ol>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Web3/">Web3</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Starknet/">Starknet</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/01/22/27589.html">
+                        <span class="hidden-mobile">Polkadot Solidity开发-课程笔记13</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>

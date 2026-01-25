@@ -1,0 +1,545 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>whale-valut-三方角色网关 (Tri-Role Gateway) - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/search/">
+                <i class="iconfont icon-search"></i>
+                搜索
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="whale-valut-三方角色网关 (Tri-Role Gateway)">
+                      
+                        whale-valut-三方角色网关 (Tri-Role Gateway)
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-01-17 10:50" pubdate>
+        2026年1月17日 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.9k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      56
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">whale-valut-三方角色网关 (Tri-Role Gateway)</h1>
+            
+            <div class="markdown-body">
+              <h1 id="这个-map-go-文件已经具备了基础的逻辑架构，但要完全实现你描述的“三方角色分发（作者-出版社-读者）”，还需要对-verifyHandler-进行关键性的重构。"><a href="#这个-map-go-文件已经具备了基础的逻辑架构，但要完全实现你描述的“三方角色分发（作者-出版社-读者）”，还需要对-verifyHandler-进行关键性的重构。" class="headerlink" title="这个 map.go 文件已经具备了基础的逻辑架构，但要完全实现你描述的“三方角色分发（作者&#x2F;出版社&#x2F;读者）”，还需要对 verifyHandler 进行关键性的重构。"></a>这个 <code>map.go</code> 文件已经具备了基础的逻辑架构，但要完全实现你描述的“三方角色分发（作者&#x2F;出版社&#x2F;读者）”，还需要对 <strong><code>verifyHandler</code></strong> 进行关键性的重构。</h1><p>目前代码中仅判断了 <code>ADMIN_ADDRESS</code>（出版社）和 <code>codeHash</code>（读者），并没有接入 Redis 来动态识别<strong>作者地址</strong>。</p>
+<h3 id="1-修改建议"><a href="#1-修改建议" class="headerlink" title="1. 修改建议"></a>1. 修改建议</h3><p>为了符合你的要求，我们需要在 Redis 中维护两个集合（Set）：</p>
+<ul>
+<li><code>vault:roles:publishers</code>：存储出版社钱包地址。</li>
+<li><code>vault:roles:authors</code>：存储作者钱包地址。</li>
+</ul>
+<h3 id="2-代码修改方案"><a href="#2-代码修改方案" class="headerlink" title="2. 代码修改方案"></a>2. 代码修改方案</h3><p>请重点修改 <code>map.go</code> 中的 <code>verifyHandler</code> 函数，参考以下逻辑：</p>
+<figure class="highlight go"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">verifyHandler</span><span class="hljs-params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;<br>	<span class="hljs-comment">// 获取前端传来的地址和 HashCode</span><br>	address := strings.ToLower(r.URL.Query().Get(<span class="hljs-string">&quot;address&quot;</span>))<br>	codeHash := r.URL.Query().Get(<span class="hljs-string">&quot;codeHash&quot;</span>)<br><br>	<span class="hljs-keyword">if</span> address == <span class="hljs-string">&quot;&quot;</span> &#123;<br>		sendJSON(w, http.StatusBadRequest, CommonResponse&#123;Error: <span class="hljs-string">&quot;address is required&quot;</span>&#125;)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-comment">// 1. 检测是否为 出版社 (从 Redis 集合中判断)</span><br>	isPublisher, _ := rdb.SIsMember(ctx, <span class="hljs-string">&quot;vault:roles:publishers&quot;</span>, address).Result()<br>	<span class="hljs-keyword">if</span> isPublisher &#123;<br>		sendJSON(w, http.StatusOK, CommonResponse&#123;<br>			Ok: <span class="hljs-literal">true</span>, Status: <span class="hljs-string">&quot;PUBLISHER_DASHBOARD&quot;</span>, Role: <span class="hljs-string">&quot;publisher&quot;</span>,<br>		&#125;)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-comment">// 2. 检测是否为 作者 (从 Redis 集合中判断)</span><br>	isAuthor, _ := rdb.SIsMember(ctx, <span class="hljs-string">&quot;vault:roles:authors&quot;</span>, address).Result()<br>	<span class="hljs-keyword">if</span> isAuthor &#123;<br>		sendJSON(w, http.StatusOK, CommonResponse&#123;<br>			Ok: <span class="hljs-literal">true</span>, Status: <span class="hljs-string">&quot;AUTHOR_DASHBOARD&quot;</span>, Role: <span class="hljs-string">&quot;author&quot;</span>,<br>		&#125;)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-comment">// 3. 既不是作者也不是出版社，则检测是否为 读者 (验证 HashCode)</span><br>	<span class="hljs-keyword">if</span> codeHash != <span class="hljs-string">&quot;&quot;</span> &#123;<br>		isValid, _ := rdb.SIsMember(ctx, <span class="hljs-string">&quot;vault:codes:valid&quot;</span>, codeHash).Result()<br>		<span class="hljs-keyword">if</span> isValid &#123;<br>			sendJSON(w, http.StatusOK, CommonResponse&#123;<br>				Ok: <span class="hljs-literal">true</span>, Status: <span class="hljs-string">&quot;VALID_READER&quot;</span>, Role: <span class="hljs-string">&quot;reader&quot;</span>,<br>			&#125;)<br>			<span class="hljs-keyword">return</span><br>		&#125;<br>	&#125;<br><br>	<span class="hljs-comment">// 4. 没有任何权限</span><br>	sendJSON(w, http.StatusForbidden, CommonResponse&#123;<br>		Ok: <span class="hljs-literal">false</span>, Error: <span class="hljs-string">&quot;GUEST_ACCESS_DENIED&quot;</span>, Role: <span class="hljs-string">&quot;guest&quot;</span>,<br>	&#125;)<br>&#125;<br><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="3-需要配合的-Redis-预存操作"><a href="#3-需要配合的-Redis-预存操作" class="headerlink" title="3. 需要配合的 Redis 预存操作"></a>3. 需要配合的 Redis 预存操作</h3><p>在你的数据库初始化脚本或者通过 <code>redis-cli</code> 中，你需要预先存入数据，程序才能检测到：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 存入出版社地址</span><br>SADD vault:roles:publishers 0xYourPublisherAddress1<br>SADD vault:roles:publishers 0x9f5CbD02b1794B7a64749e6ff21715d03EA70834<br><br><span class="hljs-comment"># 存入作者地址</span><br>SADD vault:roles:authors 0xYourAuthorAddress1<br>SADD vault:roles:authors 0xYourAuthorAddress2<br>SADD vault:roles:authors 0x680c3EbB20ffBb142712980c692584DBd3E59a36<br><br></code></pre></div></td></tr></table></figure>
+
+<p>└─# cast wallet new<br>Warning: This is a nightly build of Foundry. It is recommended to use the latest stable version. To mute this warning set <code>FOUNDRY_DISABLE_NIGHTLY_WARNING</code> in your environment.</p>
+<p>Successfully created new keypair.<br>Address:     0x9f5CbD02b1794B7a64749e6ff21715d03EA70834    【出版社地址】<br>Private key: 0x3b71738de38f212833f98727e28a357b0a688e8d784bf48fb76538fb55cd048e</p>
+<p>Address:     0x680c3EbB20ffBb142712980c692584DBd3E59a36  【作者地址】<br>Private key: 0xa221850fc1af2fe678a7015d35c8b66db24a6db9acb0bf7a26448d0dcf3b4a97<br>（别白费力气了，这些钱包一毛钱也没有，未来也不会有）</p>
+<hr>
+<h3 id="4-总结你的-map-go-现状"><a href="#4-总结你的-map-go-现状" class="headerlink" title="4. 总结你的 map.go 现状"></a>4. 总结你的 <code>map.go</code> 现状</h3><ul>
+<li><strong>符合要求的地方</strong>：已经引入了 Redis 和以太坊客户端，基础架构非常扎实，具备 IP 地理位置分析能力（这对于出版社监控销量分布非常有用）。</li>
+<li><strong>需要改进的地方</strong>：</li>
+<li><strong>硬编码问题</strong>：原代码里出版社地址是读取环境变量 <code>ADMIN_ADDRESS</code>，建议改为从 Redis 读取，这样你以后增加多个出版社就不需要重启后端。</li>
+<li><strong>缺少作者判定</strong>：原代码完全没有作者角色的判定逻辑。</li>
+<li><strong>权限分发逻辑</strong>：目前的 <code>Role</code> 返回值需要前端配合 <code>window.location.href</code> 实现跳转。</li>
+</ul>
+<h3 id="下一个改进建议"><a href="#下一个改进建议" class="headerlink" title="下一个改进建议"></a>下一个改进建议</h3><p>你的 <code>distributionHandler</code> 正在通过 IP 获取地理位置。既然你现在有了“作者”和“出版社”后台，<strong>是否需要为出版社后台增加一个“防伪分布预警”？</strong> 例如：如果某个 Hash Code 在短时间内被多个不同国家的 IP 尝试验证，我们可以将其标记为“风险扫码”。你想让我帮你加上这个逻辑吗？</p>
+<h1 id="出版社登录后才显示热力图"><a href="#出版社登录后才显示热力图" class="headerlink" title="出版社登录后才显示热力图"></a>出版社登录后才显示热力图</h1><p>要在前端实现“出版社登录后才显示热力图”的功能，你需要对项目的路由（通常在 <code>App.tsx</code>）和登录组件进行调整。</p>
+<p>以下是具体的修改方案：</p>
+<h3 id="1-修改-App-tsx-或你的路由配置文件"><a href="#1-修改-App-tsx-或你的路由配置文件" class="headerlink" title="1. 修改 App.tsx (或你的路由配置文件)"></a>1. 修改 <code>App.tsx</code> (或你的路由配置文件)</h3><p>你需要定义不同的路由。不要让热力图 (<code>Heatmap.tsx</code>) 作为默认的读者页面。</p>
+<figure class="highlight tsx"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs tsx"><span class="hljs-comment">// src/App.tsx 示例</span><br><span class="hljs-keyword">import</span> &#123; <span class="hljs-title class_">BrowserRouter</span> <span class="hljs-keyword">as</span> <span class="hljs-title class_">Router</span>, <span class="hljs-title class_">Routes</span>, <span class="hljs-title class_">Route</span>, <span class="hljs-title class_">Navigate</span> &#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react-router-dom&#x27;</span>;<br><span class="hljs-keyword">import</span> <span class="hljs-title class_">Login</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./pages/Login&#x27;</span>;<br><span class="hljs-keyword">import</span> <span class="hljs-title class_">Heatmap</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./pages/Heatmap&#x27;</span>; <span class="hljs-comment">// 你的热力图文件</span><br><span class="hljs-keyword">import</span> <span class="hljs-title class_">AuthorDashboard</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./pages/AuthorDashboard&#x27;</span>;<br><span class="hljs-keyword">import</span> <span class="hljs-title class_">MintPage</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./pages/MintPage&#x27;</span>;<br><br><span class="hljs-keyword">function</span> <span class="hljs-title function_">App</span>(<span class="hljs-params"></span>) &#123;<br>  <span class="hljs-keyword">return</span> (<br>    <span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">Router</span>&gt;</span></span><br><span class="language-xml">      <span class="hljs-tag">&lt;<span class="hljs-name">Routes</span>&gt;</span></span><br><span class="language-xml">        <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">path</span>=<span class="hljs-string">&quot;/&quot;</span> <span class="hljs-attr">element</span>=<span class="hljs-string">&#123;</span>&lt;<span class="hljs-attr">Login</span> /&gt;</span>&#125; /&gt;</span><br><span class="language-xml">        &#123;/* 出版社后台，包含热力图 */&#125;</span><br><span class="language-xml">        <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">path</span>=<span class="hljs-string">&quot;/publisher/dashboard&quot;</span> <span class="hljs-attr">element</span>=<span class="hljs-string">&#123;</span>&lt;<span class="hljs-attr">Heatmap</span> /&gt;</span>&#125; /&gt; </span><br><span class="language-xml">        &#123;/* 作者后台 */&#125;</span><br><span class="language-xml">        <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">path</span>=<span class="hljs-string">&quot;/author/dashboard&quot;</span> <span class="hljs-attr">element</span>=<span class="hljs-string">&#123;</span>&lt;<span class="hljs-attr">AuthorDashboard</span> /&gt;</span>&#125; /&gt;</span><br><span class="language-xml">        &#123;/* 普通读者领取代币页面 */&#125;</span><br><span class="language-xml">        <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">path</span>=<span class="hljs-string">&quot;/mint&quot;</span> <span class="hljs-attr">element</span>=<span class="hljs-string">&#123;</span>&lt;<span class="hljs-attr">MintPage</span> /&gt;</span>&#125; /&gt;</span><br><span class="language-xml">      <span class="hljs-tag">&lt;/<span class="hljs-name">Routes</span>&gt;</span></span><br><span class="language-xml">    <span class="hljs-tag">&lt;/<span class="hljs-name">Router</span>&gt;</span></span><br>  );<br>&#125;<br><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="2-修改登录逻辑-处理后端返回的-Role"><a href="#2-修改登录逻辑-处理后端返回的-Role" class="headerlink" title="2. 修改登录逻辑 (处理后端返回的 Role)"></a>2. 修改登录逻辑 (处理后端返回的 <code>Role</code>)</h3><p>在你的登录页面（假设是 <code>Login.tsx</code>），当连接钱包并调用 <code>/secret/verify</code> 后，根据后端返回的 <code>role</code> 字段进行跳转。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs typescript"><span class="hljs-keyword">const</span> <span class="hljs-title function_">handleLogin</span> = <span class="hljs-keyword">async</span> (<span class="hljs-params"><span class="hljs-attr">address</span>: <span class="hljs-built_in">string</span>, <span class="hljs-attr">codeHash</span>: <span class="hljs-built_in">string</span></span>) =&gt; &#123;<br>  <span class="hljs-keyword">try</span> &#123;<br>    <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> <span class="hljs-title function_">fetch</span>(<span class="hljs-string">`http://localhost:8080/secret/verify?address=<span class="hljs-subst">$&#123;address&#125;</span>&amp;codeHash=<span class="hljs-subst">$&#123;codeHash&#125;</span>`</span>);<br>    <span class="hljs-keyword">const</span> data = <span class="hljs-keyword">await</span> response.<span class="hljs-title function_">json</span>();<br><br>    <span class="hljs-keyword">if</span> (data.<span class="hljs-property">ok</span>) &#123;<br>      <span class="hljs-comment">// 关键跳转逻辑</span><br>      <span class="hljs-keyword">if</span> (data.<span class="hljs-property">role</span> === <span class="hljs-string">&#x27;publisher&#x27;</span>) &#123;<br>        <span class="hljs-title function_">navigate</span>(<span class="hljs-string">&#x27;/publisher/dashboard&#x27;</span>); <span class="hljs-comment">// 跳转到热力图页面</span><br>      &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (data.<span class="hljs-property">role</span> === <span class="hljs-string">&#x27;author&#x27;</span>) &#123;<br>        <span class="hljs-title function_">navigate</span>(<span class="hljs-string">&#x27;/author/dashboard&#x27;</span>);<br>      &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (data.<span class="hljs-property">role</span> === <span class="hljs-string">&#x27;reader&#x27;</span>) &#123;<br>        <span class="hljs-title function_">navigate</span>(<span class="hljs-string">&#x27;/mint&#x27;</span>); <span class="hljs-comment">// 读者去领 NFT，看不到地图</span><br>      &#125;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>      <span class="hljs-title function_">alert</span>(<span class="hljs-string">&quot;验证失败: &quot;</span> + data.<span class="hljs-property">error</span>);<br>    &#125;<br>  &#125; <span class="hljs-keyword">catch</span> (err) &#123;<br>    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(err);<br>  &#125;<br>&#125;;<br><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="3-优化-Heatmap-tsx"><a href="#3-优化-Heatmap-tsx" class="headerlink" title="3. 优化 Heatmap.tsx"></a>3. 优化 <code>Heatmap.tsx</code></h3><p>既然这个页面现在是“出版社专属”，你可以微调一下标题和样式，使其更专业。</p>
+<ul>
+<li><strong>修改标题</strong>：将 <code>WHALE VAULT - 读者分布回响图</code> 改为 <code>出版社全球发行监控大屏</code>。</li>
+<li><strong>增加权限保护</strong>：防止别人直接输入 URL 访问。</li>
+</ul>
+<figure class="highlight tsx"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs tsx"><span class="hljs-comment">// /src/pages/Heatmap.tsx 修改建议</span><br><span class="hljs-comment">// 在 useEffect 的 initChart 开头增加：</span><br><span class="hljs-keyword">const</span> userRole = <span class="hljs-variable language_">localStorage</span>.<span class="hljs-title function_">getItem</span>(<span class="hljs-string">&#x27;user_role&#x27;</span>); <span class="hljs-comment">// 假设你登录时存了角色</span><br><span class="hljs-keyword">if</span> (userRole !== <span class="hljs-string">&#x27;publisher&#x27;</span>) &#123;<br>    <span class="hljs-comment">// navigate(&#x27;/&#x27;); // 强行弹回</span><br>&#125;<br><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="4-创建简单的-MintPage-tsx-给读者看"><a href="#4-创建简单的-MintPage-tsx-给读者看" class="headerlink" title="4. 创建简单的 MintPage.tsx (给读者看)"></a>4. 创建简单的 <code>MintPage.tsx</code> (给读者看)</h3><p>把之前放在热力图底部的 NFT 领取逻辑移动到一个干净的页面。</p>
+<figure class="highlight tsx"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs tsx"><span class="hljs-comment">// src/pages/MintPage.tsx</span><br><span class="hljs-keyword">const</span> <span class="hljs-title function_">MintPage</span> = (<span class="hljs-params"></span>) =&gt; &#123;<br>  <span class="hljs-keyword">return</span> (<br>    <span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;flex flex-col items-center justify-center h-screen bg-slate-900 text-white&quot;</span>&gt;</span></span><br><span class="language-xml">      <span class="hljs-tag">&lt;<span class="hljs-name">h1</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;text-3xl font-bold mb-8&quot;</span>&gt;</span>NFT 领取中心<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span></span><br><span class="language-xml">      <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;p-8 bg-slate-800 rounded-xl border border-cyan-500/30&quot;</span>&gt;</span></span><br><span class="language-xml">        <span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;mb-4&quot;</span>&gt;</span>检测到您的读者身份，点击下方按钮领取 NFT<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span></span><br><span class="language-xml">        <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;bg-cyan-500 px-6 py-2 rounded-lg font-bold&quot;</span>&gt;</span>立即 Mint<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span></span><br><span class="language-xml">      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span><br><span class="language-xml">    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span><br>  );<br>&#125;;<br><br></code></pre></div></td></tr></table></figure>
+
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ol>
+<li><strong>后端</strong>：已经能识别 <code>role: &quot;publisher&quot;</code>。</li>
+<li><strong>前端路由</strong>：将 <code>/api/v1/analytics/distribution</code> 的展示绑定到 <code>/publisher/dashboard</code>。</li>
+<li><strong>分流</strong>：在登录成功回调里，根据 <code>role</code> 字符串决定使用 <code>Maps()</code> 去哪个 URL。</li>
+</ol>
+<p><strong>下一步建议：</strong><br>如果你需要，我可以帮你写一个 <strong><code>AuthorDashboard.tsx</code></strong> 的代码模板，专门给作者显示“实时版税累计”和“Arweave 原始数据链接”。你想看看作者后台应该长什么样吗？</p>
+<h1 id="更换个人钱包地址"><a href="#更换个人钱包地址" class="headerlink" title="更换个人钱包地址"></a>更换个人钱包地址</h1><p>非常抱歉，我完全理解了。你的核心逻辑是：<strong>“钱包地址决定身份”</strong>。</p>
+<p>虽然这些地址由你预先分配且没有 Gas（钱），但它们是唯一的身份标识。用户通过扫码（Hash Code）进入系统后，系统首先根据 Code 找到<strong>绑定的预分配钱包地址</strong>，然后根据这个<strong>地址</strong>去 Redis 角色池里匹配，决定跳转到出版社后台、作者后台还是普通领取页面。</p>
+<h3 id="1-完整版-App-tsx-基于地址的路由分流"><a href="#1-完整版-App-tsx-基于地址的路由分流" class="headerlink" title="1. 完整版 App.tsx (基于地址的路由分流)"></a>1. 完整版 <code>App.tsx</code> (基于地址的路由分流)</h3><p>我们需要在 <code>App.tsx</code> 中增加一个 <code>AuthGate</code> 组件。它的逻辑是：</p>
+<ol>
+<li>提取 URL 中的 <code>hashCode</code>。</li>
+<li>请求 <code>/secret/get-binding</code> 获取该 Code 绑定的<strong>钱包地址</strong>。</li>
+<li>拿着这个地址去请求 <code>/secret/verify</code> 识别身份。</li>
+<li>根据返回的 <code>Role</code> 进行跳转。</li>
+</ol>
+<figure class="highlight tsx"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs tsx"><span class="hljs-keyword">import</span> <span class="hljs-title class_">React</span>, &#123; useEffect &#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react&#x27;</span><br><span class="hljs-keyword">import</span> &#123; <span class="hljs-title class_">BrowserRouter</span>, <span class="hljs-title class_">Routes</span>, <span class="hljs-title class_">Route</span>, useNavigate, useParams &#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react-router-dom&#x27;</span><br><span class="hljs-keyword">import</span> <span class="hljs-title class_">Home</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./pages/Home&#x27;</span><br><span class="hljs-keyword">import</span> <span class="hljs-title class_">MintConfirm</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./pages/MintConfirm&#x27;</span><br><span class="hljs-keyword">import</span> <span class="hljs-title class_">Success</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./pages/Success&#x27;</span><br><span class="hljs-keyword">import</span> <span class="hljs-title class_">Heatmap</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./pages/Heatmap&#x27;</span><br><br><span class="hljs-comment">// 核心：身份分流中转站</span><br><span class="hljs-keyword">function</span> <span class="hljs-title function_">AuthGate</span>(<span class="hljs-params"></span>) &#123;<br>  <span class="hljs-keyword">const</span> &#123; hashCode &#125; = <span class="hljs-title function_">useParams</span>();<br>  <span class="hljs-keyword">const</span> navigate = <span class="hljs-title function_">useNavigate</span>();<br><br>  <span class="hljs-title function_">useEffect</span>(<span class="hljs-function">() =&gt;</span> &#123;<br>    <span class="hljs-keyword">const</span> <span class="hljs-title function_">identifyAndRedirect</span> = <span class="hljs-keyword">async</span> (<span class="hljs-params"></span>) =&gt; &#123;<br>      <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">// 第一步：根据 Code 获取绑定的预分配钱包地址</span><br>        <span class="hljs-keyword">const</span> bindRes = <span class="hljs-keyword">await</span> <span class="hljs-title function_">fetch</span>(<span class="hljs-string">`http://localhost:8080/secret/get-binding?codeHash=<span class="hljs-subst">$&#123;hashCode&#125;</span>`</span>);<br>        <span class="hljs-keyword">const</span> bindData = <span class="hljs-keyword">await</span> bindRes.<span class="hljs-title function_">json</span>();<br>        <span class="hljs-keyword">const</span> userAddress = bindData.<span class="hljs-property">address</span>;<br><br>        <span class="hljs-keyword">if</span> (!userAddress) &#123;<br>          <span class="hljs-title function_">navigate</span>(<span class="hljs-string">&#x27;/?error=no_binding&#x27;</span>);<br>          <span class="hljs-keyword">return</span>;<br>        &#125;<br><br>        <span class="hljs-comment">// 第二步：根据钱包地址验证角色</span><br>        <span class="hljs-keyword">const</span> verifyRes = <span class="hljs-keyword">await</span> <span class="hljs-title function_">fetch</span>(<span class="hljs-string">`http://localhost:8080/secret/verify?address=<span class="hljs-subst">$&#123;userAddress&#125;</span>&amp;codeHash=<span class="hljs-subst">$&#123;hashCode&#125;</span>`</span>);<br>        <span class="hljs-keyword">const</span> verifyData = <span class="hljs-keyword">await</span> verifyRes.<span class="hljs-title function_">json</span>();<br><br>        <span class="hljs-keyword">if</span> (verifyData.<span class="hljs-property">ok</span>) &#123;<br>          <span class="hljs-comment">// 根据后端 verifyHandler 返回的 Role 字段跳转</span><br>          <span class="hljs-keyword">if</span> (verifyData.<span class="hljs-property">role</span> === <span class="hljs-string">&#x27;publisher&#x27;</span>) &#123;<br>            <span class="hljs-title function_">navigate</span>(<span class="hljs-string">&#x27;/heatmap&#x27;</span>);<br>          &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (verifyData.<span class="hljs-property">role</span> === <span class="hljs-string">&#x27;author&#x27;</span>) &#123;<br>            <span class="hljs-title function_">navigate</span>(<span class="hljs-string">&#x27;/author/dashboard&#x27;</span>);<br>          &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-comment">// 读者身份，进入领取确认页</span><br>            <span class="hljs-title function_">navigate</span>(<span class="hljs-string">`/valut_mint_nft/<span class="hljs-subst">$&#123;hashCode&#125;</span>`</span>);<br>          &#125;<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>          <span class="hljs-title function_">navigate</span>(<span class="hljs-string">&#x27;/?error=unauthorized&#x27;</span>);<br>        &#125;<br>      &#125; <span class="hljs-keyword">catch</span> (err) &#123;<br>        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">&quot;Auth Error:&quot;</span>, err);<br>      &#125;<br>    &#125;;<br><br>    <span class="hljs-keyword">if</span> (hashCode) <span class="hljs-title function_">identifyAndRedirect</span>();<br>  &#125;, [hashCode, navigate]);<br><br>  <span class="hljs-keyword">return</span> (<br>    <span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;min-h-screen bg-[#0f172a] flex items-center justify-center text-cyan-500&quot;</span>&gt;</span></span><br><span class="language-xml">      <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;animate-pulse&quot;</span>&gt;</span>正在识别预分配钱包身份...<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span><br><span class="language-xml">    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span><br>  );<br>&#125;<br><br><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">App</span>(<span class="hljs-params"></span>) &#123;<br>  <span class="hljs-keyword">return</span> (<br>    <span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">BrowserRouter</span>&gt;</span></span><br><span class="language-xml">      <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;min-h-screen bg-[#0f172a]&quot;</span>&gt;</span> </span><br><span class="language-xml">        <span class="hljs-tag">&lt;<span class="hljs-name">main</span>&gt;</span></span><br><span class="language-xml">          <span class="hljs-tag">&lt;<span class="hljs-name">Routes</span>&gt;</span></span><br><span class="language-xml">            &#123;/* 扫码后的统一入口 */&#125;</span><br><span class="language-xml">            <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">path</span>=<span class="hljs-string">&quot;/verify/:hashCode&quot;</span> <span class="hljs-attr">element</span>=<span class="hljs-string">&#123;</span>&lt;<span class="hljs-attr">AuthGate</span> /&gt;</span>&#125; /&gt;</span><br><span class="language-xml">            </span><br><span class="language-xml">            &#123;/* 基础页面 */&#125;</span><br><span class="language-xml">            <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">path</span>=<span class="hljs-string">&quot;/&quot;</span> <span class="hljs-attr">element</span>=<span class="hljs-string">&#123;</span>&lt;<span class="hljs-attr">Home</span> /&gt;</span>&#125; /&gt;</span><br><span class="language-xml">            <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">path</span>=<span class="hljs-string">&quot;/valut_mint_nft/:hashCode&quot;</span> <span class="hljs-attr">element</span>=<span class="hljs-string">&#123;</span>&lt;<span class="hljs-attr">MintConfirm</span> /&gt;</span>&#125; /&gt;</span><br><span class="language-xml">            <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">path</span>=<span class="hljs-string">&quot;/success&quot;</span> <span class="hljs-attr">element</span>=<span class="hljs-string">&#123;</span>&lt;<span class="hljs-attr">Success</span> /&gt;</span>&#125; /&gt;</span><br><span class="language-xml">            <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">path</span>=<span class="hljs-string">&quot;/heatmap&quot;</span> <span class="hljs-attr">element</span>=<span class="hljs-string">&#123;</span>&lt;<span class="hljs-attr">Heatmap</span> /&gt;</span>&#125; /&gt;</span><br><span class="language-xml">            </span><br><span class="language-xml">            &#123;/* 预留作者页面 */&#125;</span><br><span class="language-xml">            &#123;/* <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">path</span>=<span class="hljs-string">&quot;/author/dashboard&quot;</span> <span class="hljs-attr">element</span>=<span class="hljs-string">&#123;</span>&lt;<span class="hljs-attr">AuthorDashboard</span> /&gt;</span>&#125; /&gt; */&#125;</span><br><span class="language-xml">          <span class="hljs-tag">&lt;/<span class="hljs-name">Routes</span>&gt;</span></span><br><span class="language-xml">        <span class="hljs-tag">&lt;/<span class="hljs-name">main</span>&gt;</span></span><br><span class="language-xml">        </span><br><span class="language-xml">        <span class="hljs-tag">&lt;<span class="hljs-name">footer</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;mx-auto max-w-7xl px-4 py-8 text-center text-white/30 text-xs tracking-widest uppercase&quot;</span>&gt;</span></span><br><span class="language-xml">          Whale Vault • Decentralized Identity System © &#123;new Date().getFullYear()&#125;</span><br><span class="language-xml">        <span class="hljs-tag">&lt;/<span class="hljs-name">footer</span>&gt;</span></span><br><span class="language-xml">      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span><br><span class="language-xml">    <span class="hljs-tag">&lt;/<span class="hljs-name">BrowserRouter</span>&gt;</span></span><br>  )<br>&#125;<br><br></code></pre></div></td></tr></table></figure>
+
+<h3 id="2-后端-verifyHandler-的配合修改"><a href="#2-后端-verifyHandler-的配合修改" class="headerlink" title="2. 后端 verifyHandler 的配合修改"></a>2. 后端 <code>verifyHandler</code> 的配合修改</h3><p>在你的 <code>tree-role.go</code> 中，<code>verifyHandler</code> 已经实现了“只认地址”的逻辑：</p>
+<ul>
+<li>它首先检查地址是否在 <code>vault:roles:publishers</code> 集合中。</li>
+<li>接着检查是否在 <code>vault:roles:authors</code> 集合中。</li>
+<li>如果都不是，才视为普通读者验证 <code>codeHash</code>。</li>
+</ul>
+<h3 id="3-Redis-预存方案-操作指南"><a href="#3-Redis-预存方案-操作指南" class="headerlink" title="3. Redis 预存方案 (操作指南)"></a>3. Redis 预存方案 (操作指南)</h3><p>为了让这个系统转起来，你需要通过 <code>redis-cli</code> 完成以下绑定：</p>
+<ol>
+<li><strong>绑定 Code 和地址</strong>：<br><code>HSET vault:bind:CODE_123 address &quot;0x预分配地址_A&quot;</code></li>
+<li><strong>设置角色权限</strong>：</li>
+</ol>
+<ul>
+<li>如果 <code>Address_A</code> 是出版社：<code>SADD vault:roles:publishers &quot;0x预分配地址_A&quot;</code></li>
+<li>如果 <code>Address_A</code> 是作者：<code>SADD vault:roles:authors &quot;0x预分配地址_A&quot;</code></li>
+</ul>
+<h3 id="4-关于“重新填写钱包地址”"><a href="#4-关于“重新填写钱包地址”" class="headerlink" title="4. 关于“重新填写钱包地址”"></a>4. 关于“重新填写钱包地址”</h3><p>既然你提到用户想提现或需要有钱的钱包时可以重新填写地址，这通常发生在 <strong><code>Success.tsx</code></strong> 页面之后。</p>
+<ul>
+<li><strong>当前逻辑</strong>：<code>Success.tsx</code> 显示的是你分配的“未知持有人”或预设地址。</li>
+<li><strong>建议功能</strong>：在 <code>Success.tsx</code> 底部增加一个“绑定个人钱包（有钱钱包）”的按钮。点击后，用户输入新地址，后端将 Redis 中的 <code>vault:bind:hashCode</code> 里的 <code>address</code> 字段更新为新地址。</li>
+</ul>
+<p><strong>下一步建议：</strong><br>你现在的 <code>Success.tsx</code> 已经有核验逻辑了。需要我帮你给它增加一个**“更换个人钱包地址”**的表单功能吗？这样用户就可以把 NFT 从你分配的无钱钱包“转移”到他们自己的钱包里。</p>
+<h1 id="validate-go"><a href="#validate-go" class="headerlink" title="validate.go"></a>validate.go</h1><p>这是一个非常精妙的架构。你已经成功地从“基于 Code 的认证”转型为 <strong>“基于预分配钱包地址的身份确权”</strong>。</p>
+<p>通过检查你上传的 <code>tree-role.go</code>、<code>Success.tsx</code> 和 <code>App.tsx</code>，我发现了几个逻辑上的<strong>关键点和潜在风险</strong>，如果不修正，出版社扫码时确实会卡在“激活码无效”这一步。</p>
+<h3 id="1-逻辑诊断：为什么会报错？"><a href="#1-逻辑诊断：为什么会报错？" class="headerlink" title="1. 逻辑诊断：为什么会报错？"></a>1. 逻辑诊断：为什么会报错？</h3><p>在 <code>tree-role.go</code> 中，你的 <code>verifyHandler</code> 逻辑是：</p>
+<ul>
+<li><strong>第一步</strong>：检查 <code>userAddr</code> 是否在 <code>vault:roles:publishers</code>。</li>
+<li><strong>第二步</strong>：如果不是，再检查 <code>codeHash</code> 是否在 <code>vault:codes:valid</code>。</li>
+</ul>
+<p><strong>问题出在这里：</strong><br>虽然 <code>verifyHandler</code> 能正确识别出版社角色，但你的前端流程通常是先经过 <code>MintConfirm</code> 或在 <code>Success</code> 页面触发了 <strong><code>mintHandler</code></strong>。在 <code>tree-role.go</code> 的 <code>mintHandler</code> 中，它<strong>第一件事</strong>就是尝试从 <code>vault:codes:valid</code> 移除 <code>codeHash</code>。<br>由于你的出版社 <code>codeHash</code>（如 <code>pub_001</code>）不在这个集合里，后端会立刻返回 <code>激活码无效或已被使用</code>。</p>
+<h3 id="2-修正方案：后端-tree-role-go"><a href="#2-修正方案：后端-tree-role-go" class="headerlink" title="2. 修正方案：后端 tree-role.go"></a>2. 修正方案：后端 <code>tree-role.go</code></h3><p>你需要让 <code>mintHandler</code> 具备“身份识别”能力。如果是出版社的地址，直接放行，不校验激活码。</p>
+<figure class="highlight go"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs go"><span class="hljs-comment">// tree-role.go 中的 mintHandler 建议修改如下：</span><br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">mintHandler</span><span class="hljs-params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;<br>	<span class="hljs-keyword">var</span> req <span class="hljs-keyword">struct</span> &#123; Dest <span class="hljs-type">string</span>; CodeHash <span class="hljs-type">string</span> &#125;<br>	json.NewDecoder(r.Body).Decode(&amp;req)<br>	<br>	<span class="hljs-comment">// --- 新增：出版社地址“特权”校验 ---</span><br>	destAddr := strings.ToLower(req.Dest)<br>	isPub, _ := rdb.SIsMember(ctx, <span class="hljs-string">&quot;vault:roles:publishers&quot;</span>, destAddr).Result()<br>	<span class="hljs-keyword">if</span> isPub &#123;<br>		<span class="hljs-comment">// 出版社不需要消耗激活码，直接返回成功并告知前端角色</span><br>		sendJSON(w, http.StatusOK, CommonResponse&#123;<br>			Ok: <span class="hljs-literal">true</span>, <br>			Status: <span class="hljs-string">&quot;WELCOME_PUBLISHER&quot;</span>, <br>			Role: <span class="hljs-string">&quot;publisher&quot;</span>,<br>		&#125;)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br>	<span class="hljs-comment">// --------------------------------</span><br><br>	<span class="hljs-comment">// 原有逻辑：普通读者必须消耗激活码</span><br>	removed, _ := rdb.SRem(ctx, <span class="hljs-string">&quot;vault:codes:valid&quot;</span>, req.CodeHash).Result()<br>	<span class="hljs-keyword">if</span> removed == <span class="hljs-number">0</span> &#123;<br>		sendJSON(w, http.StatusForbidden, CommonResponse&#123;Error: <span class="hljs-string">&quot;激活码无效或已被使用&quot;</span>&#125;)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br>    <span class="hljs-comment">// ... 剩下的执行 executeMintLegacy 逻辑</span><br>&#125;<br><br></code></pre></div></td></tr></table></figure>
+
+<h3 id="3-修正方案：前端-Success-tsx"><a href="#3-修正方案：前端-Success-tsx" class="headerlink" title="3. 修正方案：前端 Success.tsx"></a>3. 修正方案：前端 <code>Success.tsx</code></h3><p>你的 <code>Success.tsx</code> 目前在验证成功后只是显示了勋章。为了实现出版社“扫码即看图”，需要增加自动跳转。</p>
+<figure class="highlight tsx"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs tsx"><span class="hljs-comment">// Success.tsx 中的 useEffect 修改建议：</span><br><br><span class="hljs-title function_">useEffect</span>(<span class="hljs-function">() =&gt;</span> &#123;<br>  <span class="hljs-keyword">const</span> <span class="hljs-title function_">verifyAndRedirect</span> = <span class="hljs-keyword">async</span> (<span class="hljs-params"></span>) =&gt; &#123;<br>    <span class="hljs-comment">// ... 原有代码 ...</span><br>    <span class="hljs-keyword">try</span> &#123;<br>      <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> <span class="hljs-title function_">fetch</span>(<span class="hljs-string">`http://192.168.1.9:8080/secret/verify?codeHash=<span class="hljs-subst">$&#123;codeHash&#125;</span>&amp;address=<span class="hljs-subst">$&#123;userAddress&#125;</span>`</span>);<br>      <span class="hljs-keyword">const</span> data = <span class="hljs-keyword">await</span> response.<span class="hljs-title function_">json</span>();<br>      <br>      <span class="hljs-keyword">if</span> (!response.<span class="hljs-property">ok</span>) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">&#x27;身份核验失败&#x27;</span>);<br><br>      <span class="hljs-comment">// --- 新增：如果是出版社，直接瞬移到热力图 ---</span><br>      <span class="hljs-keyword">if</span> (data.<span class="hljs-property">role</span> === <span class="hljs-string">&#x27;publisher&#x27;</span>) &#123;<br>        <span class="hljs-title function_">navigate</span>(<span class="hljs-string">&#x27;/heatmap&#x27;</span>);<br>        <span class="hljs-keyword">return</span>;<br>      &#125;<br>      <span class="hljs-comment">// ---------------------------------------</span><br><br>      <span class="hljs-built_in">setTimeout</span>(<span class="hljs-function">() =&gt;</span> <span class="hljs-title function_">setIsLoading</span>(<span class="hljs-literal">false</span>), <span class="hljs-number">1500</span>);<br>    &#125; <span class="hljs-keyword">catch</span> (err) &#123;<br>      <span class="hljs-comment">// ... 错误处理 ...</span><br>    &#125;<br>  &#125;;<br>  <span class="hljs-title function_">verifyAndRedirect</span>();<br>&#125;, [codeHash, userAddress, navigate]);<br><br></code></pre></div></td></tr></table></figure>
+
+<h3 id="4-修正方案：前端-App-tsx-完整版"><a href="#4-修正方案：前端-App-tsx-完整版" class="headerlink" title="4. 修正方案：前端 App.tsx (完整版)"></a>4. 修正方案：前端 <code>App.tsx</code> (完整版)</h3><p>你的 <code>App.tsx</code> 已经包含了路由定义，但建议增加一个 <strong><code>/verify/:hashCode</code></strong> 的入口，作为二维码的直接跳转点，这样可以省去用户点击“领取”的动作，实现真正的“扫码即身份识别”。</p>
+<figure class="highlight tsx"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs tsx"><span class="hljs-keyword">import</span> <span class="hljs-title class_">React</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react&#x27;</span><br><span class="hljs-keyword">import</span> &#123; <span class="hljs-title class_">BrowserRouter</span>, <span class="hljs-title class_">Routes</span>, <span class="hljs-title class_">Route</span>, useNavigate, useParams &#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react-router-dom&#x27;</span><br><span class="hljs-keyword">import</span> <span class="hljs-title class_">Home</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./pages/Home&#x27;</span><br><span class="hljs-keyword">import</span> <span class="hljs-title class_">MintConfirm</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./pages/MintConfirm&#x27;</span><br><span class="hljs-keyword">import</span> <span class="hljs-title class_">Success</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./pages/Success&#x27;</span><br><span class="hljs-keyword">import</span> <span class="hljs-title class_">Heatmap</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./pages/Heatmap&#x27;</span><br><br><span class="hljs-comment">// 扫码中转逻辑：自动识别并分流</span><br><span class="hljs-keyword">function</span> <span class="hljs-title function_">AutoRedirect</span>(<span class="hljs-params"></span>) &#123;<br>  <span class="hljs-keyword">const</span> &#123; hashCode &#125; = <span class="hljs-title function_">useParams</span>();<br>  <span class="hljs-keyword">const</span> navigate = <span class="hljs-title function_">useNavigate</span>();<br><br>  <span class="hljs-title class_">React</span>.<span class="hljs-title function_">useEffect</span>(<span class="hljs-function">() =&gt;</span> &#123;<br>    <span class="hljs-keyword">const</span> <span class="hljs-title function_">start</span> = <span class="hljs-keyword">async</span> (<span class="hljs-params"></span>) =&gt; &#123;<br>      <span class="hljs-comment">// 1. 获取绑定地址</span><br>      <span class="hljs-keyword">const</span> res = <span class="hljs-keyword">await</span> <span class="hljs-title function_">fetch</span>(<span class="hljs-string">`http://localhost:8080/secret/get-binding?codeHash=<span class="hljs-subst">$&#123;hashCode&#125;</span>`</span>);<br>      <span class="hljs-keyword">const</span> bind = <span class="hljs-keyword">await</span> res.<span class="hljs-title function_">json</span>();<br>      <br>      <span class="hljs-keyword">if</span> (bind.<span class="hljs-property">address</span>) &#123;<br>        <span class="hljs-comment">// 2. 预检身份</span><br>        <span class="hljs-keyword">const</span> vRes = <span class="hljs-keyword">await</span> <span class="hljs-title function_">fetch</span>(<span class="hljs-string">`http://localhost:8080/secret/verify?address=<span class="hljs-subst">$&#123;bind.address&#125;</span>&amp;codeHash=<span class="hljs-subst">$&#123;hashCode&#125;</span>`</span>);<br>        <span class="hljs-keyword">const</span> vData = <span class="hljs-keyword">await</span> vRes.<span class="hljs-title function_">json</span>();<br>        <br>        <span class="hljs-keyword">if</span> (vData.<span class="hljs-property">role</span> === <span class="hljs-string">&#x27;publisher&#x27;</span>) <span class="hljs-title function_">navigate</span>(<span class="hljs-string">&#x27;/heatmap&#x27;</span>);<br>        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (vData.<span class="hljs-property">role</span> === <span class="hljs-string">&#x27;author&#x27;</span>) <span class="hljs-title function_">navigate</span>(<span class="hljs-string">&#x27;/author_dashboard&#x27;</span>);<br>        <span class="hljs-keyword">else</span> <span class="hljs-title function_">navigate</span>(<span class="hljs-string">`/valut_mint_nft/<span class="hljs-subst">$&#123;hashCode&#125;</span>`</span>); <span class="hljs-comment">// 读者去领 NFT</span><br>      &#125;<br>    &#125;;<br>    <span class="hljs-title function_">start</span>();<br>  &#125;, [hashCode]);<br><br>  <span class="hljs-keyword">return</span> <span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;text-white text-center mt-20&quot;</span>&gt;</span>身份确权中...<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>;<br>&#125;<br><br><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">App</span>(<span class="hljs-params"></span>) &#123;<br>  <span class="hljs-keyword">return</span> (<br>    <span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">BrowserRouter</span>&gt;</span></span><br><span class="language-xml">      <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;min-h-screen bg-[#0f172a]&quot;</span>&gt;</span> </span><br><span class="language-xml">        <span class="hljs-tag">&lt;<span class="hljs-name">main</span>&gt;</span></span><br><span class="language-xml">          <span class="hljs-tag">&lt;<span class="hljs-name">Routes</span>&gt;</span></span><br><span class="language-xml">            <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">path</span>=<span class="hljs-string">&quot;/&quot;</span> <span class="hljs-attr">element</span>=<span class="hljs-string">&#123;</span>&lt;<span class="hljs-attr">Home</span> /&gt;</span>&#125; /&gt;</span><br><span class="language-xml">            &#123;/* 新增自动分流入口 */&#125;</span><br><span class="language-xml">            <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">path</span>=<span class="hljs-string">&quot;/v/:hashCode&quot;</span> <span class="hljs-attr">element</span>=<span class="hljs-string">&#123;</span>&lt;<span class="hljs-attr">AutoRedirect</span> /&gt;</span>&#125; /&gt;</span><br><span class="language-xml">            </span><br><span class="language-xml">            <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">path</span>=<span class="hljs-string">&quot;/valut_mint_nft/:hashCode&quot;</span> <span class="hljs-attr">element</span>=<span class="hljs-string">&#123;</span>&lt;<span class="hljs-attr">MintConfirm</span> /&gt;</span>&#125; /&gt;</span><br><span class="language-xml">            <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">path</span>=<span class="hljs-string">&quot;/success&quot;</span> <span class="hljs-attr">element</span>=<span class="hljs-string">&#123;</span>&lt;<span class="hljs-attr">Success</span> /&gt;</span>&#125; /&gt;</span><br><span class="language-xml">            <span class="hljs-tag">&lt;<span class="hljs-name">Route</span> <span class="hljs-attr">path</span>=<span class="hljs-string">&quot;/heatmap&quot;</span> <span class="hljs-attr">element</span>=<span class="hljs-string">&#123;</span>&lt;<span class="hljs-attr">Heatmap</span> /&gt;</span>&#125; /&gt;</span><br><span class="language-xml">          <span class="hljs-tag">&lt;/<span class="hljs-name">Routes</span>&gt;</span></span><br><span class="language-xml">        <span class="hljs-tag">&lt;/<span class="hljs-name">main</span>&gt;</span></span><br><span class="language-xml">        <span class="hljs-tag">&lt;<span class="hljs-name">footer</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;mx-auto max-w-7xl px-4 py-8 text-center text-white/30 text-xs&quot;</span>&gt;</span></span><br><span class="language-xml">          Whale Vault • Decentralized Identity System © &#123;new Date().getFullYear()&#125;</span><br><span class="language-xml">        <span class="hljs-tag">&lt;/<span class="hljs-name">footer</span>&gt;</span></span><br><span class="language-xml">      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span><br><span class="language-xml">    <span class="hljs-tag">&lt;/<span class="hljs-name">BrowserRouter</span>&gt;</span></span><br>  )<br>&#125;<br><br></code></pre></div></td></tr></table></figure>
+
+<h3 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h3><ol>
+<li><strong>后端</strong>：必须在 <code>mintHandler</code> 或 <code>verifyHandler</code> 里放行出版社地址，不要求其 <code>codeHash</code> 必须在 <code>vault:codes:valid</code> 集合里。</li>
+<li><strong>前端</strong>：在接收到 <code>role: &quot;publisher&quot;</code> 后，直接进行 <code>Maps(&#39;/heatmap&#39;)</code>。</li>
+<li><strong>Redis</strong>：你的 <code>HSET vault:bind:pub_001 address 0x9f5...</code> 是正确的，只需要后端逻辑放行即可。</li>
+</ol>
+<p><strong>如果你完成了上述 <code>tree-role.go</code> 中 <code>mintHandler</code> 的修改，报错就会消失，出版社就能顺利进入地图。</strong></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Web3/">Web3</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/01/17/8147.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Global Web3 Dev Con黑客松</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/01/16/22242.html">
+                        <span class="hidden-mobile">Polkadot-黑客松-会议纪要</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>

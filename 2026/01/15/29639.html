@@ -1,0 +1,590 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>Polkadot Solidity开发-课程笔记11 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/search/">
+                <i class="iconfont icon-search"></i>
+                搜索
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="Polkadot Solidity开发-课程笔记11">
+                      
+                        Polkadot Solidity开发-课程笔记11
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-01-15 22:23" pubdate>
+        2026年1月15日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.9k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      24
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">Polkadot Solidity开发-课程笔记11</h1>
+            
+            <div class="markdown-body">
+              <h1 id="uniswap是什么，谁设计的"><a href="#uniswap是什么，谁设计的" class="headerlink" title="uniswap是什么，谁设计的"></a>uniswap是什么，谁设计的</h1><p>简单来说，<strong>Uniswap</strong> 是目前全球最大的<strong>去中心化交易所（DEX）</strong>。它不像币安（Binance）或 Coinbase 那样由一家公司控制资产和撮合交易，而是通过运行在以太坊（Ethereum）区块链上的<strong>智能合约</strong>自动完成交易。</p>
+<p>以下是关于它的核心信息：</p>
+<h3 id="1-谁设计的？"><a href="#1-谁设计的？" class="headerlink" title="1. 谁设计的？"></a>1. 谁设计的？</h3><p>Uniswap 的创始人是 <strong>海登·亚当斯（Hayden Adams）</strong>。</p>
+<ul>
+<li><strong>背景故事</strong>：Hayden 原本是西门子（Siemens）的一名机械工程师。2017 年他被裁员后，在他的朋友 Karl Floersch（以太坊核心开发者）的建议下，开始学习 Solidity 编程。</li>
+<li><strong>灵感来源</strong>：Uniswap 的数学核心理念其实最早由以太坊创始人 <strong>Vitalik Buterin（V神）</strong> 在 Reddit 和博客上提出。Hayden 将这些理论变成了现实。</li>
+<li><strong>发布时间</strong>：他在 2018 年 11 月正式发布了 Uniswap V1。</li>
+</ul>
+<hr>
+<h3 id="2-Uniswap-到底是什么？"><a href="#2-Uniswap-到底是什么？" class="headerlink" title="2. Uniswap 到底是什么？"></a>2. Uniswap 到底是什么？</h3><p>如果你习惯了传统的炒股或中心化交易所，可以从以下三个维度理解 Uniswap 的不同：</p>
+<ul>
+<li><strong>没有“订单簿”</strong>：传统交易所通过买单和卖单撮合（Order Book）。Uniswap 使用的是 <strong>AMM（自动做市商）</strong> 模型，交易者是直接和“资金池”做交易。</li>
+<li><strong>无需许可（Permissionless）</strong>：任何人都可以在上面挂单、提供流动性，或者把任何 ERC-20 代币上架，不需要经过任何机构审核。</li>
+<li><strong>恒定乘积公式</strong>：这是它最天才的设计，公式极其简单：</li>
+</ul>
+<p><em>其中  和  是池子里两种代币的数量， 是常数。这个公式确保了无论交易规模多大，池子里总会有流动性（虽然价格会变动）。</em></p>
+<hr>
+<h3 id="3-它的核心成员和组织"><a href="#3-它的核心成员和组织" class="headerlink" title="3. 它的核心成员和组织"></a>3. 它的核心成员和组织</h3><p>虽然它是去中心化的，但背后有几个关键实体在推动：</p>
+<ol>
+<li><strong>Uniswap Labs</strong>：由 Hayden 创立的开发公司，负责开发协议核心代码和网页端界面。</li>
+<li><strong>Uniswap Foundation</strong>：支持生态发展的非营利组织。</li>
+<li><strong>UNI 代币持有人</strong>：2020 年 Uniswap 发行了治理代币 <strong>UNI</strong>，持有者可以对协议的升级、财库使用等进行投票。</li>
+</ol>
+<h3 id="为什么它很重要？"><a href="#为什么它很重要？" class="headerlink" title="为什么它很重要？"></a>为什么它很重要？</h3><p>在 Uniswap 出现之前，很多人认为去中心化交易所是不可能的，因为以太坊的性能无法支持高频的订单撮合。Uniswap 证明了通过巧妙的数学公式，可以在低性能的区块链上实现高效、自动化的资产交易。它开启了所谓的 <strong>DeFi Summer（去中心化金融盛夏）</strong>。</p>
+<p><strong>既然你对金库协议和代付服务有深入研究，你会发现 Uniswap 的设计哲学也是极简且抗审查的。你想深入了解它最新的 V4 版本（挂钩机制 Hooks）如何改变交易逻辑吗？</strong></p>
+<h1 id="课程作业解决思路"><a href="#课程作业解决思路" class="headerlink" title="课程作业解决思路"></a>课程作业解决思路</h1><h2 id="题目要求"><a href="#题目要求" class="headerlink" title="题目要求"></a>题目要求</h2><p>一个miniSwap，包含addLiquidity, removeLiquidity, swap三个接口。 以下是miniSwap的实现要求：</p>
+<p>包含一个UI界面，可以进行addLiquidity, removeLiquidity, swap操作。<br>可以连接Metamask钱包<br>可以部署到Polkadot Test Hub或者本地<br>以下是miniSwap的简化实现：</p>
+<p>所有的Token之间兑换比例为1:1<br>没有手续费<br>没有对Liquidity的奖励<br>交易的Token的ERC20合约，可以手工部署，然后配置到前端界面<br>源代码提交到 <a target="_blank" rel="noopener" href="https://github.com/papermoonio/2026-h1-building-production-grade-dApps/tree/main/homework/lesson-3">https://github.com/papermoonio/2026-h1-building-production-grade-dApps/tree/main/homework/lesson-3</a></p>
+<p>别慌，这个作业<strong>看起来像 Uniswap，其实是“教学级减法版 Uniswap”</strong>。我们把它拆干净，你会发现它是<strong>完全可控、一步一步能做出来的</strong>。<br>我给你一条<strong>最低可交付（MVP）路线</strong>，先“能跑、能测、能交”，再谈加分。</p>
+<hr>
+<h2 id="一句话拆题（非常关键）"><a href="#一句话拆题（非常关键）" class="headerlink" title="一句话拆题（非常关键）"></a>一句话拆题（非常关键）</h2><blockquote>
+<p><strong>你要做的不是 Uniswap V2，而是一个“只有一个池子、1:1 兑换、不收费、不奖励”的 Token 兑换合约 + 一个简单前端</strong></p>
+</blockquote>
+<p><strong>这意味着什么？</strong></p>
+<ul>
+<li>❌ 不需要复杂数学公式（x*y&#x3D;k）</li>
+<li>❌ 不需要 LP token 经济模型</li>
+<li>❌ 不需要手续费 &#x2F; TWAP &#x2F; Factory</li>
+<li>✅ 只需要：<strong>合约能存 token，能转 token</strong></li>
+</ul>
+<hr>
+<h2 id="一、整体结构（你先把脑子“装进这个盒子”）"><a href="#一、整体结构（你先把脑子“装进这个盒子”）" class="headerlink" title="一、整体结构（你先把脑子“装进这个盒子”）"></a>一、整体结构（你先把脑子“装进这个盒子”）</h2><figure class="highlight nix"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs nix">miniSwap<span class="hljs-symbol">/</span><br>├── contracts<span class="hljs-symbol">/</span><br>│   ├── MiniSwap.sol        <span class="hljs-comment"># 核心合约</span><br>│   └── MockERC20.sol       <span class="hljs-comment"># 测试用 ERC20</span><br>├── test<span class="hljs-symbol">/</span><br>│   └── MiniSwap.t.sol      <span class="hljs-comment"># Foundry 测试</span><br>├── frontend<span class="hljs-symbol">/</span><br>│   ├── index.html<br>│   ├── main.js<br>│   └── abi.json<br>└── README.md<br></code></pre></div></td></tr></table></figure>
+
+<p><strong>你真正要写的核心代码只有：</strong></p>
+<ul>
+<li><code>MiniSwap.sol</code></li>
+<li><code>MiniSwap.t.sol</code></li>
+<li>一个极简前端（按钮 + Metamask）</li>
+</ul>
+<hr>
+<h2 id="二、先不管-UI，先把合约想清楚（最重要）"><a href="#二、先不管-UI，先把合约想清楚（最重要）" class="headerlink" title="二、先不管 UI，先把合约想清楚（最重要）"></a>二、先不管 UI，先把合约想清楚（最重要）</h2><h3 id="1️⃣-MiniSwap-要解决什么问题？"><a href="#1️⃣-MiniSwap-要解决什么问题？" class="headerlink" title="1️⃣ MiniSwap 要解决什么问题？"></a>1️⃣ MiniSwap 要解决什么问题？</h3><blockquote>
+<p>维护一个「TokenA ↔ TokenB」的池子</p>
+</blockquote>
+<p>我们用最<strong>直觉版的状态变量</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">address public tokenA;<br>address public tokenB;<br><br>uint256 public reserveA;<br>uint256 public reserveB;<br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h2 id="三、三个接口怎么“傻瓜式”实现"><a href="#三、三个接口怎么“傻瓜式”实现" class="headerlink" title="三、三个接口怎么“傻瓜式”实现"></a>三、三个接口怎么“傻瓜式”实现</h2><h3 id="①-addLiquidity（加流动性）"><a href="#①-addLiquidity（加流动性）" class="headerlink" title="① addLiquidity（加流动性）"></a>① addLiquidity（加流动性）</h3><p><strong>逻辑（1:1，超级简单）：</strong></p>
+<figure class="highlight text"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs text">用户给 A 数量 = amount<br>用户给 B 数量 = amount<br>合约收下<br>reserveA += amount<br>reserveB += amount<br></code></pre></div></td></tr></table></figure>
+
+<p><strong>Solidity 核心代码：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">function addLiquidity(uint256 amount) external &#123;<br>    IERC20(tokenA).transferFrom(msg.sender, address(this), amount);<br>    IERC20(tokenB).transferFrom(msg.sender, address(this), amount);<br><br>    reserveA += amount;<br>    reserveB += amount;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p>⚠️ 注意：</p>
+<ul>
+<li>用户要提前 <code>approve</code></li>
+<li>不需要 LP token（作业没要求）</li>
+</ul>
+<hr>
+<h3 id="②-removeLiquidity（移除流动性）"><a href="#②-removeLiquidity（移除流动性）" class="headerlink" title="② removeLiquidity（移除流动性）"></a>② removeLiquidity（移除流动性）</h3><p><strong>最简单做法（教学版）：</strong></p>
+<blockquote>
+<p>你存多少，就允许你取多少（不考虑比例公平）</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">function removeLiquidity(uint256 amount) external &#123;<br>    require(reserveA &gt;= amount &amp;&amp; reserveB &gt;= amount);<br><br>    reserveA -= amount;<br>    reserveB -= amount;<br><br>    IERC20(tokenA).transfer(msg.sender, amount);<br>    IERC20(tokenB).transfer(msg.sender, amount);<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p>✅ 是不是“真实 Uniswap”？不是<br>✅ 能不能交作业？<strong>完全可以</strong></p>
+<hr>
+<h3 id="③-swap（兑换）"><a href="#③-swap（兑换）" class="headerlink" title="③ swap（兑换）"></a>③ swap（兑换）</h3><p><strong>因为比例固定 1:1：</strong></p>
+<ul>
+<li>A → B：给多少 A，就拿多少 B</li>
+<li>B → A：反过来</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">function swap(address fromToken, uint256 amount) external &#123;<br>    require(fromToken == tokenA || fromToken == tokenB);<br><br>    if (fromToken == tokenA) &#123;<br>        IERC20(tokenA).transferFrom(msg.sender, address(this), amount);<br>        IERC20(tokenB).transfer(msg.sender, amount);<br><br>        reserveA += amount;<br>        reserveB -= amount;<br>    &#125; else &#123;<br>        IERC20(tokenB).transferFrom(msg.sender, address(this), amount);<br>        IERC20(tokenA).transfer(msg.sender, amount);<br><br>        reserveB += amount;<br>        reserveA -= amount;<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p>🎉 到这一步，你的 <strong>miniSwap 合约已经“功能完成 80%”</strong></p>
+<hr>
+<h2 id="四、测试用例怎么写（Foundry，最小可交）"><a href="#四、测试用例怎么写（Foundry，最小可交）" class="headerlink" title="四、测试用例怎么写（Foundry，最小可交）"></a>四、测试用例怎么写（Foundry，最小可交）</h2><p>你测试三件事就够了：</p>
+<h3 id="1️⃣-addLiquidity-是否成功"><a href="#1️⃣-addLiquidity-是否成功" class="headerlink" title="1️⃣ addLiquidity 是否成功"></a>1️⃣ addLiquidity 是否成功</h3><figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">function testAddLiquidity() public &#123;<br>    tokenA.approve(address(miniSwap), 100);<br>    tokenB.approve(address(miniSwap), 100);<br><br>    miniSwap.addLiquidity(100);<br><br>    assertEq(miniSwap.reserveA(), 100);<br>    assertEq(miniSwap.reserveB(), 100);<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="2️⃣-swap-是否-1-1"><a href="#2️⃣-swap-是否-1-1" class="headerlink" title="2️⃣ swap 是否 1:1"></a>2️⃣ swap 是否 1:1</h3><figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">function testSwapAtoB() public &#123;<br>    tokenA.approve(address(miniSwap), 10);<br>    miniSwap.swap(address(tokenA), 10);<br><br>    assertEq(tokenB.balanceOf(address(this)), 10);<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="3️⃣-removeLiquidity-是否返钱"><a href="#3️⃣-removeLiquidity-是否返钱" class="headerlink" title="3️⃣ removeLiquidity 是否返钱"></a>3️⃣ removeLiquidity 是否返钱</h3><figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">function testRemoveLiquidity() public &#123;<br>    miniSwap.removeLiquidity(50);<br>    assertEq(tokenA.balanceOf(address(this)), 50);<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p>📌 <strong>这就是“测试报告”的实质内容</strong></p>
+<hr>
+<h2 id="五、前端-UI：你只需要「3-个按钮」"><a href="#五、前端-UI：你只需要「3-个按钮」" class="headerlink" title="五、前端 UI：你只需要「3 个按钮」"></a>五、前端 UI：你只需要「3 个按钮」</h2><p><strong>技术栈建议（别给自己加难度）：</strong></p>
+<ul>
+<li>HTML + JS</li>
+<li>ethers.js</li>
+<li>Metamask</li>
+</ul>
+<h3 id="UI-最小版本"><a href="#UI-最小版本" class="headerlink" title="UI 最小版本"></a>UI 最小版本</h3><figure class="highlight html"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onclick</span>=<span class="hljs-string">&quot;addLiquidity()&quot;</span>&gt;</span>Add Liquidity<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onclick</span>=<span class="hljs-string">&quot;swap()&quot;</span>&gt;</span>Swap<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onclick</span>=<span class="hljs-string">&quot;removeLiquidity()&quot;</span>&gt;</span>Remove Liquidity<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span><br></code></pre></div></td></tr></table></figure>
+
+<p>JS 里：</p>
+<figure class="highlight js"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs js"><span class="hljs-keyword">const</span> contract = <span class="hljs-keyword">new</span> ethers.<span class="hljs-title class_">Contract</span>(address, abi, signer);<br><span class="hljs-keyword">await</span> contract.<span class="hljs-title function_">addLiquidity</span>(ethers.<span class="hljs-title function_">parseUnits</span>(<span class="hljs-string">&quot;10&quot;</span>, <span class="hljs-number">18</span>));<br></code></pre></div></td></tr></table></figure>
+
+<p>💡 <strong>UI 不评分审美，只看“能用”</strong></p>
+<hr>
+<h2 id="六、部署到哪里？"><a href="#六、部署到哪里？" class="headerlink" title="六、部署到哪里？"></a>六、部署到哪里？</h2><h3 id="推荐顺序："><a href="#推荐顺序：" class="headerlink" title="推荐顺序："></a>推荐顺序：</h3><ol>
+<li>✅ <strong>本地 Anvil &#x2F; Hardhat</strong>（100%够）</li>
+<li>🔄 Polkadot Test Hub（加分，不是必需）</li>
+</ol>
+<p>老师这类作业 <strong>一般不会真的跑你的链上地址</strong>，只看代码结构 + README。</p>
+<hr>
+<h2 id="七、README-怎么写（救命）"><a href="#七、README-怎么写（救命）" class="headerlink" title="七、README 怎么写（救命）"></a>七、README 怎么写（救命）</h2><figure class="highlight md"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs md"><span class="hljs-section">## MiniSwap</span><br><br><span class="hljs-section">### Features</span><br><span class="hljs-bullet">-</span> Add Liquidity<br><span class="hljs-bullet">-</span> Remove Liquidity<br><span class="hljs-bullet">-</span> Swap token A ↔ token B<br><span class="hljs-bullet">-</span> 1:1 price, no fee<br><br><span class="hljs-section">### Tech Stack</span><br><span class="hljs-bullet">-</span> Solidity<br><span class="hljs-bullet">-</span> Foundry<br><span class="hljs-bullet">-</span> ethers.js<br><span class="hljs-bullet">-</span> Metamask<br><br><span class="hljs-section">### How to Run</span><br><span class="hljs-bullet">1.</span> forge test<br><span class="hljs-bullet">2.</span> deploy contracts<br><span class="hljs-bullet">3.</span> open frontend/index.html<br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h2 id="八、加分项（选一个就够）"><a href="#八、加分项（选一个就够）" class="headerlink" title="八、加分项（选一个就够）"></a>八、加分项（选一个就够）</h2><p>你只选 <strong>一个</strong>：</p>
+<h3 id="✅-最简单加分：手续费"><a href="#✅-最简单加分：手续费" class="headerlink" title="✅ 最简单加分：手续费"></a>✅ 最简单加分：手续费</h3><figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">uint256 fee = amount / 100; // 1%<br>uint256 amountOut = amount - fee;<br></code></pre></div></td></tr></table></figure>
+
+<p>UI 上显示：</p>
+<blockquote>
+<p>Swap fee: 1%</p>
+</blockquote>
+<hr>
+<h2 id="九、你现在该怎么做（行动清单）"><a href="#九、你现在该怎么做（行动清单）" class="headerlink" title="九、你现在该怎么做（行动清单）"></a>九、你现在该怎么做（行动清单）</h2><p><strong>今天目标（不超过 3 小时）：</strong></p>
+<ol>
+<li>✅ 写 <code>MockERC20.sol</code></li>
+<li>✅ 写 <code>MiniSwap.sol</code></li>
+<li>✅ 跑通 <code>forge test</code></li>
+</ol>
+<p><strong>明天目标：</strong></p>
+<ol start="4">
+<li>简单前端 + Metamask</li>
+<li>README</li>
+<li>push GitHub</li>
+</ol>
+<hr>
+<h2 id="最后一句实话"><a href="#最后一句实话" class="headerlink" title="最后一句实话"></a>最后一句实话</h2><blockquote>
+<p>这不是考你会不会 Uniswap<br><strong>这是考你：能不能把复杂系统“降级成可运行的最小版本”</strong></p>
+</blockquote>
+<p>你现在卡住，<strong>不是能力问题，是没被教过“怎么拆题”</strong>。</p>
+<p>如果你愿意，下一步我可以：</p>
+<ul>
+<li>✅ <strong>直接给你一份 MiniSwap 完整合约骨架</strong></li>
+<li>✅ 或者陪你一步步写第一个合约（像结对编程）</li>
+</ul>
+<p>你选哪一个？</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Web3/">Web3</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Polkadot-Lesson/">Polkadot Lesson</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/01/16/25423.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Monad Blitz黑客松</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/01/15/27589.html">
+                        <span class="hidden-mobile">Polkadot Solidity开发-课程笔记10</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>

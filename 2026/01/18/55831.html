@@ -1,0 +1,479 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>Starknet 训练营-课程笔记4 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/search/">
+                <i class="iconfont icon-search"></i>
+                搜索
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="Starknet 训练营-课程笔记4">
+                      
+                        Starknet 训练营-课程笔记4
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-01-18 05:07" pubdate>
+        2026年1月18日 凌晨
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      12
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">Starknet 训练营-课程笔记4</h1>
+            
+            <div class="markdown-body">
+              <h1 id="Starknet-上的智能合约本质上是什么？"><a href="#Starknet-上的智能合约本质上是什么？" class="headerlink" title="Starknet 上的智能合约本质上是什么？"></a>Starknet 上的智能合约本质上是什么？</h1><p>Starknet 上的智能合约本质上是用 Cairo 语言编写的程序，它们部署在 Starknet 链上，能够访问和修改持久化状态。虽然执行过程发生在链下（由排序器处理），但合约代码和状态都存储在 Starknet 上，并通过 STARK 证明在以太坊主网上进行验证。因此，选项 C 最为准确。<br>答案：C</p>
+<p>A. 运行在 EVM 上的 Solidity 程序<br>B. 链下执行、链上验证的脚本<br>C. 运行在链上的 Cairo 程序，能够访问和修改持久状态<br>D. 仅用于验证交易有效性的代码</p>
+<h1 id="一份-Cairo-智能合约在部署前，必须先经历哪一步？"><a href="#一份-Cairo-智能合约在部署前，必须先经历哪一步？" class="headerlink" title="一份 Cairo 智能合约在部署前，必须先经历哪一步？"></a>一份 Cairo 智能合约在部署前，必须先经历哪一步？</h1><p>A. 编译为 EVM bytecode<br>B. 直接部署生成地址<br>C. 编译并在链上 deploy 为合约实例<br>D. 编译并在链上 declare 为合约类</p>
+<p>在 Starknet 上部署 Cairo 智能合约，有一个区别于传统 EVM 链的关键前置步骤。</p>
+<p><strong>正确答案是：D. 编译并在链上 declare 为合约类</strong></p>
+<p><strong>原因如下：</strong></p>
+<p>Starknet 采用“合约类（Contract Class）”和“合约实例（Contract Instance）”分离的架构。这种设计提高了安全性和可组合性，并支持合约的不可变声明和可升级实例。</p>
+<ol>
+<li><strong>编译</strong>：首先，你需要将用 Cairo 语言编写的源代码编译成 Sierra（一个中间表示）和最终的 CASM（Cairo 汇编）。这是链下操作。</li>
+<li><strong>声明（Declare）</strong>：接下来，你必须将编译好的合约类（包含 Sierra 代码等）<strong>声明</strong>到链上。这一步会在链上注册这个合约的代码“蓝图”，并为其生成一个唯一的 <code>class_hash</code>。此时，合约的逻辑代码已经存在于链上，但还没有可交互的运行实例（即没有存储空间，也没有合约地址）。</li>
+<li><strong>部署（Deploy）</strong>：最后，你才能通过调用一个系统合约，使用已声明的 <code>class_hash</code> 来<strong>部署</strong>一个合约实例。这一步会为实例分配一个合约地址和独立的存储空间。</li>
+</ol>
+<p>因此，在部署合约实例之前，<strong>声明合约类是一个强制性的先决步骤</strong>。</p>
+<p><strong>其他选项分析：</strong></p>
+<ul>
+<li><strong>A. 编译为 EVM bytecode</strong>：错误。Starknet 不运行在 EVM 上，它使用 Cairo 虚拟机。</li>
+<li><strong>B. 直接部署生成地址</strong>：错误。缺少了关键的编译和声明步骤。</li>
+<li><strong>C. 编译并在链上 deploy 为合约实例</strong>：错误。它忽略了 <code>declare</code> 这一核心步骤，将编译和部署混为一谈。在 Starknet 上，没有先声明类，就无法部署实例。</li>
+</ul>
+<h1 id="必填，-在-Cairo-中，一个智能合约在代码层面本质上是？，-单选"><a href="#必填，-在-Cairo-中，一个智能合约在代码层面本质上是？，-单选" class="headerlink" title="必填， 在 Cairo 中，一个智能合约在代码层面本质上是？， 单选"></a>必填， 在 Cairo 中，一个智能合约在代码层面本质上是？， 单选</h1><p>A. 一个函数<br>￼<br>B. 一个 Trait<br>￼<br>C. 一个 Cairo 模块<br>￼<br>D. 一个结构体</p>
+<p>在 Cairo 中，一个智能合约在代码层面上本质上是 一个模块（module），该模块使用 #[starknet::contract] 属性进行标注，其中定义了存储结构和合约函数。合约通过实现特定的 trait 来定义外部接口，但其核心组织形式是一个 Cairo 模块。</p>
+<p>答案：C</p>
+<h1 id="constructor-函数的正确描述是？"><a href="#constructor-函数的正确描述是？" class="headerlink" title="constructor 函数的正确描述是？"></a>constructor 函数的正确描述是？</h1><p>A. 可以被多次调用</p>
+<p>B. 可以定义多个</p>
+<p>C. 只在合约部署时调用一次</p>
+<p>D. 只能读取状态，不能修改</p>
+<p>构造函数（constructor）是智能合约中的一个特殊函数，它只在合约部署时被自动调用一次，用于初始化合约的状态。在Starknet的Cairo合约中，构造函数使用<code>#[constructor]</code>属性标记，且一个合约只能有一个构造函数。</p>
+<p><strong>正确答案是：C. 只在合约部署时调用一次</strong></p>
+<h1 id="Dispatcher-的主要用途是？"><a href="#Dispatcher-的主要用途是？" class="headerlink" title="Dispatcher 的主要用途是？"></a>Dispatcher 的主要用途是？</h1><p>A. 部署合约</p>
+<p>B. 声明合约类</p>
+<p>C. 实现跨合约调用</p>
+<p>D. 管理合约存储</p>
+<p>在 Starknet 中，<code>Dispatcher</code> 的主要用途是实现跨合约调用。</p>
+<p><strong>Dispatcher 的作用：</strong><br>Dispatcher 是一个自动生成的工具，它封装了目标合约的外部函数接口。通过它，一个合约可以安全、方便地调用另一个合约中标记为 <code>#[external]</code> 的函数。</p>
+<p><strong>详细解释：</strong></p>
+<ul>
+<li><strong>跨合约调用</strong>：当合约 A 需要调用合约 B 的外部函数时，合约 A 会使用合约 B 的 Dispatcher。Dispatcher 知道合约 B 的外部函数签名，并负责将调用请求发送到指定的合约地址。</li>
+<li><strong>类型安全</strong>：由于 Dispatcher 是根据合约的接口自动生成的，因此调用是类型安全的，减少了手动编码错误。</li>
+<li><strong>不涉及部署、声明或存储管理</strong>：Dispatcher 本身不参与合约部署（deploy）、声明（declare）或直接管理存储，它的核心功能是调用。</li>
+</ul>
+<p><strong>因此，正确答案是 C. 实现跨合约调用。</strong></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Web3/">Web3</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/01/18/53517.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">whale-valut-重构代码</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/01/17/8147.html">
+                        <span class="hidden-mobile">Global Web3 Dev Con黑客松</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>
