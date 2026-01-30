@@ -1,0 +1,715 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>golang开发 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/search/">
+                <i class="iconfont icon-search"></i>
+                搜索
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="golang开发">
+                      
+                        golang开发
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-01-25 20:34" pubdate>
+        2026年1月25日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      6.4k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      77
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">golang开发</h1>
+            
+            <div class="markdown-body">
+              <p>golang开发入门指南： <a target="_blank" rel="noopener" href="https://quickref.me/go">https://quickref.me/go</a></p>
+<h1 id="日程安排"><a href="#日程安排" class="headerlink" title="日程安排"></a>日程安排</h1><p>明白，由于<strong>2月8日</strong>就是黑客松开始及路演，我们必须在 <strong>2月7日（周六）</strong> 前完成所有开发和联调，确保8号当天只是展示和应对评委提问。</p>
+<p>从今天（1月26日）到2月7日，你还有约 <strong>12天</strong>。由于你还要兼顾工作和学习，这份日程表将重点放在**“功能集成”<strong>和</strong>“三端后台搭建”**上。</p>
+<h3 id="📅-战前冲刺日程表-1月26日-2月8日"><a href="#📅-战前冲刺日程表-1月26日-2月8日" class="headerlink" title="📅 战前冲刺日程表 (1月26日 - 2月8日)"></a>📅 战前冲刺日程表 (1月26日 - 2月8日)</h3><h4 id="第一阶段：后端集成与架构稳固-1月26日-1月29日"><a href="#第一阶段：后端集成与架构稳固-1月26日-1月29日" class="headerlink" title="第一阶段：后端集成与架构稳固 (1月26日 - 1月29日)"></a><strong>第一阶段：后端集成与架构稳固 (1月26日 - 1月29日)</strong></h4><ul>
+<li><p><strong>1月26-27日（今明两天）：</strong> <strong>代码“合体”。</strong></p>
+</li>
+<li><p>将李师傅的 Go 代码以 <code>Package</code> 形式引入你的主工程。</p>
+</li>
+<li><p><strong>核心目标：</strong> 在本地跑通一个接口，输入5个码，李师傅的代码能成功返回 Conflux 交易哈希。</p>
+</li>
+<li><p><strong>1月28-29日：</strong> <strong>Redis 状态机升级。</strong></p>
+</li>
+<li><p>完善 Redis Key 设计：增加 <code>reward_status</code> 和 <code>mint_count</code>。</p>
+</li>
+<li><p>编写“权限路由”：确保后端能根据 Redis 里的 <code>user:&#123;address&#125;:role</code> 准确分发 Token 或跳转指令。</p>
+</li>
+</ul>
+<h4 id="第二阶段：三端后台快速开发-1月30日-2月3日"><a href="#第二阶段：三端后台快速开发-1月30日-2月3日" class="headerlink" title="第二阶段：三端后台快速开发 (1月30日 - 2月3日)"></a><strong>第二阶段：三端后台快速开发 (1月30日 - 2月3日)</strong></h4><p><em>这部分建议让 Hank 深度参与，使用现成的 Admin 模板加速。</em></p>
+<ul>
+<li><p><strong>1月30-31日：读者后台 (Reader UI)。</strong></p>
+</li>
+<li><p>功能：NFT 阵列显示、5个码的输入框、领取返利按钮。</p>
+</li>
+<li><p><strong>2月1-2日：出版社&#x2F;作者后台 (Admin UI)。</strong></p>
+</li>
+<li><p>功能：销量实时统计数字、热力图组件挂载。</p>
+</li>
+<li><p><strong>终焉大盘初稿：</strong> 实现一个开关，点击后可模拟“挑战触发”，锁定数据。</p>
+</li>
+<li><p><strong>2月3日：联调。</strong> 前端 TS 调用 Go 接口，实现从“扫码”到“后台看到数据”的全链路。</p>
+</li>
+</ul>
+<h4 id="第三阶段：终焉大盘与代付优化-2月4日-2月6日"><a href="#第三阶段：终焉大盘与代付优化-2月4日-2月6日" class="headerlink" title="第三阶段：终焉大盘与代付优化 (2月4日 - 2月6日)"></a><strong>第三阶段：终焉大盘与代付优化 (2月4日 - 2月6日)</strong></h4><ul>
+<li><p><strong>2月4日：终焉大盘预测系统。</strong></p>
+</li>
+<li><p>开发“预测算法”逻辑：基于过去 48 小时的销量趋势，生成一个“10天后销量第一”的预测曲线。</p>
+</li>
+<li><p><strong>2月5日：Conflux 特色功能——Gas 代付。</strong></p>
+</li>
+<li><p><strong>关键动作：</strong> 调用 Conflux SDK，将你的合约地址存入足够的 CFX，并开启 <code>Sponsor</code> 模式。</p>
+</li>
+<li><p><strong>意义：</strong> 这样你在 8 号演示时，读者不用买币就能领 NFT，这是拿奖核心。</p>
+</li>
+<li><p><strong>2月6日：全流程压力测试。</strong> 模拟高并发扫码，检查 Redis 是否会崩溃。</p>
+</li>
+</ul>
+<h4 id="第四阶段：交付物准备-2月7日"><a href="#第四阶段：交付物准备-2月7日" class="headerlink" title="第四阶段：交付物准备 (2月7日)"></a><strong>第四阶段：交付物准备 (2月7日)</strong></h4><ul>
+<li><strong>任务：</strong> 录制演示视频（防止现场 Demo 网络卡顿）、制作 PPT、撰写 README（强调金库协议的代付逻辑和 5 码返利裂变）。</li>
+</ul>
+<hr>
+<h3 id="🚩-核心里程碑-Milestones"><a href="#🚩-核心里程碑-Milestones" class="headerlink" title="🚩 核心里程碑 (Milestones)"></a>🚩 核心里程碑 (Milestones)</h3><table>
+<thead>
+<tr>
+<th>日期</th>
+<th>里程碑名称</th>
+<th>交付标准</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>1月28日</strong></td>
+<td><strong>后端完全体</strong></td>
+<td>李师傅的代码与主程序逻辑合并完成，API 可调用。</td>
+</tr>
+<tr>
+<td><strong>2月1日</strong></td>
+<td><strong>读者端跑通</strong></td>
+<td>读者扫码 -&gt; 后台显示 NFT -&gt; 提交 5 码 -&gt; 获得返利。</td>
+</tr>
+<tr>
+<td><strong>2月4日</strong></td>
+<td><strong>大盘可视化</strong></td>
+<td>热力图和销量预测曲线能动态读取 Redis 数据。</td>
+</tr>
+<tr>
+<td><strong>2月6日</strong></td>
+<td><strong>零 Gas 体验</strong></td>
+<td>确认代付机制生效，新地址可直接 Mint。</td>
+</tr>
+<tr>
+<td><strong>2月8日</strong></td>
+<td><strong>路演</strong></td>
+<td>现场展示“金库协议”对销量的真实监控能力。</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="💡-给你的特别建议"><a href="#💡-给你的特别建议" class="headerlink" title="💡 给你的特别建议"></a>💡 给你的特别建议</h3><ol>
+<li><strong>关于李师傅的代码合并：</strong> 如果李师傅的代码使用了不同的依赖库，先用 <code>go mod tidy</code> 解决冲突。如果合并太难，可以先让李师傅的代码作为一个独立的 <code>Microservice</code>（微服务）运行，你的主后端通过 HTTP 请求去调用它。</li>
+<li><strong>关于“终焉大盘”：</strong> 既然你的系统是为了预测十天后销量第一的书，你需要在 Redis 里做一个<strong>滑动窗口统计</strong>。</li>
+<li><strong>分工：</strong></li>
+</ol>
+<ul>
+<li><strong>你：</strong> 负责逻辑合并、Redis 状态读写、终焉大盘算法。</li>
+<li><strong>Hank：</strong> 负责三个页面的 UI 样式、Echarts 热力图对接。</li>
+<li><strong>JW 师傅（如果有空）：</strong> 负责最后的数据看板美化。</li>
+</ul>
+<p><strong>既然明天（26号）就开始了，你需要我现在为你写一个 Go 语言中处理“5 码原子性校验”的示例代码吗？（确保这 5 个码在校验通过前不会被别人抢先使用）</strong></p>
+<h1 id="接下来做什么？"><a href="#接下来做什么？" class="headerlink" title="接下来做什么？"></a>接下来做什么？</h1><p>我是应该先梳理<a target="_blank" rel="noopener" href="https://github.com/git149/Whale-Vault-NFT_backend-solidity/tree/main">https://github.com/git149/Whale-Vault-NFT_backend-solidity/tree/main</a> 李师傅的代码怎么使用呢，还是先去把我重构后崩溃的golang代码写完呢？</p>
+<p>这是一个非常经典且痛苦的抉择点：是先“修好旧车”还是先“研究新引擎”。</p>
+<p>鉴于你现在的<strong>重构代码处于崩溃状态</strong>，而<strong>李师傅的代码又是后续功能（返利、智能合约）的基石</strong>，我的建议是：<strong>先用 1-2 小时快速梳理李师傅的代码逻辑，然后带着“终点目标”去修你崩溃的代码。</strong></p>
+<p>理由如下：</p>
+<hr>
+<h3 id="1-为什么先看李师傅的代码（1-2-小时）？"><a href="#1-为什么先看李师傅的代码（1-2-小时）？" class="headerlink" title="### 1. 为什么先看李师傅的代码（1-2 小时）？"></a>### 1. 为什么先看李师傅的代码（1-2 小时）？</h3><p>如果你盲目开始修代码，你可能还在用“旧的思路”去修。</p>
+<ul>
+<li><strong>明确接口（Input&#x2F;Output）：</strong> 李师傅的代码（尤其是 Solidity 和对应的 Go 绑定）决定了你的后端需要提供什么样的数据。先看他的代码，能帮你确定你的逻辑层（Service）需要哪些字段。</li>
+<li><strong>防止二次重构：</strong> 只有知道合约转账函数（如 <code>TransferDoublePrice</code>）具体需要什么参数，你修代码时才能一次性把结构体（Struct）写对，避免修好了发现不兼容，又要重构第二次。</li>
+<li><strong>快速降级方案：</strong> 如果李师傅的代码非常独立，你可以考虑不把他的代码“揉进”你崩溃的模块，而是作为一个独立的 <code>service</code> 或 <code>pkg</code> 引入。</li>
+</ul>
+<h3 id="2-如何修你重构崩溃的代码？"><a href="#2-如何修你重构崩溃的代码？" class="headerlink" title="### 2. 如何修你重构崩溃的代码？"></a>### 2. 如何修你重构崩溃的代码？</h3><p>代码崩溃通常是因为<strong>依赖冲突、包路径引用错误或逻辑断裂</strong>。建议采取“<strong>最小化复活法</strong>”：</p>
+<ol>
+<li><strong>屏蔽（Comment out）非核心逻辑：</strong> 把报错的、不影响程序启动的逻辑先注释掉。</li>
+<li><strong>保证启动：</strong> 先让 <code>main.go</code> 能够跑起来，API 路由能够注册。</li>
+<li><strong>分块恢复：</strong> * 先恢复 <strong>Redis 连接</strong>（你的系统核心）。</li>
+</ol>
+<ul>
+<li>再恢复 <strong>一书一码校验</strong>。</li>
+<li>最后接入 <strong>李师傅的返利逻辑</strong>。</li>
+</ul>
+<hr>
+<h3 id="🎯-你的具体执行策略（今晚-明天建议）"><a href="#🎯-你的具体执行策略（今晚-明天建议）" class="headerlink" title="### 🎯 你的具体执行策略（今晚&#x2F;明天建议）"></a>### 🎯 你的具体执行策略（今晚&#x2F;明天建议）</h3><h4 id="第一步：李师傅代码快速审计-Quick-Audit"><a href="#第一步：李师傅代码快速审计-Quick-Audit" class="headerlink" title="第一步：李师傅代码快速审计 (Quick Audit)"></a><strong>第一步：李师傅代码快速审计 (Quick Audit)</strong></h4><p>打开李师傅的 <a target="_blank" rel="noopener" href="https://github.com/git149/Whale-Vault-NFT_backend-solidity/tree/main">GitHub 仓库</a>，只看这三个点：</p>
+<ul>
+<li><strong><code>abi</code> 文件夹或 <code>.go</code> 绑定文件：</strong> 看看合约转账函数的函数签名是什么？（它要几个参数？是 <code>(codes []string, toAddress string)</code> 吗？）</li>
+<li><strong><code>main.go</code> 或 <code>test</code> 文件：</strong> 看看他是如何初始化 Conflux 客户端（Client）并调用合约的。</li>
+<li><strong>私钥管理：</strong> 他是怎么传私钥的？（你需要把这部分抽离到 <code>.env</code>）。</li>
+</ul>
+<h4 id="第二步：修复你崩溃的代码"><a href="#第二步：修复你崩溃的代码" class="headerlink" title="第二步：修复你崩溃的代码"></a><strong>第二步：修复你崩溃的代码</strong></h4><ol>
+<li><strong>运行 <code>go mod tidy</code>：</strong> 解决所有缺失的依赖。</li>
+<li><strong>修复包路径：</strong> 重构最常死在 <code>import</code> 路径上，确保所有 <code>internal</code> 或 <code>pkg</code> 下的引用都是正确的。</li>
+<li><strong>单点突破：</strong> 只修“扫码即失效”这个最基础的功能，验证 Redis 读写是否正常。</li>
+</ol>
+<hr>
+<h3 id="💡-给-Whale3070-的心理建设"><a href="#💡-给-Whale3070-的心理建设" class="headerlink" title="### 💡 给 Whale3070 的心理建设"></a>### 💡 给 Whale3070 的心理建设</h3><p>重构崩溃是很正常的“阵痛期”，千万不要在崩溃的代码里反复纠缠细节。<br><strong>如果代码实在修不动，考虑“回滚 + 模块化接入”：</strong><br>回滚到重构前稳定的版本，然后把李师傅的代码作为一个全新的文件夹（比如 <code>internal/blockchain</code>）放进去，通过写新代码的方式去调用旧逻辑，而不是去改旧逻辑。</p>
+<p><strong>既然李师傅的代码里有 Solidity 和 Go 绑定，你需要我帮你分析一下他的 <code>Transfer</code> 逻辑中，哪些变量是必须从你的 Redis 数据库中读取的吗？</strong></p>
+<h1 id="先跑通“转账”"><a href="#先跑通“转账”" class="headerlink" title="先跑通“转账”"></a>先跑通“转账”</h1><p>先跑通“转账”：由于“5 码换返利”是你的核心商业逻辑，先用 Go 写一个脚本，能成功调用 dispenseTokens 给一个测试地址发钱。</p>
+<h1 id="前端开启测试环境"><a href="#前端开启测试环境" class="headerlink" title="前端开启测试环境"></a>前端开启测试环境</h1><p> npm run dev – –host</p>
+<h1 id="钱包地址到底成功推荐过多少个新读者"><a href="#钱包地址到底成功推荐过多少个新读者" class="headerlink" title="钱包地址到底成功推荐过多少个新读者"></a>钱包地址到底成功推荐过多少个新读者</h1><p><a target="_blank" rel="noopener" href="http://192.168.47.130:5173/reward%EF%BC%8C%E7%8E%B0%E5%9C%A8%E6%88%91%E8%AE%A9%E5%90%8E%E5%8F%B0%E8%AE%B0%E4%BD%8F%E9%82%A3%E4%B8%AA%E9%92%B1%E5%8C%85%E5%9C%B0%E5%9D%80%E5%88%B0%E5%BA%95%E6%88%90%E5%8A%9F%E6%8E%A8%E8%8D%90%E8%BF%87%E5%A4%9A%E5%B0%91%E4%B8%AA%E6%96%B0%E8%AF%BB%E8%80%85%F0%9F%8E%89">http://192.168.47.130:5173/reward，现在我让后台记住那个钱包地址到底成功推荐过多少个新读者🎉</a> 领取成功！请查看您的钱包余额。<br>Tx: 0xd0aca7577994d85a9f0ff976bd731cd855b69c72adfb0bf32259f8ea530d8056。后续可以针对性给奖励，升级等等。如何记住这个钱包地址的推荐读者数量，存入redis后台</p>
+<p>恭喜！看到 <code>Tx Hash</code> 出现意味着整个“5 码换返利”的闭环技术路径已经彻底打通了。这是“金库协议 1.0”最核心的里程碑。</p>
+<p>要记录这个钱包地址（推荐人）成功推荐了多少个新读者，我们可以在后端执行 <code>Reward</code> 逻辑（即合约调用成功后）同步更新 Redis 里的计数器。</p>
+<hr>
+<h3 id="1-设计-Redis-数据结构"><a href="#1-设计-Redis-数据结构" class="headerlink" title="1. 设计 Redis 数据结构"></a>1. 设计 Redis 数据结构</h3><p>为了高效记录推荐数量，建议使用 Redis 的 <strong>Hash (哈希表)</strong> 结构：</p>
+<ul>
+<li><strong>Key</strong>: <code>whale_vault:referrer_stats</code></li>
+<li><strong>Field</strong>: 钱包地址 (小写)</li>
+<li><strong>Value</strong>: 推荐成功的次数 (递增)</li>
+</ul>
+<p>这样你可以通过一条命令获取所有人的排名，或者通过地址直接查询特定个人的成就。</p>
+<hr>
+<h3 id="2-修改后端-internal-handlers-relay-go"><a href="#2-修改后端-internal-handlers-relay-go" class="headerlink" title="2. 修改后端 internal/handlers/relay.go"></a>2. 修改后端 <code>internal/handlers/relay.go</code></h3><p>在 <code>Reward</code> 函数成功调用合约并获取 <code>txHash</code> 之后，添加一行 <code>HIncrBy</code> 代码。</p>
+<figure class="highlight go"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs go"><span class="hljs-comment">// Reward 处理兑换逻辑</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(h *RelayHandler)</span></span> Reward(w http.ResponseWriter, r *http.Request) &#123;<br>    <span class="hljs-comment">// ... 前面的合约调用代码 (DispenseReward) ...</span><br><br>    <span class="hljs-comment">// 3. 链上成功后，清理 Redis 并更新统计</span><br>    ctx := r.Context()<br>    pipe := h.RDB.Pipeline()<br>    cleanAddr := strings.ToLower(req.Dest) <span class="hljs-comment">// 推荐人地址</span><br><br>    <span class="hljs-comment">// 原有的逻辑：清理暂存码、记录销量</span><br>    pipe.Del(ctx, <span class="hljs-string">&quot;vault:saved:&quot;</span>+cleanAddr) <br>    <span class="hljs-keyword">for</span> _, c := <span class="hljs-keyword">range</span> req.Codes &#123;<br>        cClean := strings.ToLower(c)<br>        pipe.SRem(ctx, <span class="hljs-string">&quot;vault:codes:valid&quot;</span>, cClean)<br>        pipe.SAdd(ctx, <span class="hljs-string">&quot;vault:codes:rewarded&quot;</span>, cClean)<br>    &#125;<br>    <br>    <span class="hljs-comment">// --- 新增：记录该钱包地址的成功推荐次数 ---</span><br>    <span class="hljs-comment">// 每次成功领取，该地址的推荐人数 +1</span><br>    pipe.HIncrBy(ctx, <span class="hljs-string">&quot;whale_vault:referrer_stats&quot;</span>, cleanAddr, <span class="hljs-number">1</span>)<br><br>    <span class="hljs-comment">// 记录今日全球总销量</span><br>    pipe.HIncrBy(ctx, <span class="hljs-string">&quot;whale_vault:daily_mints&quot;</span>, time.Now().Format(<span class="hljs-string">&quot;2006-01-02&quot;</span>), <span class="hljs-number">1</span>)<br>    <br>    _, err = pipe.Exec(ctx)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>        log.Printf(<span class="hljs-string">&quot;Redis 统计更新失败: %v&quot;</span>, err)<br>    &#125;<br><br>    h.sendJSON(w, http.StatusOK, CommonResponse&#123;<br>        Ok:     <span class="hljs-literal">true</span>,<br>        Status: finalBizHash,<br>        TxHash: txHash,<br>    &#125;)<br>&#125;<br><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="3-如何查看推荐排名？"><a href="#3-如何查看推荐排名？" class="headerlink" title="3. 如何查看推荐排名？"></a>3. 如何查看推荐排名？</h3><p>你可以在 Kali 终端使用 <code>redis-cli</code> 随时检查谁是你的“最强推广王”：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 查看所有推荐人的成功次数</span><br>redis-cli HGETALL whale_vault:referrer_stats<br><br><span class="hljs-comment"># 查看特定地址的推荐数量</span><br>redis-cli HGET whale_vault:referrer_stats 0xd404501fed512dc7f397d9086a6812852c4eb612<br><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="4-后续升级建议：等级系统"><a href="#4-后续升级建议：等级系统" class="headerlink" title="4. 后续升级建议：等级系统"></a>4. 后续升级建议：等级系统</h3><p>既然你提到了“升级”，你可以根据 Redis 里的这个数值在前端 <code>Reward.tsx</code> 或新的 <code>Profile.tsx</code> 中展示勋章：</p>
+<ul>
+<li><strong>1-5 次</strong>：青铜护法 (Bronze)</li>
+<li><strong>6-20 次</strong>：白银先锋 (Silver)</li>
+<li><strong>21 次以上</strong>：黄金巨鲸 (Gold Whale)</li>
+</ul>
+<h3 id="5-前端展示-Reward-tsx"><a href="#5-前端展示-Reward-tsx" class="headerlink" title="5. 前端展示 (Reward.tsx)"></a>5. 前端展示 (Reward.tsx)</h3><p>如果你想在领取成功后，让用户看到自己累计推荐了多少人，可以修改后端 <code>Reward</code> 接口返回这个数值，前端 <code>status.msg</code> 就可以写成：<br><code>&quot;🎉 领取成功！您已累计推荐 $&#123;data.totalReferrals&#125; 位读者。&quot;</code></p>
+<p><strong>下一步：需要我帮你写一个简单的 <code>Leaderboard</code> (排行榜) 接口，让大家在网页上看到推荐排名吗？这能极大地刺激读者的分享欲。</strong></p>
+<h1 id="查询特定钱包地址推荐了多少新读者"><a href="#查询特定钱包地址推荐了多少新读者" class="headerlink" title="查询特定钱包地址推荐了多少新读者"></a>查询特定钱包地址推荐了多少新读者</h1><p>要查询特定钱包地址推荐了多少新读者，目前主要有两种方式：一种是通过 <strong>Redis 命令行</strong>直接在后台查询原始数据，另一种是我们可以<strong>新增一个 API 接口</strong>让前端页面能够展示出来。</p>
+<p>以下是具体的查询方法和实现建议：</p>
+<h3 id="1-后台直接查询-最快的方法"><a href="#1-后台直接查询-最快的方法" class="headerlink" title="1. 后台直接查询 (最快的方法)"></a>1. 后台直接查询 (最快的方法)</h3><p>由于我们在 <code>internal/handlers/relay.go</code> 中使用了 <code>HIncrBy</code> 将数据存入了 Redis 的 <code>whale_vault:referrer_stats</code> 表中，你可以直接在 Kali 终端执行以下命令：</p>
+<ul>
+<li><strong>查询特定地址的推荐数：</strong></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 将下面的地址替换为您要查询的钱包地址</span><br>redis-cli HGET whale_vault:referrer_stats 0xd404501fed512dc7f397d9086a6812852c4eb612<br><br></code></pre></div></td></tr></table></figure>
+
+
+<ul>
+<li><strong>查看完整的推荐排行榜：</strong></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">redis-cli HGETALL whale_vault:referrer_stats<br><br></code></pre></div></td></tr></table></figure>
+
+
+
+<hr>
+<h3 id="2-通过代码自动化展示-建议方案"><a href="#2-通过代码自动化展示-建议方案" class="headerlink" title="2. 通过代码自动化展示 (建议方案)"></a>2. 通过代码自动化展示 (建议方案)</h3><p>如果你希望读者能在前端页面（如 <code>Reward.tsx</code>）看到自己的成就，或者你想做一个排行榜，建议在后端增加一个查询接口。</p>
+<h4 id="第一步：在-internal-handlers-relay-go-中添加查询函数"><a href="#第一步：在-internal-handlers-relay-go-中添加查询函数" class="headerlink" title="第一步：在 internal/handlers/relay.go 中添加查询函数"></a>第一步：在 <code>internal/handlers/relay.go</code> 中添加查询函数</h4><p>你可以添加一个 <code>GetReferrerStats</code> 函数：</p>
+<figure class="highlight go"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs go"><span class="hljs-comment">// GetReferrerStats 获取推荐人的统计信息</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(h *RelayHandler)</span></span> GetReferrerStats(w http.ResponseWriter, r *http.Request) &#123;<br>    addr := strings.ToLower(strings.TrimSpace(r.URL.Query().Get(<span class="hljs-string">&quot;address&quot;</span>)))<br>    <span class="hljs-keyword">if</span> addr == <span class="hljs-string">&quot;&quot;</span> &#123;<br>        <span class="hljs-comment">// 如果不传地址，返回前 10 名排行榜</span><br>        stats, _ := h.RDB.HGetAll(r.Context(), <span class="hljs-string">&quot;whale_vault:referrer_stats&quot;</span>).Result()<br>        h.sendJSON(w, http.StatusOK, <span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]<span class="hljs-keyword">interface</span>&#123;&#125;&#123;<span class="hljs-string">&quot;ok&quot;</span>: <span class="hljs-literal">true</span>, <span class="hljs-string">&quot;all_stats&quot;</span>: stats&#125;)<br>        <span class="hljs-keyword">return</span><br>    &#125;<br><br>    <span class="hljs-comment">// 查询特定地址</span><br>    count, _ := h.RDB.HGet(r.Context(), <span class="hljs-string">&quot;whale_vault:referrer_stats&quot;</span>, addr).Result()<br>    h.sendJSON(w, http.StatusOK, <span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]<span class="hljs-keyword">interface</span>&#123;&#125;&#123;<br>        <span class="hljs-string">&quot;ok&quot;</span>:      <span class="hljs-literal">true</span>,<br>        <span class="hljs-string">&quot;address&quot;</span>: addr,<br>        <span class="hljs-string">&quot;count&quot;</span>:   count,<br>    &#125;)<br>&#125;<br><br></code></pre></div></td></tr></table></figure>
+
+<h4 id="第二步：在-main-go-中注册路由"><a href="#第二步：在-main-go-中注册路由" class="headerlink" title="第二步：在 main.go 中注册路由"></a>第二步：在 <code>main.go</code> 中注册路由</h4><p>在 <code>main.go</code> 的路由部分添加一行：</p>
+<figure class="highlight go"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs go">router.HandleFunc(<span class="hljs-string">&quot;/relay/stats&quot;</span>, relayH.GetReferrerStats).Methods(<span class="hljs-string">&quot;GET&quot;</span>)<br><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="3-在前端查看"><a href="#3-在前端查看" class="headerlink" title="3. 在前端查看"></a>3. 在前端查看</h3><p>一旦你完成了上述接口开发，你只需要在浏览器访问：<br><code>http://192.168.47.130:8080/relay/stats?address=0xD404...</code><br>就能实时看到该地址成功推荐的人数了。</p>
+<h3 id="数据记录逻辑回顾"><a href="#数据记录逻辑回顾" class="headerlink" title="数据记录逻辑回顾"></a>数据记录逻辑回顾</h3><p>目前的系统逻辑是：</p>
+<ol>
+<li>用户在 <code>Reward.tsx</code> 中填入 5 个书码并点击领取。</li>
+<li>后端 <code>relay.go</code> 调用合约成功发出 0.001 MON 奖励。</li>
+<li><strong>关键点：</strong> 合约调用成功后，后端会立即通过 <code>pipe.HIncrBy</code> 将该 <code>dest</code> 地址的推荐计数加 1。</li>
+</ol>
+<h3 id="为什么这里记的是“5个码-1次推荐”？"><a href="#为什么这里记的是“5个码-1次推荐”？" class="headerlink" title="为什么这里记的是“5个码 &#x3D; 1次推荐”？"></a>为什么这里记的是“5个码 &#x3D; 1次推荐”？</h3><p>在你的终焉大盘系统中，一个读者通常集齐 5 个码才能触发一次返利逻辑。因此，目前的 <code>HIncrBy</code> 记录的是**“成功完成返利兑换的次数”**。</p>
+<p>如果你需要记录得更细（例如：只要有人扫了一个码就算一次推荐），我们需要在 <code>SaveCode</code> 函数中也加入类似的计数逻辑。目前按照你的要求，它是跟“成功领取奖励”挂钩的，这样能有效防止刷单。</p>
+<h1 id="手动修改推荐数据进行测试"><a href="#手动修改推荐数据进行测试" class="headerlink" title="手动修改推荐数据进行测试"></a>手动修改推荐数据进行测试</h1><p>看到这个返回结果，说明你的<strong>后端接口逻辑已经完全跑通了</strong>，能够正确从 Redis 中读取数据并返回给浏览器。</p>
+<p>显示 <code>&quot;count&quot;: &quot;0&quot;</code> 的原因很简单：<strong>这个钱包地址还没有完成过一次成功的“5 码兑换”流程</strong>。在你的 <code>relay.go</code> 逻辑中，推荐计数的增加是写在 <code>Reward</code> 函数（即集齐 5 码并成功调用区块链合约）之后的。</p>
+<h3 id="1-为什么现在是-0？"><a href="#1-为什么现在是-0？" class="headerlink" title="1. 为什么现在是 0？"></a>1. 为什么现在是 0？</h3><ul>
+<li><strong>逻辑绑定</strong>：你的系统设定是“每成功领取一次返利，推荐数 +1”。</li>
+<li><strong>数据隔离</strong>：如果你只是扫了码（调用了 <code>SaveCode</code>）但没有凑齐 5 个码点击“提交领取”，或者点击提交但交易失败了，Redis 里的计数器就不会触发 <code>HIncrBy</code>。</li>
+<li><strong>地址匹配</strong>：后端会自动将地址转为小写 <code>0xd404...</code> 进行存储和查询，这部分逻辑工作正常。</li>
+</ul>
+<h3 id="2-如何让它变成-1？（测试流程）"><a href="#2-如何让它变成-1？（测试流程）" class="headerlink" title="2. 如何让它变成 1？（测试流程）"></a>2. 如何让它变成 1？（测试流程）</h3><p>为了验证计数功能，你需要完成一个完整的“闭环”：</p>
+<ol>
+<li><strong>准备数据</strong>：确保 Redis 的 <code>vault:codes:valid</code> 集合里至少有 5 个可用的书码 Hash。</li>
+<li><strong>前端操作</strong>：在 <code>Reward.tsx</code> 页面填入地址 <code>0xD404...</code>，然后通过扫码或手动填入这 5 个有效 Hash。</li>
+<li><strong>触发兑换</strong>：点击“集齐 5 码领取 0.001 MON”按钮。</li>
+<li><strong>后端执行</strong>：</li>
+</ol>
+<ul>
+<li>后端调用 <code>blockchain.DispenseReward</code> 成功。</li>
+<li>后端执行 <code>pipe.HIncrBy(ctx, &quot;whale_vault:referrer_stats&quot;, cleanAddr, 1)</code>。</li>
+</ul>
+<ol start="5">
+<li><strong>再次刷新</strong>：这时再访问统计接口，<code>count</code> 就会变成 <code>&quot;1&quot;</code>。</li>
+</ol>
+<h3 id="3-如果你想手动修改数据进行测试"><a href="#3-如果你想手动修改数据进行测试" class="headerlink" title="3. 如果你想手动修改数据进行测试"></a>3. 如果你想手动修改数据进行测试</h3><p>如果你想直接看前端弹窗效果，不想走链上交易，可以手动在 Kali 终端给这个地址“充值”推荐数：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 手动设置该地址的推荐数为 10</span><br>redis-cli HSET whale_vault:referrer_stats 0xd404501fed512dc7f397d9086a6812852c4eb612 10<br><br></code></pre></div></td></tr></table></figure>
+
+<p>设置后再刷新浏览器接口，你就能看到数值变化了。</p>
+<h3 id="4-你的下一个阶段：排行榜功能"><a href="#4-你的下一个阶段：排行榜功能" class="headerlink" title="4. 你的下一个阶段：排行榜功能"></a>4. 你的下一个阶段：排行榜功能</h3><p>既然单个地址的查询已经搞定，你可以在 <code>Reward.tsx</code> 下方加一个**“社区达人榜”**。</p>
+<p>你需要我为你写一个前端组件，用来展示 <code>all_stats</code>（即所有人的推荐排名）吗？这样可以让你的“金库协议”看起来更像一个拥有活跃社区的项目。</p>
+<h1 id="如何把这个排行榜加上去"><a href="#如何把这个排行榜加上去" class="headerlink" title="如何把这个排行榜加上去"></a>如何把这个排行榜加上去</h1><p>要将这个排行榜功能完整地集成到你的系统中，你需要执行以下三个步骤。这包括在后端逻辑中确保数据能够正确返回，以及在前端创建一个美观的排行榜组件并将其放入页面。</p>
+<h3 id="第一步：确保后端-relay-go-逻辑支持全量查询"><a href="#第一步：确保后端-relay-go-逻辑支持全量查询" class="headerlink" title="第一步：确保后端 relay.go 逻辑支持全量查询"></a>第一步：确保后端 <code>relay.go</code> 逻辑支持全量查询</h3><p>在你之前的 <code>GetReferrerStats</code> 函数逻辑中，当 <code>address</code> 参数为空时，它会返回 Redis 中的所有统计数据。请确保你的 <code>internal/handlers/relay.go</code> 中包含这段代码：</p>
+<figure class="highlight go"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs go"><span class="hljs-comment">// GetReferrerStats 获取推荐人统计信息</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(h *RelayHandler)</span></span> GetReferrerStats(w http.ResponseWriter, r *http.Request) &#123;<br>    addr := strings.ToLower(strings.TrimSpace(r.URL.Query().Get(<span class="hljs-string">&quot;address&quot;</span>)))<br>    ctx := r.Context()<br><br>    <span class="hljs-comment">// 如果地址为空，则返回全量排行榜</span><br>    <span class="hljs-keyword">if</span> addr == <span class="hljs-string">&quot;&quot;</span> &#123;<br>        stats, err := h.RDB.HGetAll(ctx, <span class="hljs-string">&quot;whale_vault:referrer_stats&quot;</span>).Result()<br>        <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>            h.sendJSON(w, http.StatusInternalServerError, CommonResponse&#123;Error: <span class="hljs-string">&quot;获取排行失败&quot;</span>&#125;)<br>            <span class="hljs-keyword">return</span><br>        &#125;<br>        h.sendJSON(w, http.StatusOK, <span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]<span class="hljs-keyword">interface</span>&#123;&#125;&#123;<span class="hljs-string">&quot;ok&quot;</span>: <span class="hljs-literal">true</span>, <span class="hljs-string">&quot;all_stats&quot;</span>: stats&#125;)<br>        <span class="hljs-keyword">return</span><br>    &#125;<br><br>    <span class="hljs-comment">// 查询特定地址逻辑保持不变...</span><br>&#125;<br><br></code></pre></div></td></tr></table></figure>
+
+<h3 id="第二步：创建前端排行榜组件-Leaderboard-tsx"><a href="#第二步：创建前端排行榜组件-Leaderboard-tsx" class="headerlink" title="第二步：创建前端排行榜组件 Leaderboard.tsx"></a>第二步：创建前端排行榜组件 <code>Leaderboard.tsx</code></h3><p>在你的前端项目 <code>src/components/</code> 目录下创建一个新文件 <code>Leaderboard.tsx</code>。这个组件会自动抓取后端数据并按推荐次数排序。</p>
+<figure class="highlight tsx"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs tsx"><span class="hljs-keyword">import</span> <span class="hljs-title class_">React</span>, &#123; useEffect, useState &#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react&#x27;</span>;<br><br><span class="hljs-keyword">interface</span> <span class="hljs-title class_">LeaderboardItem</span> &#123;<br>  <span class="hljs-attr">address</span>: <span class="hljs-built_in">string</span>;<br>  <span class="hljs-attr">count</span>: <span class="hljs-built_in">number</span>;<br>&#125;<br><br><span class="hljs-keyword">const</span> <span class="hljs-title class_">Leaderboard</span>: <span class="hljs-title class_">React</span>.<span class="hljs-property">FC</span> = <span class="hljs-function">() =&gt;</span> &#123;<br>  <span class="hljs-keyword">const</span> [list, setList] = useState&lt;<span class="hljs-title class_">LeaderboardItem</span>[]&gt;([]);<br>  <span class="hljs-keyword">const</span> [loading, setLoading] = <span class="hljs-title function_">useState</span>(<span class="hljs-literal">true</span>);<br><br>  <span class="hljs-keyword">const</span> <span class="hljs-title function_">fetchLeaderboard</span> = <span class="hljs-keyword">async</span> (<span class="hljs-params"></span>) =&gt; &#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>      <span class="hljs-comment">// 请求后端统计接口（不带 address 参数获取全量）</span><br>      <span class="hljs-keyword">const</span> res = <span class="hljs-keyword">await</span> <span class="hljs-title function_">fetch</span>(<span class="hljs-string">&#x27;http://192.168.47.130:8080/relay/stats&#x27;</span>);<br>      <span class="hljs-keyword">const</span> data = <span class="hljs-keyword">await</span> res.<span class="hljs-title function_">json</span>();<br>      <br>      <span class="hljs-keyword">if</span> (data.<span class="hljs-property">ok</span> &amp;&amp; data.<span class="hljs-property">all_stats</span>) &#123;<br>        <span class="hljs-comment">// 将 Redis 的 Hash 对象转为数组并按 count 从大到小排序</span><br>        <span class="hljs-keyword">const</span> formattedList = <span class="hljs-title class_">Object</span>.<span class="hljs-title function_">entries</span>(data.<span class="hljs-property">all_stats</span>).<span class="hljs-title function_">map</span>(<span class="hljs-function">(<span class="hljs-params">[addr, count]</span>) =&gt;</span> (&#123;<br>          <span class="hljs-attr">address</span>: addr,<br>          <span class="hljs-attr">count</span>: <span class="hljs-built_in">parseInt</span>(count <span class="hljs-keyword">as</span> <span class="hljs-built_in">string</span>, <span class="hljs-number">10</span>),<br>        &#125;)).<span class="hljs-title function_">sort</span>(<span class="hljs-function">(<span class="hljs-params">a, b</span>) =&gt;</span> b.<span class="hljs-property">count</span> - a.<span class="hljs-property">count</span>);<br>        <br>        <span class="hljs-title function_">setList</span>(formattedList.<span class="hljs-title function_">slice</span>(<span class="hljs-number">0</span>, <span class="hljs-number">10</span>)); <span class="hljs-comment">// 取前 10 名</span><br>      &#125;<br>    &#125; <span class="hljs-keyword">catch</span> (e) &#123;<br>      <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">&quot;排行榜数据抓取失败&quot;</span>, e);<br>    &#125; <span class="hljs-keyword">finally</span> &#123;<br>      <span class="hljs-title function_">setLoading</span>(<span class="hljs-literal">false</span>);<br>    &#125;<br>  &#125;;<br><br>  <span class="hljs-title function_">useEffect</span>(<span class="hljs-function">() =&gt;</span> &#123;<br>    <span class="hljs-title function_">fetchLeaderboard</span>();<br>    <span class="hljs-keyword">const</span> timer = <span class="hljs-built_in">setInterval</span>(fetchLeaderboard, <span class="hljs-number">30000</span>); <span class="hljs-comment">// 每 30 秒自动刷新</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-function">() =&gt;</span> <span class="hljs-built_in">clearInterval</span>(timer);<br>  &#125;, []);<br><br>  <span class="hljs-keyword">if</span> (loading) <span class="hljs-keyword">return</span> <span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;text-center text-slate-500 py-4 text-xs&quot;</span>&gt;</span>同步金库排行中...<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>;<br><br>  <span class="hljs-keyword">return</span> (<br>    <span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;mt-8 w-full bg-[#1e293b]/30 rounded-2xl border border-white/5 overflow-hidden&quot;</span>&gt;</span></span><br><span class="language-xml">      <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;p-4 border-b border-white/5 bg-white/5&quot;</span>&gt;</span></span><br><span class="language-xml">        <span class="hljs-tag">&lt;<span class="hljs-name">h3</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;text-sm font-bold text-blue-400&quot;</span>&gt;</span>🏆 社区贡献排行榜<span class="hljs-tag">&lt;/<span class="hljs-name">h3</span>&gt;</span></span><br><span class="language-xml">      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span><br><span class="language-xml">      <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;divide-y divide-white/5&quot;</span>&gt;</span></span><br><span class="language-xml">        &#123;list.map((item, index) =&gt; (</span><br><span class="language-xml">          <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">key</span>=<span class="hljs-string">&#123;item.address&#125;</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;flex items-center justify-between p-3&quot;</span>&gt;</span></span><br><span class="language-xml">            <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;flex items-center gap-3&quot;</span>&gt;</span></span><br><span class="language-xml">              <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&#123;</span>`<span class="hljs-attr">text-xs</span> <span class="hljs-attr">font-bold</span> <span class="hljs-attr">w-5</span> <span class="hljs-attr">h-5</span> <span class="hljs-attr">flex</span> <span class="hljs-attr">items-center</span> <span class="hljs-attr">justify-center</span> <span class="hljs-attr">rounded-full</span> $&#123;</span></span><br><span class="hljs-tag"><span class="language-xml">                <span class="hljs-attr">index</span> === <span class="hljs-string">0</span> ? &#x27;<span class="hljs-attr">bg-yellow-500</span> <span class="hljs-attr">text-black</span>&#x27; <span class="hljs-attr">:</span> &#x27;<span class="hljs-attr">bg-slate-700</span> <span class="hljs-attr">text-slate-400</span>&#x27;</span></span><br><span class="hljs-tag"><span class="language-xml">              &#125;`&#125;&gt;</span></span><br><span class="language-xml">                &#123;index + 1&#125;</span><br><span class="language-xml">              <span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></span><br><span class="language-xml">              <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;text-xs font-mono text-slate-400&quot;</span>&gt;</span></span><br><span class="language-xml">                &#123;item.address.slice(0, 6)&#125;...&#123;item.address.slice(-4)&#125;</span><br><span class="language-xml">              <span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></span><br><span class="language-xml">            <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span><br><span class="language-xml">            <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;text-xs font-bold text-blue-400&quot;</span>&gt;</span>&#123;item.count&#125; 次领取<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span><br><span class="language-xml">          <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span><br><span class="language-xml">        ))&#125;</span><br><span class="language-xml">        &#123;list.length === 0 &amp;&amp; <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;p-4 text-center text-xs text-slate-600&quot;</span>&gt;</span>暂无推荐记录<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>&#125;</span><br><span class="language-xml">      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span><br><span class="language-xml">    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span><br>  );<br>&#125;;<br><br><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-title class_">Leaderboard</span>;<br><br></code></pre></div></td></tr></table></figure>
+
+<h3 id="第三步：集成到主页面-Reward-tsx"><a href="#第三步：集成到主页面-Reward-tsx" class="headerlink" title="第三步：集成到主页面 Reward.tsx"></a>第三步：集成到主页面 <code>Reward.tsx</code></h3><p>现在，你只需要在你现有的 <code>Reward.tsx</code> 文件中引入并放置 <code>Leaderboard</code> 组件即可。</p>
+<figure class="highlight tsx"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs tsx"><span class="hljs-comment">// 1. 在 Reward.tsx 顶部引入</span><br><span class="hljs-keyword">import</span> <span class="hljs-title class_">Leaderboard</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./Leaderboard&#x27;</span>; <br><br><span class="hljs-comment">// 2. 在 Reward 组件的 return 部分，放在主容器内部的最后面</span><br><span class="hljs-keyword">return</span> (<br>  <span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;min-h-screen bg-[#0f172a] text-white flex flex-col items-center justify-center p-4&quot;</span>&gt;</span></span><br><span class="language-xml">    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;max-w-md w-full bg-[#1e293b] p-8 rounded-2xl border border-white/10 shadow-2xl&quot;</span>&gt;</span></span><br><span class="language-xml">      &#123;/* 原有的 拍照提取返利 UI ... */&#125;</span><br><span class="language-xml">      </span><br><span class="language-xml">      <span class="hljs-tag">&lt;<span class="hljs-name">h2</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;text-2xl font-bold mb-6 text-center text-blue-400&quot;</span>&gt;</span>🐳 拍照提取返利<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span></span><br><span class="language-xml">      </span><br><span class="language-xml">      &#123;/* ... 省略中间的表单和按钮代码 ... */&#125;</span><br><span class="language-xml"></span><br><span class="language-xml">      &#123;/* 3. 在按钮下方加入排行榜组件 */&#125;</span><br><span class="language-xml">      <span class="hljs-tag">&lt;<span class="hljs-name">Leaderboard</span> /&gt;</span></span><br><span class="language-xml">    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span><br><span class="language-xml">  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span><br>);<br><br></code></pre></div></td></tr></table></figure>
+
+<h3 id="为什么这样做效果最好？"><a href="#为什么这样做效果最好？" class="headerlink" title="为什么这样做效果最好？"></a>为什么这样做效果最好？</h3><ol>
+<li><strong>视觉统一</strong>：排行榜直接嵌套在“拍照提取”的容器下方，用户领完奖一眼就能看到自己的排名变化。</li>
+<li><strong>数据实时</strong>：<code>useEffect</code> 中的定时器保证了数据的鲜活度，配合你之前在 <code>Reward</code> 成功后的 <code>alert</code> 提示，极大地增强了用户的成就感。</li>
+<li><strong>性能友好</strong>：前端处理排序，后端只负责透传 Redis 的原始 Hash 数据，减轻了 Kali 服务器的计算压力。</li>
+</ol>
+<p>完成后，重启你的 Vite 前端和 Go 后端。当你（或任何用户）成功完成一次 5 码领取后，刷新页面，你就会看到该地址出现在“社区贡献排行榜”的第一名了！需要我帮你把排名第一的地址加上动态闪烁特效吗？</p>
+<h1 id="帮你写一个完整的、包含“自动查询绑定地址”逻辑的-main-go"><a href="#帮你写一个完整的、包含“自动查询绑定地址”逻辑的-main-go" class="headerlink" title="帮你写一个完整的、包含“自动查询绑定地址”逻辑的 main.go"></a>帮你写一个完整的、包含“自动查询绑定地址”逻辑的 main.go</h1><p>由于之前的 git rebase 冲突导致代码逻辑被误改为简单的“核销模式”，破坏了你原本设计的“扫码即查询绑定私钥&#x2F;地址”的核心功能。</p>
+<p>为了修复 Unexpected non-whitespace character 报错（通常由调试日志污染响应流引起）并恢复自动填充地址的功能，我为你重构了完整的 main.go。这个版本完美融合了：</p>
+<p>HashCode 自动查询绑定地址：通过 getBindingHandler 实现。</p>
+<p>三级身份校验：出版社、作者、读者的权限分发。</p>
+<p>安全代付 Mint：核销逻辑与链上交易。</p>
+<p>推荐排行榜支持：保留了 &#x2F;relay&#x2F;stats 等新功能路由。</p>
+<h1 id="下一步建议"><a href="#下一步建议" class="headerlink" title="下一步建议"></a>下一步建议</h1><p>一旦地图能显示出来，我可以帮你写一个 IP 定位转换函数。这样当读者在 Success.tsx 点击领取 NFT 时，后端能自动抓取他们的公网 IP 并转换成坐标存入 Redis，实现真正的“回响”实时更新。你要现在给 main.go 加上这个功能吗？</p>
+<h1 id="大盘系统"><a href="#大盘系统" class="headerlink" title="大盘系统"></a>大盘系统</h1><p>完全没问题。事实上，在黑客松或快速原型开发中，<strong>“前端先行” (Frontend-Driven Development)</strong> 往往是更高效率的选择。</p>
+<p>这不仅能让你快速看到“终焉大盘”长什么样，还能帮你反向推导合约到底需要哪些接口。</p>
+<hr>
+<h3 id="1-为什么“先写前端”是正确的预判？"><a href="#1-为什么“先写前端”是正确的预判？" class="headerlink" title="1. 为什么“先写前端”是正确的预判？"></a>1. 为什么“先写前端”是正确的预判？</h3><ul>
+<li><strong>定义数据结构</strong>：你在写前端 UI 时，会发现“我需要显示书籍封面、当前销量、十天前的快照、倒计时”。这会帮你梳理出 <code>QuickNFT.sol</code> 和 <code>Factory</code> 必须存储哪些变量。</li>
+<li><strong>模拟博弈流程</strong>：你可以先用 <strong>Mock Data（模拟数据）</strong> 把那 24 小时押注、10 天封盘、挑战期的流程跑通。这比直接改合约代码要快得多。</li>
+<li><strong>给李师傅发“说明书”</strong>：当你写好前端，你可以直接指着屏幕告诉李师傅：“看，我这里需要一个 <code>getGrowth()</code> 函数，你合约里得帮我实现这个逻辑。” 这比空口说白话要高效。</li>
+</ul>
+<hr>
+<h3 id="2-前端开发的“三步走”策略-1月27日"><a href="#2-前端开发的“三步走”策略-1月27日" class="headerlink" title="2. 前端开发的“三步走”策略 (1月27日)"></a>2. 前端开发的“三步走”策略 (1月27日)</h3><p>既然你决定先写前端，我建议你按以下顺序构建组件：</p>
+<h4 id="第一步：构建“书架”-Bookshelf"><a href="#第一步：构建“书架”-Bookshelf" class="headerlink" title="第一步：构建“书架” (Bookshelf)"></a>第一步：构建“书架” (Bookshelf)</h4><p>这个组件负责展示所有书籍。你可以先写死一个 JSON 数组，等李师傅写完 Factory，再改成从链上拉取。</p>
+<ul>
+<li><strong>关键点</strong>：区分“普通读者视图”和“出版社管理视图”。</li>
+<li><strong>功能</strong>：显示每本书的 <code>totalSupply</code>。</li>
+</ul>
+<h4 id="第二步：构建“终焉大盘”-The-Grand-Market"><a href="#第二步：构建“终焉大盘”-The-Grand-Market" class="headerlink" title="第二步：构建“终焉大盘” (The Grand Market)"></a>第二步：构建“终焉大盘” (The Grand Market)</h4><p>这是你预测十天后销量第一的核心系统。</p>
+<ul>
+<li><strong>关键点</strong>：实现那个**“阶段进度条”**（押注 -&gt; 封盘 -&gt; 挑战 -&gt; 结算）。</li>
+<li><strong>逻辑</strong>：写一个模拟的 <code>finalize()</code> 按钮，点击后对比各书销量。</li>
+</ul>
+<h4 id="第三步：集成“地理回响”-Echo-Map"><a href="#第三步：集成“地理回响”-Echo-Map" class="headerlink" title="第三步：集成“地理回响” (Echo Map)"></a>第三步：集成“地理回响” (Echo Map)</h4><p>把你之前跑通的 <code>Heatmap.tsx</code> 放到书籍详情页。</p>
+<ul>
+<li><strong>效果</strong>：点击某本书，地图上显示这本书的读者分布。</li>
+</ul>
+<hr>
+<h3 id="3-一个建议：使用-JSON-RPC-模拟合约"><a href="#3-一个建议：使用-JSON-RPC-模拟合约" class="headerlink" title="3. 一个建议：使用 JSON-RPC 模拟合约"></a>3. 一个建议：使用 <code>JSON-RPC</code> 模拟合约</h3><p>在李师傅还没交付合约之前，你可以用 <strong>ethers.js</strong> 的 <code>Interface</code> 来定义你想要的合约长什么样，前端逻辑先跑起来：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs typescript"><span class="hljs-comment">// 预判：我需要的合约接口长这样</span><br><span class="hljs-keyword">const</span> abi = [<br>  <span class="hljs-string">&quot;function totalSupply() view returns (uint256)&quot;</span>,<br>  <span class="hljs-string">&quot;function startTime() view returns (uint256)&quot;</span>,<br>  <span class="hljs-string">&quot;function author() view returns (address)&quot;</span><br>];<br><br><span class="hljs-comment">// 前端暂时用模拟地址</span><br><span class="hljs-keyword">const</span> mockAddress = <span class="hljs-string">&quot;0x742d35Cc6634C0532925a3b844Bc454e4438f44e&quot;</span>;<br><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="4-职业Wit提醒"><a href="#4-职业Wit提醒" class="headerlink" title="4. 职业Wit提醒"></a>4. 职业Wit提醒</h3><p>你现在的状态非常像你大三时的宏观预判：<strong>先看穿全局（前端交互和业务逻辑），再入场操作（写合约代码）。</strong> 李师傅虽然有经验，但他可能习惯于“接需求”。你先把前端做出来，就相当于把“需求”变成了实物。当他看到你精美的大盘 UI 和清晰的挑战逻辑时，他会更佩服你的执行力，也会更愿意配合你那种“疯狂”的百万合约计划。</p>
+<hr>
+<h3 id="💡-接下来我们做什么？"><a href="#💡-接下来我们做什么？" class="headerlink" title="💡 接下来我们做什么？"></a>💡 接下来我们做什么？</h3><p>要不要我现在帮你写一个**“终焉大盘排行榜”的 React 组件**？</p>
+<ul>
+<li>它能展示书籍排名。</li>
+<li>自带那个“十天倒计时”逻辑。</li>
+<li>还有一个“挑战”按钮，点击时会模拟销量对比。</li>
+</ul>
+<p><strong>如果你准备好了，告诉我，我们把这个“竞技场”先搭起来。</strong></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/01/26/21594.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">golang开发2</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/01/25/30058.html">
+                        <span class="hidden-mobile">Conflux和Monad有什么区别？</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>

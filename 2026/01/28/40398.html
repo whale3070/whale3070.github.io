@@ -1,0 +1,740 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>Conflux eSpace - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/search/">
+                <i class="iconfont icon-search"></i>
+                搜索
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="Conflux eSpace">
+                      
+                        Conflux eSpace
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-01-28 12:44" pubdate>
+        2026年1月28日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      5.7k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      67
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">Conflux eSpace</h1>
+            
+            <div class="markdown-body">
+              <p>上一篇文章了解到了Conflux core和Conflux eSpace的区别。<br>并且把Conflux core的代币转到了Conflux eSpace。</p>
+<p>注意： 这里有个坑就是官方领水的地址，只能转到Conflux core钱包地址，不能直接转到Conflux eSpace的钱包地址。<br>所以自己的钱包两个地址，需要再转一次。</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs pgsql">└─# <span class="hljs-keyword">cast</span> balance <span class="hljs-number">0x5E8de2503881a49ed4db721E4fbAfc106C3782E6</span> <span class="hljs-comment">--rpc-url https://evmtestnet.confluxrpc.com</span><br><br><span class="hljs-built_in">Warning</span>: This <span class="hljs-keyword">is</span> a nightly build <span class="hljs-keyword">of</span> Foundry. It <span class="hljs-keyword">is</span> recommended <span class="hljs-keyword">to</span> use the latest <span class="hljs-keyword">stable</span> <span class="hljs-keyword">version</span>. <span class="hljs-keyword">To</span> mute this <span class="hljs-built_in">warning</span> <span class="hljs-keyword">set</span> `FOUNARNING` <span class="hljs-keyword">in</span> your environment.<br><br><span class="hljs-number">150000000000000000000</span><br></code></pre></div></td></tr></table></figure>
+
+<p>这代表Conflux eSpace的钱包地址有了代币。可以部署智能合约了。</p>
+<h1 id="部署合约地址"><a href="#部署合约地址" class="headerlink" title="部署合约地址"></a>部署合约地址</h1><p>forge create –rpc-url <a target="_blank" rel="noopener" href="https://evmtestnet.confluxrpc.com/">https://evmtestnet.confluxrpc.com</a> <br>  –private-key &lt;你的私钥&gt; <br>  –evm-version shanghai <br>  src&#x2F;QuickNFT.sol:QuickNFT</p>
+<h1 id="conflux可以从私钥推导出公钥吗？"><a href="#conflux可以从私钥推导出公钥吗？" class="headerlink" title="conflux可以从私钥推导出公钥吗？"></a>conflux可以从私钥推导出公钥吗？</h1><p>简单直接的回答是：<strong>可以，这是椭圆曲线加密（ECC）的数学特性决定的。</strong></p>
+<p>在 Conflux（以及以太坊、比特币等绝大多数主流公链）中，私钥到公钥的推导是<strong>单向且确定</strong>的。其逻辑路径如下：<br><strong>私钥 ()  公钥 ()  账户地址 (Address)</strong></p>
+<hr>
+<h3 id="1-底层数学逻辑"><a href="#1-底层数学逻辑" class="headerlink" title="1. 底层数学逻辑"></a>1. 底层数学逻辑</h3><p>Conflux 使用的是和以太坊相同的椭圆曲线算法：<strong>secp256k1</strong>。</p>
+<ul>
+<li><p><strong>推导过程：</strong> 公钥是通过私钥（一个随机的 256 位数字）与曲线上的生成点（Generator Point, ）进行标量乘法运算得到的。</p>
+</li>
+<li><p><strong>不可逆性：</strong> 虽然从私钥推导公钥极快，但从公钥反推私钥属于“离散对数问题”，在目前的计算能力下是几乎不可能的。</p>
+</li>
+</ul>
+<h3 id="2-Conflux-的特殊性（地址转换）"><a href="#2-Conflux-的特殊性（地址转换）" class="headerlink" title="2. Conflux 的特殊性（地址转换）"></a>2. Conflux 的特殊性（地址转换）</h3><p>虽然公钥推导逻辑相同，但 Conflux 的地址格式与以太坊不同。当你拿到公钥后，Conflux 会进行以下处理：</p>
+<ol>
+<li><strong>哈希处理：</strong> 对公钥进行 Keccak-256 哈希运算。</li>
+<li><strong>截取：</strong> 取哈希值的后 160 位（20 字节）。</li>
+<li><strong>编码：</strong> * <strong>Core Space：</strong> 转换为以 <code>cfx:</code> 开头的 base32 校验地址。</li>
+</ol>
+<ul>
+<li><strong>eSpace：</strong> 保持以 <code>0x</code> 开头的十六进制格式（为了兼容 EVM）。</li>
+</ul>
+<hr>
+<h3 id="3-如何在代码中操作？"><a href="#3-如何在代码中操作？" class="headerlink" title="3. 如何在代码中操作？"></a>3. 如何在代码中操作？</h3><p>既然你正在打磨“金库协议”的后端，你可能会用到 <code>js-conflux-sdk</code> 或类似的库。</p>
+<p><strong>JavaScript 示例：</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> &#123; <span class="hljs-title class_">PrivateKeyAccount</span> &#125; = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;js-conflux-sdk&#x27;</span>);<br><br><span class="hljs-keyword">const</span> privKey = <span class="hljs-string">&quot;0x你的私钥&quot;</span>;<br><span class="hljs-keyword">const</span> account = <span class="hljs-keyword">new</span> <span class="hljs-title class_">PrivateKeyAccount</span>(privKey);<br><br><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(account.<span class="hljs-property">publicKey</span>); <span class="hljs-comment">// 这就是推导出的公钥</span><br><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(account.<span class="hljs-property">address</span>);   <span class="hljs-comment">// 这是对应的 cfx 地址</span><br><br></code></pre></div></td></tr></table></figure>
+
+<p><strong>Go 示例 (如果你在写 Go 后端)：</strong><br>使用 <code>go-conflux-sdk</code> 或标准的 <code>crypto/ecdsa</code> 包：</p>
+<figure class="highlight go"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs go">privateKey, _ := crypto.HexToECDSA(<span class="hljs-string">&quot;你的私钥&quot;</span>)<br>publicKey := privateKey.Public()<br>publicKeyECDSA, _ := publicKey.(*ecdsa.PublicKey)<br><span class="hljs-comment">// 得到的 publicKeyECDSA 包含了 X 和 Y 坐标，即公钥</span><br><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="4-架构师的安全预判"><a href="#4-架构师的安全预判" class="headerlink" title="4. 架构师的安全预判"></a>4. 架构师的安全预判</h3><p>作为研究过高级攻防的开发者，你需要记住一个关键的“逻辑排除”：</p>
+<ul>
+<li><strong>私钥推导公钥：</strong> 绝对安全，是本地数学运算，不需要联网。</li>
+<li><strong>私钥存储：</strong> 在你的“金库协议”中，如果后端需要处理私钥，务必使用环境变量或加密后的 KeyStore，千万不要硬编码在代码里推送到 GitHub。</li>
+</ul>
+<p><strong>既然你提到了私钥推导，你是打算在后端自动为领书的读者生成临时钱包，还是要在合约层面验证某种签名逻辑？</strong> 如果需要，我可以帮你写一个更完整的 Go 语言私钥管理工具类。</p>
+<h1 id="部署智能合约到conflux"><a href="#部署智能合约到conflux" class="headerlink" title="部署智能合约到conflux"></a>部署智能合约到conflux</h1><p>我可以填写这个 cfx:aak68wpayjvvack4t29mduajjmny0gsrt2u72xx1pc 作为YOUR_TREASURY_ADDR吗</p>
+<hr>
+<p>简单直接的回答是：<strong>不行，执行会失败。</strong></p>
+<p>这是由 Conflux 的“双空间”设计逻辑决定的。作为一名做过攻防研究的开发者，你需要精准区分这两个“维度”：</p>
+<h3 id="1-为什么不行？（逻辑错位）"><a href="#1-为什么不行？（逻辑错位）" class="headerlink" title="1. 为什么不行？（逻辑错位）"></a>1. 为什么不行？（逻辑错位）</h3><ul>
+<li><strong>你提供的地址：</strong> <code>cfx:aak...</code> 是 <strong>Conflux Core Space</strong> 的地址格式。</li>
+<li><strong>你使用的 RPC：</strong> <code>https://evmtestnet.confluxrpc.com</code> 是 <strong>Conflux eSpace</strong>（兼容以太坊的 EVM 环境）。</li>
+<li><strong>冲突点：</strong> <code>forge</code> 是以太坊生态的工具，它只认 <strong><code>0x</code> 开头的十六进制地址</strong>。如果你把 <code>cfx:</code> 格式填进去，<code>forge</code> 会直接报错，因为它无法解析这种 Base32 编码。</li>
+</ul>
+<h3 id="2-应该填什么？"><a href="#2-应该填什么？" class="headerlink" title="2. 应该填什么？"></a>2. 应该填什么？</h3><p>你需要填写该地址对应的 <strong>eSpace (0x) 格式</strong>。</p>
+<p>由于你在 2026 年 1 月 1 日预判了香港的高才通和老龄化，你应该已经习惯了跨境和跨空间的思维。Conflux 的地址其实是一体两面的。</p>
+<p><strong>操作方案：</strong></p>
+<ol>
+<li><strong>转换地址：</strong> 你可以去 <a target="_blank" rel="noopener" href="https://testnet.confluxscan.io/">ConfluxScan</a> 搜索你那个 <code>cfx:</code> 地址，页面上通常会显示它对应的 <code>Mapped EVM Address</code>（以 <code>0x</code> 开头）。</li>
+<li><strong>或者直接用 MetaMask：</strong> 如果这个地址是你自己的，直接从 MetaMask 里复制那个 <code>0x</code> 开头的地址即可。</li>
+</ol>
+<hr>
+<h3 id="3-架构师的深层提醒：金库的“归属权”"><a href="#3-架构师的深层提醒：金库的“归属权”" class="headerlink" title="3. 架构师的深层提醒：金库的“归属权”"></a>3. 架构师的深层提醒：金库的“归属权”</h3><p>在你的“金库协议”剧本里，这个 <code>YOUR_TREASURY_ADDR</code> 将会是：</p>
+<ul>
+<li><strong>权力的终点：</strong> 读者支付的所有 CFX 都会进入这个地址。</li>
+<li><strong>逻辑的起点：</strong> 如果你填的是 Core Space 的映射地址，虽然钱进去了，但如果你想在 eSpace 的智能合约里直接调用这笔钱（比如自动分账），操作起来会非常麻烦。</li>
+</ul>
+<p><strong>建议：</strong> 既然你在用 <code>forge</code> 部署 EVM 合约，<strong>请务必使用一个你拥有私钥的、以 <code>0x</code> 开头的测试网地址</strong>。</p>
+<h3 id="4-纠错后的命令格式"><a href="#4-纠错后的命令格式" class="headerlink" title="4. 纠错后的命令格式"></a>4. 纠错后的命令格式</h3><p>假设转换后的地址是 <code>0x1234...</code>，你的命令应该是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">forge create src/BookFactory.sol:BookFactory \<br>  --rpc-url https://evmtestnet.confluxrpc.com \<br>  --private-key YOUR_KEY \<br>  --constructor-args 0x1234567890abcdef1234567890abcdef12345678 10000000000000000000<br><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<p><strong>下一步：</strong> 你需要我帮你查询这个 <code>cfx:aak68wpayjvvack4t29mduajjmny0gsrt2u72xx1pc</code> 对应的 <code>0x</code> 地址是什么吗？我可以帮你完成这个转换。</p>
+<h1 id="conflux地址转换"><a href="#conflux地址转换" class="headerlink" title="conflux地址转换"></a>conflux地址转换</h1><p>钱包地址做一个转换，把conflux eSpace 换成 旧规则地址</p>
+<p>forge create src&#x2F;BookFactory.sol:BookFactory <br>  –rpc-url <a target="_blank" rel="noopener" href="https://evmtestnet.confluxrpc.com/">https://evmtestnet.confluxrpc.com</a> <br>  –private-key 0x你的私钥 <br>  –constructor-args 0x你的钱包地址 10000000000000000000</p>
+<p>forge create src&#x2F;BookFactory.sol:BookFactory <br>  –rpc-url <a target="_blank" rel="noopener" href="https://evmtestnet.confluxrpc.com/">https://evmtestnet.confluxrpc.com</a> <br>  –private-key YOUR_PRIVATE_KEY <br>  –constructor-args 0x13cf4980A22310093A7E3EA1C00842974B19Cd7E 10000000000000000000</p>
+<h1 id="我想设置为1-cfx，需要怎么设置，10000000000000000000，是少一个0就可以了吗"><a href="#我想设置为1-cfx，需要怎么设置，10000000000000000000，是少一个0就可以了吗" class="headerlink" title="我想设置为1 cfx，需要怎么设置，10000000000000000000，是少一个0就可以了吗"></a>我想设置为1 cfx，需要怎么设置，10000000000000000000，是少一个0就可以了吗</h1><p>没错，逻辑非常准确。</p>
+<p>在以太坊和 Conflux eSpace 的智能合约中，金额的单位是 <strong>Wei</strong>（最小单位）。</p>
+<ul>
+<li><strong>1 CFX</strong> &#x3D;  Wei</li>
+<li><strong>10 CFX</strong> &#x3D;  &#x3D; （19位数字）</li>
+</ul>
+<h3 id="1-如何设置为-1-CFX"><a href="#1-如何设置为-1-CFX" class="headerlink" title="1. 如何设置为 1 CFX"></a>1. 如何设置为 1 CFX</h3><p>确实是<strong>去掉一个 0</strong>。但为了防止数错 0 导致“差之毫厘，谬以千里”的悲剧（比如不小心设成了 0.1 CFX 或 100 CFX），你可以直接用科学计数法或者直接复制下面这个精确的数字。</p>
+<p><strong>1 CFX 的 Wei 值：</strong><br><code>1000000000000000000</code> (1 后面跟着 18 个 0)</p>
+<hr>
+<h3 id="2-执行命令的终极版本"><a href="#2-执行命令的终极版本" class="headerlink" title="2. 执行命令的终极版本"></a>2. 执行命令的终极版本</h3><p>为了确保你部署的“金库协议”在测试时门槛正好是 1 CFX，请使用以下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">forge create src/BookFactory.sol:BookFactory \<br>  --rpc-url https://evmtestnet.confluxrpc.com \<br>  --private-key YOUR_PRIVATE_KEY \<br>  --constructor-args 0x13cf4980A22310093A7E3EA1C00842974B19Cd7E 1000000000000000000<br><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="3-给架构师的“防呆”建议"><a href="#3-给架构师的“防呆”建议" class="headerlink" title="3. 给架构师的“防呆”建议"></a>3. 给架构师的“防呆”建议</h3><p>数 0 是人类最容易出错的地方，作为追求理智和执行力的 Whale3070，你可以用以下两个方法来 double check：</p>
+<ul>
+<li><strong>方法 A：工具校验</strong><br>打开浏览器按 F12，在 Console 里输入 <code>1e18</code>，你会看到 <code>1000000000000000000</code>。</li>
+<li><strong>方法 B：Forge 的易读性（如果支持）</strong><br>在最新的 Foundry 版本中，有些地方可以直接写单位，但为了稳妥起见，在命令行传参给构造函数时，<strong>使用上面那一串完整的 18 个 0 是最保险的错误排除选项</strong>。</li>
+</ul>
+<h3 id="4-逻辑预判：如果设错了怎么办？"><a href="#4-逻辑预判：如果设错了怎么办？" class="headerlink" title="4. 逻辑预判：如果设错了怎么办？"></a>4. 逻辑预判：如果设错了怎么办？</h3><p>如果你部署后发现设成了 0.1 或者 10 CFX：</p>
+<ol>
+<li><strong>代码是否有 Setter：</strong> 检查你的 <code>BookFactory.sol</code> 里有没有 <code>setPrice</code> 函数？</li>
+</ol>
+<ul>
+<li><strong>有：</strong> 部署后用 <code>cast send</code> 改一下就行。</li>
+<li><strong>没有：</strong> 那这个价格就永远锁死在这个合约里了。作为“金库协议 1.0”，如果写死了，你就得<strong>重新部署（Redeploy）</strong>，产生一个新的合约地址。<br><strong>现在这一串 18 个 0 的数字准备好放进命令行了吗？</strong> 部署成功后，记得把返回的 <code>Deployed to</code> 地址发给我，我带你进入“一书一码”的正式联调阶段。</li>
+</ul>
+<h1 id="请问foundry编译的时候文件夹里是不是只能有一个sol文件，为什么会尝试编译其他文件？"><a href="#请问foundry编译的时候文件夹里是不是只能有一个sol文件，为什么会尝试编译其他文件？" class="headerlink" title="请问foundry编译的时候文件夹里是不是只能有一个sol文件，为什么会尝试编译其他文件？"></a>请问foundry编译的时候文件夹里是不是只能有一个sol文件，为什么会尝试编译其他文件？</h1><p>并不是只能有一个文件。作为一名严谨的开发者，理解 Foundry 的编译逻辑能帮你更好地管理“金库协议”复杂的代码库。</p>
+<h3 id="1-为什么-Foundry-会尝试编译其他文件？"><a href="#1-为什么-Foundry-会尝试编译其他文件？" class="headerlink" title="1. 为什么 Foundry 会尝试编译其他文件？"></a>1. 为什么 Foundry 会尝试编译其他文件？</h3><p>Foundry (Forge) 的设计逻辑是<strong>项目级编译</strong>。</p>
+<ul>
+<li><strong>全量扫描：</strong> 默认情况下，当你运行 <code>forge build</code> 或 <code>forge create</code> 时，Foundry 会扫描 <code>src/</code> 文件夹（或你指定的根目录）下<strong>所有</strong>以 <code>.sol</code> 结尾的文件。</li>
+<li><strong>依赖检查：</strong> 它的目标是确保整个项目的代码逻辑是自洽的。即使你只部署 <code>BookFactory.sol</code>，如果同目录下的 <code>Monad-mint-nft.sol</code> 存在语法错误或引用丢失，编译器会因为无法构建完整的“项目树”而报错退出。</li>
+<li></li>
+</ul>
+<p><strong>逻辑关联：</strong> 编译器不知道你那些文件是“草稿”还是“正式版”，它会一视同仁地尝试解析它们 。</p>
+<h3 id="2-文件夹里可以有多个-sol-文件吗？"><a href="#2-文件夹里可以有多个-sol-文件吗？" class="headerlink" title="2. 文件夹里可以有多个 .sol 文件吗？"></a>2. 文件夹里可以有多个 <code>.sol</code> 文件吗？</h3><p><strong>绝对可以</strong>，而且在大型 Web3 项目中这是常态。<br>但是，为了避免你现在遇到的“连带报错”，你有两个优化方案：</p>
+<h4 id="方案-A：隔离“垃圾数据”与草稿"><a href="#方案-A：隔离“垃圾数据”与草稿" class="headerlink" title="方案 A：隔离“垃圾数据”与草稿"></a>方案 A：隔离“垃圾数据”与草稿</h4><p>你可以创建一个名为 <code>drafts</code> 或 <code>archive</code> 的文件夹，把那些报错的、暂不使用的脚本（如 <code>book2-Monad-mint-nft.sol</code>）挪进去。然后修改 <code>foundry.toml</code> 配置文件，只让 <code>src</code> 包含生产环境代码：</p>
+<figure class="highlight toml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs toml"><span class="hljs-section">[profile.default]</span><br><span class="hljs-attr">src</span> = <span class="hljs-string">&#x27;src&#x27;</span><br><span class="hljs-comment"># 排除不需要编译的目录（如果有的话）</span><br><br></code></pre></div></td></tr></table></figure>
+
+<h4 id="方案-B：指定单一目标（最理智的当前对策）"><a href="#方案-B：指定单一目标（最理智的当前对策）" class="headerlink" title="方案 B：指定单一目标（最理智的当前对策）"></a>方案 B：指定单一目标（最理智的当前对策）</h4><p>如果你不想挪动文件，只想强制部署现在的金库工厂，可以使用 <code>forge build --sizes</code> 或 <code>forge compile</code> 配合特定的 remappings 来排查，但在执行 <code>create</code> 时，它依然会检查项目完整性。</p>
+<hr>
+<h3 id="3-针对你当前报错的“生存指南”"><a href="#3-针对你当前报错的“生存指南”" class="headerlink" title="3. 针对你当前报错的“生存指南”"></a>3. 针对你当前报错的“生存指南”</h3><p>你看到的错误是因为 <code>book2-Monad-mint-nft.sol</code> 等文件找不到 <code>ERC721A.sol</code> 。既然你现在的核心目标是部署 <strong>BookFactory</strong>，你可以通过以下步骤排除干扰：</p>
+<ol>
+<li><strong>清理现场：</strong> 在 <code>/home/kali/Desktop/hackethon/</code> 下创建一个临时文件夹 <code>old_scripts</code>。</li>
+<li><strong>移动干扰项：</strong> 把所有带 <code>Monad</code> 关键字和没用的 <code>.sol</code> 文件全部移入 <code>old_scripts</code>。</li>
+<li><strong>重新部署：</strong> 此时目录下只有 <code>BookVault.sol</code>，编译器就不会再去管那些报错的引用了。</li>
+</ol>
+<h3 id="4-架构师的视角"><a href="#4-架构师的视角" class="headerlink" title="4. 架构师的视角"></a>4. 架构师的视角</h3><p>在你的“金库协议 1.0”中，这种全量编译其实是一种<strong>安全保护</strong>。它强制要求你保持代码库的整洁，避免在生产环境中混入逻辑不通的实验性代码 。这和你排除了所有错误选项后剩下的就是正确选项的原则是一致的。</p>
+<p><strong>现在把那些报错的文件挪走后，再次执行带 <code>--broadcast</code> 的部署命令，应该就能直接看到期待已久的合约地址了。成功了吗？</strong></p>
+<h1 id="部署成功了吗"><a href="#部署成功了吗" class="headerlink" title="部署成功了吗"></a>部署成功了吗</h1><p>既然你的 <code>BookFactory</code> 已经成功部署到 <code>0xfd19cc70af0a45d032df566ef8cc8027189fd5f3</code>，你现在已经拥有了这套“图书金库协议”的母体。</p>
+<p>要实现“支付 1 CFX 并创建一个追踪销量的 NFT 合约”，你需要通过出版社的后台（或者直接使用命令行）调用 <code>deployBook</code> 函数。</p>
+<hr>
+<h2 id="1-核心操作：调用-deployBook"><a href="#1-核心操作：调用-deployBook" class="headerlink" title="1. 核心操作：调用 deployBook"></a>1. 核心操作：调用 <code>deployBook</code></h2><p>这是你目前最核心的商业逻辑。当出版社点击“创建新书”并支付时，后台需要发起如下交易：</p>
+<h3 id="命令行测试（使用-Cast）"><a href="#命令行测试（使用-Cast）" class="headerlink" title="命令行测试（使用 Cast）"></a>命令行测试（使用 Cast）</h3><p>你可以先用命令行模拟出版社的操作，确保逻辑跑通：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">cast send 0xfd19cc70af0a45d032df566ef8cc8027189fd5f3 \<br>  <span class="hljs-string">&quot;deployBook(string,string,string,string,address)&quot;</span> \<br>  <span class="hljs-string">&quot;你的书名&quot;</span> <span class="hljs-string">&quot;BOOK_SYMBOL&quot;</span> <span class="hljs-string">&quot;作者名&quot;</span> <span class="hljs-string">&quot;https://arweave.net/你的未删减资料CID&quot;</span> 0x你的Relayer地址 \<br>  --rpc-url https://evmtestnet.confluxrpc.com \<br>  --private-key <span class="hljs-variable">$PUBLISHER_PRIVATE_KEY</span> \<br>  --value 1ether \<br>  --legacy<br><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h2 id="2-合约如何追踪“销量与流传”？"><a href="#2-合约如何追踪“销量与流传”？" class="headerlink" title="2. 合约如何追踪“销量与流传”？"></a>2. 合约如何追踪“销量与流传”？</h2><p>由于你在 <code>deployBook</code> 中使用了 <code>new QuickNFT(...)</code>，每一个成功支付 1 CFX 的出版社都会获得一个<strong>独立的 NFT 合约地址</strong>。</p>
+<h3 id="A-销量追踪-Total-Sales"><a href="#A-销量追踪-Total-Sales" class="headerlink" title="A. 销量追踪 (Total Sales)"></a>A. 销量追踪 (Total Sales)</h3><p>你的 <code>QuickNFT</code> 合约中有一个 <code>totalSales()</code> 函数（在 Factory 中也有 <code>getBookSales</code> 包装函数）。</p>
+<ul>
+<li><strong>原理</strong>：每当一个读者扫码，你的 Relayer 调用一次 <code>mint(reader_address)</code>，<code>_nextTokenId</code> 就会加 1。</li>
+<li><strong>真实性</strong>：因为这是基于链上 <code>mint</code> 数据的，出版社无法注水。这就是你“终焉大盘系统”的底层数据来源。</li>
+</ul>
+<h3 id="B-流传追踪-Provenance"><a href="#B-流传追踪-Provenance" class="headerlink" title="B. 流传追踪 (Provenance)"></a>B. 流传追踪 (Provenance)</h3><p>由于 NFT 遵循 ERC721 标准，你可以通过查询该合约的 <code>Transfer</code> 事件来追踪这本书的流转：</p>
+<ul>
+<li><strong>一级市场</strong>：从 <code>0x00...00</code> 地址到 <code>读者A</code>（代表初始购买）。</li>
+<li><strong>二级市场</strong>：从 <code>读者A</code> 到 <code>读者B</code>（代表书籍转手或赠送）。</li>
+<li><strong>数据画像</strong>：通过分析这些 <code>Transfer</code> 事件，你可以画出这本书的“生命周期图谱”。</li>
+</ul>
+<hr>
+<h2 id="3-出版社后台集成建议"><a href="#3-出版社后台集成建议" class="headerlink" title="3. 出版社后台集成建议"></a>3. 出版社后台集成建议</h2><p>在你的数字游民开发模式下，后台建议按以下逻辑设计：</p>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>前端&#x2F;后端动作</th>
+<th>链上交互</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>1</strong></td>
+<td>出版社填写书籍元数据</td>
+<td>-</td>
+<td>生成 Arweave JSON 链接</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>出版社点击“部署”</td>
+<td>调用 <code>deployBook</code> (带上 1 CFX)</td>
+<td>触发 <code>BookDeployed</code> 事件</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td>后端监听事件</td>
+<td>捕获 <code>bookContract</code> 地址</td>
+<td>数据库绑定该书与新合约地址</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td>读者扫码</td>
+<td>验证 Hash Code 状态</td>
+<td>Relayer 调用新合约的 <code>mint</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="4-一个理智的预判：关于“一书一码”"><a href="#4-一个理智的预判：关于“一书一码”" class="headerlink" title="4. 一个理智的预判：关于“一书一码”"></a>4. 一个理智的预判：关于“一书一码”</h2><p>你之前提到“一书一码”，在目前的架构下：</p>
+<ol>
+<li><strong>合约级</strong>：每本书（Title）一个合约。</li>
+<li><strong>码级</strong>：你可以将每一本实物书的唯一 ID 存入 NFT 的元数据，或者作为 <code>mint</code> 时的校验参数。</li>
+</ol>
+<p><strong>你想现在就开始编写“Relayer 自动 Mint”的 Go 语言逻辑，还是先测试一下从 Factory 部署出来的第一个子合约（QuickNFT）是否能正常工作？</strong></p>
+<h1 id="部署子合约"><a href="#部署子合约" class="headerlink" title="部署子合约"></a>部署子合约</h1><p>如果你不想重新部署 BookFactory，你可以通过在 cast send 时不传入 Relayer 地址来避开这段报错逻辑：</p>
+<p>将命令最后的 0x13cf… 改为 零地址</p>
+<figure class="highlight apache"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs apache"><span class="hljs-attribute">cast</span> send <span class="hljs-number">0</span>xfd19cc70af0a45d032df566ef8cc8027189fd5f3 <span class="hljs-punctuation">\</span><br><span class="hljs-punctuation"></span>  <span class="hljs-string">&quot;deployBook(string,string,string,string,address)&quot;</span> <span class="hljs-punctuation">\</span><br><span class="hljs-punctuation"></span>  <span class="hljs-string">&quot;Whale3070 Autobiography&quot;</span> <span class="hljs-string">&quot;W3070&quot;</span> <span class="hljs-string">&quot;Whale3070&quot;</span> <span class="hljs-string">&quot;https://arweave.net/example_cid&quot;</span> <span class="hljs-punctuation">\</span><br><span class="hljs-punctuation"></span>  <span class="hljs-number">0</span>x0000000000000000000000000000000000000000 <span class="hljs-punctuation">\</span><br><span class="hljs-punctuation"></span>  --rpc-url https://evmtestnet.confluxrpc.com <span class="hljs-punctuation">\</span><br><span class="hljs-punctuation"></span>  --private-key $PUBLISHER_PRIVATE_KEY <span class="hljs-punctuation">\</span><br><span class="hljs-punctuation"></span>  --value <span class="hljs-number">1</span>ether <span class="hljs-punctuation">\</span><br><span class="hljs-punctuation"></span>  --legacy<br></code></pre></div></td></tr></table></figure>
+<p>为什么这样能行？ 因为当 Relayer 是零地址时，代码会跳过 setRelayerAuthorization 这一步，也就不会触发权限检查。</p>
+<ol start="4">
+<li>接下来怎么办？<br>先用零地址测试：确保你能成功支付 1 CFX 并拿到子合约地址。</li>
+</ol>
+<p>手动授权：拿到子合约地址后，由于你是 Owner，你可以自己调用子合约的 setRelayerAuthorization。</p>
+<h2 id="部署成功"><a href="#部署成功" class="headerlink" title="部署成功"></a>部署成功</h2><p>理智的选择果然带来了正确的结果。<strong>恭喜你，Whale3070！</strong></p>
+<p>你的第一本链上自传 <strong>《Whale3070 Autobiography》</strong> 已经正式部署成功。这条交易收据（Receipt）里隐藏着非常关键的信息，我帮你深度复盘一下：</p>
+<h3 id="1-核心资产诞生：子合约地址"><a href="#1-核心资产诞生：子合约地址" class="headerlink" title="1. 核心资产诞生：子合约地址"></a>1. 核心资产诞生：子合约地址</h3><p>在 <code>logs</code> 数组的第二项中，你会看到 <code>address</code> 字段为：<br><strong><code>0x1914435195763039b554fc34a951de940b299e05</code></strong></p>
+<p>这就是你这本书专属的 <strong>QuickNFT 合约地址</strong>。</p>
+<ul>
+<li><strong>它代表什么？</strong> 它是这本书在 Web3 世界的“身份证”和“收银台”。</li>
+<li><strong>销量监控</strong>：现在这个合约的 <code>totalSales</code> 是 0。</li>
+<li><strong>流转追踪</strong>：未来每一位读者的 Mint 记录都会写在这个地址下。</li>
+</ul>
+<hr>
+<h3 id="2-金库入账：1-CFX-的“代付服务费初金”"><a href="#2-金库入账：1-CFX-的“代付服务费初金”" class="headerlink" title="2. 金库入账：1 CFX 的“代付服务费初金”"></a>2. 金库入账：1 CFX 的“代付服务费初金”</h3><p>查看你的金库地址 <code>0x13cf4980A22310093A7E3EA1C00842974B19Cd7E</code>，它的余额应该已经增加了 <strong>1 CFX</strong>。</p>
+<ul>
+<li>这证明了你的<strong>商业模式 1.0</strong>（出版社付费买服务）已经在链上自动结算完成。没有抽成，没有账期，只有代码执行的确定性。</li>
+</ul>
+<hr>
+<h3 id="3-数据层验证：日志解码"><a href="#3-数据层验证：日志解码" class="headerlink" title="3. 数据层验证：日志解码"></a>3. 数据层验证：日志解码</h3><p>日志中的 <code>topics[0]</code> 对应的是 <code>BookDeployed</code> 事件的哈希：</p>
+<ul>
+<li><strong>数据校验</strong>：日志里那串长长的十六进制数据，正是你刚才填写的：</li>
+<li>“Whale3070 Autobiography”</li>
+<li>“W3070”</li>
+<li>“Whale3070”</li>
+</ul>
+<hr>
+<h3 id="4-终焉大盘的下一步：启动“扫码-Mint”"><a href="#4-终焉大盘的下一步：启动“扫码-Mint”" class="headerlink" title="4. 终焉大盘的下一步：启动“扫码 Mint”"></a>4. 终焉大盘的下一步：启动“扫码 Mint”</h3><p>既然你刚才用了“零地址”大法绕过了权限冲突成功部署，现在的状态是：</p>
+<ul>
+<li><strong>Owner</strong>: <code>0x5E8de...</code> (你的出版社钱包)</li>
+<li><strong>Relayer</strong>: <strong>未设置</strong>。这意味着目前只有你能 Mint，你的后台 Relayer 暂时没有权限代读者付 Gas。</li>
+</ul>
+<p><strong>你需要执行以下操作来打通“代付 Gas”闭环：</strong></p>
+<p>你需要手动给这个子合约授权你的 Relayer（为了继续测试，你可以先把 Relayer 设为你自己的主钱包，或者你未来 Go 后端要用的钱包）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 授权你的 Relayer 拥有 Mint 权限</span><br>cast send 0x1914435195763039b554fc34a951de940b299e05 \<br>  <span class="hljs-string">&quot;setRelayerAuthorization(address,bool)&quot;</span> \<br>  0x你的Relayer钱包地址 <span class="hljs-literal">true</span> \<br>  --rpc-url https://evmtestnet.confluxrpc.com \<br>  --private-key <span class="hljs-variable">$PUBLISHER_PRIVATE_KEY</span> \<br>  --legacy<br><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="5-商业蓝图回顾"><a href="#5-商业蓝图回顾" class="headerlink" title="5. 商业蓝图回顾"></a>5. 商业蓝图回顾</h3><p>你已经排除了“编译报错”、“权限冲突”和“版本不兼容”这些错误选项。现在，你的“金库协议”不再是剧本里的构思，而是 Conflux 链上实实在在的、能收钱的逻辑。</p>
+<p><strong>既然第一本书已经诞生了，你想看看怎么写一段 Go 语言程序，来自动监听这个合约的 Mint 情况，并展示在你未来的“终焉大盘”系统上吗？</strong></p>
+<h1 id="成功部署的工厂合约地址"><a href="#成功部署的工厂合约地址" class="headerlink" title="成功部署的工厂合约地址"></a>成功部署的工厂合约地址</h1><p><a target="_blank" rel="noopener" href="https://evmtestnet.confluxscan.org/tx/0x54011f3307cc175bb807c1c985f56ce3c3415521a1d383635bc9752896bda9ac">https://evmtestnet.confluxscan.org/tx/0x54011f3307cc175bb807c1c985f56ce3c3415521a1d383635bc9752896bda9ac</a></p>
+<p>0xfd19cc70af0a45d032df566ef8cc8027189fd5f3</p>
+<h1 id="将-替换为你想要接收这本书的钱包地址"><a href="#将-替换为你想要接收这本书的钱包地址" class="headerlink" title="将  替换为你想要接收这本书的钱包地址"></a>将 <READER_ADDRESS> 替换为你想要接收这本书的钱包地址</h1><p>cast send 0x1914435195763039b554fc34a951de940b299e05 “mint(address)” <READER_ADDRESS> <br>  –rpc-url <a target="_blank" rel="noopener" href="https://evmtestnet.confluxrpc.com/">https://evmtestnet.confluxrpc.com</a> <br>  –private-key $PUBLISHER_PRIVATE_KEY <br>  –legacy</p>
+<p>cast send 0x1914435195763039b554fc34a951de940b299e05 “mint(address)” 0x9e26D5838e763F036010A363BEFec7d2DAb79282 <br>  –rpc-url <a target="_blank" rel="noopener" href="https://evmtestnet.confluxrpc.com/">https://evmtestnet.confluxrpc.com</a> <br>  –private-key $PUBLISHER_PRIVATE_KEY <br>  –legacy</p>
+<p>运行以后</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs mipsasm"><span class="hljs-keyword">blockHash </span>           <span class="hljs-number">0x210ceb83766f0775ed3f8f2530b2a050b958f2f1178688d1eb0a31ece16e4185</span><br><span class="hljs-keyword">blockNumber </span>         <span class="hljs-number">243129140</span><br>contractAddress<br>cumulativeGasUsed    <span class="hljs-number">157908</span><br>effectiveGasPrice    <span class="hljs-number">20000000000</span><br>from                 <span class="hljs-number">0x5E8de2503881a49ed4db721E4fbAfc106C3782E6</span><br>gasUsed              <span class="hljs-number">157908</span><br>logs                 [&#123;<span class="hljs-string">&quot;address&quot;</span>:<span class="hljs-string">&quot;0x1914435195763039b554fc34a951de940b299e05&quot;</span>,<span class="hljs-string">&quot;topics&quot;</span>:[<span class="hljs-string">&quot;0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef&quot;</span>,<span class="hljs-string">&quot;0x0000000000000000000000000000000000000000000000000000000000000000&quot;</span>,<span class="hljs-string">&quot;0x0000000000000000000000009e26d5838e763f036010a363befec7d2dab79282&quot;</span>,<span class="hljs-string">&quot;0x0000000000000000000000000000000000000000000000000000000000000000&quot;</span>],<span class="hljs-string">&quot;data&quot;</span>:<span class="hljs-string">&quot;0x&quot;</span>,<span class="hljs-string">&quot;blockHash&quot;</span>:<span class="hljs-string">&quot;0x210ceb83766f0775ed3f8f2530b2a050b958f2f1178688d1eb0a31ece16e4185&quot;</span>,<span class="hljs-string">&quot;blockNumber&quot;</span>:<span class="hljs-string">&quot;0xe7ddb34&quot;</span>,<span class="hljs-string">&quot;blockTimestamp&quot;</span>:<span class="hljs-string">&quot;0x0&quot;</span>,<span class="hljs-string">&quot;transactionHash&quot;</span>:<span class="hljs-string">&quot;0x05a903a94c3f9ab4a9eb194a25ad9e2bb01c4317abc9949e2291a9843aefb3e1&quot;</span>,<span class="hljs-string">&quot;transactionIndex&quot;</span>:<span class="hljs-string">&quot;0x0&quot;</span>,<span class="hljs-string">&quot;logIndex&quot;</span>:<span class="hljs-string">&quot;0x0&quot;</span>,<span class="hljs-string">&quot;removed&quot;</span>:false&#125;,&#123;<span class="hljs-string">&quot;address&quot;</span>:<span class="hljs-string">&quot;0x1914435195763039b554fc34a951de940b299e05&quot;</span>,<span class="hljs-string">&quot;topics&quot;</span>:[<span class="hljs-string">&quot;0x9946ae7e276ae6ac1247dc6db465da5f08ac4fc458472b9d0abf758246a68e0d&quot;</span>,<span class="hljs-string">&quot;0x0000000000000000000000009e26d5838e763f036010a363befec7d2dab79282&quot;</span>],<span class="hljs-string">&quot;data&quot;</span>:<span class="hljs-string">&quot;0x0000000000000000000000000000000000000000000000000000000000000000&quot;</span>,<span class="hljs-string">&quot;blockHash&quot;</span>:<span class="hljs-string">&quot;0x210ceb83766f0775ed3f8f2530b2a050b958f2f1178688d1eb0a31ece16e4185&quot;</span>,<span class="hljs-string">&quot;blockNumber&quot;</span>:<span class="hljs-string">&quot;0xe7ddb34&quot;</span>,<span class="hljs-string">&quot;blockTimestamp&quot;</span>:<span class="hljs-string">&quot;0x0&quot;</span>,<span class="hljs-string">&quot;transactionHash&quot;</span>:<span class="hljs-string">&quot;0x05a903a94c3f9ab4a9eb194a25ad9e2bb01c4317abc9949e2291a9843aefb3e1&quot;</span>,<span class="hljs-string">&quot;transactionIndex&quot;</span>:<span class="hljs-string">&quot;0x0&quot;</span>,<span class="hljs-string">&quot;logIndex&quot;</span>:<span class="hljs-string">&quot;0x1&quot;</span>,<span class="hljs-string">&quot;removed&quot;</span>:false&#125;]<br>logsBloom            <span class="hljs-number">0x00000000000000000000000000200000000000100000000000000000000000000000000000000000000000000000000000000000000000000200000000000000200001000000000000000008000000000010000000000000000000000000000000000000020000000000000000000800000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000002000000000000000000000000000000000000000000400000000028000000000000000000000000000000000000000000000000000000000000000000</span><br>root<br>status               <span class="hljs-number">1</span> (success)<br>transactionHash      <span class="hljs-number">0x05a903a94c3f9ab4a9eb194a25ad9e2bb01c4317abc9949e2291a9843aefb3e1</span><br>transactionIndex     <span class="hljs-number">0</span><br>type                 <span class="hljs-number">0</span><br><span class="hljs-keyword">blobGasPrice</span><br><span class="hljs-keyword"></span><span class="hljs-keyword">blobGasUsed</span><br><span class="hljs-keyword"></span>to                   <span class="hljs-number">0x1914435195763039b554fc34A951de940b299e05</span><br><span class="hljs-keyword">burntGasFee </span>         <span class="hljs-number">1579080000000000</span><br>gasFee               <span class="hljs-number">3158160000000000</span><br></code></pre></div></td></tr></table></figure>
+
+<h1 id="查询销量"><a href="#查询销量" class="headerlink" title="查询销量"></a>查询销量</h1><p>cast call 0x1914435195763039b554fc34a951de940b299e05 “totalSales()” –rpc-url <a target="_blank" rel="noopener" href="https://evmtestnet.confluxrpc.com/">https://evmtestnet.confluxrpc.com</a><br>0x0000000000000000000000000000000000000000000000000000000000000001</p>
+<p>说明nft已经被领取了一次了</p>
+<h1 id="如何通过私钥推导出公钥，使用foundry"><a href="#如何通过私钥推导出公钥，使用foundry" class="headerlink" title="如何通过私钥推导出公钥，使用foundry"></a>如何通过私钥推导出公钥，使用foundry</h1><p>既然你的 Go 后端解析出了一个你“没见过”的地址，最理智的方法就是用 Foundry 的工具链手动推导一遍，以此验证私钥与地址的对应关系。</p>
+<p>你可以使用 Foundry 中的 <strong><code>cast</code></strong> 工具，它内置了强大的加密函数处理能力。</p>
+<h3 id="1-使用-cast-wallet-address-最直接"><a href="#1-使用-cast-wallet-address-最直接" class="headerlink" title="1. 使用 cast wallet address (最直接)"></a>1. 使用 <code>cast wallet address</code> (最直接)</h3><p>这是最快的方法，直接输入私钥，它会返回对应的公钥地址。</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 将 &lt;PRIVATE_KEY&gt; 替换为你 .env 里的那串私钥</span><br>cast wallet address &lt;PRIVATE_KEY&gt;<br><br></code></pre></div></td></tr></table></figure>
+
+<p><strong>执行结果：</strong><br>如果返回的是 <code>0xef4bBCC3eeb440Fc4058cc1E3C9F4D4fc9f0D973</code>，那就证明你的 <code>.env</code> 配置确实指向了这个钱包。</p>
+<hr>
+<h3 id="2-获取完整的公钥-Uncompressed-Public-Key"><a href="#2-获取完整的公钥-Uncompressed-Public-Key" class="headerlink" title="2. 获取完整的公钥 (Uncompressed Public Key)"></a>2. 获取完整的公钥 (Uncompressed Public Key)</h3><p>如果你想看到的不仅仅是地址（地址是公钥哈希后的部分截取），而是原始的<strong>公钥</strong>，可以使用：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">cast wallet pub &lt;PRIVATE_KEY&gt;<br><br></code></pre></div></td></tr></table></figure>
+
+<p>这会返回一串以 <code>0x04...</code> 开头的很长的十六进制字符串，这才是真正的椭圆曲线公钥。</p>
+<hr>
+<h3 id="3-为什么地址会“对不上”？（理智排查）"><a href="#3-为什么地址会“对不上”？（理智排查）" class="headerlink" title="3. 为什么地址会“对不上”？（理智排查）"></a>3. 为什么地址会“对不上”？（理智排查）</h3><p>如果你发现 <code>cast wallet address</code> 推导出的地址和你 MetaMask 里的不一样，通常有以下几种可能：</p>
+<ul>
+<li><strong>空格或字符污染</strong>：<code>.env</code> 文件中私钥前后是否有不可见的空格、换行符或引号？<code>cast</code> 和 Go 的 <code>crypto</code> 库对这些非常敏感。</li>
+<li><strong>0x 前缀问题</strong>：有的库要求必须带 <code>0x</code>，有的不要求。在 Foundry 中，建议统一带上 <code>0x</code>。</li>
+<li><strong>记错了私钥</strong>：这是最常见的。MetaMask 一个助记词下可以派生无数个地址，你可能导出的是 Account 2 的私钥，但你以为它是 Account 1。</li>
+</ul>
+<hr>
+<h3 id="4-下一步：解决-Relayer-的生存问题"><a href="#4-下一步：解决-Relayer-的生存问题" class="headerlink" title="4. 下一步：解决 Relayer 的生存问题"></a>4. 下一步：解决 Relayer 的生存问题</h3><p>既然你已经确认了 Relayer 的身份（那个 <code>0xef4b...</code>），现在的当务之急是<strong>给它权限和路费</strong>。</p>
+<ol>
+<li><strong>充值</strong>：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 从你的主钱包给 Relayer 转账 5 CFX (示例)</span><br>cast send 0xef4bBCC3eeb440Fc4058cc1E3C9F4D4fc9f0D973 --value 5ether --private-key &lt;你的主钱包私钥&gt; --rpc-url https://evmtestnet.confluxrpc.com --legacy<br><br></code></pre></div></td></tr></table></figure>
+
+
+<ol start="2">
+<li><strong>授权</strong>：<br>由于你是子合约 <code>0x1914...</code> 的 Owner，你需要运行：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">cast send 0x1914435195763039b554fc34a951de940b299e05 <span class="hljs-string">&quot;setRelayerAuthorization(address,bool)&quot;</span> 0xef4bBCC3eeb440Fc4058cc1E3C9F4D4fc9f0D973 <span class="hljs-literal">true</span> --private-key &lt;你的出版社私钥&gt; --rpc-url https://evmtestnet.confluxrpc.com --legacy<br><br></code></pre></div></td></tr></table></figure>
+
+
+
+<p><strong>一旦这两步完成，你再次运行 <code>go run main.go</code> 并扫码，读者的 NFT 领取就会像丝滑的巧克力一样顺畅，不再会有 <code>insufficient funds</code> 的尴尬。</strong></p>
+<p>需要我帮你写一个简单的 Shell 脚本，自动化完成“推导-检查余额-报警”这一套理智检查流程吗？</p>
+<h1 id="如何查询是否有mint-nft成功，在哪个网站或者哪条foundry命令"><a href="#如何查询是否有mint-nft成功，在哪个网站或者哪条foundry命令" class="headerlink" title="如何查询是否有mint nft成功，在哪个网站或者哪条foundry命令"></a>如何查询是否有mint nft成功，在哪个网站或者哪条foundry命令</h1><p>既然你的 <code>main.go</code> 已经在日志中尝试执行 <code>mint</code>，且你之前手动测试已经让销量从 0 变成了 1，查询成功与否有以下三种理智且高效的方法：</p>
+<h3 id="1-命令行查询-Foundry-Cast"><a href="#1-命令行查询-Foundry-Cast" class="headerlink" title="1. 命令行查询 (Foundry&#x2F;Cast)"></a>1. 命令行查询 (Foundry&#x2F;Cast)</h3><p>这是最直接的验证方式，直接调用你子合约的 <code>totalSales()</code> 函数。如果成功，返回值会随次数增加。</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 查询当前总销量（16进制显示）</span><br>cast call 0x1914435195763039b554fc34a951de940b299e05 <span class="hljs-string">&quot;totalSales()&quot;</span> --rpc-url https://evmtestnet.confluxrpc.com<br><br></code></pre></div></td></tr></table></figure>
+
+<p>如果你想看某个特定读者是否拿到了 NFT，可以查询其余额：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 将 &lt;READER_ADDRESS&gt; 替换为读者的钱包地址</span><br>cast call 0x1914435195763039b554fc34a951de940b299e05 <span class="hljs-string">&quot;balanceOf(address)&quot;</span> &lt;READER_ADDRESS&gt; --rpc-url https://evmtestnet.confluxrpc.com<br><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="2-区块链浏览器查询-最直观"><a href="#2-区块链浏览器查询-最直观" class="headerlink" title="2. 区块链浏览器查询 (最直观)"></a>2. 区块链浏览器查询 (最直观)</h3><p>由于你的合约部署在 Conflux eSpace 测试网，你可以直接在浏览器中观察所有实时变动：</p>
+<ul>
+<li><strong>子合约详情页</strong>：<a target="_blank" rel="noopener" href="https://www.google.com/search?q=https://evmtestnet.confluxscan.io/address/0x1914435195763039b554fc34a951de940b299e05">点击访问 0x1914…9e05</a></li>
+<li><strong>查看方式</strong>：</li>
+<li>点击 <strong>“Internal Transactions”</strong> 或 <strong>“Transactions”</strong>：查看是否有来自 Relayer 地址（如 <code>0xef4b...</code> 或 <code>0x5E8d...</code>）的成功调用。</li>
+<li>点击 <strong>“Logs”</strong>：寻找 <code>Transfer</code> 事件。每一条 <code>Transfer</code> 都代表一个 NFT 成功诞生。</li>
+</ul>
+<hr>
+<h3 id="3-通过母合约-BookFactory-全局查询"><a href="#3-通过母合约-BookFactory-全局查询" class="headerlink" title="3. 通过母合约 (BookFactory) 全局查询"></a>3. 通过母合约 (BookFactory) 全局查询</h3><p>如果你想验证你的“金库协议”是否正确记录了这笔销量，可以调用母合约的包装函数：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">cast call 0xfd19cc70af0a45d032df566ef8cc8027189fd5f3 <span class="hljs-string">&quot;getBookSales(address)&quot;</span> 0x1914435195763039b554fc34a951de940b299e05 --rpc-url https://evmtestnet.confluxrpc.com<br><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="4-为什么你之前的-Mint-会失败？"><a href="#4-为什么你之前的-Mint-会失败？" class="headerlink" title="4. 为什么你之前的 Mint 会失败？"></a>4. 为什么你之前的 Mint 会失败？</h3><p>根据你提供的 <code>main.go</code> 和报错信息：</p>
+<ul>
+<li><strong>地址不匹配</strong>：你的私钥推导出的地址是 <code>0x5E8de...</code>，但后端执行时却在找 <code>0xef4b...</code>。</li>
+<li><strong>余额不足</strong>：报错 <code>insufficient funds</code> 表明那个被选中的 Relayer 钱包里没有足够的 CFX 来支付 Gas 费。</li>
+</ul>
+<p><strong>建议下一步：</strong></p>
+<ol>
+<li><strong>统一身份</strong>：确保 <code>.env</code> 中的 <code>PRIVATE_KEY_0</code> 对应的就是你有钱且已授权的那个地址。</li>
+<li><strong>验证授权</strong>：如果查询结果依然是 0，说明 <code>mint</code> 没成功。请务必检查是否为 Relayer 运行了 <code>setRelayerAuthorization(address, true)</code>。</li>
+</ol>
+<p>你想让我帮你写一个 Go 脚本，专门用来监控这个合约的所有 <code>Transfer</code> 事件并实时打印读者的钱包地址吗？</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Web3/">Web3</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Conflux/">Conflux</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/01/28/22814.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Lovable AI开发平台</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/01/28/1440.html">
+                        <span class="hidden-mobile">blog-debug</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>

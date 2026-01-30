@@ -1,0 +1,582 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>Polkadot Solidity开发-课程笔记13 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/search/">
+                <i class="iconfont icon-search"></i>
+                搜索
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="Polkadot Solidity开发-课程笔记13">
+                      
+                        Polkadot Solidity开发-课程笔记13
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-01-30 09:52" pubdate>
+        2026年1月30日 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.7k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      20
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">Polkadot Solidity开发-课程笔记13</h1>
+            
+            <div class="markdown-body">
+              <p>✏️ 第五课 Task5 任务：<br>1⃣️选择题：<a target="_blank" rel="noopener" href="https://wj.qq.com/s2/25601943/323u/">https://wj.qq.com/s2/25601943/323u/</a><br>2⃣️实践题：<a target="_blank" rel="noopener" href="https://github.com/papermoonio/2026-h1-building-production-grade-dApps/blob/main/homework/lesson-5/README.md">https://github.com/papermoonio/2026-h1-building-production-grade-dApps/blob/main/homework/lesson-5/README.md</a></p>
+<h1 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h1><p>Ethers 特点</p>
+<p>A 体积小、运行快</p>
+<p>B 类型安全&#x2F;TS支持</p>
+<p>C 钱包与签名管理</p>
+<p>D 不需要密码<br>多选1分<br>04<br>Viem 特点</p>
+<p>A 模块化和高性能</p>
+<p>B 多链天然支持</p>
+<p>C 强类型</p>
+<p>D 对WASM合约支持<br>单选1分<br>05<br>Polkadot Hub testnet chain ID<br>A 420420417<br>B 420420420<br>C 42<br>D 0<br>多选1分<br>06<br>zero 到 hero 项目使用了哪些技术和工具</p>
+<p>A Next</p>
+<p>B Ethers</p>
+<p>C Viem</p>
+<p>D Hardhat<br>单选1分<br>07<br>zero 到 hero 项目的dapp使用哪个端口<br>A 80<br>B 8080<br>C 3000<br>D 9944</p>
+<h1 id="答案"><a href="#答案" class="headerlink" title="答案"></a>答案</h1><p>以下是针对这些题目的参考答案及解析。这些题目主要围绕 Polkadot EVM 开发（特别是基于 <strong>Polkadot Hub &#x2F; Asset Hub</strong> 的 “Zero to Hero” 教程）以及现代以太坊开发栈（Viem, Hardhat）的对比。</p>
+<p><strong>Ethers 特点</strong><br><strong>答案：A, B, C</strong></p>
+<ul>
+<li><strong>解析：</strong></li>
+<li><strong>A (体积小、运行快)：</strong> 虽然相比新一代的 Viem 略显臃肿，但 Ethers 长期以来的卖点之一就是比 Web3.js 更轻量（Compact）。</li>
+<li><strong>B (类型安全&#x2F;TS支持)：</strong> Ethers v5&#x2F;v6 对 TypeScript 有很好的支持（尽管 Viem 是 TS-first，Ethers 依然被视为强类型库）。</li>
+<li><strong>C (钱包与签名管理)：</strong> 这是 Ethers 的核心架构（Wallet, Signer, Provider 分离），也是它最显著的功能模块。</li>
+<li><em>D (不需要密码)：</em> 这是干扰项，加密钱包（JSON）肯定需要密码，Signer 管理私钥也涉及安全凭证。</li>
+</ul>
+<p><strong>04 Viem 特点</strong><br><strong>正确答案：A (模块化和高性能) B 多链天然支持 C 强类型</strong></p>
+<ul>
+<li><strong>解析：</strong></li>
+<li>虽然 B (多链) 和 C (强类型) 也是 Viem 的特点，但 <strong>A (模块化和高性能)</strong> 是 Viem 诞生并区别于 Ethers 的核心价值主张（Tree-shaking 友好，体积极小，执行速度快）。题目为单选，A 是最具代表性的特点。</li>
+</ul>
+<p><strong>05 Polkadot Hub testnet chain ID</strong><br><strong>答案：A, B</strong></p>
+<ul>
+<li><strong>解析：</strong></li>
+<li><strong>A (420420417)：</strong> 这是 Polkadot Hub Testnet (即 Paseo Asset Hub) 的官方 Chain ID。</li>
+<li><strong>B (420420420)：</strong> 在 Polkadot 官方的 “Zero to Hero” Hardhat 教程（Beta Docs）中，配置的测试网 Chain ID 通常被指定为 <code>420420420</code>。</li>
+<li><em>注意：</em> 由于题目标注为多选，且教程与实际网络参数可能存在版本差异，A 和 B 均为相关上下文中的正确数值。</li>
+</ul>
+<p><strong>06 zero 到 hero 项目使用了哪些技术和工具</strong><br><strong>答案：A, C, D</strong></p>
+<ul>
+<li><p><strong>解析：</strong></p>
+</li>
+<li><p>根据 Polkadot “Zero to Hero Smart Contract DApp” 官方教程，该项目的技术栈包括：</p>
+</li>
+<li><p><strong>A (Next.js)：</strong> 用于构建 DApp 前端界面。</p>
+</li>
+<li><p><strong>C (Viem)：</strong> 用于替代 Ethers.js 进行区块链交互（教程重点）。</p>
+</li>
+<li><p><strong>D (Hardhat)：</strong> 用于编写、测试和部署 Solidity 智能合约。</p>
+</li>
+<li><p><em>注：</em> 题目若强制单选，可能意在考察该教程引入的“新技术” <strong>Viem (C)</strong>，或者核心开发环境 <strong>Hardhat (D)</strong>，但从技术事实来看，A&#x2F;C&#x2F;D 均被使用。</p>
+</li>
+</ul>
+<p><strong>07 zero 到 hero 项目的dapp使用哪个端口</strong><br><strong>答案：C (3000)</strong></p>
+<ul>
+<li><strong>解析：</strong></li>
+<li>该项目前端基于 <strong>Next.js</strong> 构建，Next.js 的默认开发服务器端口是 <strong>3000</strong>。</li>
+<li><em>干扰项排除：</em> 80&#x2F;8080 是常规 Web 端口，9944 是 Polkadot 节点的 RPC 端口。</li>
+</ul>
+<h1 id="这个题目里面提到的Ethers是什么Viem又是什么？"><a href="#这个题目里面提到的Ethers是什么Viem又是什么？" class="headerlink" title="这个题目里面提到的Ethers是什么Viem又是什么？"></a>这个题目里面提到的Ethers是什么Viem又是什么？</h1><p>这道题目中提到的 <strong>Ethers</strong> (通常指 ethers.js) 和 <strong>Viem</strong> 都是<strong>JavaScript&#x2F;TypeScript 库</strong>。</p>
+<p>简单来说，它们是连接你的代码（前端网页或后端脚本）与区块链（以太坊及兼容链）之间的“桥梁”。开发者使用它们来查询余额、发送交易或与智能合约交互。</p>
+<p>以下是两者的详细介绍和对比：</p>
+<h3 id="1-Ethers-ethers-js"><a href="#1-Ethers-ethers-js" class="headerlink" title="1. Ethers (ethers.js)"></a>1. Ethers (ethers.js)</h3><p><strong>地位：</strong> 老牌王者，长期以来的行业标准。</p>
+<ul>
+<li><p><strong>什么是 Ethers？</strong><br>它是以太坊生态中最著名的开发库之一。它的设计理念是“大而全”，提供了一套完整的工具箱。</p>
+</li>
+<li><p><strong>核心概念：</strong></p>
+</li>
+<li><p><strong>Provider (提供者):</strong> 用来连接区块链节点（只读）。</p>
+</li>
+<li><p><strong>Signer (签名者):</strong> 用来发送交易（需要私钥）。</p>
+</li>
+<li><p><strong>Contract (合约):</strong> 将代码中的对象直接映射为链上的智能合约。</p>
+</li>
+<li><p><strong>特点：</strong></p>
+</li>
+<li><p><strong>面向对象 (OOP):</strong> 代码写起来像操作对象，例如 <code>wallet.sendTransaction(...)</code>。</p>
+</li>
+<li><p><strong>生态成熟：</strong> 几乎所有的老教程、StackOverflow 问答都是基于 Ethers 的。</p>
+</li>
+<li><p><strong>兼容性好：</strong> 很多工具（如 Hardhat）默认内置支持它。</p>
+</li>
+</ul>
+<h3 id="2-Viem"><a href="#2-Viem" class="headerlink" title="2. Viem"></a>2. Viem</h3><p><strong>地位：</strong> 新晋黑马，追求极致性能和开发者体验。</p>
+<ul>
+<li><p><strong>什么是 Viem？</strong><br>它是近年来为了解决 Ethers 的一些痛点（如体积大、TypeScript 支持不够完美）而诞生的新库。它通常是 <code>Wagmi</code>（流行的 React Hooks 库）的底层引擎。</p>
+</li>
+<li><p><strong>核心概念：</strong></p>
+</li>
+<li><p>它不使用 Provider&#x2F;Signer 的分类，而是使用 <strong>Client (客户端)</strong> 的概念。</p>
+</li>
+<li><p><strong>Public Client:</strong> 读取数据。</p>
+</li>
+<li><p><strong>Wallet Client:</strong> 发送交易。</p>
+</li>
+<li><p><strong>特点：</strong></p>
+</li>
+<li><p><strong>模块化 (Modular):</strong> 它是“按需加载”的。如果你只用到了查询余额的功能，打包代码时就不会把发送交易的代码包进去，这让你的网页加载速度更快。</p>
+</li>
+<li><p><strong>函数式编程:</strong> 代码风格更偏向函数组合。</p>
+</li>
+<li><p><strong>TypeScript 原生：</strong> 它的类型推断非常强大，写代码时智能提示极其精准，能大幅减少低级错误。</p>
+</li>
+</ul>
+<h3 id="总结对比"><a href="#总结对比" class="headerlink" title="总结对比"></a>总结对比</h3><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>Ethers (ethers.js)</th>
+<th>Viem</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>资历</strong></td>
+<td>老牌，资料极其丰富</td>
+<td>新锐，增长极快</td>
+</tr>
+<tr>
+<td><strong>设计风格</strong></td>
+<td>面向对象 (类和实例)</td>
+<td>函数式 (小模块组合)</td>
+</tr>
+<tr>
+<td><strong>体积与性能</strong></td>
+<td>较重，功能全</td>
+<td>极轻，速度快 (Tree-shaking 友好)</td>
+</tr>
+<tr>
+<td><strong>主要用途</strong></td>
+<td>后端脚本、传统 DApp 开发</td>
+<td>现代前端 DApp (尤其是 Next.js&#x2F;React 项目)</td>
+</tr>
+<tr>
+<td><strong>一句话比喻</strong></td>
+<td><strong>瑞士军刀：</strong> 拿起来就能用，功能都在上面，但稍微有点沉。</td>
+<td><strong>手术刀套装：</strong> 你需要挑选具体的刀片组装，但极其精准且轻便。</td>
+</tr>
+</tbody></table>
+<p><strong>在题目中的语境：</strong><br>那个 “Zero to Hero” 教程之所以选择 <strong>Viem</strong> (配合 Next.js)，是因为现代的前端开发越来越看重页面加载速度和 TypeScript 的类型安全性，Viem 在这方面目前优于 Ethers。</p>
+<hr>
+<p>Relevant video: <a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=MXU4FN3fkmY">VIEM vs Ethers | Best Web3 Javascript Framework</a><br>This video provides a direct visual and technical comparison between Ethers and Viem, explaining why many developers are switching to Viem for newer projects.</p>
+<h1 id="这是波卡的文档"><a href="#这是波卡的文档" class="headerlink" title="这是波卡的文档"></a>这是波卡的文档</h1><p><a target="_blank" rel="noopener" href="https://docs.polkadot.com/smart-contracts/cookbook/dapps/zero-to-hero/">https://docs.polkadot.com/smart-contracts/cookbook/dapps/zero-to-hero/</a></p>
+<p>这是作业： <a target="_blank" rel="noopener" href="https://github.com/papermoonio/2026-h1-building-production-grade-dApps/blob/main/homework/lesson-5/README.md">https://github.com/papermoonio/2026-h1-building-production-grade-dApps/blob/main/homework/lesson-5/README.md</a><br>Homework 5<br>根据波卡文档从 zero 到 hero 到步骤，完成整个应用的开发，提交代码到本目录。</p>
+<p>要参加黑客松了，没时间学习实践题。等香港黑客松结束以后再学。</p>
+<h1 id="✏️-第六课-Task6-任务："><a href="#✏️-第六课-Task6-任务：" class="headerlink" title="✏️ 第六课 Task6 任务："></a>✏️ 第六课 Task6 任务：</h1><p>1⃣️选择题：<a target="_blank" rel="noopener" href="https://wj.qq.com/s2/25655497/0x28/">https://wj.qq.com/s2/25655497/0x28/</a><br>2⃣️实践题：<a target="_blank" rel="noopener" href="https://github.com/papermoonio/2026-h1-building-production-grade-dApps/blob/main/homework/lesson-6/README.md">https://github.com/papermoonio/2026-h1-building-production-grade-dApps/blob/main/homework/lesson-6/README.md</a></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Web3/">Web3</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Polkadot-Lesson/">Polkadot Lesson</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/01/30/49961.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">hackethon至暗时刻</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/01/30/61048.html">
+                        <span class="hidden-mobile">Conflux Smart Contract</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>
