@@ -1,0 +1,449 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>golang开发3 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/search/">
+                <i class="iconfont icon-search"></i>
+                搜索
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="golang开发3">
+                      
+                        golang开发3
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-01-30 16:30" pubdate>
+        2026年1月30日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      916 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      12
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">golang开发3</h1>
+            
+            <div class="markdown-body">
+              <h1 id="今天我们要把main-go的后台api功能全部实现并且用一个python脚本去给此文件做测试"><a href="#今天我们要把main-go的后台api功能全部实现并且用一个python脚本去给此文件做测试" class="headerlink" title="今天我们要把main.go的后台api功能全部实现并且用一个python脚本去给此文件做测试"></a>今天我们要把main.go的后台api功能全部实现并且用一个python脚本去给此文件做测试</h1><p>这是一个非常务实的决定。既然你的 <strong>Whale Vault</strong> 已经有了清晰的架构，我们要做的就是把 <code>internal/handlers</code> 里的逻辑补全，确保它能支撑起你的“金库协议 1.0”。</p>
+<p>由于我无法直接修改你服务器上的文件目录，我将为你提供核心逻辑的实现模板，以及一个完整的 Python 测试脚本。</p>
+<hr>
+<h2 id="1-核心业务逻辑实现建议-handlers-参考"><a href="#1-核心业务逻辑实现建议-handlers-参考" class="headerlink" title="1. 核心业务逻辑实现建议 (handlers 参考)"></a>1. 核心业务逻辑实现建议 (<code>handlers</code> 参考)</h2><p>在你的 <code>main.go</code> 中，<code>Reward</code> 和 <code>Mint</code> 是最核心的环节。以下是处理 <strong>5 码兑换</strong>（代付 Gas 服务费）和 <strong>一书一码</strong> 的逻辑伪代码：</p>
+<figure class="highlight go"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs go"><span class="hljs-comment">// handlers/relay.go 核心逻辑片断</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(h *RelayHandler)</span></span> Reward(w http.ResponseWriter, r *http.Request) &#123;<br>    <span class="hljs-comment">// 1. 验证 5 个不同的 Hash Code 是否有效且属于该用户</span><br>    <span class="hljs-comment">// 2. 调用中继器钱包（Relayers）向用户地址转账少量原生代币 (如 DOT 或 Monad)</span><br>    <span class="hljs-comment">// 3. 在 Redis 中标记这 5 个码已“兑奖”，防止二次提取</span><br>    <span class="hljs-comment">// 4. 返回交易哈希给读者</span><br>&#125;<br><br><span class="hljs-comment">// handlers/mint.go 核心逻辑片断</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(h *MintHandler)</span></span> Mint(w http.ResponseWriter, r *http.Request) &#123;<br>    <span class="hljs-comment">// 1. 验证用户是否已通过扫码验证</span><br>    <span class="hljs-comment">// 2. 调用合约 Mint 函数，并将 Arweave 上的未删减资料链接写入元数据</span><br>    <span class="hljs-comment">// 3. 更新终焉大盘系统的实时销量</span><br>&#125;<br><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h2 id="2-Python-自动化测试脚本"><a href="#2-Python-自动化测试脚本" class="headerlink" title="2. Python 自动化测试脚本"></a>2. Python 自动化测试脚本</h2><p>为了验证 API 是否健壮，这个脚本会模拟读者扫码、验证、以及查询大盘数据的过程。</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-keyword">import</span> requests<br><span class="hljs-keyword">import</span> time<br><br>BASE_URL = <span class="hljs-string">&quot;http://localhost:8080&quot;</span><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">test_api</span>():<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;🚀 开始 Whale Vault 后端接口测试...&quot;</span>)<br><br>    <span class="hljs-comment"># 1. 测试大盘系统 (终焉大盘)</span><br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;\n[测试] 获取书籍销量排行榜...&quot;</span>)<br>    <span class="hljs-keyword">try</span>:<br>        resp = requests.get(<span class="hljs-string">f&quot;<span class="hljs-subst">&#123;BASE_URL&#125;</span>/api/v1/market/tickers&quot;</span>)<br>        <span class="hljs-keyword">if</span> resp.status_code == <span class="hljs-number">200</span>:<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;✅ 大盘数据获取成功: <span class="hljs-subst">&#123;resp.json()&#125;</span>&quot;</span>)<br>        <span class="hljs-keyword">else</span>:<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;❌ 大盘数据获取失败: <span class="hljs-subst">&#123;resp.status_code&#125;</span>&quot;</span>)<br>    <span class="hljs-keyword">except</span> Exception <span class="hljs-keyword">as</span> e:<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;❌ 连接异常: <span class="hljs-subst">&#123;e&#125;</span>&quot;</span>)<br><br>    <span class="hljs-comment"># 2. 测试身份验证 (激活码预检查)</span><br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;\n[测试] 预检查书籍激活码...&quot;</span>)<br>    params = &#123;<span class="hljs-string">&quot;code&quot;</span>: <span class="hljs-string">&quot;WHALE-2026-TEST&quot;</span>&#125;<br>    resp = requests.get(<span class="hljs-string">f&quot;<span class="hljs-subst">&#123;BASE_URL&#125;</span>/api/v1/precheck-code&quot;</span>, params=params)<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;结果: <span class="hljs-subst">&#123;resp.status_code&#125;</span> - <span class="hljs-subst">&#123;resp.text&#125;</span>&quot;</span>)<br><br>    <span class="hljs-comment"># 3. 测试读者端保存码 (Relay 业务)</span><br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;\n[测试] 读者扫码保存 (Relay)...&quot;</span>)<br>    payload = &#123;<br>        <span class="hljs-string">&quot;reader_address&quot;</span>: <span class="hljs-string">&quot;0x123...abc&quot;</span>,<br>        <span class="hljs-string">&quot;hash_code&quot;</span>: <span class="hljs-string">&quot;code_sample_001&quot;</span>,<br>        <span class="hljs-string">&quot;signature&quot;</span>: <span class="hljs-string">&quot;0x...&quot;</span> <br>    &#125;<br>    resp = requests.post(<span class="hljs-string">f&quot;<span class="hljs-subst">&#123;BASE_URL&#125;</span>/relay/save-code&quot;</span>, json=payload)<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;结果: <span class="hljs-subst">&#123;resp.status_code&#125;</span> - <span class="hljs-subst">&#123;resp.text&#125;</span>&quot;</span>)<br><br>    <span class="hljs-comment"># 4. 测试读者地理分布 (数据分析)</span><br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;\n[测试] 获取读者全球分布热力图...&quot;</span>)<br>    resp = requests.get(<span class="hljs-string">f&quot;<span class="hljs-subst">&#123;BASE_URL&#125;</span>/api/v1/analytics/distribution&quot;</span>)<br>    <span class="hljs-keyword">if</span> resp.status_code == <span class="hljs-number">200</span>:<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;✅ 地理数据获取成功&quot;</span>)<br>    <br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;\n🏁 测试完成。&quot;</span>)<br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&quot;__main__&quot;</span>:<br>    test_api()<br><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h2 id="3-接下来该做什么？"><a href="#3-接下来该做什么？" class="headerlink" title="3. 接下来该做什么？"></a>3. 接下来该做什么？</h2><p>为了让这些 API 真正跑通，你需要确保以下几点：</p>
+<ol>
+<li>**完善 <code>internal/handlers**</code>: <code>main.go</code> 只是入口，具体的逻辑（如 Redis 读写、以太坊合约交互）需要写在对应的 <code>handler</code> 文件里。</li>
+<li><strong>环境变量配置</strong>: 确保你的 <code>.env</code> 文件里有 <code>PRIVATE_KEY</code>（用于中继器代付 Gas）和正确的 <code>RPC_URL</code>。</li>
+<li><strong>Redis 准备</strong>: 启动本地 Redis 服务，因为你的 <code>MarketHandler</code>（终焉大盘系统）极度依赖 Redis 的排序集合（ZSet）来做销量排行。</li>
+</ol>
+<p><strong>需要我帮你把其中某一个 Handler（比如 <code>RelayHandler</code> 的 5 码兑换逻辑）的具体 Go 代码写出来吗？</strong> 这样你可以直接粘贴到 <code>internal/handlers/relay.go</code> 中。</p>
+<h1 id="handlers文件分析"><a href="#handlers文件分析" class="headerlink" title="handlers文件分析"></a>handlers文件分析</h1>
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/01/30/46522.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">solidity开发-工厂合约</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/01/30/56839.html">
+                        <span class="hidden-mobile">香港数码港</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>
