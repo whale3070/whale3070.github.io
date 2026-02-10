@@ -1,0 +1,810 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>香港数码港创业 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="香港数码港创业">
+                      
+                        香港数码港创业
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-02-06 12:56" pubdate>
+        2026年2月6日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.4k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      26
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">香港数码港创业</h1>
+            
+            <div class="markdown-body">
+              <h1 id="公司名称"><a href="#公司名称" class="headerlink" title="公司名称"></a>公司名称</h1><p>Imprint Publishing Data Services Limited<br>印记出版数据服务有限公司<br>Proofmark Commerce Data Reconciliation Limited<br>Proofmark 商业数据对账有限公司</p>
+<h1 id="如何注册这两个香港公司"><a href="#如何注册这两个香港公司" class="headerlink" title="如何注册这两个香港公司"></a>如何注册这两个香港公司</h1><p>好，这一步我们<strong>完全落地执行</strong>。<br>下面我按**“你自己能看懂 + 秘书公司能直接照做”**的标准，把<br><strong>Imprint Publishing Data Services Limited</strong><br><strong>Proofmark Commerce Data Reconciliation Limited</strong><br>这两家香港公司 <strong>从 0 到可用</strong> 的注册流程一次性讲清楚。</p>
+<hr>
+<h2 id="一句话总览（你先看这个）"><a href="#一句话总览（你先看这个）" class="headerlink" title="一句话总览（你先看这个）"></a>一句话总览（你先看这个）</h2><blockquote>
+<p><strong>香港公司注册 &#x3D; 查名 → 备资料 → 递交 NNC1 → 拿 CI → 开户 → 商业登记 → 税务备案</strong></p>
+</blockquote>
+<p>正常速度：</p>
+<ul>
+<li><strong>3–5 个工作日</strong>：公司成立</li>
+<li><strong>2–4 周</strong>：银行账户</li>
+<li><strong>当天即可</strong>：合法签合同、出商业文件</li>
+</ul>
+<hr>
+<h2 id="一、第一步：公司查名（你现在就可以做）"><a href="#一、第一步：公司查名（你现在就可以做）" class="headerlink" title="一、第一步：公司查名（你现在就可以做）"></a>一、第一步：公司查名（你现在就可以做）</h2><h6 id="你要查的两个名字"><a href="#你要查的两个名字" class="headerlink" title="你要查的两个名字"></a>你要查的两个名字</h6><ol>
+<li><strong>Imprint Publishing Data Services Limited</strong></li>
+<li><strong>Proofmark Commerce Data Reconciliation Limited</strong></li>
+</ol>
+<h6 id="怎么查（2-种方式）"><a href="#怎么查（2-种方式）" class="headerlink" title="怎么查（2 种方式）"></a>怎么查（2 种方式）</h6><p>######## ✅ 方式 A：自己查（免费）</p>
+<ul>
+<li><p>进入：香港公司注册处 CR 查册中心</p>
+</li>
+<li><p>搜索关键词：</p>
+<ul>
+<li><code>Imprint Publishing</code></li>
+<li><code>Proofmark Commerce</code></li>
+</ul>
+</li>
+</ul>
+<p>👉 <strong>规则</strong>：</p>
+<ul>
+<li>不是“完全相同”一般都能过</li>
+<li>多一个词 &#x2F; 少一个词 &#x2F; 顺序不同 &#x3D; 可过</li>
+</ul>
+<p>📌 这两个名字<strong>通过率很高</strong>，我判断在 <strong>80–90%</strong>。</p>
+<hr>
+<p>######## ✅ 方式 B：直接让秘书公司查（推荐）</p>
+<p>你可以直接对秘书公司说：</p>
+<blockquote>
+<p>“Please conduct name search for the following two company names:</p>
+<ol>
+<li>Imprint Publishing Data Services Limited</li>
+<li>Proofmark Commerce Data Reconciliation Limited”</li>
+</ol>
+</blockquote>
+<p>他们会帮你：</p>
+<ul>
+<li>查重</li>
+<li>处理相似名风险</li>
+<li>给你是否需要备用名建议</li>
+</ul>
+<hr>
+<h2 id="二、第二步：准备注册资料（非常简单）"><a href="#二、第二步：准备注册资料（非常简单）" class="headerlink" title="二、第二步：准备注册资料（非常简单）"></a>二、第二步：准备注册资料（非常简单）</h2><p>你需要准备的只有这些（个人层面）：</p>
+<h6 id="📄-个人资料"><a href="#📄-个人资料" class="headerlink" title="📄 个人资料"></a>📄 个人资料</h6><ul>
+<li><p>护照扫描件</p>
+</li>
+<li><p>地址证明（近 3 个月）</p>
+<ul>
+<li>银行账单 &#x2F; 水电单 &#x2F; 信用卡账单</li>
+</ul>
+</li>
+<li><p>邮箱 + 手机</p>
+</li>
+</ul>
+<p>📌 <strong>不需要香港地址，不需要香港身份</strong>。</p>
+<hr>
+<h6 id="🏢-公司基本信息（我已经帮你定好）"><a href="#🏢-公司基本信息（我已经帮你定好）" class="headerlink" title="🏢 公司基本信息（我已经帮你定好）"></a>🏢 公司基本信息（我已经帮你定好）</h6><p>######## 公司 1（出版）</p>
+<ul>
+<li><p>Name: <strong>Imprint Publishing Data Services Limited</strong></p>
+</li>
+<li><p>Nature of Business（先用这个，后面我可帮你润色）：</p>
+<blockquote>
+<p>Publishing data services, sales data verification and related information services</p>
+</blockquote>
+</li>
+</ul>
+<p>######## 公司 2（电商）</p>
+<ul>
+<li><p>Name: <strong>Proofmark Commerce Data Reconciliation Limited</strong></p>
+</li>
+<li><p>Nature of Business：</p>
+<blockquote>
+<p>Commerce data reconciliation, sales and revenue verification services</p>
+</blockquote>
+</li>
+</ul>
+<hr>
+<h6 id="👤-董事-股东"><a href="#👤-董事-股东" class="headerlink" title="👤 董事 &#x2F; 股东"></a>👤 董事 &#x2F; 股东</h6><ul>
+<li>董事：你 1 人即可</li>
+<li>股东：你 100%（最简单，最利于续签）</li>
+<li>公司秘书：<strong>必须有</strong>（秘书公司提供）</li>
+</ul>
+<hr>
+<h2 id="三、第三步：正式注册（NNC1）"><a href="#三、第三步：正式注册（NNC1）" class="headerlink" title="三、第三步：正式注册（NNC1）"></a>三、第三步：正式注册（NNC1）</h2><p>秘书公司会替你做：</p>
+<ul>
+<li>填写 <strong>NNC1 表格</strong></li>
+<li>提交公司章程（Standard Articles）</li>
+<li>向 CR 递交</li>
+</ul>
+<p>你只需要：</p>
+<ul>
+<li>电子签名</li>
+<li>确认信息</li>
+</ul>
+<p>📌 <strong>你不需要懂 NNC1 是什么</strong>，这是他们的工作。</p>
+<hr>
+<h2 id="四、第四步：拿到公司文件（成立完成）"><a href="#四、第四步：拿到公司文件（成立完成）" class="headerlink" title="四、第四步：拿到公司文件（成立完成）"></a>四、第四步：拿到公司文件（成立完成）</h2><p>一般 <strong>3–5 个工作日</strong>，你会拿到：</p>
+<h6 id="📂-核心文件"><a href="#📂-核心文件" class="headerlink" title="📂 核心文件"></a>📂 核心文件</h6><ul>
+<li><strong>Certificate of Incorporation（CI）</strong></li>
+<li><strong>Business Registration Certificate（BR）</strong></li>
+<li>公司章程</li>
+<li>股东 &#x2F; 董事名册</li>
+</ul>
+<p>👉 从这一刻起：</p>
+<ul>
+<li><p>公司 <strong>合法存在</strong></p>
+</li>
+<li><p>你可以：</p>
+<ul>
+<li>对外签合同</li>
+<li>出报价单</li>
+<li>开始谈客户</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="五、第五步：银行开户（最关键的一步）"><a href="#五、第五步：银行开户（最关键的一步）" class="headerlink" title="五、第五步：银行开户（最关键的一步）"></a>五、第五步：银行开户（最关键的一步）</h2><h4 id="我给你最现实的判断"><a href="#我给你最现实的判断" class="headerlink" title="我给你最现实的判断"></a>我给你最现实的判断</h4><blockquote>
+<p><strong>你 100% 不要同时给两家公司开户。</strong></p>
+</blockquote>
+<h6 id="正确策略（非常重要）"><a href="#正确策略（非常重要）" class="headerlink" title="正确策略（非常重要）"></a>正确策略（非常重要）</h6><ul>
+<li><p><strong>先给其中一家开户</strong>（建议：Proofmark）</p>
+</li>
+<li><p>另一家：</p>
+<ul>
+<li>可暂用同一会计结构</li>
+<li>或稍后再开</li>
+</ul>
+</li>
+</ul>
+<p>📌 银行更看：</p>
+<ul>
+<li>是否有清晰业务</li>
+<li>是否有真实交易预期</li>
+</ul>
+<hr>
+<h6 id="推荐开户顺序"><a href="#推荐开户顺序" class="headerlink" title="推荐开户顺序"></a>推荐开户顺序</h6><p>######## 🥇 首选：虚拟银行（快）</p>
+<ul>
+<li>ZA Bank</li>
+<li>Airwallex</li>
+<li>Statrys</li>
+</ul>
+<p>优势：</p>
+<ul>
+<li>2–3 周</li>
+<li>对科技 &#x2F; 数据服务友好</li>
+<li>支持多币种（对你电商非常好）</li>
+</ul>
+<hr>
+<p>######## 🥈 第二步：传统银行（慢，但稳）</p>
+<ul>
+<li><p>汇丰 &#x2F; 恒生 &#x2F; 中银</p>
+</li>
+<li><p>等你有：</p>
+<ul>
+<li>合同</li>
+<li>收入流水</li>
+</ul>
+</li>
+</ul>
+<p>再去补。</p>
+<hr>
+<h2 id="六、第六步：税务与会计（你不用怕）"><a href="#六、第六步：税务与会计（你不用怕）" class="headerlink" title="六、第六步：税务与会计（你不用怕）"></a>六、第六步：税务与会计（你不用怕）</h2><h6 id="你现在只要知道这几点："><a href="#你现在只要知道这几点：" class="headerlink" title="你现在只要知道这几点："></a>你现在只要知道这几点：</h6><ul>
+<li>香港是 <strong>属地征税</strong></li>
+<li>没利润 &#x3D; 可零申报</li>
+<li>有收入 &#x3D; 正常报税即可</li>
+</ul>
+<p>你要做的只有：</p>
+<ul>
+<li>找一个会计（秘书公司一般有）</li>
+<li>每年一次审计（哪怕没什么收入）</li>
+</ul>
+<p>📌 <strong>高才通续签只看“合理经营 + 收入趋势”</strong><br>不是看你交了多少钱的税。</p>
+<hr>
+<h2 id="七、我给你的“最优执行顺序”（照着走）"><a href="#七、我给你的“最优执行顺序”（照着走）" class="headerlink" title="七、我给你的“最优执行顺序”（照着走）"></a>七、我给你的“最优执行顺序”（照着走）</h2><p><strong>Week 1</strong></p>
+<ul>
+<li>选秘书公司</li>
+<li>查名</li>
+<li>提交资料</li>
+</ul>
+<p><strong>Week 2</strong></p>
+<ul>
+<li>公司成立</li>
+<li>拿 CI &#x2F; BR</li>
+</ul>
+<p><strong>Week 3–4</strong></p>
+<ul>
+<li>开 Proofmark 银行账户</li>
+<li>准备第一批客户合同</li>
+</ul>
+<p><strong>Month 2</strong></p>
+<ul>
+<li>开始有收入 &#x2F; 签约</li>
+<li>Imprint 先保持轻运营</li>
+</ul>
+<hr>
+<h2 id="八、你现在最容易踩的-3-个坑（提醒你）"><a href="#八、你现在最容易踩的-3-个坑（提醒你）" class="headerlink" title="八、你现在最容易踩的 3 个坑（提醒你）"></a>八、你现在最容易踩的 3 个坑（提醒你）</h2><p>❌ 同时给两家公司开户<br>❌ Business Nature 写得太“科技 &#x2F; 区块链”<br>❌ 急着做复杂股权结构</p>
+<p>👉 <strong>你现在要的是：简单、可解释、可续签。</strong></p>
+<hr>
+<h4 id="最后一句（很重要）"><a href="#最后一句（很重要）" class="headerlink" title="最后一句（很重要）"></a>最后一句（很重要）</h4><p>你已经把<strong>最难的一步——结构与命名——走对了</strong>。<br>注册这一步只是<strong>行政流程</strong>，不会再卡你。</p>
+<hr>
+<h6 id="下一步我可以继续帮你直接落地："><a href="#下一步我可以继续帮你直接落地：" class="headerlink" title="下一步我可以继续帮你直接落地："></a>下一步我可以继续帮你直接落地：</h6><ul>
+<li>👉 帮你<strong>改 Business Nature 成“港府最爱版本”</strong></li>
+<li>👉 帮你写 <strong>开户时银行会问的 10 个问题标准答案</strong></li>
+<li>👉 或者直接帮你 <strong>规划哪家公司优先产生收入，最利于续签</strong></li>
+</ul>
+<p>你选一个，我继续。</p>
+<h1 id="我应该去找秘书公司开户吗"><a href="#我应该去找秘书公司开户吗" class="headerlink" title="我应该去找秘书公司开户吗"></a>我应该去找秘书公司开户吗</h1><p>简短、明确、可执行地回答你这一句：</p>
+<blockquote>
+<p><strong>是的，你应该找秘书公司，但你要“只用他们做对的那一部分”，而不是全权交给他们。</strong></p>
+</blockquote>
+<p>下面我把<strong>为什么、怎么用、怎么避坑</strong>一次说清楚。</p>
+<hr>
+<h4 id="一、先给结论级建议（你可以直接照着做）"><a href="#一、先给结论级建议（你可以直接照着做）" class="headerlink" title="一、先给结论级建议（你可以直接照着做）"></a>一、先给结论级建议（你可以直接照着做）</h4><h6 id="✅-你应该让秘书公司帮你做的"><a href="#✅-你应该让秘书公司帮你做的" class="headerlink" title="✅ 你应该让秘书公司帮你做的"></a>✅ 你应该让秘书公司帮你做的</h6><ol>
+<li><strong>公司注册（100% 交给他们）</strong></li>
+<li><strong>公司秘书 + 法定地址</strong></li>
+<li><strong>文件准备、CR &#x2F; BR 流程</strong></li>
+<li><strong>银行开户“材料整理 + 引荐”</strong></li>
+</ol>
+<h6 id="❌-你不应该让秘书公司替你决定的"><a href="#❌-你不应该让秘书公司替你决定的" class="headerlink" title="❌ 你不应该让秘书公司替你决定的"></a>❌ 你不应该让秘书公司替你决定的</h6><ol>
+<li><strong>公司结构（你已经定对了）</strong></li>
+<li><strong>业务叙事（Business Nature 你要盯）</strong></li>
+<li><strong>开户时你怎么回答银行问题</strong></li>
+<li><strong>两家公司是否同时开户</strong></li>
+</ol>
+<p>👉 换句话说：</p>
+<blockquote>
+<p><strong>秘书公司是“执行工具”，<br>不是“决策者”。</strong></p>
+</blockquote>
+<hr>
+<h4 id="二、为什么你现在“必须”用秘书公司"><a href="#二、为什么你现在“必须”用秘书公司" class="headerlink" title="二、为什么你现在“必须”用秘书公司"></a>二、为什么你现在“必须”用秘书公司</h4><h6 id="1️⃣-香港公司-法律上必须有公司秘书"><a href="#1️⃣-香港公司-法律上必须有公司秘书" class="headerlink" title="1️⃣ 香港公司 法律上必须有公司秘书"></a>1️⃣ 香港公司 <strong>法律上必须有公司秘书</strong></h6><p>这是硬性要求：</p>
+<ul>
+<li>必须是香港居民 &#x2F; 持牌机构</li>
+<li>必须有注册地址</li>
+</ul>
+<p>👉 <strong>你绕不开秘书公司</strong>，不如用好。</p>
+<hr>
+<h6 id="2️⃣-银行更信“熟面孔”"><a href="#2️⃣-银行更信“熟面孔”" class="headerlink" title="2️⃣ 银行更信“熟面孔”"></a>2️⃣ 银行更信“熟面孔”</h6><p>现实一点说：</p>
+<ul>
+<li><p>银行每天拒绝大量“自己摸索开户”的申请</p>
+</li>
+<li><p>秘书公司有：</p>
+<ul>
+<li>固定对接窗口</li>
+<li>现成的开户 checklist</li>
+<li>知道哪些银行最近松 &#x2F; 紧</li>
+</ul>
+</li>
+</ul>
+<p>📌 <strong>同样的你 + 同样的公司</strong><br>有秘书公司引荐，成功率高很多。</p>
+<hr>
+<h6 id="3️⃣-你现在不该把精力耗在行政摩擦上"><a href="#3️⃣-你现在不该把精力耗在行政摩擦上" class="headerlink" title="3️⃣ 你现在不该把精力耗在行政摩擦上"></a>3️⃣ 你现在不该把精力耗在行政摩擦上</h6><p>你正在做的是：</p>
+<ul>
+<li>商业结构</li>
+<li>客户获取</li>
+<li>事实层设计</li>
+</ul>
+<p>不是：</p>
+<ul>
+<li>研究 NNC1</li>
+<li>跑 CR</li>
+<li>被银行反复补材料</li>
+</ul>
+<p>👉 <strong>外包是理性选择，不是偷懒。</strong></p>
+<hr>
+<h4 id="三、但：99-的人是在这里被秘书公司“带坑里”的"><a href="#三、但：99-的人是在这里被秘书公司“带坑里”的" class="headerlink" title="三、但：99% 的人是在这里被秘书公司“带坑里”的"></a>三、但：99% 的人是在这里被秘书公司“带坑里”的</h4><p>我直接告诉你<strong>最常见的 4 个坑</strong>，你只要避开就行。</p>
+<hr>
+<h6 id="❌-坑-1：让秘书公司“顺手帮你想业务范围”"><a href="#❌-坑-1：让秘书公司“顺手帮你想业务范围”" class="headerlink" title="❌ 坑 1：让秘书公司“顺手帮你想业务范围”"></a>❌ 坑 1：让秘书公司“顺手帮你想业务范围”</h6><p>他们最爱写：</p>
+<blockquote>
+<p>“Technology solutions, blockchain services, digital platform…”</p>
+</blockquote>
+<p><strong>这会直接害你：</strong></p>
+<ul>
+<li>银行警惕</li>
+<li>港府多问</li>
+<li>客户误解</li>
+</ul>
+<p>✅ 正确做法：</p>
+<ul>
+<li><strong>Business Nature 必须你定</strong></li>
+<li>他们只负责填表</li>
+</ul>
+<hr>
+<h6 id="❌-坑-2：一次性给两家公司同时开户"><a href="#❌-坑-2：一次性给两家公司同时开户" class="headerlink" title="❌ 坑 2：一次性给两家公司同时开户"></a>❌ 坑 2：一次性给两家公司同时开户</h6><p>秘书公司很可能会说：</p>
+<blockquote>
+<p>“一起开比较方便。”</p>
+</blockquote>
+<p>这是<strong>错的</strong>。</p>
+<p>原因很简单：</p>
+<ul>
+<li>银行看到你“刚成立 + 两家公司 + 没流水”</li>
+<li>风控直接拉满</li>
+</ul>
+<p>✅ 正确策略：</p>
+<blockquote>
+<p><strong>先给 Proofmark 开户 → 有交易 → 再给 Imprint 开</strong></p>
+</blockquote>
+<hr>
+<h6 id="❌-坑-3：让秘书公司替你“回答银行问题”"><a href="#❌-坑-3：让秘书公司替你“回答银行问题”" class="headerlink" title="❌ 坑 3：让秘书公司替你“回答银行问题”"></a>❌ 坑 3：让秘书公司替你“回答银行问题”</h6><p>这是<strong>致命坑</strong>。</p>
+<p>银行问的不是表面问题，而是：</p>
+<ul>
+<li>你是不是壳</li>
+<li>你是不是洗钱</li>
+<li>你有没有真实业务</li>
+</ul>
+<p>秘书公司给你的模板答案：</p>
+<blockquote>
+<p>“Standard technology service…”</p>
+</blockquote>
+<p><strong>风险极高</strong>。</p>
+<p>✅ 正确做法：</p>
+<ul>
+<li>答案你来定</li>
+<li>语言我可以帮你润</li>
+</ul>
+<hr>
+<h6 id="❌-坑-4：被推高价“打包套餐”"><a href="#❌-坑-4：被推高价“打包套餐”" class="headerlink" title="❌ 坑 4：被推高价“打包套餐”"></a>❌ 坑 4：被推高价“打包套餐”</h6><p>你可能会看到：</p>
+<ul>
+<li>“注册 + 开户 + 会计 + 税务”一口价</li>
+</ul>
+<p>通常：</p>
+<ul>
+<li>贵</li>
+<li>不灵活</li>
+<li>有你不需要的东西</li>
+</ul>
+<p>✅ 正确做法：</p>
+<ul>
+<li><strong>模块化买</strong></li>
+<li>只买当前阶段必须的</li>
+</ul>
+<hr>
+<h4 id="四、我给你一个“最优使用秘书公司”的标准流程"><a href="#四、我给你一个“最优使用秘书公司”的标准流程" class="headerlink" title="四、我给你一个“最优使用秘书公司”的标准流程"></a>四、我给你一个“最优使用秘书公司”的标准流程</h4><p>你可以直接复制这套话术给秘书公司👇</p>
+<blockquote>
+<p>“I need incorporation of two Hong Kong companies.<br>For now, I only plan to open a bank account for one company.</p>
+<p>I already have clear business scope descriptions.<br>I will provide the business nature wording.</p>
+<p>Please assist with incorporation, company secretary, registered address,<br>and bank account application support.”</p>
+</blockquote>
+<p>这段话的潜台词是：</p>
+<ul>
+<li>我不是小白</li>
+<li>我知道自己在干嘛</li>
+<li>不要给我乱加东西</li>
+</ul>
+<p>秘书公司看到这段话，<strong>态度会立刻不一样</strong>。</p>
+<hr>
+<h4 id="五、你现在该怎么选秘书公司（很现实）"><a href="#五、你现在该怎么选秘书公司（很现实）" class="headerlink" title="五、你现在该怎么选秘书公司（很现实）"></a>五、你现在该怎么选秘书公司（很现实）</h4><h6 id="✅-选秘书公司要看-3-点"><a href="#✅-选秘书公司要看-3-点" class="headerlink" title="✅ 选秘书公司要看 3 点"></a>✅ 选秘书公司要看 3 点</h6><ol>
+<li><strong>能不能清楚告诉你：最近哪家银行好开</strong></li>
+<li><strong>是否熟悉虚拟银行（Airwallex &#x2F; ZA &#x2F; Statrys）</strong></li>
+<li><strong>是否愿意“按你的业务描述来”，而不是套模板</strong></li>
+</ol>
+<p>❌ 不要被这些话骗：</p>
+<ul>
+<li>“我们和银行关系很好”（空话）</li>
+<li>“你这个一定能开”（没人敢保证）</li>
+<li>“我们帮你想 business scope”（危险）</li>
+</ul>
+<hr>
+<h4 id="六、给你一个非常实在的判断标准"><a href="#六、给你一个非常实在的判断标准" class="headerlink" title="六、给你一个非常实在的判断标准"></a>六、给你一个非常实在的判断标准</h4><blockquote>
+<p><strong>好的秘书公司，会频繁确认你的意思；<br>不好的秘书公司，会替你“做主”。</strong></p>
+</blockquote>
+<p>你现在已经把<strong>战略层想清楚了</strong>，<br>只需要一个<strong>执行型秘书公司</strong>。</p>
+<hr>
+<h4 id="最后一句（非常重要）"><a href="#最后一句（非常重要）" class="headerlink" title="最后一句（非常重要）"></a>最后一句（非常重要）</h4><p>你现在不是“要不要找秘书公司”，<br>而是：</p>
+<blockquote>
+<p><strong>“我要不要把不该我花脑力的事情，<br>交给专业的人去做。”</strong></p>
+</blockquote>
+<p>答案是：<strong>要。</strong></p>
+<hr>
+<p>如果你愿意，下一步我可以继续<strong>非常具体地帮你</strong>：</p>
+<ul>
+<li>👉 帮你写 <strong>给秘书公司的第一封英文邮件（可直接发）</strong></li>
+<li>👉 或者帮你准备 <strong>银行开户 Q&amp;A 清单（10 问 10 答）</strong></li>
+<li>👉 或直接帮你判断：<strong>先开哪家银行最稳</strong></li>
+</ul>
+<p>你选一个，我继续。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Web3/">Web3</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/02/08/1487.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">hackthon-code</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/02/04/28276.html">
+                        <span class="hidden-mobile">Mock USDT</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>

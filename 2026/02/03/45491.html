@@ -1,0 +1,636 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>codex - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="codex">
+                      
+                        codex
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-02-03 15:23" pubdate>
+        2026年2月3日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.6k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      18
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">codex</h1>
+            
+            <div class="markdown-body">
+              <h1 id="Build-faster-with-Codex"><a href="#Build-faster-with-Codex" class="headerlink" title="Build faster with Codex"></a>Build faster with Codex</h1><p>“<strong>Build faster with Codex</strong>” 这句话直译就是：<strong>“用 Codex 更快地构建（开发）”</strong>。</p>
+<p>它本质是一个<strong>产品口号 &#x2F; 宣传语</strong>，意思是：</p>
+<blockquote>
+<p>用 Codex 这个 AI 编程工具，可以让你写代码、做项目的速度变快。</p>
+</blockquote>
+<hr>
+<h2 id="拆开理解每个词"><a href="#拆开理解每个词" class="headerlink" title="拆开理解每个词"></a>拆开理解每个词</h2><h3 id="1-Build"><a href="#1-Build" class="headerlink" title="1. Build"></a>1. Build</h3><p>在技术语境里，<strong>build ≠ 盖房子</strong>，而是：</p>
+<ul>
+<li>开发软件</li>
+<li>写代码</li>
+<li>搭系统 &#x2F; 做产品</li>
+<li>实现功能</li>
+</ul>
+<p>比如：</p>
+<ul>
+<li>build an app → 开发一个应用</li>
+<li>build a system → 搭建一个系统</li>
+</ul>
+<h3 id="2-Faster"><a href="#2-Faster" class="headerlink" title="2. Faster"></a>2. Faster</h3><p>就是字面意思：更快</p>
+<ul>
+<li>更少时间</li>
+<li>更少人力</li>
+<li>更少重复劳动</li>
+</ul>
+<h3 id="3-Codex-是什么？"><a href="#3-Codex-是什么？" class="headerlink" title="3. Codex 是什么？"></a>3. Codex 是什么？</h3><p><strong>Codex 是 OpenAI 推出的一个“AI 编程模型&#x2F;工具”</strong>，核心能力是：</p>
+<ul>
+<li>根据自然语言生成代码</li>
+<li>帮你补全、重构、解释代码</li>
+<li>自动写函数、测试、脚本</li>
+</ul>
+<p>早期你可能见过这种用法：</p>
+<blockquote>
+<p>“Write a Python function that parses JSON”<br>Codex 直接给你一段可运行的代码。</p>
+</blockquote>
+<hr>
+<h2 id="整句话的人话翻译版本"><a href="#整句话的人话翻译版本" class="headerlink" title="整句话的人话翻译版本"></a>整句话的人话翻译版本</h2><p>如果不用营销腔，翻译成你这种工程师能接受的版本就是：</p>
+<blockquote>
+<p><strong>用 Codex，可以显著提高开发效率。</strong><br><strong>原来要 1 小时写的代码，现在 10 分钟搞定。</strong></p>
+</blockquote>
+<p>或者更中国互联网一点：</p>
+<blockquote>
+<p>Codex &#x3D; AI 程序员外挂<br>Build faster &#x3D; 开发效率开挂</p>
+</blockquote>
+<hr>
+<h2 id="放在你这种背景下（Web3-系统工程）的真实含义"><a href="#放在你这种背景下（Web3-系统工程）的真实含义" class="headerlink" title="放在你这种背景下（Web3 &#x2F; 系统工程）的真实含义"></a>放在你这种背景下（Web3 &#x2F; 系统工程）的真实含义</h2><p>对你这种在搞：</p>
+<ul>
+<li>Golang + TS + Solidity</li>
+<li>智能合约</li>
+<li>链上系统、relay、foundry</li>
+</ul>
+<p>“Build faster with Codex” 实际指的是：</p>
+<p>你可以用 Codex 来：</p>
+<ul>
+<li>快速生成合约模板</li>
+<li>自动写测试用例</li>
+<li>把需求直接转成初版代码</li>
+<li>重构 reward.go &#x2F; mint.go 这种文件</li>
+<li>写 README、文档、脚手架</li>
+</ul>
+<p>本质是：<strong>把“体力型编程”交给 AI，你只负责系统设计和关键逻辑。</strong></p>
+<hr>
+<h2 id="为什么这种话经常出现在-GPT-OpenAI-页面？"><a href="#为什么这种话经常出现在-GPT-OpenAI-页面？" class="headerlink" title="为什么这种话经常出现在 GPT &#x2F; OpenAI 页面？"></a>为什么这种话经常出现在 GPT &#x2F; OpenAI 页面？</h2><p>因为这是标准 SaaS 宣传语结构：</p>
+<blockquote>
+<p>Build faster with X<br>Scale smarter with X<br>Ship better with X</p>
+</blockquote>
+<p>都是一个意思：<br><strong>“X &#x3D; 提升你生产力的工具”</strong></p>
+<hr>
+<h2 id="一句话总结"><a href="#一句话总结" class="headerlink" title="一句话总结"></a>一句话总结</h2><blockquote>
+<p><strong>“Build faster with Codex” &#x3D; 用 Codex 写代码更快，开发效率更高。</strong><br>本质就是：<strong>AI 程序员帮你打工。</strong></p>
+</blockquote>
+<p>对你来说，可以理解为：</p>
+<blockquote>
+<p>Codex 是你团队里的「24 小时不下班的初级工程师 + 实习生 + 文档助理」。</p>
+</blockquote>
+<h1 id="如何使用codex呢？"><a href="#如何使用codex呢？" class="headerlink" title="如何使用codex呢？"></a>如何使用codex呢？</h1><p>这个问题问得非常对，因为 <strong>Codex 不是一个“单独下载的软件”</strong>，而是一个<strong>能力层（模型）</strong>，你用它的方式取决于：你在哪个产品里用它。</p>
+<p>一句话先给结论：</p>
+<blockquote>
+<p><strong>现在你用 ChatGPT 写代码，本质上已经在“用 Codex 能力了”。</strong></p>
+</blockquote>
+<p>只是 OpenAI 不再像早期那样单独给你一个叫“Codex 的产品入口”，而是把 Codex 融进了整个开发者生态。</p>
+<hr>
+<h2 id="一、Codex-现在到底是什么形态？"><a href="#一、Codex-现在到底是什么形态？" class="headerlink" title="一、Codex 现在到底是什么形态？"></a>一、Codex 现在到底是什么形态？</h2><p>历史上：</p>
+<ul>
+<li>2021–2023：Codex 是一个独立模型（<code>code-davinci-002</code>）</li>
+<li>现在：<strong>Codex &#x3D; GPT 系列里专门强化的编程能力子系统</strong></li>
+</ul>
+<p>也就是说：</p>
+<blockquote>
+<p>你看到的 <em>“build faster with Codex”</em><br>本质意思是：用 OpenAI 的 AI 编程能力整体体系。</p>
+</blockquote>
+<hr>
+<h2 id="二、最现实的-4-种使用方式（工程师实战）"><a href="#二、最现实的-4-种使用方式（工程师实战）" class="headerlink" title="二、最现实的 4 种使用方式（工程师实战）"></a>二、最现实的 4 种使用方式（工程师实战）</h2><h3 id="方式一（你现在已经在用）：ChatGPT-写代码-⭐⭐⭐⭐⭐"><a href="#方式一（你现在已经在用）：ChatGPT-写代码-⭐⭐⭐⭐⭐" class="headerlink" title="方式一（你现在已经在用）：ChatGPT 写代码 ⭐⭐⭐⭐⭐"></a>方式一（你现在已经在用）：ChatGPT 写代码 ⭐⭐⭐⭐⭐</h3><p>你现在这种对话：</p>
+<blockquote>
+<p>“给我一个完整版的 mint.go”<br>“帮我重构 reward.go”<br>“写一个 solidity 合约”</p>
+</blockquote>
+<p><strong>这就是 Codex 最主流的使用方式。</strong></p>
+<p>适合场景：</p>
+<ul>
+<li>写函数</li>
+<li>改 bug</li>
+<li>解释报错</li>
+<li>生成脚手架</li>
+<li>写 README &#x2F; 文档</li>
+</ul>
+<p>你现在其实已经是 <strong>Codex 高级用户</strong> 了，只是没意识到名字而已。</p>
+<hr>
+<h3 id="方式二：在-IDE-里用（Cursor-VS-Code-JetBrains）"><a href="#方式二：在-IDE-里用（Cursor-VS-Code-JetBrains）" class="headerlink" title="方式二：在 IDE 里用（Cursor &#x2F; VS Code &#x2F; JetBrains）"></a>方式二：在 IDE 里用（Cursor &#x2F; VS Code &#x2F; JetBrains）</h3><p>这才是“真正工程化”的 Codex 用法。</p>
+<h4 id="1-Cursor（最推荐）"><a href="#1-Cursor（最推荐）" class="headerlink" title="1. Cursor（最推荐）"></a>1. Cursor（最推荐）</h4><p>直接就是：<strong>AI 原生编辑器</strong></p>
+<p>你在里面可以：</p>
+<ul>
+<li>选中一段代码 → “Explain”</li>
+<li>输入一句话 → 自动改整个项目</li>
+<li>多文件重构</li>
+<li>让 AI 自己在 repo 里找 bug</li>
+</ul>
+<p>本质：</p>
+<blockquote>
+<p>Cursor &#x3D; Codex + VS Code 融合体</p>
+</blockquote>
+<p>非常适合你这种：</p>
+<ul>
+<li>Go + TS + Solidity 大项目</li>
+<li>多文件、链路复杂系统</li>
+</ul>
+<hr>
+<h4 id="2-VS-Code-Copilot"><a href="#2-VS-Code-Copilot" class="headerlink" title="2. VS Code + Copilot"></a>2. VS Code + Copilot</h4><p>GitHub Copilot 背后最早用的就是 Codex。</p>
+<p>能力：</p>
+<ul>
+<li>行级补全</li>
+<li>函数自动生成</li>
+<li>写注释自动变代码</li>
+</ul>
+<p>适合：</p>
+<ul>
+<li>高频写代码</li>
+<li>不想频繁切 ChatGPT</li>
+</ul>
+<hr>
+<h3 id="方式三：通过-API-用（真正“程序调用-Codex”）"><a href="#方式三：通过-API-用（真正“程序调用-Codex”）" class="headerlink" title="方式三：通过 API 用（真正“程序调用 Codex”）"></a>方式三：通过 API 用（真正“程序调用 Codex”）</h3><p>如果你想把 Codex 变成你系统的一部分，比如：</p>
+<ul>
+<li>AI 自动生成合约</li>
+<li>AI 帮用户写策略脚本</li>
+<li>AI 代码审计机器人</li>
+</ul>
+<p>那就用 API。</p>
+<p>核心模式：</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-keyword">from</span> openai <span class="hljs-keyword">import</span> OpenAI<br>client = OpenAI()<br><br>resp = client.responses.create(<br>    model=<span class="hljs-string">&quot;gpt-4.1-mini&quot;</span>,<br>    <span class="hljs-built_in">input</span>=<span class="hljs-string">&quot;Write a solidity ERC721 mint function&quot;</span><br>)<br><br><span class="hljs-built_in">print</span>(resp.output_text)<br></code></pre></div></td></tr></table></figure>
+
+<p>这就是：</p>
+<blockquote>
+<p>你在代码里“调用一个 AI 程序员”。</p>
+</blockquote>
+<hr>
+<h3 id="方式四：企业级（Agent-自动写项目）"><a href="#方式四：企业级（Agent-自动写项目）" class="headerlink" title="方式四：企业级（Agent &#x2F; 自动写项目）"></a>方式四：企业级（Agent &#x2F; 自动写项目）</h3><p>这是最狠的玩法：</p>
+<p>让 Codex 当：</p>
+<ul>
+<li>自动生成项目骨架</li>
+<li>自动写测试</li>
+<li>自动跑 CI</li>
+<li>自动修 bug</li>
+</ul>
+<p>典型产品：</p>
+<ul>
+<li>Devin（AI 工程师）</li>
+<li>Cursor Agent</li>
+<li>OpenAI Codex Agent（内测）</li>
+</ul>
+<p>本质：</p>
+<blockquote>
+<p>不是“帮你写一行代码”，<br>而是“帮你交付一个项目”。</p>
+</blockquote>
+<hr>
+<h2 id="三、对你这种人的最佳实践路线（说实话版）"><a href="#三、对你这种人的最佳实践路线（说实话版）" class="headerlink" title="三、对你这种人的最佳实践路线（说实话版）"></a>三、对你这种人的最佳实践路线（说实话版）</h2><p>你是：</p>
+<ul>
+<li>Principal Engineer</li>
+<li>搞 Web3 &#x2F; 分布式系统</li>
+<li>有复杂真实项目（不是刷题）</li>
+</ul>
+<p>最优路径其实是：</p>
+<h3 id="Level-1（你现在）"><a href="#Level-1（你现在）" class="headerlink" title="Level 1（你现在）"></a>Level 1（你现在）</h3><blockquote>
+<p>ChatGPT + 手写 prompt<br>当 AI 高级实习生</p>
+</blockquote>
+<hr>
+<h3 id="Level-2（强烈推荐）"><a href="#Level-2（强烈推荐）" class="headerlink" title="Level 2（强烈推荐）"></a>Level 2（强烈推荐）</h3><blockquote>
+<p>Cursor + 大项目仓库<br>当 AI 团队成员</p>
+</blockquote>
+<p>用法：</p>
+<ul>
+<li>“重构这个模块为事件驱动”</li>
+<li>“给所有 handler 加超时保护”</li>
+<li>“扫描全项目找竞态条件”</li>
+</ul>
+<hr>
+<h3 id="Level-3（你未来一定会玩的）"><a href="#Level-3（你未来一定会玩的）" class="headerlink" title="Level 3（你未来一定会玩的）"></a>Level 3（你未来一定会玩的）</h3><blockquote>
+<p>把 Codex 嵌入你自己的系统</p>
+</blockquote>
+<p>比如你那个「金库协议」未来可以加：</p>
+<ul>
+<li>商户输入需求 → AI 自动生成合约模板</li>
+<li>用户策略 → AI 自动生成交易脚本</li>
+<li>DAO 提案 → AI 自动生成治理合约</li>
+</ul>
+<p>这时候 Codex 就不是工具了，而是：</p>
+<blockquote>
+<p><strong>你产品里的一个“智能劳动力层”。</strong></p>
+</blockquote>
+<hr>
+<h2 id="本质总结一句（工程师真相版）"><a href="#本质总结一句（工程师真相版）" class="headerlink" title="本质总结一句（工程师真相版）"></a>本质总结一句（工程师真相版）</h2><blockquote>
+<p>Codex 不是一个“软件”，<br>它是一种：<strong>AI 程序员能力。</strong></p>
+</blockquote>
+<p>你用 ChatGPT 写代码 → 在用 Codex<br>你用 Cursor 改项目 → 在用 Codex<br>你用 API 生成合约 → 在用 Codex</p>
+<p>只是名字不同，<strong>能力本体是同一个东西：<br>自然语言 → 可运行代码。</strong></p>
+<p>对你这种人来说，真正的分水岭不是“会不会用 Codex”，而是：</p>
+<blockquote>
+<p><strong>你什么时候开始让 AI 参与系统设计，而不只是写函数。</strong></p>
+</blockquote>
+<p>那一刻开始，你就进入了：<br><strong>AI 协作式工程时代。</strong></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/02/03/37963.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">新人月神话</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/02/03/36284.html">
+                        <span class="hidden-mobile">RediSearch</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>

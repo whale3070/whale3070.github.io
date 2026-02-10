@@ -1,0 +1,755 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>Mock USDT - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="Mock USDT">
+                      
+                        Mock USDT
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-02-04 06:41" pubdate>
+        2026年2月4日 早上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      36
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">Mock USDT</h1>
+            
+            <div class="markdown-body">
+              <h1 id="我需要加一个管理员界面"><a href="#我需要加一个管理员界面" class="headerlink" title="我需要加一个管理员界面"></a>我需要加一个管理员界面</h1><p>但是我做的是出版社给我法币，我去充值usdt兑换为conflux代币，用conflux代币付gas费。我需要加一个管理员界面（我自己），usdt充值，兑换。这样对吗</p>
+<p>方向<strong>基本对</strong>（而且是很多 PayFi&#x2F;代付系统在现实里会走的“运营闭环”），但要注意一件很关键的事：</p>
+<blockquote>
+<p><strong>黑客松题目要看的“多币种支付（USDT 作为 gas 替代）”，不是你内部怎么换汇，而是“在用户&#x2F;业务方视角：费用用 USDT 结算，用户无需持有 CFX，链上交互照样完成”。</strong></p>
+</blockquote>
+<p>你现在描述的方案：<br><strong>出版社给你法币 → 你买&#x2F;充值 USDT → 再换成 CFX → 用 CFX 付 gas</strong><br>这叫 <strong>“后台资金运营方案”</strong>（treasury&#x2F;资金池），它能支撑产品跑起来。</p>
+<p>但它<strong>不一定</strong>能满足评委对“USDT 作为 gas 替代”的直觉要求——除非你把“USDT 结算这一步”做成<strong>可见的、可验证的</strong>闭环。</p>
+<hr>
+<h2 id="你这套方案哪里“对”"><a href="#你这套方案哪里“对”" class="headerlink" title="你这套方案哪里“对”"></a>你这套方案哪里“对”</h2><h3 id="✅-1-产品层面完全合理"><a href="#✅-1-产品层面完全合理" class="headerlink" title="✅ 1) 产品层面完全合理"></a>✅ 1) 产品层面完全合理</h3><ul>
+<li>客户（出版社）只想付法币，没兴趣理解链和 CFX</li>
+<li>你作为服务商，负责把法币变成链上运行成本</li>
+<li>你给客户提供一个“充值&#x2F;余额&#x2F;消耗报表&#x2F;SLA”的后台</li>
+</ul>
+<p>这就是典型的 <strong>Web2 采购体验 + Web3 执行</strong>，非常适合你这个“系统免费、代付收费”的模式。</p>
+<h3 id="✅-2-Hackathon-的“代付机制”你能讲得更顺"><a href="#✅-2-Hackathon-的“代付机制”你能讲得更顺" class="headerlink" title="✅ 2) Hackathon 的“代付机制”你能讲得更顺"></a>✅ 2) Hackathon 的“代付机制”你能讲得更顺</h3><p>你可以一句话讲清：</p>
+<ul>
+<li>用户：0 CFX</li>
+<li>交易：gasless</li>
+<li>费用：由服务商垫付<br>这部分是挑战的硬性项之一。</li>
+</ul>
+<hr>
+<h2 id="你这套方案哪里“可能不够”"><a href="#你这套方案哪里“可能不够”" class="headerlink" title="你这套方案哪里“可能不够”"></a>你这套方案哪里“可能不够”</h2><p>题目里的“多币种支付（USDT 作为 gas 替代）”通常会被评委理解为：</p>
+<blockquote>
+<p><strong>在链上</strong>（或至少在演示中可见）用 USDT&#x2F;ERC-20 来“支付这笔操作的费用”，而不是仅仅“你后台用 USDT 去买 CFX”。</p>
+</blockquote>
+<p>所以你最好让系统具备下面这个“对外可见的结算接口”之一：</p>
+<h3 id="推荐方案-A（最像题目想要的）"><a href="#推荐方案-A（最像题目想要的）" class="headerlink" title="推荐方案 A（最像题目想要的）"></a>推荐方案 A（最像题目想要的）</h3><p><strong>用户&#x2F;出版社用 USDT 支付“服务费”，你用 CFX 付 gas（用户仍 0 CFX）</strong></p>
+<ul>
+<li>链上：用户&#x2F;出版社给 paymaster&#x2F;收费合约转 USDT（或授权扣 USDT）</li>
+<li>链上：你的 relayer&#x2F;paymaster 负责把交易发出去并付 CFX gas</li>
+<li>账单：每次扫码&#x2F;铸造对应扣多少 USDT，有链上证据</li>
+</ul>
+<blockquote>
+<p>这才是“USDT 替代 gas”的展示：用户付 USDT，系统帮他完成 gas。</p>
+</blockquote>
+<p>你后台的“USDT → CFX 兑换”可以<strong>先不自动化</strong>，完全可以：</p>
+<ul>
+<li>手动定期换（PoC 足够）</li>
+<li>或用一个“模拟兑换”按钮（demo 足够）</li>
+</ul>
+<p>评委主要看 <strong>闭环存在</strong>，不太会深究你是不是接了真实交易所。</p>
+<h3 id="方案-B（你现在的思路，但要补一层可见证据）"><a href="#方案-B（你现在的思路，但要补一层可见证据）" class="headerlink" title="方案 B（你现在的思路，但要补一层可见证据）"></a>方案 B（你现在的思路，但要补一层可见证据）</h3><p><strong>出版社法币给你</strong>这步在链下没问题，但你需要在 demo 里能展示：</p>
+<ul>
+<li>“出版社账户余额（USDT 计价）增加”</li>
+<li>“每次代付消耗从 USDT 余额扣除”</li>
+<li>“交易成功且用户 0 CFX”</li>
+<li>最好还能展示链上记录（例如收费合约事件&#x2F;扣费记录）</li>
+</ul>
+<p>否则评委会觉得：<br>“这只是你用法币买了 gas，跟 USDT 作为 gas 替代没直接关系。”</p>
+<hr>
+<h2 id="管理员界面（你自己）要不要做？"><a href="#管理员界面（你自己）要不要做？" class="headerlink" title="管理员界面（你自己）要不要做？"></a>管理员界面（你自己）要不要做？</h2><p><strong>要做，而且很加分</strong>，因为它能把“PayFi 运营闭环”讲完整。</p>
+<h3 id="管理员界面最小必备-5-个模块"><a href="#管理员界面最小必备-5-个模块" class="headerlink" title="管理员界面最小必备 5 个模块"></a>管理员界面最小必备 5 个模块</h3><ol>
+<li><strong>客户（出版社）账户</strong></li>
+</ol>
+<ul>
+<li>余额：USDT 计价（对外展示的结算货币）</li>
+<li>今日&#x2F;本周消耗</li>
+<li>预警阈值（余额不足）</li>
+</ul>
+<ol start="2">
+<li><strong>充值</strong></li>
+</ol>
+<ul>
+<li>演示环境：按钮模拟“法币到账 → USDT 记账”</li>
+<li>或直接“USDT 充值地址”（链上转入更硬核）</li>
+</ul>
+<ol start="3">
+<li><strong>兑换&#x2F;补充 gas</strong></li>
+</ol>
+<ul>
+<li>“将 USDT 换为 CFX（手动&#x2F;定期）”</li>
+<li>展示：服务商 gas 池（CFX）余额</li>
+</ul>
+<ol start="4">
+<li><strong>交易代付日志</strong></li>
+</ol>
+<ul>
+<li>每笔扫码 mint：时间、书籍ID、消耗 CFX、扣除 USDT、交易哈希</li>
+</ul>
+<ol start="5">
+<li><strong>费率与策略</strong></li>
+</ol>
+<ul>
+<li>每次 mint 固定 USDT</li>
+<li>或按链上 gas 波动动态定价（写个简单公式即可）</li>
+</ul>
+<hr>
+<h2 id="一个非常重要的风险提醒（但不影响你-hackathon）"><a href="#一个非常重要的风险提醒（但不影响你-hackathon）" class="headerlink" title="一个非常重要的风险提醒（但不影响你 hackathon）"></a>一个非常重要的风险提醒（但不影响你 hackathon）</h2><p>你说的“法币 → USDT → CFX”的托管和兑换，现实商业里会涉及合规&#x2F;牌照&#x2F;KYC&#x2F;资金托管问题。<br><strong>黑客松 PoC 不用深究</strong>，但你答辩时最好一句话带过：</p>
+<blockquote>
+<p>“PoC 阶段用模拟&#x2F;合作方出入金；商业化会通过持牌通道&#x2F;第三方支付与合规托管解决。”</p>
+</blockquote>
+<p>这样评委不会追着你问“你是不是在做非法换汇&#x2F;资金业务”。</p>
+<hr>
+<h2 id="最直接的结论"><a href="#最直接的结论" class="headerlink" title="最直接的结论"></a>最直接的结论</h2><ul>
+<li><p><strong>你现在的思路作为“运营资金池&#x2F;代付服务商”是正确的。</strong></p>
+</li>
+<li><p>但为了“赛道B拿奖”，你需要让评委一眼看到：</p>
+<ol>
+<li>用户&#x2F;客户用 <strong>USDT（或至少 ERC-20）计价并扣费</strong></li>
+<li>用户 <strong>0 CFX</strong> 也能完成交易</li>
+<li>有清晰的链上&#x2F;后台证据（扣费记录 + tx hash）</li>
+</ol>
+</li>
+</ul>
+<p>只要你把“USDT 计价扣费”做成可展示闭环，你这套管理员界面会变成加分项，而不是偏题。</p>
+<p>如果你告诉我：你现在的 “ERC-20 付 gas” 具体是 <strong>谁付（用户&#x2F;出版社&#x2F;你自己）</strong>、怎么扣费（授权&#x2F;转账&#x2F;签名），我可以直接给你一版<strong>最省改动</strong>的“USDT 适配方案”，保证对齐题目叙事。</p>
+<h1 id="在-Conflux-eSpace-部署一个-Mock-USDT"><a href="#在-Conflux-eSpace-部署一个-Mock-USDT" class="headerlink" title="在 Conflux eSpace 部署一个 Mock USDT"></a>在 Conflux eSpace 部署一个 Mock USDT</h1><p>在 Conflux eSpace 部署一个 Mock USDT（或直接用测试网 USDT）</p>
+<p>Paymaster 支持：</p>
+<p>用户用 USDT 授权</p>
+<p>后台扣 USDT</p>
+<p>服务方垫 CFX</p>
+<p>Demo 时展示：</p>
+<p>用户钱包：0 CFX</p>
+<p>有 USDT</p>
+<p>成功 mint NFT</p>
+<p>链上交易记录显示 paymaster</p>
+<p>很好，这个问题本质上是：<strong>在 Conflux eSpace（EVM）上，你要一个“可控稳定币”来做测试环境。</strong><br>结论先给你一句工程真话：</p>
+<blockquote>
+<p>在 eSpace 上，<strong>99% 正确姿势是：自己部署 MockUSDT</strong>，而不是找水龙头。</p>
+</blockquote>
+<p>下面给你两套方案：<strong>官方测试 USDT（如果只是玩）</strong> + <strong>工程级 MockUSDT（推荐）</strong>。</p>
+<hr>
+<h1 id="方案一（简单版）：直接用-Conflux-eSpace-官方测试-USDT"><a href="#方案一（简单版）：直接用-Conflux-eSpace-官方测试-USDT" class="headerlink" title="方案一（简单版）：直接用 Conflux eSpace 官方测试 USDT"></a>方案一（简单版）：直接用 Conflux eSpace 官方测试 USDT</h1><p>适合：只是验证前端、钱包、swap 是否通。</p>
+<h2 id="1-切到-Conflux-eSpace-Testnet"><a href="#1-切到-Conflux-eSpace-Testnet" class="headerlink" title="1. 切到 Conflux eSpace Testnet"></a>1. 切到 Conflux eSpace Testnet</h2><p>RPC（测试网）：</p>
+<figure class="highlight dts"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs dts"><span class="hljs-symbol">https:</span><span class="hljs-comment">//evmtestnet.confluxrpc.com</span><br><span class="hljs-symbol">ChainId:</span> <span class="hljs-number">71</span><br></code></pre></div></td></tr></table></figure>
+
+<p>MetaMask 添加网络即可。</p>
+<hr>
+<h2 id="2-领-CFX（手续费）"><a href="#2-领-CFX（手续费）" class="headerlink" title="2. 领 CFX（手续费）"></a>2. 领 CFX（手续费）</h2><p>官方水龙头：<br>👉 <a target="_blank" rel="noopener" href="https://efaucet.confluxnetwork.org/">https://efaucet.confluxnetwork.org</a></p>
+<p><img src="https://conflux-faucets.com/cfx_faucets.jpg" alt="Image"></p>
+<p><img src="https://images.bannerbear.com/direct/vWnx7pMbvrqMJGLVmE/requests/000/065/116/569/NnaW7b28GYDwvE2DQ4VwORxZl/c6ca8b24a359830cb7aaa26f05459c37def62c91.png" alt="Image"></p>
+<p><img src="https://doc.confluxnetwork.org/assets/images/faucet-0e6cc18d05e5ac97ffa71589e096abee.png" alt="Image"></p>
+<hr>
+<h2 id="3-官方测试-USDT-合约（如果还没下线）"><a href="#3-官方测试-USDT-合约（如果还没下线）" class="headerlink" title="3. 官方测试 USDT 合约（如果还没下线）"></a>3. 官方测试 USDT 合约（如果还没下线）</h2><p>历史上官方给过一个测试 USDT：</p>
+<figure class="highlight lisp"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs lisp">USDT (<span class="hljs-name">eSpace</span> Testnet)<br><span class="hljs-number">0</span>x8f7b3aD9fD40C6D3C1dC4d8C5b4d0b0f5cC0bD8E   (示例，可能变)<br></code></pre></div></td></tr></table></figure>
+
+<p>查最新方式：<br><a target="_blank" rel="noopener" href="https://evmtestnet.confluxscan.io/">https://evmtestnet.confluxscan.io</a><br>搜索 <code>USDT</code></p>
+<p>⚠️现实问题：</p>
+<blockquote>
+<p>Conflux 官方测试 USDT 经常变 &#x2F; 会下线 &#x2F; faucet 不稳定。</p>
+</blockquote>
+<p>所以工程上 <strong>不推荐依赖</strong>。</p>
+<hr>
+<h1 id="方案二（强烈推荐）：自己部署-Mock-USDT（工程级）"><a href="#方案二（强烈推荐）：自己部署-Mock-USDT（工程级）" class="headerlink" title="方案二（强烈推荐）：自己部署 Mock USDT（工程级）"></a>方案二（强烈推荐）：自己部署 Mock USDT（工程级）</h1><p>这是你现在这种做系统、压测、高并发时的<strong>标准解法</strong>。</p>
+<hr>
+<h2 id="最小可用-MockUSDT-合约（6-位小数，和真-USDT-一致）"><a href="#最小可用-MockUSDT-合约（6-位小数，和真-USDT-一致）" class="headerlink" title="最小可用 MockUSDT 合约（6 位小数，和真 USDT 一致）"></a>最小可用 MockUSDT 合约（6 位小数，和真 USDT 一致）</h2><figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">// SPDX-License-Identifier: MIT<br>pragma solidity ^0.8.20;<br><br>contract MockUSDT &#123;<br>    string public name = &quot;Mock USDT&quot;;<br>    string public symbol = &quot;USDT&quot;;<br>    uint8 public decimals = 6;<br><br>    mapping(address =&gt; uint256) public balanceOf;<br><br>    event Transfer(address indexed from, address indexed to, uint256 value);<br><br>    constructor() &#123;<br>        // 给部署者 1 亿 USDT<br>        balanceOf[msg.sender] = 100_000_000 * 1e6;<br>    &#125;<br><br>    function transfer(address to, uint256 amount) external returns (bool) &#123;<br>        require(balanceOf[msg.sender] &gt;= amount, &quot;balance too low&quot;);<br>        balanceOf[msg.sender] -= amount;<br>        balanceOf[to] += amount;<br>        emit Transfer(msg.sender, to, amount);<br>        return true;<br>    &#125;<br><br>    // 测试网神器：随便 mint<br>    function mint(address to, uint256 amount) external &#123;<br>        balanceOf[to] += amount;<br>        emit Transfer(address(0), to, amount);<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p>这个版本比标准 ERC20 还好用：</p>
+<ul>
+<li>无权限控制</li>
+<li>无限 mint</li>
+<li>不用 approve</li>
+<li>压测神器</li>
+</ul>
+<hr>
+<h1 id="用-Foundry-一行部署到-eSpace"><a href="#用-Foundry-一行部署到-eSpace" class="headerlink" title="用 Foundry 一行部署到 eSpace"></a>用 Foundry 一行部署到 eSpace</h1><h2 id="1-配-RPC"><a href="#1-配-RPC" class="headerlink" title="1. 配 RPC"></a>1. 配 RPC</h2><figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">export</span> RPC=https://evmtestnet.confluxrpc.com<br></code></pre></div></td></tr></table></figure>
+
+<h2 id="2-部署"><a href="#2-部署" class="headerlink" title="2. 部署"></a>2. 部署</h2><figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">forge create MockUSDT.sol \<br>  --rpc-url <span class="hljs-variable">$RPC</span> \<br>  --private-key YOUR_PRIVATE_KEY<br></code></pre></div></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight lasso"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs lasso">Deployed <span class="hljs-keyword">to</span>: <span class="hljs-number">0xABCDEF</span><span class="hljs-params">...</span><br></code></pre></div></td></tr></table></figure>
+
+<p>这个地址 &#x3D; 你自己的 USDT 官方央行。</p>
+<hr>
+<h1 id="添加到-MetaMask"><a href="#添加到-MetaMask" class="headerlink" title="添加到 MetaMask"></a>添加到 MetaMask</h1><figure class="highlight nestedtext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs nestedtext"><span class="hljs-attribute">Token address</span><span class="hljs-punctuation">:</span> <span class="hljs-string">0xABCDEF...</span><br><span class="hljs-attribute">Symbol</span><span class="hljs-punctuation">:</span> <span class="hljs-string">USDT</span><br><span class="hljs-attribute">Decimals</span><span class="hljs-punctuation">:</span> <span class="hljs-string">6</span><br></code></pre></div></td></tr></table></figure>
+
+<p>你立刻拥有：</p>
+<figure class="highlight apache"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs apache"><span class="hljs-attribute">100</span>,<span class="hljs-number">000</span>,<span class="hljs-number">000</span> USDT<br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h1 id="开发者级玩法（你这种人一定会用到）"><a href="#开发者级玩法（你这种人一定会用到）" class="headerlink" title="开发者级玩法（你这种人一定会用到）"></a>开发者级玩法（你这种人一定会用到）</h1><h2 id="1-给所有子钱包批量发币"><a href="#1-给所有子钱包批量发币" class="headerlink" title="1. 给所有子钱包批量发币"></a>1. 给所有子钱包批量发币</h2><figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">for (...) &#123;<br>    mockUSDT.mint(addr, 1_000_000e6);<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<h2 id="2-模拟真实业务"><a href="#2-模拟真实业务" class="headerlink" title="2. 模拟真实业务"></a>2. 模拟真实业务</h2><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>MockUSDT 用法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>NFT 定价</td>
+<td>用 USDT 购买</td>
+</tr>
+<tr>
+<td>DEX</td>
+<td>USDT &#x2F; CFX</td>
+</tr>
+<tr>
+<td>代付系统</td>
+<td>用 USDT 结算</td>
+</tr>
+<tr>
+<td>压测</td>
+<td>无限转账</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="工程真相（非常重要）"><a href="#工程真相（非常重要）" class="headerlink" title="工程真相（非常重要）"></a>工程真相（非常重要）</h1><h3 id="为什么不该依赖官方测试-USDT？"><a href="#为什么不该依赖官方测试-USDT？" class="headerlink" title="为什么不该依赖官方测试 USDT？"></a>为什么不该依赖官方测试 USDT？</h3><table>
+<thead>
+<tr>
+<th>风险</th>
+<th>真实情况</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>水龙头</td>
+<td>经常挂</td>
+</tr>
+<tr>
+<td>合约</td>
+<td>官方随时重置</td>
+</tr>
+<tr>
+<td>Faucet</td>
+<td>限频</td>
+</tr>
+<tr>
+<td>金额</td>
+<td>不够你压测</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="你这个项目的最优架构（推荐）"><a href="#你这个项目的最优架构（推荐）" class="headerlink" title="你这个项目的最优架构（推荐）"></a>你这个项目的最优架构（推荐）</h1><p>结合你之前在搞：</p>
+<ul>
+<li>高并发 mint</li>
+<li>Foundry</li>
+<li>多子钱包代付</li>
+<li>链上大盘系统</li>
+</ul>
+<p><strong>最优工程结构是：</strong></p>
+<figure class="highlight nginx"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs nginx"><span class="hljs-attribute">eSpace</span> Testnet<br>  ├── MockUSDT (你自己发)<br>  ├── MockNFT<br>  ├── Router / Vault<br>  └── 所有地址无限 mint<br></code></pre></div></td></tr></table></figure>
+
+<p>你直接拥有：</p>
+<blockquote>
+<p><strong>一个完全可控的“私人稳定币经济系统”</strong></p>
+</blockquote>
+<p>这才是专业 Web3 工程师的测试环境。</p>
+<hr>
+<h1 id="一句话总结（给你这种级别的）"><a href="#一句话总结（给你这种级别的）" class="headerlink" title="一句话总结（给你这种级别的）"></a>一句话总结（给你这种级别的）</h1><blockquote>
+<p>在 Conflux eSpace：<br>玩玩用官方 USDT，<br>真做系统 &#x3D; 自己发 MockUSDT，你就是 Tether。</p>
+</blockquote>
+<h1 id="部署MockUSDT"><a href="#部署MockUSDT" class="headerlink" title="部署MockUSDT"></a>部署MockUSDT</h1><p>恭喜，这一步已经是<strong>核心里程碑</strong>了：</p>
+<figure class="highlight dns"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs dns">MockUSDT 合约已成功部署<br>地址：<span class="hljs-number">0</span>x62b452BbB6A4530347002edccC7<span class="hljs-number">42628f1431211</span><br>部署者：<span class="hljs-number">0</span>x5E8de2503881a49ed4db721E4fbAfc<span class="hljs-number">106C3782E6</span><br></code></pre></div></td></tr></table></figure>
+
+<p>现在你已经拥有一件非常关键的能力：</p>
+<blockquote>
+<p><strong>你自己就是 eSpace 测试网的“USDT 央行”。</strong></p>
+</blockquote>
+<p>接下来要做的事情，其实就三步：<br><strong>给出版社地址发币 → 钱包里能看到 → 用它转账&#x2F;结算。</strong></p>
+<hr>
+<h1 id="一、确认你的-MockUSDT-里有钱"><a href="#一、确认你的-MockUSDT-里有钱" class="headerlink" title="一、确认你的 MockUSDT 里有钱"></a>一、确认你的 MockUSDT 里有钱</h1><p>你合约里构造函数是类似这样（之前我们写的）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">constructor() &#123;<br>    balanceOf[msg.sender] = 100_000_000 * 1e6;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p>也就是说：</p>
+<blockquote>
+<p>部署者 <code>0x5E8d...</code> 一开始就有 1 亿 USDT</p>
+</blockquote>
+<p>你可以用 cast 验证一下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">cast call 0x62b452BbB6A4530347002edccC742628f1431211 \<br>  <span class="hljs-string">&quot;balanceOf(address)&quot;</span> \<br>  0x5E8de2503881a49ed4db721E4fbAfc106C3782E6 \<br>  --rpc-url <span class="hljs-variable">$RPC</span><br></code></pre></div></td></tr></table></figure>
+
+<p>如果返回一个很大的数，说明钱在你这。</p>
+<hr>
+<h1 id="二、给“出版社地址”打钱（核心动作）"><a href="#二、给“出版社地址”打钱（核心动作）" class="headerlink" title="二、给“出版社地址”打钱（核心动作）"></a>二、给“出版社地址”打钱（核心动作）</h1><p>假设出版社的钱包地址是：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs abnf"><span class="hljs-attribute">PUBLISHER</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>xABC...<span class="hljs-number">123</span><br></code></pre></div></td></tr></table></figure>
+
+<p>你现在有两种方式：</p>
+<hr>
+<h2 id="方式-A（最简单）：直接-transfer"><a href="#方式-A（最简单）：直接-transfer" class="headerlink" title="方式 A（最简单）：直接 transfer"></a>方式 A（最简单）：直接 transfer</h2><figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">cast send 0x62b452BbB6A4530347002edccC742628f1431211 \<br>  <span class="hljs-string">&quot;transfer(address,uint256)&quot;</span> \<br>  0xABC...123 \<br>  10000000000 \<br>  --rpc-url <span class="hljs-variable">$RPC</span> \<br>  --private-key <span class="hljs-variable">$PK</span><br></code></pre></div></td></tr></table></figure>
+
+<p>注意单位：</p>
+<figure class="highlight apache"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs apache"><span class="hljs-attribute">USDT</span> decimals = <span class="hljs-number">6</span><br><span class="hljs-attribute">10_000</span> USDT = <span class="hljs-number">10000</span> * <span class="hljs-number">1</span>e6 = <span class="hljs-number">10000000000</span><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h2 id="方式-B（更爽）：用-mint-无限发（推荐测试用）"><a href="#方式-B（更爽）：用-mint-无限发（推荐测试用）" class="headerlink" title="方式 B（更爽）：用 mint 无限发（推荐测试用）"></a>方式 B（更爽）：用 mint 无限发（推荐测试用）</h2><p>因为你写了这个函数：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">function mint(address to, uint256 amount) external<br></code></pre></div></td></tr></table></figure>
+
+<p>那你可以直接：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">cast send 0x62b452BbB6A4530347002edccC742628f1431211 \<br>  <span class="hljs-string">&quot;mint(address,uint256)&quot;</span> \<br>  0xABC...123 \<br>  1000000000000 \<br>  --rpc-url <span class="hljs-variable">$RPC</span> \<br>  --private-key <span class="hljs-variable">$PK</span><br></code></pre></div></td></tr></table></figure>
+
+<p>直接给出版社铸：</p>
+<figure class="highlight apache"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs apache"><span class="hljs-attribute">1</span>,<span class="hljs-number">000</span>,<span class="hljs-number">000</span> USDT<br></code></pre></div></td></tr></table></figure>
+
+<p>这就是测试网的快乐：<strong>不用转账，直接印钞。</strong></p>
+<hr>
+<h1 id="三、让出版社“钱包里看到-USDT”"><a href="#三、让出版社“钱包里看到-USDT”" class="headerlink" title="三、让出版社“钱包里看到 USDT”"></a>三、让出版社“钱包里看到 USDT”</h1><p>出版社那边 99% 会遇到一个问题：</p>
+<blockquote>
+<p>钱打了，但钱包里看不到。</p>
+</blockquote>
+<p>原因：<strong>没添加 Token 合约。</strong></p>
+<p>让对方在 MetaMask：</p>
+<figure class="highlight nestedtext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs nestedtext"><span class="hljs-attribute">添加代币 → 自定义代币</span><br><span class="hljs-attribute">Token Address</span><span class="hljs-punctuation">:</span> <span class="hljs-string">0x62b452BbB6A4530347002edccC742628f1431211</span><br><span class="hljs-attribute">Symbol</span><span class="hljs-punctuation">:</span> <span class="hljs-string">USDT</span><br><span class="hljs-attribute">Decimals</span><span class="hljs-punctuation">:</span> <span class="hljs-string">6</span><br></code></pre></div></td></tr></table></figure>
+
+<p>立刻显示余额。</p>
+<hr>
+<h1 id="四、现在出版社可以模拟什么？"><a href="#四、现在出版社可以模拟什么？" class="headerlink" title="四、现在出版社可以模拟什么？"></a>四、现在出版社可以模拟什么？</h1><p>从这一刻开始，你已经可以完整模拟真实商业流程：</p>
+<h2 id="1-出版社-→-作者结算"><a href="#1-出版社-→-作者结算" class="headerlink" title="1. 出版社 → 作者结算"></a>1. 出版社 → 作者结算</h2><figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">cast send MockUSDT \<br>  <span class="hljs-string">&quot;transfer(address,uint256)&quot;</span> \<br>  作者地址 \<br>  5000000000   <span class="hljs-comment"># 5000 USDT</span><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h2 id="2-用户-→-出版社付费"><a href="#2-用户-→-出版社付费" class="headerlink" title="2. 用户 → 出版社付费"></a>2. 用户 → 出版社付费</h2><figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">cast send MockUSDT \<br>  <span class="hljs-string">&quot;transfer(address,uint256)&quot;</span> \<br>  出版社地址 \<br>  1990000   <span class="hljs-comment"># 1.99 USDT</span><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h2 id="3-智能合约收款（你最核心的场景）"><a href="#3-智能合约收款（你最核心的场景）" class="headerlink" title="3. 智能合约收款（你最核心的场景）"></a>3. 智能合约收款（你最核心的场景）</h2><figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs solidity">function payForBook(uint256 price) external &#123;<br>    usdt.transferFrom(msg.sender, publisher, price);<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p>测试时直接用 MockUSDT 地址即可。</p>
+<hr>
+<h1 id="五、工程级最佳实践（非常适合你这个项目）"><a href="#五、工程级最佳实践（非常适合你这个项目）" class="headerlink" title="五、工程级最佳实践（非常适合你这个项目）"></a>五、工程级最佳实践（非常适合你这个项目）</h1><p>你现在的系统结构应该是：</p>
+<figure class="highlight nix"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs nix">MockUSDT (你刚部署的)<br>    ↓<br>Vault <span class="hljs-symbol">/</span> Router <span class="hljs-symbol">/</span> Mint 合约<br>    ↓<br>Publisher <span class="hljs-symbol">/</span> Author <span class="hljs-symbol">/</span> User<br></code></pre></div></td></tr></table></figure>
+
+<p>然后你在配置里写死：</p>
+<figure class="highlight ts"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs ts"><span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> <span class="hljs-variable constant_">USDT_ADDRESS</span> = <span class="hljs-string">&quot;0x62b452BbB6A4530347002edccC742628f1431211&quot;</span><br></code></pre></div></td></tr></table></figure>
+
+<p>从此以后：</p>
+<blockquote>
+<p>整个系统的“货币层”完全可控、无限水、永不受限。</p>
+</blockquote>
+<hr>
+<h1 id="六、开发者真话总结（一句）"><a href="#六、开发者真话总结（一句）" class="headerlink" title="六、开发者真话总结（一句）"></a>六、开发者真话总结（一句）</h1><p>你现在已经不是“在部署 USDT”，而是：</p>
+<blockquote>
+<p><strong>你已经拥有了一整套可无限增发、可模拟真实结算逻辑的“稳定币经济系统”。</strong></p>
+</blockquote>
+<p>接下来你要做的不是找水龙头，而是设计：</p>
+<ul>
+<li>出版社怎么收钱</li>
+<li>作者怎么分账</li>
+<li>用户怎么支付</li>
+<li>合约怎么结算</li>
+</ul>
+<p><strong>币的问题已经彻底解决了。</strong></p>
+<h1 id="给出版社转账"><a href="#给出版社转账" class="headerlink" title="给出版社转账"></a>给出版社转账</h1><figure class="highlight ruby"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs ruby">root<span class="hljs-variable">@server</span><span class="hljs-symbol">:~/git-connect-helper-edbe1c7c/backend</span><span class="hljs-comment"># cast send 0x62b452BbB6A4530347002edccC742628f1431211 \</span><br>  <span class="hljs-string">&quot;transfer(address,uint256)&quot;</span> \<br>  <span class="hljs-number">0xebc0C2D28d9BbB62CFC01b3236bE0cA5f6057425</span> \<br>  <span class="hljs-number">10000000000</span> \<br>  --rpc-url <span class="hljs-variable">$RPC</span> \<br>  --<span class="hljs-keyword">private</span>-key 你的私钥<br><br>blockHash            <span class="hljs-number">0xf0f5c689cb0bc654d76205f532b56b1d3356fecf48b19eb52d9989374300c271</span><br>blockNumber          <span class="hljs-number">243511240</span><br>contractAddress<br>cumulativeGasUsed    <span class="hljs-number">72372</span><br>effectiveGasPrice    <span class="hljs-number">41500000000</span><br>from                 <span class="hljs-number">0x5E8de2503881a49ed4db721E4fbAfc106C3782E6</span><br>gasUsed              <span class="hljs-number">72372</span><br>logs                 [&#123;<span class="hljs-string">&quot;address&quot;</span><span class="hljs-symbol">:<span class="hljs-string">&quot;0x62b452bbb6a4530347002edccc742628f1431211&quot;</span></span>,<span class="hljs-string">&quot;topics&quot;</span><span class="hljs-symbol">:</span>[<span class="hljs-string">&quot;0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef&quot;</span>,<span class="hljs-string">&quot;0x0000000000000000000000005e8de2503881a49ed4db721e4fbafc106c3782e6&quot;</span>,<span class="hljs-string">&quot;0x000000000000000000000000ebc0c2d28d9bbb62cfc01b3236be0ca5f6057425&quot;</span>],<span class="hljs-string">&quot;data&quot;</span><span class="hljs-symbol">:<span class="hljs-string">&quot;0x00000000000000000000000000000000000000000000000000000002540be400&quot;</span></span>,<span class="hljs-string">&quot;blockHash&quot;</span><span class="hljs-symbol">:<span class="hljs-string">&quot;0xf0f5c689cb0bc654d76205f532b56b1d3356fecf48b19eb52d9989374300c271&quot;</span></span>,<span class="hljs-string">&quot;blockNumber&quot;</span><span class="hljs-symbol">:<span class="hljs-string">&quot;0xe83afc8&quot;</span></span>,<span class="hljs-string">&quot;blockTimestamp&quot;</span><span class="hljs-symbol">:<span class="hljs-string">&quot;0x0&quot;</span></span>,<span class="hljs-string">&quot;transactionHash&quot;</span><span class="hljs-symbol">:<span class="hljs-string">&quot;0xd50398e8a0376d1d35317fe56fdf188a395c819c4691c4ee438bae374e4f7d80&quot;</span></span>,<span class="hljs-string">&quot;transactionIndex&quot;</span><span class="hljs-symbol">:<span class="hljs-string">&quot;0x0&quot;</span></span>,<span class="hljs-string">&quot;logIndex&quot;</span><span class="hljs-symbol">:<span class="hljs-string">&quot;0x0&quot;</span></span>,<span class="hljs-string">&quot;removed&quot;</span><span class="hljs-symbol">:false</span>&#125;]<br>logsBloom            <span class="hljs-number">0x00000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000448000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010004000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002800000000000000000000000000000000000000000000004000081000000000000000400000000000000000000000000000000000000000000000000</span><br>root<br>status               <span class="hljs-number">1</span> (success)<br>transactionHash      <span class="hljs-number">0xd50398e8a0376d1d35317fe56fdf188a395c819c4691c4ee438bae374e4f7d80</span><br>transactionIndex     <span class="hljs-number">0</span><br>type                 <span class="hljs-number">2</span><br>blobGasPrice<br>blobGasUsed<br>to                   <span class="hljs-number">0x62b452BbB6A4530347002edccC742628f1431211</span><br>burntGasFee          <span class="hljs-number">723720000000000</span><br>gasFee               <span class="hljs-number">3003438000000000</span><br></code></pre></div></td></tr></table></figure>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Web3/">Web3</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/02/06/3153.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">香港数码港创业</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/02/04/57410.html">
+                        <span class="hidden-mobile">CDN</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>

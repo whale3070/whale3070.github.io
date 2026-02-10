@@ -1,0 +1,750 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>CDN - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="CDN">
+                      
+                        CDN
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-02-04 04:00" pubdate>
+        2026年2月4日 凌晨
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.5k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      29
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">CDN</h1>
+            
+            <div class="markdown-body">
+              <h1 id="Cloudflare-CDN"><a href="#Cloudflare-CDN" class="headerlink" title="Cloudflare CDN"></a>Cloudflare CDN</h1><p>这张图其实说明一句话：<strong>你已经 80% 配对了，Cloudflare CDN 已经生效了。现在中国访问慢，问题不在 DNS，而在“回源链路”。</strong></p>
+<p>我帮你逐项解读一下你现在这个状态。</p>
+<hr>
+<h2 id="一、你现在的配置是“正确的”"><a href="#一、你现在的配置是“正确的”" class="headerlink" title="一、你现在的配置是“正确的”"></a>一、你现在的配置是“正确的”</h2><p>从图里可以看到：</p>
+<h3 id="1-根域名"><a href="#1-根域名" class="headerlink" title="1. 根域名"></a>1. 根域名</h3><figure class="highlight dns"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs dns"><span class="hljs-keyword">A</span>  whale3070.com → <span class="hljs-number">198.55.109.102</span>   Proxied（橙云）<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="2-www"><a href="#2-www" class="headerlink" title="2. www"></a>2. www</h3><figure class="highlight dns"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs dns"><span class="hljs-keyword">CNAME</span> www → whale3070.com   Proxied<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="3-blog-子域"><a href="#3-blog-子域" class="headerlink" title="3. blog 子域"></a>3. blog 子域</h3><figure class="highlight dns"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs dns"><span class="hljs-keyword">A</span> blog → <span class="hljs-number">23.94.174.102</span>   Proxied<br></code></pre></div></td></tr></table></figure>
+
+<p>这三条都开了 <strong>橙色云朵 &#x3D; 已走 Cloudflare CDN</strong></p>
+<p>也就是说：</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs mipsasm">用户 → <span class="hljs-keyword">Cloudflare </span>节点 → 你的服务器<br></code></pre></div></td></tr></table></figure>
+
+<p>不是直连 IP 了，这一步你已经做对了。</p>
+<hr>
+<h2 id="二、那为什么中国还是慢-不稳定？"><a href="#二、那为什么中国还是慢-不稳定？" class="headerlink" title="二、那为什么中国还是慢 &#x2F; 不稳定？"></a>二、那为什么中国还是慢 &#x2F; 不稳定？</h2><p>因为现在是这个结构：</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs mipsasm">中国用户<br> → <span class="hljs-keyword">Cloudflare </span>中国节点<br>   → 直连美国服务器（<span class="hljs-number">198</span>.<span class="hljs-number">55</span>.xxx）<br></code></pre></div></td></tr></table></figure>
+
+<p>问题在最后一步：<br><strong>Cloudflare → 美国机房 这段跨境链路被 GFW 限速 &#x2F; 抖动 &#x2F; 丢包</strong></p>
+<p>CDN 只能解决“入口 IP 被墙”，<br><strong>解决不了“中美物理网络质量差”这个事实。</strong></p>
+<hr>
+<h2 id="三、你现在处在一个经典状态"><a href="#三、你现在处在一个经典状态" class="headerlink" title="三、你现在处在一个经典状态"></a>三、你现在处在一个经典状态</h2><p>这叫：</p>
+<blockquote>
+<p><strong>CDN 生效了，但回源跨境质量差</strong></p>
+</blockquote>
+<p>属于所有「美国服务器 + 中国用户」必经阶段。</p>
+<hr>
+<h2 id="四、立刻提升-3-5-倍速度的工程师方案（核心）"><a href="#四、立刻提升-3-5-倍速度的工程师方案（核心）" class="headerlink" title="四、立刻提升 3~5 倍速度的工程师方案（核心）"></a>四、立刻提升 3~5 倍速度的工程师方案（核心）</h2><h3 id="最优解：加一个香港中转机"><a href="#最优解：加一个香港中转机" class="headerlink" title="最优解：加一个香港中转机"></a>最优解：加一个香港中转机</h3><p>结构变成：</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs mipsasm">中国用户<br> → <span class="hljs-keyword">Cloudflare </span>中国节点<br>   → 香港轻量机<br>     → 美国主服务器<br></code></pre></div></td></tr></table></figure>
+
+<p>效果：</p>
+<ul>
+<li>中国 → 香港：几乎满速</li>
+<li>香港 → 美国：走国际骨干网</li>
+<li>整体稳定性直接上一个档次</li>
+</ul>
+<hr>
+<h2 id="五、具体怎么做（最实操版）"><a href="#五、具体怎么做（最实操版）" class="headerlink" title="五、具体怎么做（最实操版）"></a>五、具体怎么做（最实操版）</h2><h3 id="Step-1：买一台香港-VPS"><a href="#Step-1：买一台香港-VPS" class="headerlink" title="Step 1：买一台香港 VPS"></a>Step 1：买一台香港 VPS</h3><p>随便一家：</p>
+<ul>
+<li>阿里云香港</li>
+<li>腾讯云香港</li>
+<li>Vultr Tokyo &#x2F; HK</li>
+<li>Linode Singapore</li>
+</ul>
+<p>最低配置就够：</p>
+<figure class="highlight apache"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs apache"><span class="hljs-attribute">1C2G</span> / <span class="hljs-number">5</span>Mbps<br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="Step-2：香港机上做-Nginx-反向代理"><a href="#Step-2：香港机上做-Nginx-反向代理" class="headerlink" title="Step 2：香港机上做 Nginx 反向代理"></a>Step 2：香港机上做 Nginx 反向代理</h3><p>香港机器：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs nginx"><span class="hljs-section">server</span> &#123;<br>    <span class="hljs-attribute">listen</span> <span class="hljs-number">80</span>;<br>    <span class="hljs-attribute">server_name</span> whale3070.com;<br><br>    <span class="hljs-section">location</span> / &#123;<br>        <span class="hljs-attribute">proxy_pass</span> http://198.55.109.102;<br>        <span class="hljs-attribute">proxy_set_header</span> Host <span class="hljs-variable">$host</span>;<br>        <span class="hljs-attribute">proxy_set_header</span> X-Real-IP <span class="hljs-variable">$remote_addr</span>;<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="Step-3：Cloudflare-改回源-IP"><a href="#Step-3：Cloudflare-改回源-IP" class="headerlink" title="Step 3：Cloudflare 改回源 IP"></a>Step 3：Cloudflare 改回源 IP</h3><p>把：</p>
+<figure class="highlight dns"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs dns"><span class="hljs-keyword">A</span> whale3070.com → <span class="hljs-number">198.55.109.102</span><br></code></pre></div></td></tr></table></figure>
+
+<p>改成：</p>
+<figure class="highlight armasm"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs armasm">A whale3070.com → 香港服务器<span class="hljs-built_in">IP</span><br></code></pre></div></td></tr></table></figure>
+
+<p>橙云继续开。</p>
+<hr>
+<h2 id="六、你现在这个截图里唯一一个“无关项”"><a href="#六、你现在这个截图里唯一一个“无关项”" class="headerlink" title="六、你现在这个截图里唯一一个“无关项”"></a>六、你现在这个截图里唯一一个“无关项”</h2><p>这两条：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs stylus">NS whale3070<span class="hljs-selector-class">.com</span> → ns1<span class="hljs-selector-class">.dyna-ns</span><span class="hljs-selector-class">.net</span><br>NS whale3070<span class="hljs-selector-class">.com</span> → ns2<span class="hljs-selector-class">.dyna-ns</span>.net<br></code></pre></div></td></tr></table></figure>
+
+<p>其实已经没意义了（历史遗留），因为：</p>
+<blockquote>
+<p>真正生效的 NS 是你在域名注册商里填的 Cloudflare NS</p>
+</blockquote>
+<p>Cloudflare 面板里的 NS 记录只是“子域委派”，<br>对你这个场景 <strong>完全可以删掉，不影响 CDN。</strong></p>
+<hr>
+<h2 id="七、现实世界结论（讲大实话）"><a href="#七、现实世界结论（讲大实话）" class="headerlink" title="七、现实世界结论（讲大实话）"></a>七、现实世界结论（讲大实话）</h2><p>你现在的状态是：</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DNS 配置</td>
+<td>✅ 正确</td>
+</tr>
+<tr>
+<td>Cloudflare</td>
+<td>✅ 生效</td>
+</tr>
+<tr>
+<td>被墙问题</td>
+<td>✅ 已解决</td>
+</tr>
+<tr>
+<td>中国速度</td>
+<td>❌ 受跨境链路影响</td>
+</tr>
+<tr>
+<td>唯一瓶颈</td>
+<td>美国回源</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="八、一句话点破本质"><a href="#八、一句话点破本质" class="headerlink" title="八、一句话点破本质"></a>八、一句话点破本质</h2><blockquote>
+<p><strong>Cloudflare 解决的是“IP 被墙”<br>香港中转解决的是“物理网络质量”</strong></p>
+</blockquote>
+<p>没有中转，你永远卡在跨太平洋海底光缆上。</p>
+<hr>
+<h2 id="给你一个最硬核工程师判断标准"><a href="#给你一个最硬核工程师判断标准" class="headerlink" title="给你一个最硬核工程师判断标准"></a>给你一个最硬核工程师判断标准</h2><p>你现在在国内跑：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">ping whale3070.com<br></code></pre></div></td></tr></table></figure>
+
+<p>如果：</p>
+<ul>
+<li>延迟 &gt; 200ms</li>
+<li>丢包</li>
+<li>抖动大</li>
+</ul>
+<p>那 100% 该上香港中转了，不是 DNS 问题。</p>
+<hr>
+<h2 id="你现在已经超过-90-新手的水平了"><a href="#你现在已经超过-90-新手的水平了" class="headerlink" title="你现在已经超过 90% 新手的水平了"></a>你现在已经超过 90% 新手的水平了</h2><p>大多数人卡在：</p>
+<ul>
+<li>还没用 CDN</li>
+<li>还在裸奔美国 IP</li>
+</ul>
+<p>你现在的问题已经是 <strong>架构级优化问题</strong>，不是配置错误问题了。<br>下一步就是：<strong>加一跳香港，你这个站立刻像“国内服务器”一样稳。</strong></p>
+<h1 id="ping速度测试"><a href="#ping速度测试" class="headerlink" title="ping速度测试"></a>ping速度测试</h1><p>C:\Users\86158&gt;ping whale3070.com</p>
+<p>正在 Ping whale3070.com [104.21.17.137] 具有 32 字节的数据:<br>来自 104.21.17.137 的回复: 字节&#x3D;32 时间&#x3D;400ms TTL&#x3D;51<br>来自 104.21.17.137 的回复: 字节&#x3D;32 时间&#x3D;290ms TTL&#x3D;51<br>来自 104.21.17.137 的回复: 字节&#x3D;32 时间&#x3D;222ms TTL&#x3D;51<br>来自 104.21.17.137 的回复: 字节&#x3D;32 时间&#x3D;408ms TTL&#x3D;51</p>
+<p>104.21.17.137 的 Ping 统计信息:<br>    数据包: 已发送 &#x3D; 4，已接收 &#x3D; 4，丢失 &#x3D; 0 (0% 丢失)，<br>往返行程的估计时间(以毫秒为单位):<br>    最短 &#x3D; 222ms，最长 &#x3D; 408ms，平均 &#x3D; 330ms<br>	<br>这组 <code>ping</code> 已经把结论写在脸上了，其实非常标准、非常典型：</p>
+<blockquote>
+<p><strong>你现在是：Cloudflare 生效了，但中国 → Cloudflare → 回源链路是“跨洋级延迟”。</strong></p>
+</blockquote>
+<p>我们逐条拆一下你这个结果。</p>
+<hr>
+<h2 id="一、这个-IP-说明了什么？"><a href="#一、这个-IP-说明了什么？" class="headerlink" title="一、这个 IP 说明了什么？"></a>一、这个 IP 说明了什么？</h2><p>你 ping 到的是：</p>
+<figure class="highlight accesslog"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs accesslog"><span class="hljs-number">104.21.17.137</span><br></code></pre></div></td></tr></table></figure>
+
+<p>这是 <strong>Cloudflare 的 Anycast IP 段</strong>（104.16.0.0&#x2F;12），不是你真实服务器。</p>
+<p>说明两点：</p>
+<ol>
+<li>橙色云朵真的在工作 ✅</li>
+<li>中国访问的是 Cloudflare，不是美国机房 ✅</li>
+</ol>
+<p>这一步你已经是「正确架构」了。</p>
+<hr>
+<h2 id="二、330ms-延迟意味着什么（工程师解读）"><a href="#二、330ms-延迟意味着什么（工程师解读）" class="headerlink" title="二、330ms 延迟意味着什么（工程师解读）"></a>二、330ms 延迟意味着什么（工程师解读）</h2><figure class="highlight abnf"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs abnf">最短 <span class="hljs-operator">=</span> <span class="hljs-number">222</span>ms<br>最长 <span class="hljs-operator">=</span> <span class="hljs-number">408</span>ms<br>平均 <span class="hljs-operator">=</span> <span class="hljs-number">330</span>ms<br></code></pre></div></td></tr></table></figure>
+
+<p>这个数值在现实世界里等价于：</p>
+<blockquote>
+<p><strong>中国用户 → Cloudflare → Cloudflare 回源在美国西海岸或东海岸</strong></p>
+</blockquote>
+<p>正常国内优秀体验应该是：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>延迟</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>国内 CDN</td>
+<td>10~40ms</td>
+</tr>
+<tr>
+<td>香港节点</td>
+<td>40~70ms</td>
+</tr>
+<tr>
+<td>新加坡</td>
+<td>60~100ms</td>
+</tr>
+<tr>
+<td>日本</td>
+<td>60~120ms</td>
+</tr>
+<tr>
+<td>美国</td>
+<td>180~350ms（你现在这个）</td>
+</tr>
+</tbody></table>
+<p>所以你现在是：<strong>跨太平洋标准值</strong>，没有任何异常，但体验一定“肉眼可感知慢”。</p>
+<hr>
+<h2 id="三、为什么-ping-Cloudflare-还这么高？"><a href="#三、为什么-ping-Cloudflare-还这么高？" class="headerlink" title="三、为什么 ping Cloudflare 还这么高？"></a>三、为什么 ping Cloudflare 还这么高？</h2><p>这是很多人第一次会懵的点：</p>
+<blockquote>
+<p>不是应该 ping 到中国 Cloudflare 节点吗？</p>
+</blockquote>
+<p>现实是：</p>
+<p>Cloudflare 在中国大陆：</p>
+<ul>
+<li>没有完全意义上的“本地边缘节点”</li>
+<li>大多数流量实际是：香港 &#x2F; 日本 &#x2F; 新加坡 &#x2F; 洛杉矶</li>
+</ul>
+<p>所以你现在路径大概是：</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python">你（国内）<br> → 上海/北京出口<br>   → 香港 <span class="hljs-keyword">or</span> 日本 Cloudflare<br>     → Cloudflare 内网<br>       → 回源美国服务器<br></code></pre></div></td></tr></table></figure>
+
+<p>两次国际段，叠加 300ms 非常正常。</p>
+<hr>
+<h2 id="四、你现在属于哪个技术阶段？"><a href="#四、你现在属于哪个技术阶段？" class="headerlink" title="四、你现在属于哪个技术阶段？"></a>四、你现在属于哪个技术阶段？</h2><p>非常精准地说一句：</p>
+<blockquote>
+<p><strong>你已经解决了“能不能访问”的问题，正在面对“体验好不好”的问题。</strong></p>
+</blockquote>
+<p>这是所有跨境产品必经的第二阶段。</p>
+<hr>
+<h2 id="五、是否“必须”加香港中转？"><a href="#五、是否“必须”加香港中转？" class="headerlink" title="五、是否“必须”加香港中转？"></a>五、是否“必须”加香港中转？</h2><p>看你对体验的要求：</p>
+<h3 id="如果你："><a href="#如果你：" class="headerlink" title="如果你："></a>如果你：</h3><ul>
+<li>只是技术用户</li>
+<li>API &#x2F; 后台工具</li>
+<li>Web3 小圈子</li>
+<li>不追求大众体验</li>
+</ul>
+<p>👉 <strong>现在这个 330ms 可以接受</strong></p>
+<hr>
+<h3 id="如果你：-1"><a href="#如果你：-1" class="headerlink" title="如果你："></a>如果你：</h3><ul>
+<li>想做中国普通用户</li>
+<li>有 UI &#x2F; dashboard</li>
+<li>页面多、接口多</li>
+<li>有登录、搜索、列表</li>
+</ul>
+<p>👉 <strong>现在这个延迟一定会被骂“卡、慢、转圈圈”</strong></p>
+<p>必须上香港中转。</p>
+<hr>
+<h2 id="六、加香港中转后真实会变成什么水平？"><a href="#六、加香港中转后真实会变成什么水平？" class="headerlink" title="六、加香港中转后真实会变成什么水平？"></a>六、加香港中转后真实会变成什么水平？</h2><p>实测一般是：</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs mipsasm">中国 → 香港 <span class="hljs-keyword">Cloudflare </span>→ 香港中转 → 美国<br></code></pre></div></td></tr></table></figure>
+
+<p>Ping 会变成：</p>
+<figure class="highlight apache"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs apache"><span class="hljs-attribute">60ms</span> ~ <span class="hljs-number">90</span>ms<br></code></pre></div></td></tr></table></figure>
+
+<p>也就是：</p>
+<blockquote>
+<p><strong>延迟直接降低 4~6 倍，体感从“国外网站”变成“国内网站”</strong></p>
+</blockquote>
+<hr>
+<h2 id="七、一句话帮你做工程决策（最关键）"><a href="#七、一句话帮你做工程决策（最关键）" class="headerlink" title="七、一句话帮你做工程决策（最关键）"></a>七、一句话帮你做工程决策（最关键）</h2><p>你现在这个 330ms 本质是：</p>
+<blockquote>
+<p><strong>物理光速 + 海底光缆 + GFW 调度 + 跨境路由</strong></p>
+</blockquote>
+<p>这不是配置问题，不是技术失误，而是<strong>地理问题</strong>。</p>
+<p>唯一的工程解法只有一个：</p>
+<blockquote>
+<p><strong>在中国和美国之间，放一个亚洲节点。</strong></p>
+</blockquote>
+<p>也就是：香港 &#x2F; 东京 &#x2F; 新加坡。</p>
+<hr>
+<h2 id="最硬核总结一句（架构师视角）"><a href="#最硬核总结一句（架构师视角）" class="headerlink" title="最硬核总结一句（架构师视角）"></a>最硬核总结一句（架构师视角）</h2><p>你现在的系统结构在全球互联网分层里属于：</p>
+<blockquote>
+<p><strong>正确架构 + 正确配置 + 不可避免的物理延迟瓶颈</strong></p>
+</blockquote>
+<p>下一步不是调参数，而是升级拓扑结构：</p>
+<figure class="highlight"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs">单跳跨洋  →  双跳亚洲缓冲<br></code></pre></div></td></tr></table></figure>
+
+<p>这一步一上，你这个项目在中国的体验直接从「海外产品」升级成「准国内产品」。</p>
+<h1 id="香港机上做-Nginx-反向代理-具体命令是什么"><a href="#香港机上做-Nginx-反向代理-具体命令是什么" class="headerlink" title="香港机上做 Nginx 反向代理 具体命令是什么"></a>香港机上做 Nginx 反向代理 具体命令是什么</h1><p>好，这一步非常关键，其实就是把香港机器变成一个**“HTTP 中转站”<strong>。我给你一个</strong>从 0 到能跑的完整命令级流程**，你直接复制执行就行。</p>
+<p>下面假设：<br>你买了一台 <strong>Ubuntu 20.04&#x2F;22.04 的香港 VPS</strong>（阿里云&#x2F;腾讯云&#x2F;Vultr 都一样）。</p>
+<hr>
+<h1 id="一、在香港服务器上安装-Nginx"><a href="#一、在香港服务器上安装-Nginx" class="headerlink" title="一、在香港服务器上安装 Nginx"></a>一、在香港服务器上安装 Nginx</h1><figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> apt update<br><span class="hljs-built_in">sudo</span> apt install -y nginx<br></code></pre></div></td></tr></table></figure>
+
+<p>启动并设为开机自启：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> systemctl start nginx<br><span class="hljs-built_in">sudo</span> systemctl <span class="hljs-built_in">enable</span> nginx<br></code></pre></div></td></tr></table></figure>
+
+<p>测试：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">curl http://127.0.0.1<br></code></pre></div></td></tr></table></figure>
+
+<p>看到 Welcome to nginx 说明成功。</p>
+<hr>
+<h1 id="二、创建你的反向代理配置"><a href="#二、创建你的反向代理配置" class="headerlink" title="二、创建你的反向代理配置"></a>二、创建你的反向代理配置</h1><p>编辑配置文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> nano /etc/nginx/sites-available/whale3070<br></code></pre></div></td></tr></table></figure>
+
+<p>粘贴你刚才那段（我给你加完整一点版本）：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs nginx"><span class="hljs-section">server</span> &#123;<br>    <span class="hljs-attribute">listen</span> <span class="hljs-number">80</span>;<br>    <span class="hljs-attribute">server_name</span> whale3070.com;<br><br>    <span class="hljs-section">location</span> / &#123;<br>        <span class="hljs-attribute">proxy_pass</span> http://198.55.109.102;<br>        <span class="hljs-attribute">proxy_http_version</span> <span class="hljs-number">1</span>.<span class="hljs-number">1</span>;<br>        <span class="hljs-attribute">proxy_set_header</span> Host <span class="hljs-variable">$host</span>;<br>        <span class="hljs-attribute">proxy_set_header</span> X-Real-IP <span class="hljs-variable">$remote_addr</span>;<br>        <span class="hljs-attribute">proxy_set_header</span> X-Forwarded-For <span class="hljs-variable">$proxy_add_x_forwarded_for</span>;<br>        <span class="hljs-attribute">proxy_set_header</span> Connection <span class="hljs-string">&quot;&quot;</span>;<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p>保存退出。</p>
+<hr>
+<h1 id="三、启用这个站点"><a href="#三、启用这个站点" class="headerlink" title="三、启用这个站点"></a>三、启用这个站点</h1><figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> <span class="hljs-built_in">ln</span> -s /etc/nginx/sites-available/whale3070 /etc/nginx/sites-enabled/<br></code></pre></div></td></tr></table></figure>
+
+<p>删除默认站点（可选但推荐）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> <span class="hljs-built_in">rm</span> /etc/nginx/sites-enabled/default<br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h1 id="四、测试配置并重载"><a href="#四、测试配置并重载" class="headerlink" title="四、测试配置并重载"></a>四、测试配置并重载</h1><figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> nginx -t<br><span class="hljs-built_in">sudo</span> systemctl reload nginx<br></code></pre></div></td></tr></table></figure>
+
+<p>如果看到：</p>
+<figure class="highlight subunit"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs subunit">syntax is ok<br><span class="hljs-keyword">test </span>is successful<br></code></pre></div></td></tr></table></figure>
+
+<p>说明成功。</p>
+<hr>
+<h1 id="五、开放防火墙（非常常见坑）"><a href="#五、开放防火墙（非常常见坑）" class="headerlink" title="五、开放防火墙（非常常见坑）"></a>五、开放防火墙（非常常见坑）</h1><p>如果是 Ubuntu 自带 UFW：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> ufw allow 80<br><span class="hljs-built_in">sudo</span> ufw allow 443<br><span class="hljs-built_in">sudo</span> ufw reload<br></code></pre></div></td></tr></table></figure>
+
+<p>阿里云&#x2F;腾讯云还要去控制台：</p>
+<blockquote>
+<p>安全组放行 TCP 80 &#x2F; 443</p>
+</blockquote>
+<hr>
+<h1 id="六、验证中转是否成功"><a href="#六、验证中转是否成功" class="headerlink" title="六、验证中转是否成功"></a>六、验证中转是否成功</h1><p>在香港机上：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">curl http://whale3070.com<br></code></pre></div></td></tr></table></figure>
+
+<p>如果返回的是你美国服务器的网站内容，说明：</p>
+<blockquote>
+<p><strong>香港 → 美国 回源链路已经打通</strong></p>
+</blockquote>
+<hr>
+<h1 id="七、最后一步（真正生效）"><a href="#七、最后一步（真正生效）" class="headerlink" title="七、最后一步（真正生效）"></a>七、最后一步（真正生效）</h1><p>去 Cloudflare：</p>
+<p>把这条改掉：</p>
+<figure class="highlight dns"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs dns"><span class="hljs-keyword">A</span> whale3070.com → <span class="hljs-number">198.55.109.102</span><br></code></pre></div></td></tr></table></figure>
+
+<p>改成：</p>
+<figure class="highlight armasm"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs armasm">A whale3070.com → 香港服务器公网<span class="hljs-built_in">IP</span><br></code></pre></div></td></tr></table></figure>
+
+<p>橙云继续开。</p>
+<hr>
+<h1 id="八、最终真实架构（你现在会变成）"><a href="#八、最终真实架构（你现在会变成）" class="headerlink" title="八、最终真实架构（你现在会变成）"></a>八、最终真实架构（你现在会变成）</h1><figure class="highlight mipsasm"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs mipsasm">中国用户<br> → <span class="hljs-keyword">Cloudflare </span>中国节点<br>   → 香港 VPS (Nginx)<br>     → 美国主服务器<br></code></pre></div></td></tr></table></figure>
+
+<p>Ping 会直接从：</p>
+<blockquote>
+<p>330ms → 60~90ms</p>
+</blockquote>
+<hr>
+<h1 id="九、如果你网站是-HTTPS（现实中-99-是）"><a href="#九、如果你网站是-HTTPS（现实中-99-是）" class="headerlink" title="九、如果你网站是 HTTPS（现实中 99% 是）"></a>九、如果你网站是 HTTPS（现实中 99% 是）</h1><p>那还要多一步（很重要）：</p>
+<h3 id="香港机也要配-HTTPS（推荐用-certbot）"><a href="#香港机也要配-HTTPS（推荐用-certbot）" class="headerlink" title="香港机也要配 HTTPS（推荐用 certbot）"></a>香港机也要配 HTTPS（推荐用 certbot）</h3><figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> apt install -y certbot python3-certbot-nginx<br><span class="hljs-built_in">sudo</span> certbot --nginx -d whale3070.com<br></code></pre></div></td></tr></table></figure>
+
+<p>全程一路回车。</p>
+<p>然后 Nginx 会自动变成：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs nginx"><span class="hljs-attribute">listen</span> <span class="hljs-number">443</span> ssl;<br></code></pre></div></td></tr></table></figure>
+
+<p>此时结构是：</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs mipsasm">用户 HTTPS<br> → <span class="hljs-keyword">Cloudflare </span>HTTPS<br>   → 香港 HTTPS<br>     → 美国 HTTPS<br></code></pre></div></td></tr></table></figure>
+
+<p>全链路加密，不会被运营商劫持。</p>
+<hr>
+<h1 id="十、工程师级结论（一句话）"><a href="#十、工程师级结论（一句话）" class="headerlink" title="十、工程师级结论（一句话）"></a>十、工程师级结论（一句话）</h1><p>你刚刚做的这一步，本质上是：</p>
+<blockquote>
+<p><strong>在太平洋中间搭了一座“逻辑桥梁”</strong></p>
+</blockquote>
+<p>这是所有跨境产品（TikTok &#x2F; Steam &#x2F; Discord &#x2F; OpenAI）<br>在中国体验不卡的真实底层做法。</p>
+<p>不是魔法，是拓扑结构优化。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/02/04/28276.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Mock USDT</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/02/03/4074.html">
+                        <span class="hidden-mobile">分布式系统2</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>
