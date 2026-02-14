@@ -1,0 +1,782 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 100vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="root@whale3070:~# _">
+                      
+                        root@whale3070:~# _
+                      
+                    </span>
+        
+                    
+                  </div>
+                    
+                  </div>
+                  
+                    <div class="scroll-down-bar">
+                      <i class="iconfont icon-arrowdown"></i>
+                    </div>
+                    
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+              <div class="container nopadding-x-md">
+                <div class="py-5" id="board" >
+                  
+                      <div class="container">
+                        <div class="row">
+                          <div class="col-12 col-md-10 m-auto">
+                            
+
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2026/02/04/57410.html">CDN</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2026/02/04/57410.html">
+          
+          
+            
+          
+          Cloudflare CDN这张图其实说明一句话：你已经 80% 配对了，Cloudflare CDN 已经生效了。现在中国访问慢，问题不在 DNS，而在“回源链路”。
+我帮你逐项解读一下你现在这个状态。
+
+一、你现在的配置是“正确的”从图里可以看到：
+1. 根域名1A  whale3070.com → 198.55.109.102   Proxied（橙云）
+
+2. www1CNAME www 
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-02-04 04:00" pubdate>
+              2026-02-04
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2026/02/03/4074.html">分布式系统2</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2026/02/03/4074.html">
+          
+          
+            
+          
+          为什么分布式一定复杂？复杂在哪里？这个问题，其实是分布式系统的“第一性原理问题”。你一旦真正想明白这一点，后面 CAP、共识、一致性模型、状态复制，全部都会“自动融通”。
+一句话终极答案：
+
+分布式一定复杂，因为你失去了“上帝视角”。
+
+
+一、单机为什么简单？因为有上帝单机系统有三个“上帝特权”：
+1231. 全局时钟2. 原子内存3. 确定性执行
+
+意味着：
+
+所有操作有绝对顺序
+状态永远唯一
+
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-02-03 18:07" pubdate>
+              2026-02-03
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2026/02/03/59942.html">分布式系统</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2026/02/03/59942.html">
+          
+          
+            
+          
+          CAP 定理是什么CAP 定理是分布式系统里最重要的一条底层定律之一，你如果要走“顶级架构师”路线，这个东西必须达到条件反射级理解。
+一句话版：
+
+在一个分布式系统中，不可能同时满足：一致性（C）、可用性（A）、分区容错性（P）。三者最多取其二。
+
+
+CAP 三个字母到底是什么意思？1. C — Consistency（一致性）所有节点看到的数据永远一致。
+含义是：
+
+不管你访问哪个节点，读到的都
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-02-03 16:59" pubdate>
+              2026-02-03
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2026/02/03/37963.html">新人月神话</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2026/02/03/37963.html">
+          
+          
+            
+          
+          你这个判断，其实非常接近当下软件工程的“范式转移”。
+不过先纠正一个小点：《人月神话》并没有消失，它反而越来越重要——只是它描述的问题，正在被 AI 改写适用范围。
+
+一、《人月神话》讲的是什么？《人月神话》的核心定律只有一句话：
+
+向一个已经延期的软件项目增加人手，只会让它更晚完成。—— Brooks’s Law
+
+原因本质是三点：
+
+沟通成本指数级上升
+新手学习成本
+系统复杂性不可并行
+
+这是
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-02-03 16:10" pubdate>
+              2026-02-03
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2026/02/03/45491.html">codex</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2026/02/03/45491.html">
+          
+          
+            
+          
+          Build faster with Codex“Build faster with Codex” 这句话直译就是：“用 Codex 更快地构建（开发）”。
+它本质是一个产品口号 &#x2F; 宣传语，意思是：
+
+用 Codex 这个 AI 编程工具，可以让你写代码、做项目的速度变快。
+
+
+拆开理解每个词1. Build在技术语境里，build ≠ 盖房子，而是：
+
+开发软件
+写代码
+搭系统 &#x
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-02-03 15:23" pubdate>
+              2026-02-03
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2026/02/03/36284.html">RediSearch</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2026/02/03/36284.html">
+          
+          
+            
+          
+          RediSearch选方案 A 很对：RediSearch（RedisStack）&#x3D; 产品化搜索体验，10 万本书不需要下拉框，直接“输入即搜索 + 结果列表”，而且还能做排序、分页、权重、模糊匹配。
+下面我给你一套可直接落地的方案：Redis 部署&#x2F;建索引 → 后端 API → 前端交互。你照着做就能跑。
+
+0）你需要的前提：你的 Redis 必须支持 RediSearch两
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-02-03 15:14" pubdate>
+              2026-02-03
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2026/02/03/24322.html">看广告领空投</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2026/02/03/24322.html">
+          
+          
+            
+          
+          这个文件压缩包叫做 faucethub.zip功能是看广告领空投
+查看所有文件2026&#x2F;02&#x2F;03  15:38               470 .env2026&#x2F;02&#x2F;03  16:07            29,996 app.py2026&#x2F;02&#x2F;03  16:16            30,911 conflux-fauce
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-02-03 13:05" pubdate>
+              2026-02-03
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Web3/">Web3</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2026/02/03/31191.html">Web3域名（二）</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2026/02/03/31191.html">
+          
+          
+            
+          
+          我昨天买了一个whale3070.x的域名，配置了IPFS，今天访问whale3070.x.limo还是访问不到，为什么这个情况在 Unstoppable Domains + IPFS 里非常常见，你现在遇到的不是“你配置错了”，而是 Web3 域名解析机制本身的坑。我们一步一步拆开讲你现在为什么访问不到 whale3070.x.limo。
+
+一句话结论（先给你定心丸）
+99% 概率不是你操作问题
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-02-03 05:59" pubdate>
+              2026-02-03
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Web3/">Web3</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2026/02/02/11913.html">金库协议-前端测试</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2026/02/02/11913.html">
+          
+          
+            
+          
+          无效的二维码访问 http://198.55.109.102/valut_mint_nft/123
+
+
+读者入口访问 http://198.55.109.102/valut_mint_nft/7c520c3864bc44e0e9cffb7eb6c8354559f9470399fb23a0b3d20edb9216e364
+
+
+mint nft
+后端api执行结果可以访问：https://whale3
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-02-02 13:02" pubdate>
+              2026-02-02
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Web3/">Web3</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2026/02/02/38071.html">Web3域名</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2026/02/02/38071.html">
+          
+          
+            
+          
+          我想要一个永久的web3域名，后续和香港服务器ip绑定，然后可以让所有的用户可以访问金库协议满足你“永久拥有”且能“绑定香港服务器 IP”的需求，最合适的方案是选择 Unstoppable Domains (UD)。
+以下是针对你的“金库协议”落地香港的具体方案：
+1. 为什么选 Unstoppable Domains 而不是 ENS？
+真正永久：ENS (.eth) 是租借制，需要每年续费。如果
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-02-02 05:35" pubdate>
+              2026-02-02
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Web3/">Web3</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+
+
+  <nav aria-label="navigation">
+    <span class="pagination" id="pagination">
+      <a class="extend prev" rel="prev" href="/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/124/">124</a><a class="extend next" rel="next" href="/page/3/"><i class="iconfont icon-arrowright"></i></a>
+    </span>
+  </nav>
+  
+  <script>
+    for (ele of document.getElementById("pagination").getElementsByTagName("a")) {
+      ele.href += '#board';
+    }
+  </script>
+
+
+
+                          </div>
+                        </div>
+                      </div>
+                </div>
+              </div>
+              
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>

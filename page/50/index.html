@@ -1,0 +1,745 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 100vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="root@whale3070:~# _">
+                      
+                        root@whale3070:~# _
+                      
+                    </span>
+        
+                    
+                  </div>
+                    
+                  </div>
+                  
+                    <div class="scroll-down-bar">
+                      <i class="iconfont icon-arrowdown"></i>
+                    </div>
+                    
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+              <div class="container nopadding-x-md">
+                <div class="py-5" id="board" >
+                  
+                      <div class="container">
+                        <div class="row">
+                          <div class="col-12 col-md-10 m-auto">
+                            
+
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/12/31/28327.html">沙特大学</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2023/12/31/28327.html">
+          
+          
+            
+          
+          沙特大学https://www.topuniversities.com/arab-region-university-rankings
+
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-31 23:07" pubdate>
+              2023-12-31
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/12/30/50476.html">windows横向移动</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2023/12/30/50476.html">
+          
+          
+            
+          
+          
+RDPwindows + R 快捷键调出快速运行程序的面板，输入mstsc.exe然后输入远程桌面服务RDP的密码，就可远程登陆。
+
+假设A机器上，远程登陆到B机器。那么在A机器重启之前，在A机器的内存中，存在NTLM hashes。
+使用工具mimikatz.exe可以提取A机器中的NTLM hash。
+那么使用凭据重用的工具有哪些呢？PsExec, Wmi, DCOM, PSRemoting
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-30 20:50" pubdate>
+              2023-12-30
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/lateral-movement/">lateral-movement</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/12/30/61422.html">新西兰6分技术移民可行性分析</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2023/12/30/61422.html">
+          
+          
+            
+          
+          新西兰现场办公的工作岗位在linkedin上有23条。搜索关键词“penetration testing”
+新西兰移民没有德国简单。德国渗透测试的岗位有两千多条，新西兰只有二十多条。
+1. ASB bank- Information Security Consultant - Pen tester在 ASB，我们致力于帮助客户以提供他们管理生活、为家庭和未来计划所需的工具来“领先一步”。
+我们的产
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-30 18:09" pubdate>
+              2023-12-30
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/12/29/41365.html">新西兰绿色清单移民</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2023/12/29/41365.html">
+          
+          
+            
+          
+          新西兰绿色清单New Zealand Green List: 新西兰绿色清单The work to residence pathway工作到居住的途径
+大类：信息通道和电子名称：ICT安全专家 （ICT Security Specialist）
+
+ICT安全专家绿名单要求雇佣工资必须为每小时61.69美元或以上，或同等年薪。仅限直接居住者，如果雇佣或提供的工作是基于服务合同，则工资必须为每小时92
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-29 20:33" pubdate>
+              2023-12-29
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/run/">run</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/12/28/11206.html">事实-用数据思考避免情绪化决策-读书笔记</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2023/12/28/11206.html">
+          
+          
+            
+          
+          
+把国家分为发达国家和发展中国家是错误的。
+
+作者把国家分为第一级收入、第二级收入、第三级收入和第四级收入在2017年，处于第二级和第三级的人数最多，第一级收入和第四级收入的人数最少。
+第一级收入 &#x3D; 每天收入1美元 （1美元 &#x3D; 7.11人民币）213.3 yuan&#x2F; month第二级收入 &#x3D; 每天收入4美元 （4美元 &#x3D; 28.44人民币）85
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-28 22:42" pubdate>
+              2023-12-28
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/View/">View</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/12/21/58827.html">挪威&amp;芬兰留学项目</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2023/12/21/58827.html">
+          
+          
+            
+          
+          挪威挪威大学列表
+挪威本科没有英语授课
+北欧四国，芬兰、瑞典、丹麦、挪威，现在只有挪威是免学费的，只需要交几百人民币的注册费来挪威读研究生还可以。
+卑尔根大学卑尔根大学
+https://www.uib.no/en/education/49914/how-apply-admission-studies我们的本科学习课程均不以英语提供。在挪威境外接受过教育的申请人必须在申请过程中证明挪威语水平。
+阿格
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-21 20:08" pubdate>
+              2023-12-21
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/12/21/28458.html">爱尔兰大学</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2023/12/21/28458.html">
+          
+          
+            
+          
+          爱尔兰共和国爱尔兰共和国大学列表
+爱尔兰（人均GDP 9.9239万美元）合法的、连续居住五年即可申请永居。
+爱尔兰理工东南大学网络犯罪和IT安全理学学士（荣誉）SE606
+网络犯罪和 IT 安全理学学士 SE612
+非欧盟学生申请流程 - 如何申请
+申请流程申请从提交阶段进入录取阶段的大约时间为 7-21 天。通过在线申请表成功提交您的申请后，您将收到确认相同的自动回复。您将收到的下一条通知将通
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-21 16:15" pubdate>
+              2023-12-21
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/12/19/4828.html">德国大学CS专业</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2023/12/19/4828.html">
+          
+          
+            
+          
+          德国法兰克福大学QS排名 311
+计算机专业介绍链接excellent German language skills are mandatory不会德语申请不了
+维尔茨堡大学Würzburg universityWürzburg University（维尔茨堡大学）的中文名通常是”维尔茨堡大学”。维尔茨堡大学是德国的一所大学，位于巴伐利亚州的维尔茨堡市（Würzburg）。请注意，大学名称在不同地
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-19 21:51" pubdate>
+              2023-12-19
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/12/19/26088.html">雅思听力课程-第四课（听写）</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2023/12/19/26088.html">
+          
+          
+            
+          
+          161-170Day 16127 wordsI’m going to viewer.hey, look at this clown.oh, It is an actual clown, you are not fit in to that clownare you?no?
+Dude, I’m gonna go check out the view.Hey! look at this clown.o
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-19 14:15" pubdate>
+              2023-12-19
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/IELTS-listening/">IELTS-listening</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/12/18/37879.html">卢森堡大学（需要学法语）</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2023/12/18/37879.html">
+          
+          
+            
+          
+          Luxembourg
+卢森堡大学计算机学院和专业介绍https://www.uni.lu/wp-content/uploads/sites/4/2023/07/Brochure_Computer_Science_03_2023tJ8FZW.pdf
+你的处境你想申请学士学位您是没有卢森堡居留许可的非欧盟公民您有以下情况之一：欧盟&#x2F;欧洲经济区&#x2F;瑞士离校证书IBO证书，剑桥AS和A级
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-18 23:29" pubdate>
+              2023-12-18
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+
+
+  <nav aria-label="navigation">
+    <span class="pagination" id="pagination">
+      <a class="extend prev" rel="prev" href="/page/49/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/48/">48</a><a class="page-number" href="/page/49/">49</a><span class="page-number current">50</span><a class="page-number" href="/page/51/">51</a><a class="page-number" href="/page/52/">52</a><span class="space">&hellip;</span><a class="page-number" href="/page/124/">124</a><a class="extend next" rel="next" href="/page/51/"><i class="iconfont icon-arrowright"></i></a>
+    </span>
+  </nav>
+  
+  <script>
+    for (ele of document.getElementById("pagination").getElementsByTagName("a")) {
+      ele.href += '#board';
+    }
+  </script>
+
+
+
+                          </div>
+                        </div>
+                      </div>
+                </div>
+              </div>
+              
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>

@@ -1,0 +1,793 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 100vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="root@whale3070:~# _">
+                      
+                        root@whale3070:~# _
+                      
+                    </span>
+        
+                    
+                  </div>
+                    
+                  </div>
+                  
+                    <div class="scroll-down-bar">
+                      <i class="iconfont icon-arrowdown"></i>
+                    </div>
+                    
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+              <div class="container nopadding-x-md">
+                <div class="py-5" id="board" >
+                  
+                      <div class="container">
+                        <div class="row">
+                          <div class="col-12 col-md-10 m-auto">
+                            
+
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/12/07/38923.html">钓鱼技巧（五）新手冬钓鲫鱼</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2024/12/07/38923.html">
+          
+          
+            
+          
+          鲫鱼体型小，因此要用小勾细线。
+鱼竿使用5.4米以上综合竿。钓法使用台钓。
+推荐线号：0.4号至1.0号。适用鱼种：鲫鱼、小鲤鱼、白条等。
+鱼钩用金袖，三号或者4号袖勾。子线0.8。
+以2～4月份和8～12月份的鲫鱼最肥美。因此冬天很适合钓鲫鱼。
+冬季钓鱼水深最好在两米以上，不要钓得太浅
+在冬季钓鱼打隔夜窝效果最好
+只要有口，那这个地方基本不用换了，钓的过程中呢，保持安静，然后钓了几条后，及时补窝
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-12-07 06:44" pubdate>
+              2024-12-07
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/hobby/">hobby</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/12/04/25146.html">人民币贬值带来的经济问题</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2024/12/04/25146.html">
+          
+          
+            
+          
+          上一篇：人民币升值带来的经济问题
+新闻：人民币汇率为何连跌专家称人民币是被动贬值
+【#人民币汇率为何连跌##专家称人民币是被动贬值#[话筒]】12月2日，人民币对美元即期汇率相继跌破7.25、7.26关口，盘中最低至7.2725。12月3日早间，离岸人民币对美元汇率接连跌破7.30和7.31关口，创下去年11月初以来的新低。东方金诚首席宏观分析师王青分析，首要原因是美元指数出现了大幅的上扬，带动人
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-12-04 00:59" pubdate>
+              2024-12-04
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/economy/">economy</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/11/29/545.html">无土栽培</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2024/11/29/545.html">
+          
+          
+            
+          
+          
+title: ‘无土栽培’date: 2024-11-29 00:59:44abbrlink: 545
+title: ‘无土栽培’date: 2024-11-29 00:59:44abbrlink: 545
+title: ‘无土栽培’date: 2024-11-29 00:59:44abbrlink: 545
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-11-29 00:59" pubdate>
+              2024-11-29
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/11/28/34417.html">长线思维</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2024/11/28/34417.html">
+          
+          
+            
+          
+          中金公司有一个女员工，在2024年7月跳楼自杀了。她的名字叫郑雯露。
+当初听到这个消息，我非常地震惊。我有一个星期都在反复想着她的事情。
+因为她的工资那么高，长得又那么漂亮，家里又很有钱。她的各方面都是碾压我的存在。
+
+早在2015年，郑雯露就写过自己的公众号，通过这个平台，她分享了自己的经历和见解。在她的公众号上，我们得以窥见她21岁时就已取得的非凡成就。她不仅成功地被保送研究生，还在四大会计师
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-11-28 23:27" pubdate>
+              2024-11-28
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/View/">View</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/11/27/45263.html">向巴菲特学投资</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2024/11/27/45263.html">
+          
+          
+            
+          
+          巴菲特（1930-现今），以100美元起家，在半个世界的时间创造了数百亿美元的巨额财富。2008年，他成为世界首富。
+伯克希尔是全球著名的投资公司，管理层只有沃伦巴菲特、查理芒格。总部所有员工仅14人。伯克希尔由巴菲特创建于1956年，是一家保险和多元化投资集团。
+伯克希尔就像是商业界的大都会美术馆，我们偏爱收集当代最伟大的企业。 ————沃伦· 巴菲特
+查理·芒格（2023.11.28-1924
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-11-27 15:13" pubdate>
+              2024-11-27
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/11/23/38983.html">我的生平（十二）</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2024/11/23/38983.html">
+          
+          
+            
+          
+          INTP的房间我不能代表所有INTP吧，我只能代表我自己。
+拍个照片给大家看看吧。心血来潮突然想收拾房间了。
+去年这个房间还是空荡荡的，花了很多钱添置这个屋子。
+我的99%的时间都呆在这个屋子里。这99%里面又有99%是躺在这张床上度过的。 
+ 
+ 
+收拾之后 
+ 
+ 
+每次都会忘记网线的正确布局，按理说应该插上就不会再去动它了。但现实不是这样的。  
+下次再记不得的时候，回博客看看吧。
+灰色靠垫
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-11-23 21:54" pubdate>
+              2024-11-23
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/experience/">experience</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/11/18/58690.html">雅思口语课程-第三十四课-WalkingDeadS4E1-8</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2024/11/18/58690.html">
+          
+          
+            
+          
+          WalkingDeadS4-01词汇表 - Zack之死名词buildup 堆积；积累。指物质的逐渐累积或堆放。
+snares 圈套;(捕鸟、兽的)陷阱，罗网，套子;陷阱
+overalls工作服;外套;罩衣;工装服;工装连衣裤;
+homicide杀人;(蓄意)杀人罪;
+carcasses动物尸体;(尤指供食用的)畜体;
+leapfrog跳背游戏(游戏者轮流从其他弯背人身上跳过);
+boar野猪;未
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-11-18 08:26" pubdate>
+              2024-11-18
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/IELTS-speaking/">IELTS-speaking</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/11/17/22730.html">钓鱼技巧（四）钓法</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2024/11/17/22730.html">
+          
+          
+            
+          
+          台钓和路亚的区别台钓和路亚是两种常见的钓鱼方式，它们在钓法、装备、目标鱼种、技术要求等方面都有显著区别。以下从多个角度详细对比两者的区别：
+1. 钓法
+台钓
+
+起源：起源于台湾，讲究精细化操作。
+钓点：一般选择静水水域，如湖泊、池塘、水库等。
+技法：通过打窝吸引鱼群集中，然后用浮漂、细线和小钩进行精确垂钓。
+目标鱼：多为淡水鱼，如鲤鱼、草鱼、鲫鱼等。
+操作特点：静态钓法，讲究守钓，需要耐心等待。
+
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-11-17 15:26" pubdate>
+              2024-11-17
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/hobby/">hobby</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/11/14/39563.html">钓鱼技巧（三）：天时地利</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2024/11/14/39563.html">
+          
+          
+            
+          
+          钓鱼讲究天时地利，也就是说选择什么时间、在哪里钓鱼很重要。
+时间不冷不热全天钓，烈日炎炎早晚钓，夏末秋初阴雨钓，寒冬腊月中午钓。
+大晴天+夏天 &#x3D; 不适合钓鱼 No大晴天+冬季、早春 &#x3D; 适合钓鱼 Yes下雨天 + 高温 &#x3D; Yes下雨天 + 寒冷季节 &#x3D; No冬天 + 连续晴天的第二个晴天 &#x3D; Yes
+手机上有个app叫做墨迹天气，里面有个功能叫
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-11-14 17:52" pubdate>
+              2024-11-14
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/hobby/">hobby</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/11/14/23114.html">钓鱼技巧（二）：渔具的选择</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2024/11/14/23114.html">
+          
+          
+            
+          
+          钓竿钓大鱼，用大竿；钓小鱼，用小竿。
+新手钓鱼，买手杆。
+类型钓竿分为手竿、海竿、矶竿、涮竿、车轮竿、插竿等。腰劲好的竿子，上鱼的成功率相对要高。每一种竿型都有着不同的使用方法和使用环境。手竿主要用于布窝钓鱼，海竿主要用于抛饵钓鱼，矶竿主要用于海崖钓鱼，涮竿主要用于水面钓鱼，车轮竿主要用于流水中钓鱼，插竿主要用于放饵钓鱼。
+手竿钓鱼讲究“三轻”，即轻放钓，轻移动，轻刹竿；海竿钓鱼强调投点要准，不能
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-11-14 16:57" pubdate>
+              2024-11-14
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/hobby/">hobby</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+
+
+  <nav aria-label="navigation">
+    <span class="pagination" id="pagination">
+      <a class="extend prev" rel="prev" href="/page/33/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/32/">32</a><a class="page-number" href="/page/33/">33</a><span class="page-number current">34</span><a class="page-number" href="/page/35/">35</a><a class="page-number" href="/page/36/">36</a><span class="space">&hellip;</span><a class="page-number" href="/page/124/">124</a><a class="extend next" rel="next" href="/page/35/"><i class="iconfont icon-arrowright"></i></a>
+    </span>
+  </nav>
+  
+  <script>
+    for (ele of document.getElementById("pagination").getElementsByTagName("a")) {
+      ele.href += '#board';
+    }
+  </script>
+
+
+
+                          </div>
+                        </div>
+                      </div>
+                </div>
+              </div>
+              
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>

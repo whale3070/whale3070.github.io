@@ -1,0 +1,820 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 100vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="root@whale3070:~# _">
+                      
+                        root@whale3070:~# _
+                      
+                    </span>
+        
+                    
+                  </div>
+                    
+                  </div>
+                  
+                    <div class="scroll-down-bar">
+                      <i class="iconfont icon-arrowdown"></i>
+                    </div>
+                    
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+              <div class="container nopadding-x-md">
+                <div class="py-5" id="board" >
+                  
+                      <div class="container">
+                        <div class="row">
+                          <div class="col-12 col-md-10 m-auto">
+                            
+
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2020/05/10/46400.html">域渗透入门（五）金票据、银票据</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2020/05/10/46400.html">
+          
+          
+            
+          
+          域渗透入门（五）金票据、银票据域渗透入门（五）金票据、银票据categories:  - WindowsDomain域渗透入门（五）金票据、银票据
+参考资料
+https://ldapwiki.com/wiki/Golden%20Ticket
+https://m0chan.github.io/2019/07/31/How-To-Attack-Kerberos-101.html#introductio
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2020-05-10 00:00" pubdate>
+              2020-05-10
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/WindowsDomain/">WindowsDomain</a>
+            
+              <a href="/tags/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%85%A5%E9%97%A8%EF%BC%88%E4%BA%94%EF%BC%89%E9%87%91%E7%A5%A8%E6%8D%AE%E3%80%81%E9%93%B6%E7%A5%A8%E6%8D%AE/">域渗透入门（五）金票据、银票据</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2020/05/06/54285.html">理财入门</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2020/05/06/54285.html">
+          
+          
+            
+          
+          理财入门风险越大利润越大。理财入门风险越大利润越大。categories:  - View理财入门风险越大利润越大。
+无风险银行活期利率1234567891.中国银行：0.35%；2.农业银行：0.3%；3.广发银行：0.3%；4.浙商银行：0.35%；5.恒丰银行：0.35%；
+银行定期利率整存整取定期存款：三个月为1.10%、半年为1.30%、一年为1.50%、二年为2.10%、三年为2.75
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2020-05-06 00:00" pubdate>
+              2020-05-06
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/View/">View</a>
+            
+              <a href="/tags/">===</a>
+            
+              <a href="/tags/%E7%90%86%E8%B4%A2%E5%85%A5%E9%97%A8/">理财入门</a>
+            
+              <a href="/tags/%E9%A3%8E%E9%99%A9%E8%B6%8A%E5%A4%A7%E5%88%A9%E6%B6%A6%E8%B6%8A%E5%A4%A7%E3%80%82/">风险越大利润越大。</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2020/05/04/45066.html">域渗透入门（三）pass the ticket</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2020/05/04/45066.html">
+          
+          
+            
+          
+          参考资料
+乌云文章：《域渗透——Pass The Hash &amp; Pass The Key》、《域渗透——Pass The Ticket》、《从活动目录获取域管理员权限的各种姿势》
+https:&#x2F;&#x2F;medium.com&#x2F;@t0pazg3m&#x2F;pass-the-ticket-ptt-attack-in-mimikatz-and-a-gotcha-96a58
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2020-05-04 00:00" pubdate>
+              2020-05-04
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/WindowsDomain/">WindowsDomain</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2020/05/04/20949.html">域渗透入门（四）Kerberoasting服务票据离线爆破密码</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2020/05/04/20949.html">
+          
+          
+            
+          
+          域渗透入门（四）Kerberoasting服务票据离线爆破密码域渗透入门（四）Kerberoasting服务票据离线爆破密码categories:  - WindowsDomain域渗透入门（四）Kerberoasting服务票据离线爆破密码
+参考资料
+域渗透——Kerberoasting
+什么是kerberoasting
+https://blog.stealthbits.com/extracti
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2020-05-04 00:00" pubdate>
+              2020-05-04
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/WindowsDomain/">WindowsDomain</a>
+            
+              <a href="/tags/%E5%9F%9F%E6%B8%97%E9%80%8F%E5%85%A5%E9%97%A8%EF%BC%88%E5%9B%9B%EF%BC%89Kerberoasting%E6%9C%8D%E5%8A%A1%E7%A5%A8%E6%8D%AE%E7%A6%BB%E7%BA%BF%E7%88%86%E7%A0%B4%E5%AF%86%E7%A0%81/">域渗透入门（四）Kerberoasting服务票据离线爆破密码</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2020/05/02/33680.html">windows域-cmd用户管理命令</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2020/05/02/33680.html">
+          
+          
+            
+          
+          查看| 操作 | 命令 | 案例|解释||从域主机获取当前时间|net time &#x2F;domain|OWA2013.rootkit.org|OWA2013代表DC的主机名，rootkit.org代表域名。1. 拒绝访问，说明存在域，当前用户不是域用户 2. 命令成功完成。说明存在域，用户是域用户 3. 找不到域的域控制器，说明是工作组，不存在域。||查询当前用户登陆的域，或者登陆的工作组|
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2020-05-02 00:00" pubdate>
+              2020-05-02
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/windows/">windows</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2020/04/27/19599.html">域渗透入门（二）</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2020/04/27/19599.html">
+          
+          
+            
+          
+          参考资料
+乌云文章：《使用Hash直接登录Windows》
+维基百科Pass_the_hash的定义
+metasploit mimikatz
+Kerberos协议探索系列之票据篇：MS14068漏洞和Kerberos票据的利用说明
+
+录制的视频教程 域渗透实践篇（二）
+
+域信息搜集
+ms14-068 域普通用户提权到域管理员
+
+ 域渗透实践篇（三）
+
+pass the hash票据传递攻击
+
+Ke
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2020-04-27 00:00" pubdate>
+              2020-04-27
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/WindowsDomain/">WindowsDomain</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2020/04/21/6332.html">域渗透入门</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2020/04/21/6332.html">
+          
+          
+            
+          
+          参考资料
+乌云文章：《域内渗透基本技巧》
+Kerberos概述及常见攻击场景
+Mimikatz 使用小技巧categories:
+WindowsDomain
+
+
+
+
+参考资料
+乌云文章：《域内渗透基本技巧》
+Kerberos概述及常见攻击场景
+Mimikatz 使用小技巧
+
+录制的视频教程首先搭一个域环境
+
+域渗透原理篇
+域渗透实践篇（一）
+
+工作组和域的区别
+大小工作组比较小，不超过20台。域用
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2020-04-21 00:00" pubdate>
+              2020-04-21
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/WindowsDomain/">WindowsDomain</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2020/04/07/10705.html">Resilio-Sync-p2p文件共享</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2020/04/07/10705.html">
+          
+          
+            
+          
+          专门为翻不了墙的同学准备的。能上外网的同学可以自行到官网下载。
+1234Resilio-Sync_x64.exe22.1 MB链接：https://pan.baidu.com/s/1m6bH47VYcybOfDwTU1Vz9A 提取码：nnu7
+
+whale的福利放送——Resilio Sync文件共享
+渗透测试实战第三版，以及虚拟机靶机。共1.03GB
+B5AS6IY2DUSF32QKJFQFN
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2020-04-07 00:00" pubdate>
+              2020-04-07
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/tools/">tools</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2020/03/29/23862.html">Ypuffy（LDAP空连接）</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2020/03/29/23862.html">
+          
+          
+            
+          
+          scan12345678910111213141522/tcp  open  ssh         OpenSSH 7.7 (protocol 2.0)| ssh-hostkey: |   2048 2e:19:e6:af:1b:a7:b0:e8:07:2a:2b:11:5d:7b:c6:04 (RSA)|   256 dd:0f:6a:2a:53:ee:19:50:d9:e5:e7:81:04
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2020-03-29 00:00" pubdate>
+              2020-03-29
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/training/">training</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2020/03/25/23344.html">icmp隧道绕过防火墙</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2020/03/25/23344.html">
+          
+          
+            
+          
+          当有防火墙只允许80、443等常见端口或常见的数据包协议的时候，其他类型的数据包和不允许访问的端口就会被过滤。
+icmp隧道就是将不被允许的数据包使用icmp协议进行封装。同理可得，除了icmp隧道，还可以使用其他类型的协议，例如IPv6、TCP、UDP等等。
+https://github.com/inquisb/icmpsh这是一个使用icmp隧道的工具，可以将内网机器与攻击机进行连接。
+123
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2020-03-25 00:00" pubdate>
+              2020-03-25
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/tools/">tools</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+
+
+  <nav aria-label="navigation">
+    <span class="pagination" id="pagination">
+      <a class="extend prev" rel="prev" href="/page/94/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/93/">93</a><a class="page-number" href="/page/94/">94</a><span class="page-number current">95</span><a class="page-number" href="/page/96/">96</a><a class="page-number" href="/page/97/">97</a><span class="space">&hellip;</span><a class="page-number" href="/page/124/">124</a><a class="extend next" rel="next" href="/page/96/"><i class="iconfont icon-arrowright"></i></a>
+    </span>
+  </nav>
+  
+  <script>
+    for (ele of document.getElementById("pagination").getElementsByTagName("a")) {
+      ele.href += '#board';
+    }
+  </script>
+
+
+
+                          </div>
+                        </div>
+                      </div>
+                </div>
+              </div>
+              
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>

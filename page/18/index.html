@@ -1,0 +1,798 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 100vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="root@whale3070:~# _">
+                      
+                        root@whale3070:~# _
+                      
+                    </span>
+        
+                    
+                  </div>
+                    
+                  </div>
+                  
+                    <div class="scroll-down-bar">
+                      <i class="iconfont icon-arrowdown"></i>
+                    </div>
+                    
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+              <div class="container nopadding-x-md">
+                <div class="py-5" id="board" >
+                  
+                      <div class="container">
+                        <div class="row">
+                          <div class="col-12 col-md-10 m-auto">
+                            
+
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2025/11/19/63782.html">hardhat开发框架3</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2025/11/19/63782.html">
+          
+          
+            
+          
+          上一篇： hardhat开发框架2
+在上一篇中，我们了解到了
+
+nvm 是node版本管理器
+node.js是JavaScript runtime
+npm是node.js的包管理工具
+hardhat的历史有7年，是一家名为nomic labs的公司开发的
+可以通过搜索公司名词和它们的官网去发现新的工作机会
+在linux虚拟机中安装了hardhat和fountry（在windows安装这些遇到了很多
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-11-19 01:29" pubdate>
+              2025-11-19
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Web3/">Web3</a>
+            
+              <a href="/tags/hardhat/">hardhat</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2025/11/18/40891.html">foundry编译运行solidity</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2025/11/18/40891.html">
+          
+          
+            
+          
+          推荐在linux虚拟机中运行foundry吗？还是在windows系统中运行foundry关于在 Linux 虚拟机 或 Windows 系统 中运行 Foundry，每种方法都有其优点和考虑因素。下面是两者的比较，帮助你做出选择：
+1. 在 Linux 虚拟机中运行 Foundry（推荐）优点：
+兼容性更好：
+
+Foundry 是用 Rust 编写的，Rust 和其他基于 Unix 的工具通常在
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-11-18 11:07" pubdate>
+              2025-11-18
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Web3/">Web3</a>
+            
+              <a href="/tags/foundry/">foundry</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2025/11/18/44605.html">我的生平（二十三）</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2025/11/18/44605.html">
+          
+          
+            
+          
+          Here's something encrypted, password is required to continue reading.
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-11-18 05:35" pubdate>
+              2025-11-18
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/experience/">experience</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2025/11/18/14823.html">hardhat开发框架2</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2025/11/18/14823.html">
+          
+          
+            
+          
+          上一篇： hardhat开发框架在上一篇中，我们了解到了
+
+实际开发环境的工作流程是什么
+hardhat和remix的区别是什么
+foundry和hardhat的区别
+对于初学者来说，remix &gt; hardhat &gt; foundry
+
+让我们一步一步来学习 Hardhat，从基础开始，直到深入使用它进行合约开发、测试和部署。
+1. 阅读 Hardhat 官方文档：首先，我们需要确保你
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-11-18 04:16" pubdate>
+              2025-11-18
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Web3/">Web3</a>
+            
+              <a href="/tags/hardhat/">hardhat</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2025/11/18/35566.html">本周学习计划</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2025/11/18/35566.html">
+          
+          
+            
+          
+          周计划（第 2 周）1. 深入理解 Solidity 高级特性
+目标：掌握更多的高级语言特性，了解 Solidity 中的复杂概念，如合约升级、Gas 优化、代理合约（Proxy Pattern）。
+
+任务：
+
+阅读并理解 代理合约（Proxy Pattern）的工作原理。
+学习 合约升级 模式，理解 delegatecall 和 代理模式 如何实现合约的可升级性。
+掌握 Gas 优化 策略，了解
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-11-18 03:17" pubdate>
+              2025-11-18
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Web3/">Web3</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2025/11/17/50411.html">copilot</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2025/11/17/50411.html">
+          
+          
+            
+          
+          remix里包含copilot吗是的，Remix IDE（通常简称 “Remix”）包含一个名为 “Solidity Copilot” 的 AI 辅助功能。具体信息如下：
+✅ 支持 “Solidity Copilot”根据官方文档，Remix 在其插件／工具集里设有 “AI Tools” 区域，其中明确提到：
+
+“Solidity Copilot” 是一个专为 Solidity 代码开发设计的辅助
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-11-17 13:08" pubdate>
+              2025-11-17
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2025/11/17/60654.html">remix编译运行solidity12</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2025/11/17/60654.html">
+          
+          
+            
+          
+          4. 什么是智能合约中的重入攻击（Reentrancy Attack）？如何防范？重入攻击的概念和一些常见的防范策略是什么？
+重入攻击（Reentrancy Attack）是一种常见的智能合约攻击类型，攻击者利用合约中的某些漏洞反复调用合约中的函数，造成不正常的行为，通常表现为多次修改状态或获取资金等。这种攻击通常发生在智能合约执行外部调用（例如调用另一个合约的函数或转账时）时，攻击者利用合约调用
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-11-17 08:29" pubdate>
+              2025-11-17
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Web3/">Web3</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2025/11/17/34924.html">我的生平（二十二）</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2025/11/17/34924.html">
+          
+          
+            
+          
+          你的父母也这样吗？
+今年做心理咨询以来，我才明白我的妈妈是npd。
+她每天都要对我进行找茬。
+牙疼的问题昨天她说她牙疼，于是我昨天问她要不要一起去医院（我开车，我出钱），因为我也牙疼，她说不去，我就自己去医院了。
+医生说我智齿发炎了，于是给我开了漱口水和消炎药。今天我妈问我要消炎药吃，我问她，你吃了，那我吃什么？她就指责我，说我自私，她早上起来给我做早餐，试图对我进行道德绑架。我很委屈，因为不是我
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-11-17 01:11" pubdate>
+              2025-11-17
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/experience/">experience</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2025/11/16/31011.html">雅思口语课程-第四十一课-恶搞之家S01</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2025/11/16/31011.html">
+          
+          
+            
+          
+          观看地址： https://v.ikanbot.com/play/411021
+S01E01词汇表Tattling - 告密，打小报告这个词通常指的是偷偷地告诉别人一些不应该公开的信息，特别是指报告别人做了不该做的事。
+Collagen - 胶原蛋白胶原蛋白是人体中最丰富的蛋白质，广泛存在于皮肤、骨骼、关节等组织中。
+Fruition - 实现，结果，成功完成这个词通常用来表示某个计划或愿望达到了
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-11-16 09:20" pubdate>
+              2025-11-16
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/IELTS-speaking/">IELTS-speaking</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2025/11/16/59246.html">hardhat开发框架</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2025/11/16/59246.html">
+          
+          
+            
+          
+          实际开发环境的工作流程是什么在区块链开发中，实际的开发环境工作流程通常包括以下几个步骤，硬件和网络的配置，智能合约的开发、测试和部署等：
+1. 设置本地开发环境
+安装开发工具：首先需要安装如 Hardhat 或 Ganache 这样的本地测试框架。Hardhat 是一个流行的开发框架，支持智能合约编写、测试和部署。Ganache 是一个个人的区块链，用于模拟以太坊网络。
+本地测试链：使用 Gana
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-11-16 05:11" pubdate>
+              2025-11-16
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Web3/">Web3</a>
+            
+              <a href="/tags/hardhat/">hardhat</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+
+
+  <nav aria-label="navigation">
+    <span class="pagination" id="pagination">
+      <a class="extend prev" rel="prev" href="/page/17/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><a class="page-number" href="/page/17/">17</a><span class="page-number current">18</span><a class="page-number" href="/page/19/">19</a><a class="page-number" href="/page/20/">20</a><span class="space">&hellip;</span><a class="page-number" href="/page/124/">124</a><a class="extend next" rel="next" href="/page/19/"><i class="iconfont icon-arrowright"></i></a>
+    </span>
+  </nav>
+  
+  <script>
+    for (ele of document.getElementById("pagination").getElementsByTagName("a")) {
+      ele.href += '#board';
+    }
+  </script>
+
+
+
+                          </div>
+                        </div>
+                      </div>
+                </div>
+              </div>
+              
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>

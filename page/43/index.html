@@ -1,0 +1,790 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 100vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="root@whale3070:~# _">
+                      
+                        root@whale3070:~# _
+                      
+                    </span>
+        
+                    
+                  </div>
+                    
+                  </div>
+                  
+                    <div class="scroll-down-bar">
+                      <i class="iconfont icon-arrowdown"></i>
+                    </div>
+                    
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+              <div class="container nopadding-x-md">
+                <div class="py-5" id="board" >
+                  
+                      <div class="container">
+                        <div class="row">
+                          <div class="col-12 col-md-10 m-auto">
+                            
+
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/06/18/8078.html">CISSP+INE（三十）</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2024/06/18/8078.html">
+          
+          
+            
+          
+          强者从不抱怨环境差，因为环境就是强者搞差的
+INE是一个安全培训的网站，链接如下：https://my.ine.com/CyberSecurity/courses/3862a65d/security-risk-management-for-cissp
+什么是安全管理？学习目标：理解安全管理角色理解组织中的不同的安全区域
+
+边界
+网络
+终端变更管理理解安全管理和变更管理之间的关系是一个技术角色积极主
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-06-18 20:01" pubdate>
+              2024-06-18
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/1-%E5%AE%89%E5%85%A8%E9%A3%8E%E9%99%A9%E4%B8%8E%E7%AE%A1%E7%90%86/">1-安全风险与管理</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/06/18/31903.html">事件应急响应专家（五）</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2024/06/18/31903.html">
+          
+          
+            
+          
+          under the hood“Under the hood” 的字面意思是“在引擎盖下”，但在英语中，这个短语通常被用作一种比喻，表示查看事物的内部工作原理或了解其隐藏的细节。
+根据上下文，”under the hood” 可以翻译为：
+
+幕后：用于描述表面之下的工作机制或过程。
+内部运作：指系统或机器内部的工作原理。
+背后的细节：指某件事或某个系统的内部细节或技术细节。
+
+例如，在技术或编程的上
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-06-18 06:24" pubdate>
+              2024-06-18
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Certified-Incident-Responder/">Certified Incident Responder</a>
+            
+              <a href="/tags/Big-Data/">Big Data</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/06/14/48673.html">事件应急响应专家（四）</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2024/06/14/48673.html">
+          
+          
+            
+          
+          什么是Splunk上一篇文章事件应急响应专家（三）已经提到过了Splunk这个工具，是SIEM工具。它是一个分析机器数据的平台。它是安全运营人员快速搜索日志，分析安全事件的得力帮手。
+Splunk最重要的就是SPL, 搜索处理语言。SPL对于大数据处理十分有效。
+当你使用Splunk回答问题时，你会发现你可以打破任务分为三个阶段。
+•首先，确定可以回答您问题的数据。•其次，将数据转换为能够回答您的
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-06-14 16:52" pubdate>
+              2024-06-14
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Certified-Incident-Responder/">Certified Incident Responder</a>
+            
+              <a href="/tags/Big-Data/">Big Data</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/06/03/41209.html">用五十年衰退</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2024/06/03/41209.html">
+          
+          
+            
+          
+          在植物大战僵尸里，从来没人说向日葵没有豌豆射手重要。但是在社会中，经常看到有人说家庭主妇是“妈虫”，是影响女性地位的叛徒。如果让你研究生毕业去做家庭主妇，那么为什么不义务教育读完就去呢？
+没人觉得生产型的向日葵重要。
+有向日葵产生的太阳，才有后续的豌豆射手、樱桃炸弹、坚果、土豆地雷、大嘴花……
+社会少子化，是因为没有人为此事负责。大家都觉得，打僵尸的豌豆射手才值得分配金钱。不需要生产向日葵，反正总
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-06-03 03:50" pubdate>
+              2024-06-03
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/View/">View</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/05/31/39309.html">少子化与鬼城</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2024/05/31/39309.html">
+          
+          
+            
+          
+          
+title: ‘少子化与鬼城’date: 2024-05-31 15:46:43abbrlink: 39309
+title: ‘少子化与鬼城’date: 2024-05-31 15:46:43abbrlink: 39309
+title: ‘少子化与鬼城’date: 2024-05-31 15:46:43abbrlink: 39309
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-05-31 15:46" pubdate>
+              2024-05-31
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/05/20/40405.html">人工智能与失业</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2024/05/20/40405.html">
+          
+          
+            
+          
+          这本书的名字叫做《没有工作的世界》。我以为是世界上，人人都不用工作，幸福地生活，一切都有机器人来做。其实这本书有歧义，书名应该改成《找不到工作的世界》。
+《找不到工作的世界》这本书讨论的是技术性失业，也就是自动化和技术进步带来的工作岗位减少。
+本书以牛津大学经济研究员Daniel Susskind（有经济学博士学位）的视角，介绍了他对于技术性失业这个问题的多方面探讨。
+金融危机2020年4月到6月
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-05-20 11:14" pubdate>
+              2024-05-20
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/View/">View</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/05/14/18705.html">摩托车D证考试</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2024/05/14/18705.html">
+          
+          
+            
+          
+          摩托车驾照D证考试要考四科，即科目一、科目二、科目三和科目四。
+驾驶摩托车考试首先要戴上安全帽。
+一、离合是什么？摩托车左手是离合器。离合器的原理是，在车和发动机之间的桥梁。车停止到启动，之所以要捏离合器，然后慢慢松开。目的是让”桥梁“慢慢搭上运转的发动机，这样车才会启动。
+快速的松开离合器，就像一个桥梁突然被放下，发出砰的一声。这样对东西是损害（磨损）很大。
+所以桥要慢慢升起落下。四两拨千斤, 
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-05-14 14:30" pubdate>
+              2024-05-14
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/traffic/">traffic</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/05/10/60011.html">第十套-雅思真题错题解析</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2024/05/10/60011.html">
+          
+          
+            
+          
+          第一篇：死海卷轴https://ieltscat.xdf.cn/practice/detail/read/8378/19354594
+错题1原文：He and his companions later entered the cave and stumbled across a collection of large clay jars, seven of which contained scro
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-05-10 19:02" pubdate>
+              2024-05-10
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/IELTS-reading/">IELTS-reading</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/05/09/53472.html">事件应急响应专家（三）</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2024/05/09/53472.html">
+          
+          
+            
+          
+          eCIR是什么？不是一系列的多选题，而是一场模拟真实应急响应的考试。你需要使用多种检测技术，流量分析、日志分析等。这些技能对你的工作很有帮助。只有考生识别到了攻击者的攻击活动，才能获得eCIR认证。
+需要知道的知识范围网络流量分析使用工具Wireshark, ELK, Splunk事件分析SIEM搜索进程分析对于网络安全杀伤链（信息搜集、扫描、漏洞利用、后渗透）的理解
+前置知识为了通过eCIR考试
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-05-09 16:28" pubdate>
+              2024-05-09
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Certified-Incident-Responder/">Certified Incident Responder</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2024/05/08/25494.html">暮色将近-读后感</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2024/05/08/25494.html">
+          
+          
+            
+          
+          戴安娜·阿西尔（diana Athill, 1917-2019）,英国编辑，作家。
+清朝（1616年或1644年—1911年）。
+戴安娜·阿西尔出生于清朝灭亡后第六年，去世于21世纪20年代前期。
+这本书是关于死亡的一本书。因为她的名字太长了，本文中用作者来指代。
+70岁之前，没有感到有什么不同，但70岁以后，就感觉到自己的衰老。70岁之后，除了衰老，另一件事就是性事的消失。
+作者十五岁的时候，喜
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-05-08 14:46" pubdate>
+              2024-05-08
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/View/">View</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+
+
+  <nav aria-label="navigation">
+    <span class="pagination" id="pagination">
+      <a class="extend prev" rel="prev" href="/page/42/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/41/">41</a><a class="page-number" href="/page/42/">42</a><span class="page-number current">43</span><a class="page-number" href="/page/44/">44</a><a class="page-number" href="/page/45/">45</a><span class="space">&hellip;</span><a class="page-number" href="/page/124/">124</a><a class="extend next" rel="next" href="/page/44/"><i class="iconfont icon-arrowright"></i></a>
+    </span>
+  </nav>
+  
+  <script>
+    for (ele of document.getElementById("pagination").getElementsByTagName("a")) {
+      ele.href += '#board';
+    }
+  </script>
+
+
+
+                          </div>
+                        </div>
+                      </div>
+                </div>
+              </div>
+              
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>
