@@ -1,0 +1,995 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>Avalanche2 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="Avalanche2">
+                      
+                        Avalanche2
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-02-11 19:15" pubdate>
+        2026年2月11日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.9k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      42
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">Avalanche2</h1>
+            
+            <div class="markdown-body">
+              <h1 id="❄️-Avalanche-上能用-Solidity-吗？"><a href="#❄️-Avalanche-上能用-Solidity-吗？" class="headerlink" title="❄️ Avalanche 上能用 Solidity 吗？"></a>❄️ Avalanche 上能用 Solidity 吗？</h1><p><img src="https://miro.medium.com/v2/resize%3Afit%3A1200/1%2AGWAvZA_ofMqVOW6y15sc2A.jpeg" alt="Image"></p>
+<p><img src="https://nowpayments.io/blog/nowpayments-content/uploads/2023/03/image-20-1024x512.png" alt="Image"></p>
+<p><img src="https://cms-cdn.avascan.com/cms2/AvalancheAvax.47be62e8abff.svg" alt="Image"></p>
+<p><img src="https://miro.medium.com/v2/resize%3Afit%3A1400/0%2AIKgGNBSB6S-4Kyt-" alt="Image"></p>
+<h3 id="✅-结论：可以，而且是原生支持。"><a href="#✅-结论：可以，而且是原生支持。" class="headerlink" title="✅ 结论：可以，而且是原生支持。"></a>✅ 结论：可以，而且是原生支持。</h3><p>Avalanche 的 <strong>C-Chain（Contract Chain）</strong> 是完整的 <strong>EVM 兼容链</strong>，<br>所以：</p>
+<ul>
+<li>✔ 可以直接用 <strong>Solidity</strong></li>
+<li>✔ 可以用 <strong>Hardhat &#x2F; Foundry &#x2F; Remix</strong></li>
+<li>✔ 可以部署 ERC20 &#x2F; ERC721 &#x2F; ERC1155</li>
+<li>✔ MetaMask 直接支持</li>
+<li>✔ 绝大多数以太坊合约几乎无需修改</li>
+</ul>
+<hr>
+<h2 id="为什么可以？"><a href="#为什么可以？" class="headerlink" title="为什么可以？"></a>为什么可以？</h2><p>Avalanche 有三条主链：</p>
+<table>
+<thead>
+<tr>
+<th>链</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>X-Chain</td>
+<td>资产转账</td>
+</tr>
+<tr>
+<td>P-Chain</td>
+<td>验证者 &amp; 子网</td>
+</tr>
+<tr>
+<td><strong>C-Chain</strong></td>
+<td>✅ EVM 智能合约</td>
+</tr>
+</tbody></table>
+<p>C-Chain 本质就是一个 EVM 实现。</p>
+<hr>
+<h2 id="部署示例（和以太坊几乎一样）"><a href="#部署示例（和以太坊几乎一样）" class="headerlink" title="部署示例（和以太坊几乎一样）"></a>部署示例（和以太坊几乎一样）</h2><p>只需要把 RPC 改成 Avalanche：</p>
+<p><strong>Mainnet RPC</strong></p>
+<figure class="highlight awk"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs awk">https:<span class="hljs-regexp">//</span>api.avax.network<span class="hljs-regexp">/ext/</span>bc<span class="hljs-regexp">/C/</span>rpc<br></code></pre></div></td></tr></table></figure>
+
+<p><strong>Chain ID</strong></p>
+<figure class="highlight"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs">43114<br></code></pre></div></td></tr></table></figure>
+
+<p>Testnet（Fuji）：</p>
+<figure class="highlight awk"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs awk">https:<span class="hljs-regexp">//</span>api.avax-test.network<span class="hljs-regexp">/ext/</span>bc<span class="hljs-regexp">/C/</span>rpc<br>Chain ID: <span class="hljs-number">43113</span><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h2 id="和以太坊有什么区别？"><a href="#和以太坊有什么区别？" class="headerlink" title="和以太坊有什么区别？"></a>和以太坊有什么区别？</h2><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>Ethereum</th>
+<th>Avalanche</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Gas 费</td>
+<td>较高</td>
+<td>较低</td>
+</tr>
+<tr>
+<td>出块时间</td>
+<td>~12 秒</td>
+<td>~2 秒</td>
+</tr>
+<tr>
+<td>最终确认</td>
+<td>分钟级</td>
+<td>亚秒级共识</td>
+</tr>
+<tr>
+<td>语言</td>
+<td>Solidity</td>
+<td>Solidity</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="如果你做的是："><a href="#如果你做的是：" class="headerlink" title="如果你做的是："></a>如果你做的是：</h2><ul>
+<li>NFT 铸造</li>
+<li>电商凭证</li>
+<li>金库协议那种资产绑定</li>
+<li>DeFi</li>
+</ul>
+<p>Avalanche 是可以直接跑的。</p>
+<hr>
+<h3 id="⚠️-唯一注意"><a href="#⚠️-唯一注意" class="headerlink" title="⚠️ 唯一注意"></a>⚠️ 唯一注意</h3><p>Avalanche 虽然 EVM 兼容，但：</p>
+<ul>
+<li>原生代币是 AVAX</li>
+<li>Gas 机制略有不同</li>
+<li>部分底层 opcode 更新节奏可能不同</li>
+</ul>
+<p>但对正常 Solidity 开发来说基本无感。</p>
+<hr>
+<p>如果你愿意，我可以帮你：</p>
+<ul>
+<li>给你写一个 Hardhat 配置模板</li>
+<li>或者帮你判断，你现在的合约是否能直接迁移到 Avalanche</li>
+<li>或者帮你分析 Avalanche vs Conflux 该选哪个</li>
+</ul>
+<p>你现在是准备部署哪个类型的合约？</p>
+<h1 id="Avalanche和Polkadot，monad的出块速度对比"><a href="#Avalanche和Polkadot，monad的出块速度对比" class="headerlink" title="Avalanche和Polkadot，monad的出块速度对比"></a>Avalanche和Polkadot，monad的出块速度对比</h1><p>下面是 <strong>Avalanche</strong>、<strong>Polkadot</strong> 与 <strong>Monad</strong>（一个新兴的高性能 EVM-兼容链）在 <strong>出块速度（Block Time）和事务处理速度（TPS）</strong> 方面的对比概览（基于目前可查的资料）：(<a target="_blank" rel="noopener" href="https://web3.bitget.com/en/academy/what-is-monad-blockchain-the-fastest-evm-compatible-explained?utm_source=chatgpt.com" title="What is Monad Blockchain: The Fastest EVM-Compatible ...">Bitget Wallet</a>)</p>
+<hr>
+<h3 id="🚀-出块时间（Block-Time）对比"><a href="#🚀-出块时间（Block-Time）对比" class="headerlink" title="🚀 出块时间（Block Time）对比"></a>🚀 出块时间（Block Time）对比</h3><table>
+<thead>
+<tr>
+<th>区块链</th>
+<th>出块时间（约）</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Avalanche</td>
+<td>~1.0–1.1 秒</td>
+<td>主网实际测量平均值，且多数区块在 ~1s 内确认(<a target="_blank" rel="noopener" href="https://chainspect.app/compare/monad-vs-avalanche?utm_source=chatgpt.com" title="Monad vs Avalanche [TPS, Max TPS, Block Time]">Chainspect</a>)</td>
+</tr>
+<tr>
+<td>Polkadot</td>
+<td><strong>未统一标准出块时间</strong></td>
+<td>Polkadot 是中继链 + 平行链架构，不同平行链可设不同时间，不过中继链最终性通常较慢（通常秒级或更高） — 官方没有简单单一区块时间指标(<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Polkadot_%28blockchain_platform%29?utm_source=chatgpt.com" title="Polkadot (blockchain platform)">维基百科</a>)</td>
+</tr>
+<tr>
+<td>Monad</td>
+<td><strong>~0.4 秒（400 ms）</strong></td>
+<td>报告称主网能达到约 400ms 出块时间，1s 级最终性（测试&#x2F;报道数据）(<a target="_blank" rel="noopener" href="https://www.coingecko.com/learn/what-is-monad-crypto?utm_source=chatgpt.com" title="What Is Monad? The High-Performance EVM-Compatible ...">CoinGecko</a>)</td>
+</tr>
+</tbody></table>
+<p>➡️ 总结：<strong>Monad 出块最快</strong>（约 0.4 s），<strong>Avalanche 紧随其后</strong>（约 1 s），而 <strong>Polkadot 中继链&#x2F;生态整体的出块节奏则因架构差异而难以直接与单链做简单比较，但通常比 Avalanche 慢</strong>。(<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Polkadot_%28blockchain_platform%29?utm_source=chatgpt.com" title="Polkadot (blockchain platform)">维基百科</a>)</p>
+<hr>
+<h3 id="⚡-TPS（每秒处理交易数）对比"><a href="#⚡-TPS（每秒处理交易数）对比" class="headerlink" title="⚡ TPS（每秒处理交易数）对比"></a>⚡ TPS（每秒处理交易数）对比</h3><table>
+<thead>
+<tr>
+<th>区块链</th>
+<th>典型 TPS</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Avalanche</td>
+<td>数百到千级</td>
+<td>官方与一些测评显示 Avalanche L1 峰值理论可达 ~1 000+ TPS；实际可能因负载波动(<a target="_blank" rel="noopener" href="https://build.avax.network/academy/avalanche-l1/avalanche-fundamentals/02-avalanche-consensus-intro/04-tps-vs-ttf?utm_source=chatgpt.com" title="Throughput vs. Time to Finality">Avalanche Builder Hub</a>)</td>
+</tr>
+<tr>
+<td>Polkadot</td>
+<td>低到中等</td>
+<td>因为使用中继链 + 多平行链，每条平行链 TPS 较低；整体网络吞吐视各平行链数目与并行度而定(<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Polkadot_%28blockchain_platform%29?utm_source=chatgpt.com" title="Polkadot (blockchain platform)">维基百科</a>)</td>
+</tr>
+<tr>
+<td>Monad</td>
+<td>目标 <strong>10 000 TPS</strong></td>
+<td>报道称 Monad 设计支持高达 ~10 000 TPS（实际取决节点配置与并行执行）(<a target="_blank" rel="noopener" href="https://web3.bitget.com/en/academy/what-is-monad-blockchain-the-fastest-evm-compatible-explained?utm_source=chatgpt.com" title="What is Monad Blockchain: The Fastest EVM-Compatible ...">Bitget Wallet</a>)</td>
+</tr>
+</tbody></table>
+<p>➡️ TPS 方面：<strong>Monad 宣称最强</strong>（目标高达 10 000 TPS）；<strong>Avalanche</strong> 现实表现为千级；<strong>Polkadot</strong> 则由于架构分布在多个逻辑链上，单一数字不太适合直接比较，但整体并行度可能低于 Avalanche&#x2F;Monad。(<a target="_blank" rel="noopener" href="https://build.avax.network/academy/avalanche-l1/avalanche-fundamentals/02-avalanche-consensus-intro/04-tps-vs-ttf?utm_source=chatgpt.com" title="Throughput vs. Time to Finality">Avalanche Builder Hub</a>)</p>
+<hr>
+<h3 id="🧠-小结"><a href="#🧠-小结" class="headerlink" title="🧠 小结"></a>🧠 小结</h3><ul>
+<li><strong>Monad</strong>：定位高性能 EVM-兼容链，目标是 <em>极快出块</em>（≈ 400 ms）与 <em>超高 TPS</em>（≈ 10 000）；仍较新且生态尚未成熟，但这一性能指标在设计上很激进。(<a target="_blank" rel="noopener" href="https://www.coingecko.com/learn/what-is-monad-crypto?utm_source=chatgpt.com" title="What Is Monad? The High-Performance EVM-Compatible ...">CoinGecko</a>)</li>
+<li><strong>Avalanche</strong>：成熟主网，有稳定接近 <strong>1 s 出块</strong> 和千级处理能力，广泛应用。(<a target="_blank" rel="noopener" href="https://chainspect.app/compare/monad-vs-avalanche?utm_source=chatgpt.com" title="Monad vs Avalanche [TPS, Max TPS, Block Time]">Chainspect</a>)</li>
+<li><strong>Polkadot</strong>：采用中继链 + 平行链的多链架构，单一出块时间不统一，整体网络性能取决于平行链数量&#x2F;设计，而不能用单一出块时间来衡量。(<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Polkadot_%28blockchain_platform%29?utm_source=chatgpt.com" title="Polkadot (blockchain platform)">维基百科</a>)</li>
+</ul>
+<hr>
+<p>如果你还想对比 <strong>最终性（Finality）</strong> 或 <strong>共识机制的影响</strong>（比如 Avalanche 的 Avalanche consensus vs Polkadot 的 BABE&#x2F;GRANDPA vs MonadBFT），我也可以帮你整理！</p>
+<h1 id="如何让金库协议成为-Avalanche-生态“必须要”的东西，从而赢得-Build-Games。"><a href="#如何让金库协议成为-Avalanche-生态“必须要”的东西，从而赢得-Build-Games。" class="headerlink" title="如何让金库协议成为 Avalanche 生态“必须要”的东西，从而赢得 Build Games。"></a>如何让金库协议成为 Avalanche 生态“必须要”的东西，从而赢得 Build Games。</h1><p>很好，这个问题是战略级的。</p>
+<p>你不是问“怎么部署到 Avalanche”，<br>你是在问：</p>
+<blockquote>
+<p><strong>如何让金库协议成为 Avalanche 生态“必须要”的东西，从而赢得 Build Games。</strong></p>
+</blockquote>
+<p>我们系统性拆解。</p>
+<hr>
+<h2 id="一、先理解-Avalanche-想要什么"><a href="#一、先理解-Avalanche-想要什么" class="headerlink" title="一、先理解 Avalanche 想要什么"></a>一、先理解 Avalanche 想要什么</h2><h4 id="🏔-Avalanche-的核心叙事"><a href="#🏔-Avalanche-的核心叙事" class="headerlink" title="🏔 Avalanche 的核心叙事"></a>🏔 Avalanche 的核心叙事</h4><p>Avalanche 的优势不是“最快公链”，而是：</p>
+<ul>
+<li>Subnet &#x2F; L1 可定制链</li>
+<li>高性能</li>
+<li>企业级可扩展</li>
+<li>RWA &#x2F; Gaming &#x2F; Institutional adoption</li>
+<li>可持续生态建设（不是一次性黑客松项目）</li>
+</ul>
+<p>Build Games 明确写：</p>
+<blockquote>
+<p>我们要长期留在 Avalanche 上发展的团队</p>
+</blockquote>
+<p>这意味着：</p>
+<p>❌ 纯工具类小插件，很难赢<br>❌ 只做一个 demo，没长期叙事，很难赢<br>✅ 能成为 Avalanche 某个战略板块“基础设施”的项目，才有机会</p>
+<hr>
+<h2 id="二、金库协议当前定位的问题"><a href="#二、金库协议当前定位的问题" class="headerlink" title="二、金库协议当前定位的问题"></a>二、金库协议当前定位的问题</h2><p>你现在对外叙事是：</p>
+<blockquote>
+<p>一个超轻量链上溯源 + 售后激活系统</p>
+</blockquote>
+<p>问题是：</p>
+<p>这听起来像 Web2 SaaS + Web3 记录层<br>而不是 Avalanche 生态核心增长引擎。</p>
+<p>如果你这样讲，评委只会觉得：</p>
+<p>“挺有意思，但和 Avalanche 有什么强绑定？”</p>
+<hr>
+<h2 id="三、正确姿势：让金库协议成为-Avalanche-的-RWA-商业基础设施"><a href="#三、正确姿势：让金库协议成为-Avalanche-的-RWA-商业基础设施" class="headerlink" title="三、正确姿势：让金库协议成为 Avalanche 的 RWA 商业基础设施"></a>三、正确姿势：让金库协议成为 Avalanche 的 RWA 商业基础设施</h2><p>你必须升级叙事：</p>
+<blockquote>
+<p>金库协议 &#x3D; Avalanche 上的 <strong>Real World Commerce Layer</strong></p>
+</blockquote>
+<p>不是二维码系统。</p>
+<p>而是：</p>
+<p>一个让现实世界商品生成链上商业行为数据的协议层。</p>
+<hr>
+<h2 id="四、技术适配路径（真正重要的）"><a href="#四、技术适配路径（真正重要的）" class="headerlink" title="四、技术适配路径（真正重要的）"></a>四、技术适配路径（真正重要的）</h2><h4 id="1️⃣-使用-Avalanche-C-Chain（EVM-兼容）"><a href="#1️⃣-使用-Avalanche-C-Chain（EVM-兼容）" class="headerlink" title="1️⃣ 使用 Avalanche C-Chain（EVM 兼容）"></a>1️⃣ 使用 Avalanche C-Chain（EVM 兼容）</h4><p>优点：</p>
+<ul>
+<li>Solidity 直接部署</li>
+<li>成熟钱包生态</li>
+<li>快速上线 demo</li>
+</ul>
+<p>这是第一阶段。</p>
+<hr>
+<h4 id="2️⃣-第二阶段：独立-Avalanche-L1（原-Subnet）"><a href="#2️⃣-第二阶段：独立-Avalanche-L1（原-Subnet）" class="headerlink" title="2️⃣ 第二阶段：独立 Avalanche L1（原 Subnet）"></a>2️⃣ 第二阶段：独立 Avalanche L1（原 Subnet）</h4><p>这一步是赢 Build Games 的关键。</p>
+<p>你可以提出：</p>
+<blockquote>
+<p>VaultChain —— 一个专为商品生命周期与售后激活设计的 Avalanche L1</p>
+</blockquote>
+<p>为什么这一步很关键？</p>
+<p>因为 Avalanche 最喜欢的叙事是：</p>
+<ul>
+<li>定制链</li>
+<li>垂直场景</li>
+<li>专用 Gas Token</li>
+<li>商业级场景</li>
+</ul>
+<p>而你这个场景：</p>
+<ul>
+<li>每个商品一个 NFT</li>
+<li>每次扫码一个状态变更</li>
+<li>每次售后一个生命周期事件</li>
+</ul>
+<p>这是一个“高频但低金额”的系统。</p>
+<p>用独立 L1 才合理。</p>
+<hr>
+<h2 id="五、你可以这样重构金库协议"><a href="#五、你可以这样重构金库协议" class="headerlink" title="五、你可以这样重构金库协议"></a>五、你可以这样重构金库协议</h2><h4 id="🎯-从二维码系统-→-商品生命周期协议"><a href="#🎯-从二维码系统-→-商品生命周期协议" class="headerlink" title="🎯 从二维码系统 → 商品生命周期协议"></a>🎯 从二维码系统 → 商品生命周期协议</h4><p>每个商品 NFT 包含：</p>
+<ul>
+<li>首次激活时间</li>
+<li>售后有效期</li>
+<li>所属渠道</li>
+<li>销售地区</li>
+<li>所有权变更历史</li>
+<li>退货状态</li>
+</ul>
+<p>Avalanche 给你什么？</p>
+<p>✔ 1 秒确认<br>✔ 低费用<br>✔ 自定义链<br>✔ 可为品牌做专用链</p>
+<p>这就是评委想听的。</p>
+<hr>
+<h2 id="六、Build-Games-获胜版本叙事"><a href="#六、Build-Games-获胜版本叙事" class="headerlink" title="六、Build Games 获胜版本叙事"></a>六、Build Games 获胜版本叙事</h2><p>你需要一个三层结构：</p>
+<hr>
+<h4 id="第一层（现实问题）"><a href="#第一层（现实问题）" class="headerlink" title="第一层（现实问题）"></a>第一层（现实问题）</h4><p>跨境品牌最大问题：</p>
+<ul>
+<li>销售数据不可信</li>
+<li>渠道扯皮</li>
+<li>假货</li>
+<li>串货</li>
+<li>无法直接连接消费者</li>
+</ul>
+<hr>
+<h4 id="第二层（协议创新）"><a href="#第二层（协议创新）" class="headerlink" title="第二层（协议创新）"></a>第二层（协议创新）</h4><p>我们做的不是溯源。</p>
+<p>我们做的是：</p>
+<blockquote>
+<p>将“售后权益激活”变成链上真实销售确认机制。</p>
+</blockquote>
+<p>用户主动扫码 &#x3D; 销售真实发生。</p>
+<p>这是一个非常聪明的 incentive design。</p>
+<hr>
+<h4 id="第三层（Avalanche-战略绑定）"><a href="#第三层（Avalanche-战略绑定）" class="headerlink" title="第三层（Avalanche 战略绑定）"></a>第三层（Avalanche 战略绑定）</h4><p>我们选择 Avalanche，因为：</p>
+<ul>
+<li>Avalanche 支持定制 L1</li>
+<li>我们将为每个品牌发行 Vault L1</li>
+<li>所有商品生命周期运行在 Avalanche 网络上</li>
+<li>形成 Avalanche 上的真实商业数据网络</li>
+</ul>
+<p>这才是评委级叙事。</p>
+<hr>
+<h2 id="七、技术细节怎么写进-pitch"><a href="#七、技术细节怎么写进-pitch" class="headerlink" title="七、技术细节怎么写进 pitch"></a>七、技术细节怎么写进 pitch</h2><p>你可以加入：</p>
+<ul>
+<li>使用 C-Chain 部署 NFT 合约</li>
+<li>未来迁移至专用 Avalanche L1</li>
+<li>使用 Avalanche Warp Messaging 做跨链验证</li>
+<li>将真实销售数据形成链上 RWA 数据资产</li>
+<li>可作为供应链金融信用基础</li>
+</ul>
+<p>这就进入：</p>
+<blockquote>
+<p>Avalanche + RWA + 商业信用层</p>
+</blockquote>
+<p>这个高度。</p>
+<hr>
+<h2 id="八、你现在的优势"><a href="#八、你现在的优势" class="headerlink" title="八、你现在的优势"></a>八、你现在的优势</h2><p>你不是做空想。</p>
+<p>你已经：</p>
+<ul>
+<li>写完合约</li>
+<li>写完 relayer</li>
+<li>有完整前后端</li>
+<li>有真实跨境商家痛点</li>
+<li>有二维码实体绑定方案</li>
+</ul>
+<p>99% 黑客松团队做不到这个落地程度。</p>
+<p>你缺的是：</p>
+<p>叙事升级。</p>
+<hr>
+<h2 id="九、最终战略定位"><a href="#九、最终战略定位" class="headerlink" title="九、最终战略定位"></a>九、最终战略定位</h2><p>你不要说：</p>
+<p>“我们是 Web3 SaaS。”</p>
+<p>你要说：</p>
+<blockquote>
+<p>Vault Protocol is the commerce execution layer for real-world goods on Avalanche.</p>
+</blockquote>
+<p>听起来是不是完全不一样？</p>
+<hr>
+<h2 id="十、一个现实判断"><a href="#十、一个现实判断" class="headerlink" title="十、一个现实判断"></a>十、一个现实判断</h2><p>如果你只是：</p>
+<p>“把二维码系统部署到 Avalanche。”</p>
+<p>赢面很小。</p>
+<p>如果你：</p>
+<p>“提出 VaultChain 作为 Avalanche 上的商业生命周期专用 L1。”</p>
+<p>赢面会大很多。</p>
+<hr>
+<p>如果你愿意，我可以：</p>
+<ul>
+<li>帮你设计一版专门为 Build Games 定制的 3 页 pitch</li>
+<li>帮你改成 Avalanche 评委听了会点头的版本</li>
+<li>帮你重构技术架构图</li>
+</ul>
+<p>你现在其实已经在门口了。</p>
+<p>差的是叙事高度。</p>
+<h1 id="感谢您申请-Build-Games-——-Avalanche-全球构建者大赛！"><a href="#感谢您申请-Build-Games-——-Avalanche-全球构建者大赛！" class="headerlink" title="感谢您申请 Build Games —— Avalanche 全球构建者大赛！"></a>感谢您申请 <strong>Build Games —— Avalanche 全球构建者大赛</strong>！</h1><p>Build Games 是一个为期六周的高强度构建者竞赛，旨在帮助有雄心的团队将大胆的想法真正落地为 Avalanche 上的产品。<br>无论您是独立开发者还是小型团队，本项目关注的是 <strong>执行力、推进速度，以及长期建设能力</strong>，而不是追求完美。</p>
+<hr>
+<h2 id="接下来会发生什么？"><a href="#接下来会发生什么？" class="headerlink" title="接下来会发生什么？"></a>接下来会发生什么？</h2><ul>
+<li>申请将按照 <strong>滚动制</strong> 进行审核。</li>
+<li>名额有限，达到容量后将停止接收申请。</li>
+<li>如果您的团队被选中，我们会联系您，提供后续步骤和入选说明。</li>
+</ul>
+<hr>
+<h2 id="如果入选，将会经历什么？"><a href="#如果入选，将会经历什么？" class="headerlink" title="如果入选，将会经历什么？"></a>如果入选，将会经历什么？</h2><h3 id="第-1-周：创意路演"><a href="#第-1-周：创意路演" class="headerlink" title="第 1 周：创意路演"></a>第 1 周：创意路演</h3><ul>
+<li>1 分钟 Pitch 视频</li>
+<li>获得反馈</li>
+</ul>
+<h3 id="第-3-周：原型-MVP"><a href="#第-3-周：原型-MVP" class="headerlink" title="第 3 周：原型 &#x2F; MVP"></a>第 3 周：原型 &#x2F; MVP</h3><ul>
+<li>产品 Demo</li>
+<li>提交 GitHub 仓库</li>
+<li>产品演示讲解</li>
+</ul>
+<h3 id="第-5-周：GTM-计划与愿景"><a href="#第-5-周：GTM-计划与愿景" class="headerlink" title="第 5 周：GTM 计划与愿景"></a>第 5 周：GTM 计划与愿景</h3><ul>
+<li>增长策略</li>
+<li>项目进展更新</li>
+</ul>
+<h3 id="第-6-周：决赛"><a href="#第-6-周：决赛" class="headerlink" title="第 6 周：决赛"></a>第 6 周：决赛</h3><ul>
+<li>现场展示</li>
+<li>评审打分</li>
+</ul>
+<p>此外，你还将获得：</p>
+<ul>
+<li>Avalanche 生态导师支持</li>
+<li>专项 Workshop</li>
+<li>评委资源</li>
+<li>参与角逐 <strong>100 万美元总奖金池</strong></li>
+<li>后续生态资助与长期支持机会</li>
+</ul>
+<hr>
+<h2 id="关键时间"><a href="#关键时间" class="headerlink" title="关键时间"></a>关键时间</h2><ul>
+<li><strong>入选团队公布</strong>：2026 年 2 月</li>
+<li><strong>比赛开始</strong>：2026 年 2 月 15 日</li>
+<li><strong>决赛与颁奖</strong>：2026 年 3 月</li>
+</ul>
+<hr>
+<p>目前无需任何操作。如果您的申请进入下一阶段，我们将会联系您。</p>
+<p>感谢您迈出这一步，在 Avalanche 上构建未来。<br>我们很期待看到您的项目！</p>
+<hr>
+<p>如果你愿意，我可以帮你：</p>
+<ul>
+<li>🎯 优化 1 分钟 Pitch 结构</li>
+<li>🧠 重新梳理你“金库协议”在 Avalanche 生态里的叙事</li>
+<li>🚀 提前准备 Week 3 的 MVP 展示逻辑</li>
+</ul>
+<p>你现在处在一个非常关键的时间窗口。</p>
+<h1 id="如果我现在只给你-20-秒，你怎么讲清金库协议的核心价值？"><a href="#如果我现在只给你-20-秒，你怎么讲清金库协议的核心价值？" class="headerlink" title="如果我现在只给你 20 秒，你怎么讲清金库协议的核心价值？"></a>如果我现在只给你 20 秒，你怎么讲清金库协议的核心价值？</h1><p>很好。</p>
+<p>你这段“客户核心需求”写得很理性、很完整。</p>
+<p>但现在我要帮你做一件事：</p>
+<p>把它从「内部逻辑说明」<br>压缩成「2 分钟评委能听懂的版本」。</p>
+<p>因为你刚才担心的噪音问题，本质是：</p>
+<blockquote>
+<p>信息太多 &#x3D; 记忆点太少</p>
+</blockquote>
+<p>我们一步步拆。</p>
+<hr>
+<h2 id="一、你的项目本质是什么？"><a href="#一、你的项目本质是什么？" class="headerlink" title="一、你的项目本质是什么？"></a>一、你的项目本质是什么？</h2><p>你现在列的是 6 条功能。</p>
+<p>但评委不会记住 6 条。</p>
+<p>他们只会记住一句话。</p>
+<p>你的系统本质是：</p>
+<blockquote>
+<p>为高价值交易建立“不可抵赖的事实层”。</p>
+</blockquote>
+<p>这句话是你真正的核心。</p>
+<hr>
+<h2 id="二、把-6-个需求归纳成-3-个价值"><a href="#二、把-6-个需求归纳成-3-个价值" class="headerlink" title="二、把 6 个需求归纳成 3 个价值"></a>二、把 6 个需求归纳成 3 个价值</h2><p>你原始需求：</p>
+<ol>
+<li>统一对账证据</li>
+<li>不可篡改存证</li>
+<li>出货快照</li>
+<li>退货比对</li>
+<li>减少员工失误</li>
+<li>减少扯皮</li>
+</ol>
+<p>归纳后变成：</p>
+<h6 id="🔒-交易前：锁定商品状态"><a href="#🔒-交易前：锁定商品状态" class="headerlink" title="🔒 交易前：锁定商品状态"></a>🔒 交易前：锁定商品状态</h6><h6 id="📦-交易中：记录关键行为"><a href="#📦-交易中：记录关键行为" class="headerlink" title="📦 交易中：记录关键行为"></a>📦 交易中：记录关键行为</h6><h6 id="⚖-交易后：快速调证比对"><a href="#⚖-交易后：快速调证比对" class="headerlink" title="⚖ 交易后：快速调证比对"></a>⚖ 交易后：快速调证比对</h6><p>这才是评委能记住的结构。</p>
+<hr>
+<h2 id="三、2-分钟版本示例"><a href="#三、2-分钟版本示例" class="headerlink" title="三、2 分钟版本示例"></a>三、2 分钟版本示例</h2><p>你可以这样讲：</p>
+<hr>
+<p>很多跨境电商和高价值商品商家，<br>每天都在为一件事付出成本：</p>
+<p><strong>对账纠纷和退货扯皮。</strong></p>
+<p>聊天记录找不到，<br>员工漏登记，<br>供应商否认，<br>客户调包。</p>
+<p>我们做的不是一个电商系统。</p>
+<p>我们做的是：</p>
+<p><strong>一个链上事实层。</strong></p>
+<p>在商品出货前：</p>
+<p>📸 形成完整状态快照<br>🔗 上链生成不可篡改记录</p>
+<p>在退货时：</p>
+<p>📦 扫码即可调出出货状态<br>⚖ 自动比对，减少争议</p>
+<p>这让商家拥有强证据，<br>也让消费者更清晰处理售后。</p>
+<p>我们不是做 NFT。<br>我们在做：</p>
+<p><strong>RWA 交易纠纷的基础设施。</strong></p>
+<hr>
+<h2 id="四、你的优势在哪里？"><a href="#四、你的优势在哪里？" class="headerlink" title="四、你的优势在哪里？"></a>四、你的优势在哪里？</h2><p>你解决的是：</p>
+<blockquote>
+<p>钱的损失</p>
+</blockquote>
+<p>不是情绪，不是娱乐。</p>
+<p>在“高门槛、曝光集中”的生态里，</p>
+<p>这种现实价值反而是优势。</p>
+<hr>
+<h2 id="五、你的短板在哪里？"><a href="#五、你的短板在哪里？" class="headerlink" title="五、你的短板在哪里？"></a>五、你的短板在哪里？</h2><p>你的系统现在最大的问题是：</p>
+<p><strong>抽象层次太高。</strong></p>
+<p>你讲的是：</p>
+<ul>
+<li>数据层</li>
+<li>协议</li>
+<li>RWA</li>
+<li>事实层</li>
+</ul>
+<p>但商家听的是：</p>
+<ul>
+<li>少赔钱</li>
+<li>少扯皮</li>
+<li>少找聊天记录</li>
+</ul>
+<p>你必须永远从“赔钱”开始讲。</p>
+<hr>
+<h2 id="六、我帮你做一个极限压缩版本（20-秒）"><a href="#六、我帮你做一个极限压缩版本（20-秒）" class="headerlink" title="六、我帮你做一个极限压缩版本（20 秒）"></a>六、我帮你做一个极限压缩版本（20 秒）</h2><p>如果现场真的只有 20 秒：</p>
+<blockquote>
+<p>商家每天因为退货纠纷和对账扯皮损失大量利润。<br>我们为每件商品生成链上不可篡改的状态快照。<br>出货有证据，退货可比对。<br>用强事实，替代聊天记录。</p>
+</blockquote>
+<p>结束。</p>
+<p>这就够了。</p>
+<hr>
+<p>你现在不是缺逻辑。</p>
+<p>你缺的是：</p>
+<p><strong>“降维表达”的能力。</strong></p>
+<p>我问你一个关键问题：</p>
+<p>如果评委问你：</p>
+<blockquote>
+<p>为什么一定要用 Avalanche？</p>
+</blockquote>
+<p>你准备怎么回答？</p>
+<h1 id="为什么一定要用-Avalanche？"><a href="#为什么一定要用-Avalanche？" class="headerlink" title="为什么一定要用 Avalanche？"></a>为什么一定要用 Avalanche？</h1><p>这句话方向是对的。<br>但现在这句话 <strong>还不够锋利</strong>。</p>
+<p>你说的是：</p>
+<blockquote>
+<p>Avalanche 有 L1，每个品牌可以有自己的链。</p>
+</blockquote>
+<p>评委会立刻在脑子里问：</p>
+<ul>
+<li>那为什么不能用以太坊？</li>
+<li>为什么不能用 Polygon？</li>
+<li>为什么不能直接用数据库？</li>
+<li>品牌真的会自己要一条链吗？</li>
+</ul>
+<p>你必须回答的是：</p>
+<p><strong>不是“能不能”，而是“为什么更合适”。</strong></p>
+<hr>
+<h2 id="🔺-Avalanche-的真实优势是什么？"><a href="#🔺-Avalanche-的真实优势是什么？" class="headerlink" title="🔺 Avalanche 的真实优势是什么？"></a>🔺 Avalanche 的真实优势是什么？</h2><p><img src="https://miro.medium.com/1%2A-3q2xnC70CIRqL-4uCvoXw.png" alt="Image"></p>
+<p><img src="https://build.avax.network/images/subnet1.png" alt="Image"></p>
+<p><img src="https://substackcdn.com/image/fetch/%24s_%21u6D2%21%2Cf_auto%2Cq_auto%3Agood%2Cfl_progressive%3Asteep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Ffde3ca6a-1b7e-4344-b3fc-186ca4391667_1346x1118.png" alt="Image"></p>
+<p><img src="https://miro.medium.com/v2/resize%3Afit%3A2000/0%2ACqnWzIIdsj-pHPEo" alt="Image"></p>
+<p>Avalanche 的核心差异在于：</p>
+<h3 id="1️⃣-可定制-L1（原-Subnet）"><a href="#1️⃣-可定制-L1（原-Subnet）" class="headerlink" title="1️⃣ 可定制 L1（原 Subnet）"></a>1️⃣ 可定制 L1（原 Subnet）</h3><p>品牌可以：</p>
+<ul>
+<li>定义 gas 规则</li>
+<li>定义验证规则</li>
+<li>控制隐私级别</li>
+<li>控制访问权限</li>
+</ul>
+<p>对“高价值商品证据系统”来说，这很重要。</p>
+<p>因为：</p>
+<p>证据系统不能依赖公共拥堵链。</p>
+<hr>
+<h3 id="2️⃣-低延迟-finality"><a href="#2️⃣-低延迟-finality" class="headerlink" title="2️⃣ 低延迟 finality"></a>2️⃣ 低延迟 finality</h3><p>高价值交易场景需要：</p>
+<ul>
+<li>几秒内确定性</li>
+<li>不可回滚</li>
+<li>稳定确认</li>
+</ul>
+<p>退货现场扫码比对时，</p>
+<p>不能等 2 分钟确认。</p>
+<hr>
+<h3 id="3️⃣-可长期扩展"><a href="#3️⃣-可长期扩展" class="headerlink" title="3️⃣ 可长期扩展"></a>3️⃣ 可长期扩展</h3><p>如果一个品牌：</p>
+<ul>
+<li>每天 10,000 单</li>
+<li>每单 3–5 次状态更新</li>
+</ul>
+<p>那是海量写入。</p>
+<p>Avalanche 架构比单链更适合规模化写入。</p>
+<hr>
+<h2 id="现在，我们优化你的回答。"><a href="#现在，我们优化你的回答。" class="headerlink" title="现在，我们优化你的回答。"></a>现在，我们优化你的回答。</h2><p>你刚才的回答是“功能型”。</p>
+<p>我要帮你升级成“战略型”。</p>
+<hr>
+<h3 id="🔥-优化版本（60-秒可用）"><a href="#🔥-优化版本（60-秒可用）" class="headerlink" title="🔥 优化版本（60 秒可用）"></a>🔥 优化版本（60 秒可用）</h3><p>高价值商品的核心不是支付，</p>
+<p>而是“事实”。</p>
+<p>品牌需要一个：</p>
+<ul>
+<li>不依赖聊天记录</li>
+<li>不受单链拥堵影响</li>
+<li>可扩展</li>
+<li>可长期运行</li>
+</ul>
+<p>的链上基础设施。</p>
+<p>Avalanche 的 L1 架构允许品牌拥有自己的执行环境：</p>
+<ul>
+<li>自定义规则</li>
+<li>独立扩展</li>
+<li>高确定性 finality</li>
+</ul>
+<p>这让我们的系统不只是一个 dApp，</p>
+<p>而是一个可以成为品牌级“证据链”的基础设施。</p>
+<hr>
+<h2 id="但我现在给你一个更残酷的判断。"><a href="#但我现在给你一个更残酷的判断。" class="headerlink" title="但我现在给你一个更残酷的判断。"></a>但我现在给你一个更残酷的判断。</h2><p>你现在的逻辑里有一个潜在风险：</p>
+<blockquote>
+<p>品牌真的需要自己一条链吗？</p>
+</blockquote>
+<p>多数中型商家不需要。</p>
+<p>他们只需要：</p>
+<ul>
+<li>便宜</li>
+<li>简单</li>
+<li>稳定</li>
+</ul>
+<p>所以你必须区分：</p>
+<h3 id="A）中小商家-→-用共享-L1"><a href="#A）中小商家-→-用共享-L1" class="headerlink" title="A）中小商家 → 用共享 L1"></a>A）中小商家 → 用共享 L1</h3><h3 id="B）大品牌-奢侈品-→-定制-L1"><a href="#B）大品牌-奢侈品-→-定制-L1" class="headerlink" title="B）大品牌 &#x2F; 奢侈品 → 定制 L1"></a>B）大品牌 &#x2F; 奢侈品 → 定制 L1</h3><p>否则评委会觉得你过度设计。</p>
+<hr>
+<h2 id="我问你一个非常关键的问题："><a href="#我问你一个非常关键的问题：" class="headerlink" title="我问你一个非常关键的问题："></a>我问你一个非常关键的问题：</h2><p>你的第一批真实用户，</p>
+<p>是中小跨境卖家，</p>
+<p>还是奢侈品牌？</p>
+<p>这个答案会决定你叙事是：</p>
+<p>“基础设施革命”</p>
+<p>还是</p>
+<p>“轻量证据工具”。</p>
+<p>你要选一个。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Web3/">Web3</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/02/12/63534.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">对金库协议常见的误解</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/02/11/8828.html">
+                        <span class="hidden-mobile">Avalanche黑客松</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>
