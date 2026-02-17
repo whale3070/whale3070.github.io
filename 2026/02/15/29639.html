@@ -1,0 +1,824 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>polkadot Revive 迁移挑战赛 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.12.0/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="polkadot Revive 迁移挑战赛">
+                      
+                        polkadot Revive 迁移挑战赛
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-02-15 23:13" pubdate>
+        2026年2月15日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      22
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <!-- SEO header -->
+            <h1 style="display: none">polkadot Revive 迁移挑战赛</h1>
+            
+            <div class="markdown-body">
+              <h1 id=""><a href="#" class="headerlink" title=""></a></h1><p>🪂「Deploy on Revive, Scale on Polkadot 2.0」黑客松火热报名中🔥<br>🏆 1000U 总奖池，三大赛道：Revive 迁移挑战赛、Revive 生态原生工具开发、原创 DApp 开发<br>⏰ 提交截止：3 月 11 日｜Demo Day：3 月 13 日<br>🚀 立即开启构建之旅：<a target="_blank" rel="noopener" href="https://luma.com/cbowpmph">https://luma.com/cbowpmph</a></p>
+<h1 id="🌐-Polkadot-2-0-是什么？"><a href="#🌐-Polkadot-2-0-是什么？" class="headerlink" title="🌐 Polkadot 2.0 是什么？"></a>🌐 Polkadot 2.0 是什么？</h1><p><strong>Polkadot 2.0</strong> 不是一条新链，而是 Polkadot 在 2023–2025 年逐步推进的<strong>架构升级版本</strong>。<br>核心目标：让网络从“插槽租赁制的平行链系统”，升级为“按需购买区块空间的弹性计算平台”。</p>
+<p>简单讲：</p>
+<blockquote>
+<p>Polkadot 1.0 &#x3D; 平行链要“租位置”<br>Polkadot 2.0 &#x3D; 项目可以“按需买算力”</p>
+</blockquote>
+<hr>
+<h2 id="一句话理解"><a href="#一句话理解" class="headerlink" title="一句话理解"></a>一句话理解</h2><p>Polkadot 2.0 是把原本较重、固定的平行链结构，改成更灵活、市场化的“区块空间市场”。</p>
+<hr>
+<h2 id="🔧-主要变化"><a href="#🔧-主要变化" class="headerlink" title="🔧 主要变化"></a>🔧 主要变化</h2><h4 id="1️⃣-取消平行链拍卖（Slot-Auction）"><a href="#1️⃣-取消平行链拍卖（Slot-Auction）" class="headerlink" title="1️⃣ 取消平行链拍卖（Slot Auction）"></a>1️⃣ 取消平行链拍卖（Slot Auction）</h4><p>以前：</p>
+<ul>
+<li>项目必须质押大量 DOT</li>
+<li>竞拍一个 parachain slot（通常租 96 周）</li>
+<li>成本高，门槛重</li>
+</ul>
+<p>现在：</p>
+<ul>
+<li>不再强制长期租 slot</li>
+<li>改成“按需购买 blockspace”</li>
+<li>类似云计算模式</li>
+</ul>
+<p>这对创业者友好很多。</p>
+<hr>
+<h4 id="2️⃣-核心机制：Agile-Coretime（弹性核心时间）"><a href="#2️⃣-核心机制：Agile-Coretime（弹性核心时间）" class="headerlink" title="2️⃣ 核心机制：Agile Coretime（弹性核心时间）"></a>2️⃣ 核心机制：Agile Coretime（弹性核心时间）</h4><p>Polkadot 2.0 引入：</p>
+<h6 id="🧠-Coretime-市场"><a href="#🧠-Coretime-市场" class="headerlink" title="🧠 Coretime 市场"></a>🧠 Coretime 市场</h6><p>Relay Chain 的计算资源被拆成：</p>
+<ul>
+<li><p>Coretime（核心执行时间）</p>
+</li>
+<li><p>项目可以按：</p>
+<ul>
+<li>小时</li>
+<li>天</li>
+<li>批量</li>
+<li>长期<br>购买</li>
+</ul>
+</li>
+</ul>
+<p>有点像 AWS 购买算力。</p>
+<p>这解决了 Polkadot 早期的一个问题：</p>
+<blockquote>
+<p>资源分配太刚性。</p>
+</blockquote>
+<hr>
+<h4 id="3️⃣-异步背书（Asynchronous-Backing）"><a href="#3️⃣-异步背书（Asynchronous-Backing）" class="headerlink" title="3️⃣ 异步背书（Asynchronous Backing）"></a>3️⃣ 异步背书（Asynchronous Backing）</h4><p>这是技术层升级：</p>
+<ul>
+<li>区块生产更快</li>
+<li>理论吞吐提升</li>
+<li>延迟更低</li>
+</ul>
+<p>目的是让网络更接近高性能链（比如 Solana 方向的体验）。</p>
+<hr>
+<h4 id="4️⃣-统一安全层保持不变"><a href="#4️⃣-统一安全层保持不变" class="headerlink" title="4️⃣ 统一安全层保持不变"></a>4️⃣ 统一安全层保持不变</h4><p>仍然保留：</p>
+<ul>
+<li>Relay Chain 提供共享安全</li>
+<li>各链专注业务逻辑</li>
+</ul>
+<p>这点是 Polkadot 的“灵魂”。</p>
+<hr>
+<h2 id="🧱-结构变化对比"><a href="#🧱-结构变化对比" class="headerlink" title="🧱 结构变化对比"></a>🧱 结构变化对比</h2><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Polkadot 1.0</th>
+<th>Polkadot 2.0</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>资源获取</td>
+<td>Slot 拍卖</td>
+<td>Coretime 市场</td>
+</tr>
+<tr>
+<td>成本模式</td>
+<td>长期锁仓</td>
+<td>按需付费</td>
+</tr>
+<tr>
+<td>灵活度</td>
+<td>低</td>
+<td>高</td>
+</tr>
+<tr>
+<td>创业门槛</td>
+<td>高</td>
+<td>降低</td>
+</tr>
+<tr>
+<td>资本锁定</td>
+<td>重</td>
+<td>更市场化</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="🎯-战略意义"><a href="#🎯-战略意义" class="headerlink" title="🎯 战略意义"></a>🎯 战略意义</h2><p>Polkadot 2.0 本质上是在修复三个问题：</p>
+<ol>
+<li>拍卖模式导致“项目空壳”</li>
+<li>资本锁定过重</li>
+<li>生态增长放缓</li>
+</ol>
+<p>现在它试图：</p>
+<blockquote>
+<p>从“贵族平行链俱乐部”<br>转向“开发者友好型计算平台”</p>
+</blockquote>
+<hr>
+<h2 id="🧠-和你相关的一点（结合你现在做协议层）"><a href="#🧠-和你相关的一点（结合你现在做协议层）" class="headerlink" title="🧠 和你相关的一点（结合你现在做协议层）"></a>🧠 和你相关的一点（结合你现在做协议层）</h2><p>你之前：</p>
+<ul>
+<li>用过 Moonbeam</li>
+<li>做过跨链</li>
+<li>在想协议层长期性</li>
+</ul>
+<p>Polkadot 2.0 的优势在于：</p>
+<ul>
+<li>共享安全</li>
+<li>可组合性</li>
+<li>可做真正基础设施</li>
+</ul>
+<p>但问题是：</p>
+<ul>
+<li>生态增长慢</li>
+<li>开发者体量有限</li>
+<li>资本叙事弱于 Solana</li>
+</ul>
+<p>所以：</p>
+<p>如果你是做长期协议层（非短期 SaaS）</p>
+<p>Polkadot 2.0 是“工程理性选择”<br>但不是“资本情绪中心”</p>
+<hr>
+<h2 id="🧭-现实判断（2026-视角）"><a href="#🧭-现实判断（2026-视角）" class="headerlink" title="🧭 现实判断（2026 视角）"></a>🧭 现实判断（2026 视角）</h2><p>Polkadot 2.0 是：</p>
+<p>✔ 技术升级<br>✔ 结构优化<br>✔ 创业门槛下降</p>
+<p>但不是：</p>
+<p>❌ 爆发式叙事<br>❌ 流量中心</p>
+<hr>
+<p>如果你愿意，我可以帮你：</p>
+<ul>
+<li>对比 Polkadot 2.0 vs Avalanche vs Monad</li>
+<li>判断金库协议放在哪条链更合适</li>
+<li>或分析 Polkadot 未来 3 年生存概率</li>
+</ul>
+<p>你想往哪个方向深入？</p>
+<h1 id="Polkadot-2-0和solana谁的技术更强？"><a href="#Polkadot-2-0和solana谁的技术更强？" class="headerlink" title="Polkadot 2.0和solana谁的技术更强？"></a>Polkadot 2.0和solana谁的技术更强？</h1><p>这个问题不能只看 TPS 或出块时间。</p>
+<p>真正要比的是：</p>
+<blockquote>
+<p><strong>架构设计能力 vs 单链性能极限</strong></p>
+</blockquote>
+<p>我们拆开讲。</p>
+<hr>
+<h4 id="🟣-Polkadot-2-0"><a href="#🟣-Polkadot-2-0" class="headerlink" title="🟣 Polkadot 2.0"></a>🟣 Polkadot 2.0</h4><p>############ 技术核心</p>
+<ul>
+<li>共享安全（Relay Chain）</li>
+<li>多链并行执行</li>
+<li>异步背书（Asynchronous Backing）</li>
+<li>Agile Coretime（弹性区块空间市场）</li>
+<li>Substrate 模块化开发框架</li>
+</ul>
+<p>############ 技术特点</p>
+<p>✔ 架构优雅<br>✔ 可扩展性强（理论上可无限平行扩展）<br>✔ 安全模型严谨<br>✔ 适合做协议层基础设施</p>
+<p>但：</p>
+<ul>
+<li>执行路径复杂</li>
+<li>系统工程难度大</li>
+<li>真正发挥能力需要大量 parachain</li>
+</ul>
+<hr>
+<h4 id="🟢-Solana"><a href="#🟢-Solana" class="headerlink" title="🟢 Solana"></a>🟢 Solana</h4><p>############ 技术核心</p>
+<ul>
+<li>单链高性能架构</li>
+<li>Proof of History</li>
+<li>并行执行（Sealevel）</li>
+<li>极高吞吐 + 低延迟</li>
+</ul>
+<p>############ 技术特点</p>
+<p>✔ 极致工程优化<br>✔ 单链性能非常强<br>✔ 实战吞吐已被市场验证<br>✔ 开发者体验成熟</p>
+<p>但：</p>
+<ul>
+<li>依赖高性能硬件</li>
+<li>单链结构，架构哲学不同</li>
+<li>历史上有宕机问题</li>
+</ul>
+<hr>
+<h4 id="⚔-技术对比（本质层）"><a href="#⚔-技术对比（本质层）" class="headerlink" title="⚔ 技术对比（本质层）"></a>⚔ 技术对比（本质层）</h4><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Polkadot 2.0</th>
+<th>Solana</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>架构哲学</td>
+<td>多链共享安全</td>
+<td>单链极限性能</td>
+</tr>
+<tr>
+<td>扩展方式</td>
+<td>横向扩展</td>
+<td>垂直扩展</td>
+</tr>
+<tr>
+<td>系统复杂度</td>
+<td>高</td>
+<td>高但集中</td>
+</tr>
+<tr>
+<td>吞吐实战</td>
+<td>生态规模较小</td>
+<td>已大规模运行</td>
+</tr>
+<tr>
+<td>工程成熟度</td>
+<td>架构先进</td>
+<td>运行成熟</td>
+</tr>
+<tr>
+<td>设计优雅度</td>
+<td>非常优雅</td>
+<td>极致工程</td>
+</tr>
+</tbody></table>
+<hr>
+<h4 id="🧠-如果问“谁技术更强？”"><a href="#🧠-如果问“谁技术更强？”" class="headerlink" title="🧠 如果问“谁技术更强？”"></a>🧠 如果问“谁技术更强？”</h4><p>答案分三层：</p>
+<p>############ 1️⃣ 理论架构层</p>
+<p>Polkadot 更“学术级优雅”。</p>
+<p>它是一个“区块链操作系统”。</p>
+<hr>
+<p>############ 2️⃣ 工程实现层</p>
+<p>Solana 更“现实工程强”。</p>
+<p>它已经在高负载下运行多年。</p>
+<hr>
+<p>############ 3️⃣ 市场验证层</p>
+<p>Solana 完胜。</p>
+<p>技术是否强，最终看：</p>
+<blockquote>
+<p>是否被真实流量压测过。</p>
+</blockquote>
+<p>Solana 已被验证。</p>
+<p>Polkadot 2.0 仍在演进。</p>
+<hr>
+<h4 id="🎯-如果你是协议层创始人"><a href="#🎯-如果你是协议层创始人" class="headerlink" title="🎯 如果你是协议层创始人"></a>🎯 如果你是协议层创始人</h4><p>关键问题不是谁更强，而是：</p>
+<blockquote>
+<p>你的系统需要的是“多链安全模型”<br>还是“高性能单链执行环境”？</p>
+</blockquote>
+<p>比如你之前在思考：</p>
+<ul>
+<li>商品全生命周期追踪</li>
+<li>NFT 绑定</li>
+<li>防篡改责任层</li>
+</ul>
+<p>这种更偏：</p>
+<p>✔ 可信层<br>✔ 共享安全<br>✔ 规则执行</p>
+<p>理论上更匹配 Polkadot 的设计哲学。</p>
+<p>但如果你需要：</p>
+<p>✔ 高频交易<br>✔ 大量用户交互<br>✔ 实时响应</p>
+<p>Solana 更适合。</p>
+<hr>
+<h4 id="🧭-极简结论"><a href="#🧭-极简结论" class="headerlink" title="🧭 极简结论"></a>🧭 极简结论</h4><p>如果用一句话回答：</p>
+<blockquote>
+<p>Polkadot 更像“区块链架构师的梦想”<br>Solana 更像“工程师的性能武器”</p>
+</blockquote>
+<p>技术谁更强？</p>
+<p>取决于你看的是：</p>
+<ul>
+<li>架构高度 → Polkadot</li>
+<li>实战性能 → Solana</li>
+</ul>
+<hr>
+<p>如果你愿意，我可以帮你做一个更冷静的判断：</p>
+<p>👉 以你金库协议为例<br>放 Polkadot vs 放 Solana<br>3 年后的生存概率谁更高？</p>
+<p>这个会比“谁更强”更有价值。</p>
+<h1 id="你说solana性能高，那monad和solana的性能比起来怎么样"><a href="#你说solana性能高，那monad和solana的性能比起来怎么样" class="headerlink" title="你说solana性能高，那monad和solana的性能比起来怎么样"></a>你说solana性能高，那monad和solana的性能比起来怎么样</h1><p>这个问题要分清一个关键点：</p>
+<blockquote>
+<p><strong>Solana 是已经跑了几年真实主网的性能</strong><br><strong>Monad 是承诺的并行 EVM 性能</strong></p>
+</blockquote>
+<p>两者不在同一个“验证阶段”。</p>
+<hr>
+<h2 id="🟢-Solana-1"><a href="#🟢-Solana-1" class="headerlink" title="🟢 Solana"></a>🟢 Solana</h2><h6 id="架构特点"><a href="#架构特点" class="headerlink" title="架构特点"></a>架构特点</h6><ul>
+<li>单链架构</li>
+<li>Proof of History</li>
+<li>Sealevel 并行执行</li>
+<li>高硬件要求</li>
+</ul>
+<h6 id="实战情况（已验证）"><a href="#实战情况（已验证）" class="headerlink" title="实战情况（已验证）"></a>实战情况（已验证）</h6><ul>
+<li>主网已运行多年</li>
+<li>高峰期实际 TPS 数千级别</li>
+<li>DeFi、NFT、meme 币大规模压测过</li>
+<li>曾多次宕机，但稳定性在改善</li>
+</ul>
+<p>👉 <strong>Solana 是“已经被战场验证的高性能链”。</strong></p>
+<hr>
+<h2 id="🟣-Monad"><a href="#🟣-Monad" class="headerlink" title="🟣 Monad"></a>🟣 Monad</h2><h6 id="架构特点-1"><a href="#架构特点-1" class="headerlink" title="架构特点"></a>架构特点</h6><ul>
+<li>EVM 兼容</li>
+<li>真并行执行（Optimistic Parallel Execution）</li>
+<li>延迟低（目标 ~1s 出块）</li>
+<li>目标 10,000+ TPS</li>
+</ul>
+<h6 id="当前阶段"><a href="#当前阶段" class="headerlink" title="当前阶段"></a>当前阶段</h6><ul>
+<li>仍处测试网阶段（2025–2026）</li>
+<li>尚未经历真实市场级别流量冲击</li>
+<li>性能数据主要来自官方测试</li>
+</ul>
+<p>👉 <strong>Monad 是“设计上非常强，但还没上战场”。</strong></p>
+<hr>
+<h2 id="⚔-性能对比（现实-vs-承诺）"><a href="#⚔-性能对比（现实-vs-承诺）" class="headerlink" title="⚔ 性能对比（现实 vs 承诺）"></a>⚔ 性能对比（现实 vs 承诺）</h2><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Solana</th>
+<th>Monad</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>架构</td>
+<td>非 EVM，自建 VM</td>
+<td>EVM 兼容</td>
+</tr>
+<tr>
+<td>执行模型</td>
+<td>Sealevel 并行</td>
+<td>乐观并行执行</td>
+</tr>
+<tr>
+<td>理论 TPS</td>
+<td>高（数万级）</td>
+<td>目标 10k+</td>
+</tr>
+<tr>
+<td>实战 TPS</td>
+<td>数千稳定运行</td>
+<td>尚未主网验证</td>
+</tr>
+<tr>
+<td>稳定性</td>
+<td>已经历牛熊周期</td>
+<td>未经历</td>
+</tr>
+<tr>
+<td>生态体量</td>
+<td>成熟</td>
+<td>早期</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="🧠-本质差异"><a href="#🧠-本质差异" class="headerlink" title="🧠 本质差异"></a>🧠 本质差异</h2><p>Solana 的哲学：</p>
+<blockquote>
+<p>重写一切，追求极限性能。</p>
+</blockquote>
+<p>Monad 的哲学：</p>
+<blockquote>
+<p>保留 EVM 生态，同时做到高性能。</p>
+</blockquote>
+<p>换句话说：</p>
+<ul>
+<li>Solana 是“性能优先”</li>
+<li>Monad 是“性能 + 兼容性平衡”</li>
+</ul>
+<hr>
+<h2 id="🎯-如果问：谁更快？"><a href="#🎯-如果问：谁更快？" class="headerlink" title="🎯 如果问：谁更快？"></a>🎯 如果问：谁更快？</h2><p><strong>理论层面：</strong><br>Monad 设计目标 ≈ 或略高于 Solana。</p>
+<p><strong>现实层面：</strong><br>Solana 目前更强，因为它已经被验证。</p>
+<hr>
+<h2 id="🧭-如果用更冷静的话说"><a href="#🧭-如果用更冷静的话说" class="headerlink" title="🧭 如果用更冷静的话说"></a>🧭 如果用更冷静的话说</h2><ul>
+<li>Solana &#x3D; 已经跑完 10 圈马拉松</li>
+<li>Monad &#x3D; 训练数据很好看，但还没上正式赛场</li>
+</ul>
+<hr>
+<h2 id="🧩-结合你现在的路径（协议层-创业）"><a href="#🧩-结合你现在的路径（协议层-创业）" class="headerlink" title="🧩 结合你现在的路径（协议层 + 创业）"></a>🧩 结合你现在的路径（协议层 + 创业）</h2><p>你需要问的是：</p>
+<blockquote>
+<p>我需要“稳定已验证的性能”<br>还是“押注未来潜力 + 早期红利”？</p>
+</blockquote>
+<p>如果你要：</p>
+<ul>
+<li>拿真实商家试点</li>
+<li>要稳定运行</li>
+<li>不想赌主网风险</li>
+</ul>
+<p>Solana 更稳。</p>
+<p>如果你想：</p>
+<ul>
+<li>早期进入生态</li>
+<li>拿 grant</li>
+<li>吃成长红利</li>
+</ul>
+<p>Monad 风险更大，但赔率更高。</p>
+<hr>
+<p>如果你愿意，我可以给你一个：</p>
+<p>👉 2026–2028 三条链（Solana &#x2F; Monad &#x2F; Avalanche）风险收益模型图</p>
+<p>那会比单纯比 TPS 更接近现实。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Web3/">Web3</a>
+                    
+                      <a class="hover-with-bg" href="/tags/hackathon/">hackathon</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/02/14/56930.html">
+                        <span class="hidden-mobile">【GWDC会议笔记】 投资机构</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+    </body>
+
+  </html>

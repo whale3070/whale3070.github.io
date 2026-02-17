@@ -272,7 +272,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      916 字
+      2.4k 字
     </span>
   
 
@@ -282,7 +282,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      12
+      32
        分钟
     </span>
   
@@ -334,7 +334,354 @@
 <li><strong>Redis 准备</strong>: 启动本地 Redis 服务，因为你的 <code>MarketHandler</code>（终焉大盘系统）极度依赖 Redis 的排序集合（ZSet）来做销量排行。</li>
 </ol>
 <p><strong>需要我帮你把其中某一个 Handler（比如 <code>RelayHandler</code> 的 5 码兑换逻辑）的具体 Go 代码写出来吗？</strong> 这样你可以直接粘贴到 <code>internal/handlers/relay.go</code> 中。</p>
-<h1 id="handlers文件分析"><a href="#handlers文件分析" class="headerlink" title="handlers文件分析"></a>handlers文件分析</h1>
+<h1 id="main-go的api分析"><a href="#main-go的api分析" class="headerlink" title="main.go的api分析"></a>main.go的api分析</h1><p>下面我按你这份 <code>main.go</code> 里 <strong>mux 路由注册</strong> 的结果，把“有哪些 API”完整列出来（含方法、用途、关键入参），再顺手帮你做一层结构化归类。</p>
+<hr>
+<h2 id="1-Auth-Secret-Admin-access"><a href="#1-Auth-Secret-Admin-access" class="headerlink" title="1) Auth &#x2F; Secret &#x2F; Admin access"></a>1) Auth &#x2F; Secret &#x2F; Admin access</h2><ol>
+<li><p><strong>GET &#x2F;secret&#x2F;get-binding</strong></p>
+<ul>
+<li>处理器：<code>authH.GetBinding</code></li>
+<li>作用：查询某种“绑定关系”（看命名像 address ↔ code &#x2F; publisher ↔ binding）</li>
+</ul>
+</li>
+<li><p><strong>GET &#x2F;secret&#x2F;verify</strong></p>
+<ul>
+<li>处理器：<code>authH.Verify</code></li>
+<li>作用：验证（可能是签名 &#x2F; code &#x2F; 地址绑定等）</li>
+</ul>
+</li>
+<li><p><strong>GET &#x2F;api&#x2F;admin&#x2F;check-access</strong></p>
+<ul>
+<li>处理器：<code>authH.CheckAdminAccess</code></li>
+<li>作用：检查是否有 admin 权限（可能依赖 redis &#x2F; 链上 &#x2F; header）</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="2-Relay（推荐-返佣-统计）"><a href="#2-Relay（推荐-返佣-统计）" class="headerlink" title="2) Relay（推荐&#x2F;返佣&#x2F;统计）"></a>2) Relay（推荐&#x2F;返佣&#x2F;统计）</h2><ol start="4">
+<li><p><strong>POST &#x2F;relay&#x2F;save-code</strong></p>
+<ul>
+<li>处理器：<code>relayH.SaveCode</code></li>
+<li>作用：保存 code（典型：保存推荐码、hashcode、绑定码）</li>
+</ul>
+</li>
+<li><p><strong>POST &#x2F;relay&#x2F;reward</strong></p>
+<ul>
+<li>处理器：<code>relayH.Reward</code></li>
+<li>作用：领取&#x2F;触发奖励（可能是 offchain 计算 + onchain 发放）</li>
+</ul>
+</li>
+<li><p><strong>GET &#x2F;relay&#x2F;stats</strong></p>
+<ul>
+<li>处理器：<code>relayH.GetReferrerStats</code></li>
+<li>作用：查询某个 referrer 的统计数据</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="3-Mint-Tx-查询-NFT-总量"><a href="#3-Mint-Tx-查询-NFT-总量" class="headerlink" title="3) Mint &#x2F; Tx 查询 &#x2F; NFT 总量"></a>3) Mint &#x2F; Tx 查询 &#x2F; NFT 总量</h2><ol start="7">
+<li><p><strong>POST &#x2F;relay&#x2F;mint</strong></p>
+<ul>
+<li>处理器：<code>mintH.Mint</code></li>
+<li>作用：铸造 NFT（或发起 mint 流程）</li>
+</ul>
+</li>
+<li><p><strong>GET &#x2F;api&#x2F;v1&#x2F;nft&#x2F;total-minted</strong></p>
+<ul>
+<li>处理器：<code>mintH.GetTotalMinted</code></li>
+<li>作用：查询总铸造量</li>
+</ul>
+</li>
+<li><p><strong>GET &#x2F;relay&#x2F;tx&#x2F;{…}</strong>（PathPrefix <code>/relay/tx/</code>）</p>
+<ul>
+<li>处理器：<code>mintH.GetTxResult</code></li>
+<li>作用：按 tx hash &#x2F; id 查询交易结果（前端轮询用）</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="4-NFT-Stats（链上-Transfer-事件扫描结果）"><a href="#4-NFT-Stats（链上-Transfer-事件扫描结果）" class="headerlink" title="4) NFT Stats（链上 Transfer 事件扫描结果）"></a>4) NFT Stats（链上 Transfer 事件扫描结果）</h2><ol start="10">
+<li><strong>GET &#x2F;api&#x2F;v1&#x2F;nft&#x2F;stats</strong></li>
+</ol>
+<ul>
+<li><p>处理器：<code>nftStatsHandler(cfg.NFTStatsContract)</code></p>
+</li>
+<li><p>Query：</p>
+<ul>
+<li><code>contract=0x...</code>（可选；不传用默认合约）</li>
+</ul>
+</li>
+<li><p>返回字段（你这里写死了结构）：</p>
+<ul>
+<li><code>minted_total</code></li>
+<li><code>unique_minters</code></li>
+<li><code>unique_real_users</code></li>
+<li><code>last_scanned_block</code></li>
+</ul>
+</li>
+</ul>
+<ol start="11">
+<li><strong>GET &#x2F;api&#x2F;v1&#x2F;nft&#x2F;contracts</strong></li>
+</ol>
+<ul>
+<li>处理器：<code>nftContractsHandler()</code></li>
+<li>作用：列出需要被 stats manager 扫描的合约列表（来自 Redis set <code>vault:nft:contracts</code>）</li>
+</ul>
+<hr>
+<h2 id="5-Market（行情-币对）"><a href="#5-Market（行情-币对）" class="headerlink" title="5) Market（行情&#x2F;币对）"></a>5) Market（行情&#x2F;币对）</h2><ol start="12">
+<li><strong>GET &#x2F;api&#x2F;v1&#x2F;tickers</strong></li>
+</ol>
+<ul>
+<li>处理器：<code>marketH.GetTickers</code></li>
+</ul>
+<ol start="13">
+<li><strong>GET &#x2F;api&#x2F;v1&#x2F;market&#x2F;tickers</strong></li>
+</ol>
+<ul>
+<li>处理器：<code>marketH.GetTickers</code></li>
+<li>说明：两个路径同一个 handler，属于兼容别名</li>
+</ul>
+<hr>
+<h2 id="6-Factory-Publisher（出版方、验-publisher、部署-book-合约、打包下载）"><a href="#6-Factory-Publisher（出版方、验-publisher、部署-book-合约、打包下载）" class="headerlink" title="6) Factory &#x2F; Publisher（出版方、验 publisher、部署 book 合约、打包下载）"></a>6) Factory &#x2F; Publisher（出版方、验 publisher、部署 book 合约、打包下载）</h2><ol start="14">
+<li><strong>GET &#x2F;api&#x2F;v1&#x2F;precheck-code</strong></li>
+</ol>
+<ul>
+<li>处理器：<code>factoryH.PrecheckCode</code></li>
+<li>作用：预检查 code（是否存在&#x2F;是否可用&#x2F;是否已绑定等）</li>
+</ul>
+<ol start="15">
+<li><strong>GET &#x2F;api&#x2F;v1&#x2F;factory&#x2F;verify-publisher</strong></li>
+</ol>
+<ul>
+<li>处理器：<code>factoryH.VerifyPublisher</code></li>
+</ul>
+<ol start="16">
+<li><strong>GET &#x2F;api&#x2F;v1&#x2F;publisher&#x2F;balance</strong></li>
+</ol>
+<ul>
+<li>处理器：<code>factoryH.GetPublisherBalance</code></li>
+</ul>
+<ol start="17">
+<li><strong>GET &#x2F;api&#x2F;v1&#x2F;publisher&#x2F;zip</strong></li>
+</ol>
+<ul>
+<li>处理器：<code>publisherH.GenerateAndDownloadZip</code></li>
+<li>作用：生成并下载 zip（可能是二维码包&#x2F;素材包&#x2F;书籍包）</li>
+</ul>
+<ol start="18">
+<li><strong>GET &#x2F;api&#x2F;v1&#x2F;publisher&#x2F;books&#x2F;search</strong></li>
+</ol>
+<ul>
+<li>处理器：<code>publisherH.SearchPublisherBooks</code></li>
+<li>作用：搜索 publisher 的 books</li>
+</ul>
+<ol start="19">
+<li><strong>POST &#x2F;api&#x2F;v1&#x2F;factory&#x2F;create</strong></li>
+</ol>
+<ul>
+<li>处理器：<code>factoryH.DeployBook</code></li>
+</ul>
+<ol start="20">
+<li><strong>POST &#x2F;api&#x2F;v1&#x2F;publisher&#x2F;deploy-book</strong></li>
+</ol>
+<ul>
+<li>处理器：<code>factoryH.DeployBook</code></li>
+<li>说明：两个路径同一个 handler（兼容别名）</li>
+</ul>
+<hr>
+<h2 id="7-Analytics（分布、榜单）"><a href="#7-Analytics（分布、榜单）" class="headerlink" title="7) Analytics（分布、榜单）"></a>7) Analytics（分布、榜单）</h2><ol start="21">
+<li><strong>GET &#x2F;api&#x2F;v1&#x2F;analytics&#x2F;distribution</strong></li>
+</ol>
+<ul>
+<li>处理器：<code>relayH.GetDistribution</code></li>
+<li>作用：分布统计（城市&#x2F;国家&#x2F;渠道等，代码里有 GeoIP）</li>
+</ul>
+<ol start="22">
+<li><strong>GET &#x2F;api&#x2F;v1&#x2F;analytics&#x2F;leaderboard</strong></li>
+</ol>
+<ul>
+<li>处理器：<code>relayH.GetLeaderboard</code></li>
+<li>作用：排行榜（销量&#x2F;邀请&#x2F;贡献等）</li>
+</ul>
+<hr>
+<h2 id="8-Reward（一次性发放奖励）"><a href="#8-Reward（一次性发放奖励）" class="headerlink" title="8) Reward（一次性发放奖励）"></a>8) Reward（一次性发放奖励）</h2><ol start="23">
+<li><strong>POST &#x2F;api&#x2F;v1&#x2F;reward&#x2F;dispense</strong></li>
+</ol>
+<ul>
+<li><p>处理器：<code>rewardDispenseHandler(rewardSvc)</code></p>
+</li>
+<li><p>Body JSON（你在 main.go 里定义了）：</p>
+<figure class="highlight json"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span> <span class="hljs-attr">&quot;referrer&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;0x...&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;recipient&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;0x...&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;codes&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-punctuation">[</span><span class="hljs-string">&quot;0x...&quot;</span><span class="hljs-punctuation">,</span><span class="hljs-string">&quot;0x...&quot;</span><span class="hljs-punctuation">,</span><span class="hljs-string">&quot;0x...&quot;</span><span class="hljs-punctuation">,</span><span class="hljs-string">&quot;0x...&quot;</span><span class="hljs-punctuation">,</span><span class="hljs-string">&quot;0x...&quot;</span><span class="hljs-punctuation">]</span> <span class="hljs-punctuation">&#125;</span><br></code></pre></div></td></tr></table></figure></li>
+<li><p>约束：</p>
+<ul>
+<li><code>codes</code> 必须 <strong>刚好 5 个</strong></li>
+<li>每个必须 <code>bytes32</code>（<code>0x</code> + 64 hex）</li>
+</ul>
+</li>
+<li><p>返回：</p>
+<ul>
+<li><code>txHash</code></li>
+<li><code>businessHash</code></li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="9-Admin（USDT-充值）"><a href="#9-Admin（USDT-充值）" class="headerlink" title="9) Admin（USDT 充值）"></a>9) Admin（USDT 充值）</h2><ol start="24">
+<li><strong>POST &#x2F;api&#x2F;admin&#x2F;usdt&#x2F;recharge</strong></li>
+</ol>
+<ul>
+<li><p>处理器：<code>adminRechargeUSDTHandler(cfg)</code></p>
+</li>
+<li><p>鉴权：</p>
+<ul>
+<li>如果 <code>cfg.AdminAPIKey</code> 不为空：要求 header <code>Authorization: Bearer &lt;key&gt;</code></li>
+</ul>
+</li>
+<li><p>Body：</p>
+<figure class="highlight json"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span> <span class="hljs-attr">&quot;to&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;0x...&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;amount&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">123</span> <span class="hljs-punctuation">&#125;</span><br></code></pre></div></td></tr></table></figure></li>
+<li><p>作用：调用链上 USDT 合约给地址充值（使用 <code>USDT_ADMIN_PRIVKEY</code>）</p>
+</li>
+</ul>
+<hr>
+<h2 id="10-你这个后端的“接口形态”总结（方便你写文档-前端对接）"><a href="#10-你这个后端的“接口形态”总结（方便你写文档-前端对接）" class="headerlink" title="10) 你这个后端的“接口形态”总结（方便你写文档&#x2F;前端对接）"></a>10) 你这个后端的“接口形态”总结（方便你写文档&#x2F;前端对接）</h2><ul>
+<li><p><strong>总计：24 个 API 路由</strong></p>
+</li>
+<li><p>主要分为：</p>
+<ul>
+<li><code>secret/auth/admin-check</code>（身份&#x2F;权限）</li>
+<li><code>relay</code>（保存码、领返佣、统计）</li>
+<li><code>mint/tx</code>（铸造与交易回执）</li>
+<li><code>nft stats</code>（扫描 Transfer 的统计结果）</li>
+<li><code>factory/publisher</code>（发行方&#x2F;部署书籍合约&#x2F;素材打包）</li>
+<li><code>analytics</code>（分布+榜单）</li>
+<li><code>reward dispense</code>（一次性发放奖励）</li>
+<li><code>admin usdt recharge</code>（管理员充值）</li>
+</ul>
+</li>
+</ul>
+<h1 id="做全栈开发一般是先写前端还是先写后端"><a href="#做全栈开发一般是先写前端还是先写后端" class="headerlink" title="做全栈开发一般是先写前端还是先写后端?"></a>做全栈开发一般是先写前端还是先写后端?</h1><p>这个问题没有标准答案，但<strong>成熟团队的做法是有逻辑顺序的</strong>。<br>不是“前端 or 后端”，而是：</p>
+<blockquote>
+<p><strong>先设计契约（API &amp; 数据结构），再并行开发。</strong></p>
+</blockquote>
+<hr>
+<h1 id="🔥-常见三种路径"><a href="#🔥-常见三种路径" class="headerlink" title="🔥 常见三种路径"></a>🔥 常见三种路径</h1><h2 id="①-先后端（数据驱动型项目）✅最稳"><a href="#①-先后端（数据驱动型项目）✅最稳" class="headerlink" title="① 先后端（数据驱动型项目）✅最稳"></a>① 先后端（数据驱动型项目）✅最稳</h2><p>适合：</p>
+<ul>
+<li>业务逻辑复杂</li>
+<li>有数据库</li>
+<li>有权限系统</li>
+<li>有区块链交互</li>
+</ul>
+<p>流程：</p>
+<ol>
+<li>设计数据库结构</li>
+<li>设计 API（OpenAPI &#x2F; Swagger）</li>
+<li>后端写接口</li>
+<li>前端对接接口</li>
+</ol>
+<p>优点：</p>
+<ul>
+<li>不会 UI 漂亮但数据乱</li>
+<li>逻辑清晰</li>
+<li>容易扩展</li>
+</ul>
+<hr>
+<h2 id="②-先前端（产品体验驱动型）"><a href="#②-先前端（产品体验驱动型）" class="headerlink" title="② 先前端（产品体验驱动型）"></a>② 先前端（产品体验驱动型）</h2><p>适合：</p>
+<ul>
+<li>SaaS 产品</li>
+<li>需要快速 Demo</li>
+<li>黑客松</li>
+<li>需要先验证 UI 流程</li>
+</ul>
+<p>流程：</p>
+<ol>
+<li>用假数据（mock）</li>
+<li>画完整交互流程</li>
+<li>再补后端</li>
+</ol>
+<p>优点：</p>
+<ul>
+<li>能快速看到产品形态</li>
+<li>适合融资&#x2F;路演</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>后期可能重构接口</li>
+</ul>
+<hr>
+<h2 id="③-专业做法：API-First（推荐你用）"><a href="#③-专业做法：API-First（推荐你用）" class="headerlink" title="③ 专业做法：API-First（推荐你用）"></a>③ 专业做法：API-First（推荐你用）</h2><p>这是最成熟的模式。</p>
+<p>步骤：</p>
+<ol>
+<li>画数据模型</li>
+<li>定义 API Schema</li>
+<li>前后端同时开发</li>
+</ol>
+<p>例如：</p>
+<figure class="highlight json"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs json">POST /verify<br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;code_hash&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;0x123...&quot;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></div></td></tr></table></figure>
+
+<p>前端 mock 这个接口<br>后端按契约实现<br>最后直接对接</p>
+<hr>
+<h1 id="🎯-结合你现在的情况（区块链-防伪）"><a href="#🎯-结合你现在的情况（区块链-防伪）" class="headerlink" title="🎯 结合你现在的情况（区块链 + 防伪）"></a>🎯 结合你现在的情况（区块链 + 防伪）</h1><p>我建议你：</p>
+<blockquote>
+<p>先设计数据结构 + 状态机</p>
+</blockquote>
+<p>比如：</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs asciidoc">Bottle<br><span class="hljs-bullet">- </span>id<br><span class="hljs-bullet">- </span>mint<span class="hljs-emphasis">_time</span><br><span class="hljs-emphasis">- first_scan_</span>time<br><span class="hljs-bullet">- </span>status (sealed / opened / transferred / expired)<br><span class="hljs-bullet">- </span>location<br></code></pre></div></td></tr></table></figure>
+
+<p>再设计 API：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">POST /scan<br>POST /verify<br>GET /bottle/:<span class="hljs-built_in">id</span><br></code></pre></div></td></tr></table></figure>
+
+<p>然后前后端并行。</p>
+<hr>
+<h1 id="⚠️-真正的大坑"><a href="#⚠️-真正的大坑" class="headerlink" title="⚠️ 真正的大坑"></a>⚠️ 真正的大坑</h1><p>很多人：</p>
+<ul>
+<li>先写前端</li>
+<li>再补后端</li>
+<li>最后发现数据结构完全不对</li>
+<li>被迫重构</li>
+</ul>
+<p>尤其是你做 <strong>链上防伪</strong>，状态流设计非常重要。</p>
+<hr>
+<h1 id="🧠-经验总结"><a href="#🧠-经验总结" class="headerlink" title="🧠 经验总结"></a>🧠 经验总结</h1><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐顺序</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>黑客松</td>
+<td>先前端</td>
+</tr>
+<tr>
+<td>SaaS</td>
+<td>API-First</td>
+</tr>
+<tr>
+<td>协议层</td>
+<td>先数据模型</td>
+</tr>
+<tr>
+<td>区块链系统</td>
+<td>先状态机</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="🏆-如果让我给你一句建议"><a href="#🏆-如果让我给你一句建议" class="headerlink" title="🏆 如果让我给你一句建议"></a>🏆 如果让我给你一句建议</h1><p>你现在做的是：</p>
+<blockquote>
+<p>On-Chain Spirits Refill Fraud Prevention</p>
+</blockquote>
+<p>你应该：</p>
+<ol>
+<li>先设计“瓶子的生命周期状态机”</li>
+<li>再写合约</li>
+<li>再写后端</li>
+<li>最后写前端</li>
+</ol>
+<p>而不是从 UI 开始。</p>
+<hr>
+<p>如果你愿意，我可以帮你画一张：</p>
+<p><strong>烈酒防灌装的完整状态流图（技术视角）</strong></p>
+<p>那张图会直接决定你后端怎么写，合约怎么写。</p>
+
             </div>
             <hr>
             <div>
