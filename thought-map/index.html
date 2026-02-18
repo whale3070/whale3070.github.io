@@ -1,0 +1,117 @@
+<div style="max-width:1200px;margin:0 auto;padding:16px;">
+  <h1>Knowledge Galaxy</h1>
+
+  <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+    <input id="q" placeholder="Search title..." style="padding:8px; width:260px;" />
+    <select id="cluster"></select>
+    <select id="colorMode">
+      <option value="cluster">Color: Cluster</option>
+      <option value="year">Color: Year</option>
+    </select>
+    <button id="reset" style="padding:8px 12px;">Reset</button>
+  </div>
+
+  <div id="plot" style="width:100%; height:720px; margin-top:12px;"></div>
+  <p style="opacity:.7;margin-top:8px;">
+    Hover 看详情，点击跳转文章。若 URL 不准，告诉我你的 permalink 配置我帮你修。
+  </p>
+</div>
+
+<script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+<script>
+(async function(){
+  const res = await fetch('/thought-map/thought_map.json');
+  const data = await res.json();
+  const points = data.points;
+
+  const qEl = document.getElementById('q');
+  const cEl = document.getElementById('cluster');
+  const colorEl = document.getElementById('colorMode');
+  const resetEl = document.getElementById('reset');
+
+  // cluster 下拉
+  const clusters = [...new Set(points.map(p=>p.cluster))].sort((a,b)=>a-b);
+  cEl.innerHTML = `<option value="all">All clusters (${clusters.length})</option>` + clusters.map(cid=>{
+    const name = (data.cluster_names[String(cid)] || `Cluster ${cid}`);
+    return `<option value="${cid}">${cid}: ${name}</option>`;
+  }).join('');
+
+  function filterPoints(){
+    const q = (qEl.value || '').trim().toLowerCase();
+    const c = cEl.value;
+    return points.filter(p=>{
+      const okQ = !q || (p.title || '').toLowerCase().includes(q);
+      const okC = (c === 'all') || (String(p.cluster) === c);
+      return okQ && okC;
+    });
+  }
+
+  function makeTrace(ps){
+    const mode = colorEl.value;
+
+    const x = ps.map(p=>p.x);
+    const y = ps.map(p=>p.y);
+    const hover = ps.map(p=>`<b>${escapeHtml(p.title)}</b><br>Year: ${p.year}<br>Cluster: ${p.cluster} (${escapeHtml(p.cluster_name)})<br>${escapeHtml(p.url)}`);
+    const urls = ps.map(p=>p.url);
+
+    let marker = { size: 8, opacity: 0.85 };
+
+    if (mode === 'year'){
+      marker.color = ps.map(p=>p.year);
+      marker.colorscale = 'Viridis';
+      marker.colorbar = { title: 'Year' };
+    } else {
+      marker.color = ps.map(p=>p.cluster);
+      marker.colorscale = 'Turbo';
+      marker.colorbar = { title: 'Cluster' };
+    }
+
+    return [{
+      type: 'scattergl',
+      mode: 'markers',
+      x, y,
+      text: hover,
+      hoverinfo: 'text',
+      customdata: urls,
+      marker
+    }];
+  }
+
+  function render(){
+    const ps = filterPoints();
+    const trace = makeTrace(ps);
+    Plotly.newPlot('plot', trace, {
+      margin: {l:40,r:20,t:30,b:40},
+      xaxis: {title: 'Component 1'},
+      yaxis: {title: 'Component 2'},
+      dragmode: 'pan'
+    }, {responsive: true});
+  }
+
+  function escapeHtml(s){
+    return String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  document.getElementById('plot').on('plotly_click', function(ev){
+    const url = ev.points?.[0]?.customdata;
+    if (url) window.location.href = url;
+  });
+
+  qEl.addEventListener('input', debounce(render, 200));
+  cEl.addEventListener('change', render);
+  colorEl.addEventListener('change', render);
+  resetEl.addEventListener('click', ()=>{
+    qEl.value = '';
+    cEl.value = 'all';
+    colorEl.value = 'cluster';
+    render();
+  });
+
+  function debounce(fn, t){
+    let id=null;
+    return (...args)=>{ clearTimeout(id); id=setTimeout(()=>fn(...args), t); };
+  }
+
+  render();
+})();
+</script>
