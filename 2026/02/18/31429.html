@@ -1,0 +1,639 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>博客文章+机器学习（一键“自动目录”） - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="博客文章+机器学习（一键“自动目录”）">
+                      
+                        博客文章+机器学习（一键“自动目录”）
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-02-18 17:20" pubdate>
+        2026年2月18日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.7k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      32
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">博客文章+机器学习（一键“自动目录”）</h1>
+            
+            <div class="markdown-body">
+              <h1 id="知识星系"><a href="#知识星系" class="headerlink" title="知识星系"></a>知识星系</h1><ol>
+<li>一键“自动目录”：主题聚类 + 命名<br>把每篇文章生成 embedding（向量）。<br>用 HDBSCAN &#x2F; KMeans 聚类成 30–200 个“主题岛”。<br>每个簇再用 LLM 或 TF-IDF 抽关键词，自动起标题：<br>例如「区块链安全」「分布式系统踩坑」「香港生活」「量化随笔」。<br>结果：一个“你的知识星系”，比标签系统更真实（因为标签常年会漂移）。</li>
+</ol>
+<hr>
+<p>source venv&#x2F;bin&#x2F;activate<br>python export_thought_map.py</p>
+<p>(venv) root@f207a6a2ef51:~&#x2F;Whale3070.github.io# ls &#x2F;root&#x2F;Whale3070.github.io&#x2F;source&#x2F;thought-map&#x2F;<br>index.md  js  thought_map.json</p>
+<p>结果： <a href="http://whale3070.github.io/thought-map/">http://whale3070.github.io/thought-map/</a></p>
+<h1 id="相似推荐"><a href="#相似推荐" class="headerlink" title="相似推荐"></a>相似推荐</h1><ol start="2">
+<li>相似文章推荐：做成你博客的“猜你喜欢”<br>读者看完 A，自动推荐最像的 5 篇（向量相似度）。</li>
+</ol>
+<p>还能做“两种推荐”：</p>
+<p>同题延伸（更像）<br>反直觉跳转（相近但观点冲突&#x2F;角度不同，靠“对比度”挑）</p>
+<p>python recommendations.py<br>hexo g</p>
+<h1 id="自动打-Tag"><a href="#自动打-Tag" class="headerlink" title="自动打 Tag"></a>自动打 Tag</h1><ol start="3">
+<li>自动打 Tag：从“人工维护”变“模型维护”<br>先定义一套你认可的 tag taxonomy（比如 50 个）。<br>用少量人工标注（每类 10–30 篇）训练一个多标签分类器&#x2F;或用 few-shot 规则 + LLM。<br>每篇文章自动打 3–8 个 tag，并给置信度。<br>额外玩法：找“标签错配&#x2F;漏标”的文章（你会挖到自己早年的隐藏好文）。</li>
+</ol>
+<p>这个想法非常深刻，它是从“内容管理”向“知识库自动化”跨越的关键一步。既然你有 1148 篇文章，人工回溯打标签几乎是不可能的任务，而标签的混乱会直接导致搜索和推荐系统的失效。</p>
+<p>我们要做的不是简单的关键词匹配，而是基于<strong>语义</strong>的自动打标。</p>
+<hr>
+<h3 id="🚀-自动打标系统实施方案"><a href="#🚀-自动打标系统实施方案" class="headerlink" title="🚀 自动打标系统实施方案"></a>🚀 自动打标系统实施方案</h3><h4 id="第一阶段：定义底层逻辑-Taxonomy"><a href="#第一阶段：定义底层逻辑-Taxonomy" class="headerlink" title="第一阶段：定义底层逻辑 (Taxonomy)"></a>第一阶段：定义底层逻辑 (Taxonomy)</h4><p>不要让模型随意生成标签（防止出现“机器学习”和“Machine Learning”并存的情况）。</p>
+<ul>
+<li><strong>动作</strong>：根据你已有的分类和核心主题，固化 50 个左右的“标准标签库”。</li>
+<li><strong>维度建议</strong>：</li>
+<li><strong>技术&#x2F;工具</strong>：比特币、区块链、机器学习、Hexo、安全攻防。</li>
+<li><strong>生存&#x2F;预判</strong>：阶级认知、读研性价比、老龄化、数字游民、底牌逻辑。</li>
+<li><strong>艺术&#x2F;人文</strong>：油画、剧本创作、褶式思维、权威迷信。</li>
+</ul>
+<h4 id="第二阶段：实现路径（两种方案）"><a href="#第二阶段：实现路径（两种方案）" class="headerlink" title="第二阶段：实现路径（两种方案）"></a>第二阶段：实现路径（两种方案）</h4><h5 id="方案-A：轻量级（Few-shot-LLM）——-推荐方案"><a href="#方案-A：轻量级（Few-shot-LLM）——-推荐方案" class="headerlink" title="方案 A：轻量级（Few-shot + LLM）—— 推荐方案"></a>方案 A：轻量级（Few-shot + LLM）—— <strong>推荐方案</strong></h5><p>既然你平时会调用 API，可以直接写个 Python 脚本，给 LLM 看 10 篇样板文章，然后让它批量处理剩余文章。</p>
+<ul>
+<li><strong>优点</strong>：理解力极强，能识别出文章里没写但实际涉及的主题（如：虽然没提“阶级”，但看出了阶级跨越的本质）。</li>
+<li><strong>脚本逻辑</strong>：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-comment"># 伪代码思路</span><br>prompt = <span class="hljs-string">f&quot;&quot;&quot;</span><br><span class="hljs-string">你是一个情报分析专家。我有一套标签体系：<span class="hljs-subst">&#123;tags_list&#125;</span>。</span><br><span class="hljs-string">请阅读以下文章，并从中选择 3-8 个最符合的标签，并给出 0-1 之间的置信度。</span><br><span class="hljs-string">文章内容：<span class="hljs-subst">&#123;post_content&#125;</span></span><br><span class="hljs-string">返回格式：JSON <span class="hljs-subst">&#123;<span class="hljs-string">&quot;tags&quot;</span>: [&#123;<span class="hljs-string">&quot;tag&quot;</span>: <span class="hljs-string">&quot;数字游民&quot;</span>, <span class="hljs-string">&quot;score&quot;</span>: <span class="hljs-number">0.95</span>&#125;</span>, ...]&#125;</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br><br></code></pre></div></td></tr></table></figure>
+
+
+
+<h5 id="方案-B：本地化（FastText-BERT）"><a href="#方案-B：本地化（FastText-BERT）" class="headerlink" title="方案 B：本地化（FastText &#x2F; BERT）"></a>方案 B：本地化（FastText &#x2F; BERT）</h5><p>如果你不想每篇文章都消耗 API，可以用 <code>scikit-learn</code> 配合 <code>MultiLabelBinarizer</code> 做一个多标签分类器。</p>
+<ul>
+<li><strong>优点</strong>：免费、本地运行、速度极快。</li>
+<li><strong>数据清洗技巧</strong>：利用你已经手动打过标签的那部分文章作为训练集。</li>
+</ul>
+<hr>
+<h3 id="🛠️-Python-自动化打标脚本（核心逻辑）"><a href="#🛠️-Python-自动化打标脚本（核心逻辑）" class="headerlink" title="🛠️ Python 自动化打标脚本（核心逻辑）"></a>🛠️ Python 自动化打标脚本（核心逻辑）</h3><p>我们可以利用 <code>Sentence-Transformers</code> 将文章转为向量，然后计算它与各个“标准标签”的余弦相似度。这不需要训练模型，只要标签名取得准，效果就很好。</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-keyword">import</span> yaml<br><span class="hljs-keyword">import</span> os<br><span class="hljs-keyword">from</span> sentence_transformers <span class="hljs-keyword">import</span> SentenceTransformer, util<br><br><span class="hljs-comment"># 1. 定义你的标准标签库 (Taxonomy)</span><br>standard_tags = [<span class="hljs-string">&quot;机器学习&quot;</span>, <span class="hljs-string">&quot;数字游民&quot;</span>, <span class="hljs-string">&quot;安全攻防&quot;</span>, <span class="hljs-string">&quot;比特币&quot;</span>, <span class="hljs-string">&quot;阶级认知&quot;</span>, <span class="hljs-string">&quot;读研性价比&quot;</span>, <span class="hljs-string">&quot;艺术思考&quot;</span>, <span class="hljs-string">&quot;预判逻辑&quot;</span>]<br><br><span class="hljs-comment"># 2. 加载向量模型 (推荐使用中文预训练模型)</span><br>model = SentenceTransformer(<span class="hljs-string">&#x27;paraphrase-multilingual-MiniLM-L12-v2&#x27;</span>)<br>tag_embeddings = model.encode(standard_tags, convert_to_tensor=<span class="hljs-literal">True</span>)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">auto_tagging</span>(<span class="hljs-params">content, top_k=<span class="hljs-number">5</span>, threshold=<span class="hljs-number">0.35</span></span>):<br>    <span class="hljs-comment"># 将文章正文转为向量</span><br>    post_embedding = model.encode(content, convert_to_tensor=<span class="hljs-literal">True</span>)<br>    <span class="hljs-comment"># 计算文章与所有标准标签的相似度</span><br>    cosine_scores = util.cos_sim(post_embedding, tag_embeddings)[<span class="hljs-number">0</span>]<br>    <br>    results = []<br>    <span class="hljs-keyword">for</span> i, score <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(cosine_scores):<br>        <span class="hljs-keyword">if</span> score &gt; threshold:<br>            results.append(&#123;<span class="hljs-string">&quot;tag&quot;</span>: standard_tags[i], <span class="hljs-string">&quot;score&quot;</span>: <span class="hljs-built_in">float</span>(score)&#125;)<br>    <br>    <span class="hljs-comment"># 按置信度排序</span><br>    results = <span class="hljs-built_in">sorted</span>(results, key=<span class="hljs-keyword">lambda</span> x: x[<span class="hljs-string">&#x27;score&#x27;</span>], reverse=<span class="hljs-literal">True</span>)<br>    <span class="hljs-keyword">return</span> results[:top_k]<br><br><span class="hljs-comment"># 3. 遍历文章并更新 Front-matter (演示逻辑)</span><br><span class="hljs-comment"># 这里可以读取 .md，解析 YAML，把新标签追加进去</span><br><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="🔍-额外玩法：挖掘“隐藏好文”-Label-Mismatch"><a href="#🔍-额外玩法：挖掘“隐藏好文”-Label-Mismatch" class="headerlink" title="🔍 额外玩法：挖掘“隐藏好文” (Label Mismatch)"></a>🔍 额外玩法：挖掘“隐藏好文” (Label Mismatch)</h3><p>这个功能最能带给你惊喜。你可以通过对比**“人工标签”<strong>和</strong>“模型预测标签”**来发现偏差：</p>
+<ol>
+<li><strong>标签漏标</strong>：模型预测置信度高达 0.9，但人工标签里没有。</li>
+</ol>
+<ul>
+<li><em>价值</em>：你早年随手写的一篇日记，其实已经触达了后来才成型的主题（比如 2016 年就在谈“预判”但没打标）。</li>
+</ul>
+<ol start="2">
+<li><strong>标签错配</strong>：模型预测的标签和你人工打的完全不沾边。</li>
+</ol>
+<ul>
+<li><em>价值</em>：说明这篇文章的表达可能偏离了初衷，或者它是一个**“褶皱点”**——连接了两个完全不同的领域。</li>
+</ul>
+<ol start="3">
+<li><strong>孤儿文章</strong>：模型在标准库里找不到任何匹配标签（置信度全低于 0.2）。</li>
+</ol>
+<ul>
+<li><em>价值</em>：这些文章要么是废稿，要么是你知识体系之外的**“新大陆”**，值得重点复盘。</li>
+</ul>
+<h3 id="💡-建议"><a href="#💡-建议" class="headerlink" title="💡 建议"></a>💡 建议</h3><p>你可以先挑 100 篇文章跑一下这个逻辑。<br><strong>如果你决定用这套系统，我们可以把生成的结果直接写回你的 <code>.md</code> 文件的 <code>tags:</code> 字段里，实现真正的“自动化运维”。</strong> 你想先尝试哪种方式？是先生成一份“标签错配报告”来复盘旧文，还是直接全量覆盖更新？</p>
+<h1 id="轻量级（Few-shot-LLM）——-推荐方案"><a href="#轻量级（Few-shot-LLM）——-推荐方案" class="headerlink" title="轻量级（Few-shot + LLM）—— 推荐方案"></a>轻量级（Few-shot + LLM）—— 推荐方案</h1><p>方案 A：轻量级（Few-shot + LLM）—— 推荐方案。 你的意思是python可以调用LLM</p>
+<hr>
+<p>是的，这正是 <strong>“自动化运维”</strong> 的核心逻辑：把 Python 当作骨架，把 LLM（如 GPT-4、Claude 或 DeepSeek）当作大脑。</p>
+<p>你可以编写一个 Python 脚本，让它像一名“实习编辑”一样，通读你 <code>source/_posts</code> 下的所有 Markdown 文件，然后通过 API 告诉 LLM 如何根据你的价值观打标签。</p>
+<hr>
+<h3 id="🛠️-Python-调用-LLM-的具体流程"><a href="#🛠️-Python-调用-LLM-的具体流程" class="headerlink" title="🛠️ Python 调用 LLM 的具体流程"></a>🛠️ Python 调用 LLM 的具体流程</h3><h4 id="1-核心代码示例-基于-OpenAI-格式-API"><a href="#1-核心代码示例-基于-OpenAI-格式-API" class="headerlink" title="1. 核心代码示例 (基于 OpenAI 格式 API)"></a>1. 核心代码示例 (基于 OpenAI 格式 API)</h4><p>你可以使用 Python 的 <code>openai</code> 库（现在大部分模型如 DeepSeek, OneAPI 都兼容这个格式）：</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-keyword">import</span> os<br><span class="hljs-keyword">import</span> yaml<br><span class="hljs-keyword">from</span> openai <span class="hljs-keyword">import</span> OpenAI<br><br>client = OpenAI(api_key=<span class="hljs-string">&quot;你的API_KEY&quot;</span>, base_url=<span class="hljs-string">&quot;接口地址&quot;</span>)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">get_tags_from_llm</span>(<span class="hljs-params">title, content</span>):<br>    prompt = <span class="hljs-string">f&quot;&quot;&quot;</span><br><span class="hljs-string">    你是一个知识管理专家。请阅读以下博客文章，从我定义的标签库中选择3-5个最合适的标签。</span><br><span class="hljs-string">    </span><br><span class="hljs-string">    【标准标签库】：数字游民, 机器学习, 阶级认知, 预判逻辑, 读研性价比, 艺术思考, 安全攻防</span><br><span class="hljs-string">    </span><br><span class="hljs-string">    文章标题：<span class="hljs-subst">&#123;title&#125;</span></span><br><span class="hljs-string">    文章正文：<span class="hljs-subst">&#123;content[:<span class="hljs-number">2000</span>]&#125;</span>  # 截取前2000字，节省 Token</span><br><span class="hljs-string">    </span><br><span class="hljs-string">    请仅返回 JSON 格式，例如：&#123;&#123;&quot;tags&quot;: [&quot;数字游民&quot;, &quot;预判逻辑&quot;], &quot;confidence&quot;: 0.95&#125;&#125;</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    <br>    response = client.chat.completions.create(<br>        model=<span class="hljs-string">&quot;gpt-4-turbo&quot;</span>, <span class="hljs-comment"># 或 deepseek-chat</span><br>        messages=[&#123;<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: prompt&#125;],<br>        response_format=&#123; <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;json_object&quot;</span> &#125;<br>    )<br>    <span class="hljs-keyword">return</span> response.choices[<span class="hljs-number">0</span>].message.content<br><br></code></pre></div></td></tr></table></figure>
+
+<h4 id="2-批量处理逻辑"><a href="#2-批量处理逻辑" class="headerlink" title="2. 批量处理逻辑"></a>2. 批量处理逻辑</h4><p>Python 会遍历文件夹，针对每一篇文章执行以下操作：</p>
+<ol>
+<li><strong>读取</strong>：打开 <code>.md</code> 文件，分离出 Front-matter（YAML）和正文。</li>
+<li><strong>分析</strong>：将正文发给 LLM，获取 JSON 结果。</li>
+<li><strong>回写</strong>：将 LLM 建议的标签更新到 YAML 的 <code>tags:</code> 字段中。</li>
+<li><strong>保存</strong>：覆盖原文件。</li>
+</ol>
+<hr>
+<h3 id="💡-为什么推荐-Python-LLM？"><a href="#💡-为什么推荐-Python-LLM？" class="headerlink" title="💡 为什么推荐 Python + LLM？"></a>💡 为什么推荐 Python + LLM？</h3><ul>
+<li><strong>语义理解（褶式思维）</strong>：<br>如果你有一篇文章写的是“在香港街头看老龄化与鸽子”，传统的关键词匹配只会打上“香港”、“鸽子”。但 LLM 能读懂你背后的**“老龄化”<strong>和</strong>“社会结构预判”**，这才是你真正的底牌。</li>
+<li><strong>Few-shot（少量样本学习）</strong>：<br>你可以在 Prompt 里放 3 篇你亲自打好标签的文章作为“标准”，Python 脚本会把这些样板一起发给模型。模型会立刻模仿你的打标风格。</li>
+<li><strong>清洗旧数据</strong>：<br>你可以设置一个逻辑：如果模型给出的标签置信度低于 0.6，则标记为“待人工复核”。</li>
+</ul>
+<hr>
+<h3 id="⚠️-你需要准备什么？"><a href="#⚠️-你需要准备什么？" class="headerlink" title="⚠️ 你需要准备什么？"></a>⚠️ 你需要准备什么？</h3><ol>
+<li><strong>一个 API Key</strong>：DeepSeek 或者国内的硅基流动（SiliconFlow）现在非常便宜，处理 1000 多篇文章可能也就几块钱人民币。</li>
+<li><strong>本地环境</strong>：安装 <code>pip install openai pyyaml</code>。</li>
+</ol>
+<p><strong>你想让我帮你写一个能直接运行的、带“断点续传”功能的批量打标脚本吗？（这样万一中间网络断了，下次可以从第 501 篇继续，不用重新付钱）。</strong></p>
+<h1 id="你的写作“时间轴”"><a href="#你的写作“时间轴”" class="headerlink" title="你的写作“时间轴”"></a>你的写作“时间轴”</h1><ol start="4">
+<li>你的写作“时间轴”：主题随时间迁移<br>把每篇文章的主题分布（topic mixture）按年份画出来。<br>你会看到自己在什么时候从 A 转向 B（比如从安全 → Web3 → 产品&#x2F;创业）。<br>玩法升级：标出“拐点文章”（主题转移最大、写作风格突变的那几篇）。</li>
+</ol>
+<hr>
+<p>可以，而且这个玩法<strong>非常适合</strong>你这种 1200 篇长周期写作：它会把“我感觉自己在进化”变成<strong>可视化证据</strong>。</p>
+<p>下面我给你一个<strong>可跑的最小 MVP</strong>：</p>
+<ul>
+<li>生成“按年份的主题占比堆叠图”（topic mixture by year）</li>
+<li>自动找“拐点年份”（主题分布变化最大）</li>
+<li>自动找“拐点文章”（最像从 A 跳到 B 的那几篇）</li>
+</ul>
+<blockquote>
+<p>注：严格意义的“topic mixture”是每篇文章对多个主题的<strong>软分配</strong>（不是硬聚类）。下面用 <strong>Embedding + KMeans</strong> 来做软分配（softmax 到每个簇中心），效果很直观。</p>
+</blockquote>
+<hr>
+<h2 id="你会得到什么产物"><a href="#你会得到什么产物" class="headerlink" title="你会得到什么产物"></a>你会得到什么产物</h2><ol>
+<li><code>topic_mixture_by_year.png</code>：每年主题占比堆叠面积图</li>
+<li><code>topic_shift_by_year.png</code>：每年“主题漂移强度”折线（JS divergence）</li>
+<li><code>turning_points_posts.csv</code>：拐点文章列表（含 URL、年份、标题、变化分数）</li>
+<li><code>turning_points_years.txt</code>：拐点年份排序</li>
+</ol>
+<hr>
+<h2 id="✅-完整可运行脚本：timeline-topics-py"><a href="#✅-完整可运行脚本：timeline-topics-py" class="headerlink" title="✅ 完整可运行脚本：timeline_topics.py"></a>✅ 完整可运行脚本：<code>timeline_topics.py</code></h2><blockquote>
+<p>你已经有 <code>frontmatter</code>，也建议装：<br><code>pip install sentence-transformers pandas matplotlib scikit-learn</code></p>
+</blockquote>
+<p>把下面保存到 <code>/root/Whale3070.github.io/timeline_topics.py</code> 然后运行：</p>
+<hr>
+<h2 id="运行方式"><a href="#运行方式" class="headerlink" title="运行方式"></a>运行方式</h2><figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">cd</span> /root/Whale3070.github.io<br>python3 timeline_topics.py<br><span class="hljs-built_in">ls</span> -lh topic_mixture_by_year.png topic_shift_by_year.png turning_points_posts.csv turning_points_years.txt<br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h2 id="你下一步怎么把它接进“知识星系”页面？"><a href="#你下一步怎么把它接进“知识星系”页面？" class="headerlink" title="你下一步怎么把它接进“知识星系”页面？"></a>你下一步怎么把它接进“知识星系”页面？</h2><p>最简单：</p>
+<ul>
+<li>把 <code>turning_points_posts.csv</code> 转成 json</li>
+<li>页面加一个「Turning Points」列表</li>
+<li>点击就跳文章</li>
+<li>同时在星图里高亮这些点（turning_score &gt; 阈值）</li>
+</ul>
+<p>如果你想我直接给你前端高亮的 JS（不丑那种），我也可以给。</p>
+<hr>
+<p>如果你跑完后把 <code>turning_points_years.txt</code> 和 <code>turning_points_posts.csv</code> 头几行贴出来，我就能帮你把“安全→Web3→产品&#x2F;创业”的迁移<strong>用自然语言标注出来</strong>（并挑出最像“拐点”的那 3~5 篇文章）。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/02/19/62563.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Avalanche3</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/02/18/10761.html">
+                        <span class="hidden-mobile">GL-MT3600BE + 中兴 F50 Debug</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "博客文章+机器学习（一键“自动目录”）"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

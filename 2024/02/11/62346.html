@@ -40,10 +40,10 @@
   <meta name="keywords" content="">
   <title>twilight第十五章-cullens一家 - whale3070&#39;s blog</title>
 
-  <link  rel="stylesheet" href="/js/css/bootstrap.min.css" />
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
 
 
-  <link  rel="stylesheet" href="/js/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
   <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
 
   
@@ -84,7 +84,7 @@
 
 
 <script  src="/js/jquery.min.js" ></script>
-<script  src="/js/js/bootstrap.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
 <script  src="/js/debouncer.js" ></script>
 <script  src="/js/events.js" ></script>
 <script  src="/js/plugins.js" ></script>
@@ -116,6 +116,18 @@
 
 
 
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
 
 
 
@@ -220,6 +232,17 @@
             </li>
           
         
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
         
         
           
@@ -299,7 +322,6 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div class="py-5" id="board">
           <article class="post-content mx-auto" data-pagefind-body>
-            <!-- SEO header -->
             <h1 style="display: none">twilight第十五章-cullens一家</h1>
             
             <div class="markdown-body">
@@ -322,14 +344,21 @@
                   <div class="post-meta">
                     <i class="iconfont icon-tags"></i>
                     
-                      <a class="hover-with-bg" href="/tags/IELTS-reading/">IELTS-reading</a>
+                      <a class="hover-with-bg" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E7%A4%BE%E4%BC%9A%E8%A7%82%E5%AF%9F/">社会观察</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E6%88%91%E7%9A%84%E7%94%9F%E5%B9%B3/">我的生平</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%B0%8F%E8%AF%B4%E8%A7%A3%E6%9E%90/">小说解析</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E6%96%87%E5%AD%A6%E8%AF%8D%E6%B1%87/">文学词汇</a>
                     
                   </div>
                 
               </div>
               
                 
-              
               
                 <div class="post-prevnext">
                   <article class="post-prev col-6">
@@ -357,6 +386,20 @@
             </div>
 
             
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
           </article>
         </div>
       </div>
@@ -373,9 +416,42 @@
   </div>
 </div>
 
-<!-- Custom -->
 
 
+<script>
+  (function() {
+    const currentTitle = "twilight第十五章-cullens一家"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
             
 
                 
@@ -385,6 +461,28 @@
                   
 
                     
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
 
                           
       </main>

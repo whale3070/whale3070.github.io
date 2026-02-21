@@ -40,10 +40,10 @@
   <meta name="keywords" content="">
   <title>图片隐写（一） - whale3070&#39;s blog</title>
 
-  <link  rel="stylesheet" href="/js/css/bootstrap.min.css" />
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
 
 
-  <link  rel="stylesheet" href="/js/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
   <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
 
   
@@ -84,7 +84,7 @@
 
 
 <script  src="/js/jquery.min.js" ></script>
-<script  src="/js/js/bootstrap.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
 <script  src="/js/debouncer.js" ></script>
 <script  src="/js/events.js" ></script>
 <script  src="/js/plugins.js" ></script>
@@ -116,6 +116,18 @@
 
 
 
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
 
 
 
@@ -220,6 +232,17 @@
             </li>
           
         
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
         
         
           
@@ -259,7 +282,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      272 字
+      255 字
     </span>
   
 
@@ -299,12 +322,10 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div class="py-5" id="board">
           <article class="post-content mx-auto" data-pagefind-body>
-            <!-- SEO header -->
             <h1 style="display: none">图片隐写（一）</h1>
             
             <div class="markdown-body">
-              <h1 id="图片隐写"><a href="#图片隐写" class="headerlink" title="图片隐写"></a>图片隐写</h1><hr>
-<h1 id="图片隐写-1"><a href="#图片隐写-1" class="headerlink" title="图片隐写"></a>图片隐写</h1><h2 id="lsb"><a href="#lsb" class="headerlink" title="lsb"></a>lsb</h2><h2 id="题目地址categories-ctf"><a href="#题目地址categories-ctf" class="headerlink" title="题目地址categories:  - ctf"></a><a target="_blank" rel="noopener" href="http://www.wechall.net/challenge/training/stegano/LSB/index.php">题目地址</a><br>categories:<br>  - ctf</h2><h1 id="图片隐写-2"><a href="#图片隐写-2" class="headerlink" title="图片隐写"></a>图片隐写</h1><h2 id="lsb-1"><a href="#lsb-1" class="headerlink" title="lsb"></a>lsb</h2><p><a target="_blank" rel="noopener" href="http://www.wechall.net/challenge/training/stegano/LSB/index.php">题目地址</a></p>
+              <h2 id="lsb"><a href="#lsb" class="headerlink" title="lsb"></a>lsb</h2><p><a target="_blank" rel="noopener" href="http://www.wechall.net/challenge/training/stegano/LSB/index.php">题目地址</a></p>
 <p><img src="/1.PNG"></p>
 <p>SSAINISHPBOB</p>
 <h2 id="复杂的QR-code"><a href="#复杂的QR-code" class="headerlink" title="复杂的QR_code"></a>复杂的QR_code</h2><p><a target="_blank" rel="noopener" href="http://www.shiyanbar.com/ctf/1856">题目地址</a></p>
@@ -344,7 +365,6 @@
               
                 
               
-              
                 <div class="post-prevnext">
                   <article class="post-prev col-6">
                     
@@ -371,6 +391,20 @@
             </div>
 
             
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
           </article>
         </div>
       </div>
@@ -387,9 +421,42 @@
   </div>
 </div>
 
-<!-- Custom -->
 
 
+<script>
+  (function() {
+    const currentTitle = "图片隐写（一）"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
             
 
                 
@@ -399,6 +466,28 @@
                   
 
                     
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
 
                           
       </main>

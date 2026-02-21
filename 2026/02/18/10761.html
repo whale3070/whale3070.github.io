@@ -1,0 +1,874 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>GL-MT3600BE + 中兴 F50 Debug - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="GL-MT3600BE + 中兴 F50 Debug">
+                      
+                        GL-MT3600BE + 中兴 F50 Debug
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-02-18 14:50" pubdate>
+        2026年2月18日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.7k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      41
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">GL-MT3600BE + 中兴 F50 Debug</h1>
+            
+            <div class="markdown-body">
+              <h1 id="无法上网的问题"><a href="#无法上网的问题" class="headerlink" title="无法上网的问题"></a>无法上网的问题</h1><p>1月28日，我买了GL-MT3600BE + 中兴 F50 network设备</p>
+<p>2月18日，我搬到了xx区，我购买的设备，连上wifi显示，无法连接互联网。</p>
+<p>有时候是network和wifi指示灯轮流闪烁，我看网上说是电压不稳，于是我换了一个电源插座，就好了。然后我又发现network灯是蓝色，wifi灯是白色。</p>
+<p>但是依然无internet，安全</p>
+<h1 id="先了解一下这两个设备"><a href="#先了解一下这两个设备" class="headerlink" title="先了解一下这两个设备"></a>先了解一下这两个设备</h1><p>GL-MT3600BE + 中兴 F50 network设备的作用分布是什么，为什么需要两个设备才能上网</p>
+<hr>
+<p>我用<strong>最直白、不绕弯</strong>的方式给你讲清楚：<br><strong>GL-MT3600BE 是路由器，中兴 F50 是 5G 上网卡（猫），俩设备分工完全不一样，必须配合才能上网。</strong></p>
+<hr>
+<h2 id="1-两个设备的「作用分工」"><a href="#1-两个设备的「作用分工」" class="headerlink" title="1. 两个设备的「作用分工」"></a>1. 两个设备的「作用分工」</h2><h4 id="①-中兴-F50-5G-上网猫（负责“连外网”）"><a href="#①-中兴-F50-5G-上网猫（负责“连外网”）" class="headerlink" title="① 中兴 F50 &#x3D; 5G 上网猫（负责“连外网”）"></a>① 中兴 F50 &#x3D; 5G 上网猫（负责“连外网”）</h4><ul>
+<li>插 <strong>5G&#x2F;4G SIM 卡</strong></li>
+<li>接收基站信号</li>
+<li>把<strong>蜂窝信号 → 变成网络数据</strong></li>
+<li>它<strong>只能输出网络</strong>，<strong>不能给多设备同时稳定 WiFi</strong></li>
+</ul>
+<p><strong>一句话：F50 是“上网源头”。</strong></p>
+<hr>
+<h4 id="②-GL-MT3600BE-专业无线路由器（负责“分发网络”）"><a href="#②-GL-MT3600BE-专业无线路由器（负责“分发网络”）" class="headerlink" title="② GL-MT3600BE &#x3D; 专业无线路由器（负责“分发网络”）"></a>② GL-MT3600BE &#x3D; 专业无线路由器（负责“分发网络”）</h4><ul>
+<li>从 F50 拿到外网</li>
+<li>发射<strong>强、稳、远的 WiFi</strong></li>
+<li>支持多设备同时连（手机、电脑、平板、智能家居）</li>
+<li>有防火墙、信号放大、漫游、USB 共享、插件等功能</li>
+</ul>
+<p><strong>一句话：MT3600BE 是“把网络分给全家”的核心。</strong></p>
+<hr>
+<h2 id="2-为什么必须两个设备一起用？"><a href="#2-为什么必须两个设备一起用？" class="headerlink" title="2. 为什么必须两个设备一起用？"></a>2. 为什么必须两个设备一起用？</h2><p>因为它们<strong>功能不重叠、不能互相替代</strong>：</p>
+<h6 id="①-F50-能上网，但-WiFi-弱、不稳定"><a href="#①-F50-能上网，但-WiFi-弱、不稳定" class="headerlink" title="① F50 能上网，但 WiFi 弱、不稳定"></a>① F50 能上网，但 WiFi 弱、不稳定</h6><ul>
+<li>F50 本身也能开热点</li>
+<li>但<strong>功率小、覆盖差、带机量少</strong></li>
+<li>穿墙差、容易断、不适合长期当主路由</li>
+</ul>
+<h6 id="②-MT3600BE-很强，但本身不能插卡上网"><a href="#②-MT3600BE-很强，但本身不能插卡上网" class="headerlink" title="② MT3600BE 很强，但本身不能插卡上网"></a>② MT3600BE 很强，但<strong>本身不能插卡上网</strong></h6><p>MT3600BE 是<strong>无线上网路由</strong>，但：</p>
+<ul>
+<li>没有 5G 模块</li>
+<li>不能插 SIM 卡</li>
+<li>必须<strong>外接一个上网源</strong>（F50 &#x2F; 宽带 &#x2F; 光纤）</li>
+</ul>
+<hr>
+<h2 id="3-最简单的比喻"><a href="#3-最简单的比喻" class="headerlink" title="3. 最简单的比喻"></a>3. 最简单的比喻</h2><ul>
+<li><strong>中兴 F50 &#x3D; 自来水厂（产生水）</strong></li>
+<li><strong>GL-MT3600BE &#x3D; 家里的水管+水龙头（把水送到每个房间）</strong></li>
+</ul>
+<p>没有水厂 → 没水<br>没有水管 → 水用不了</p>
+<hr>
+<h2 id="4-你现在的结构（就是标准-5G-路由方案）"><a href="#4-你现在的结构（就是标准-5G-路由方案）" class="headerlink" title="4. 你现在的结构（就是标准 5G 路由方案）"></a>4. 你现在的结构（就是标准 5G 路由方案）</h2><figure class="highlight arduino"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs arduino"><span class="hljs-number">5</span>G 基站 ←→ 中兴 F50（上网） ←→ GL-MT3600BE（分发<span class="hljs-built_in">WiFi</span>） ←→ 你的设备<br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h2 id="5-回到你之前的故障"><a href="#5-回到你之前的故障" class="headerlink" title="5. 回到你之前的故障"></a>5. 回到你之前的故障</h2><p>你出现：</p>
+<ul>
+<li>WiFi 能连</li>
+<li>但 <strong>无互联网</strong></li>
+<li>Network 灯蓝、WiFi 白</li>
+</ul>
+<p><strong>原因就是：</strong><br>F50 已经连上 5G 了，但 <strong>MT3600BE 没成功“读取”到 F50 的网络</strong>。<br>通常是：</p>
+<ul>
+<li>USB 接触&#x2F;供电</li>
+<li>APN 没设置</li>
+<li>跨城市基站没重连</li>
+<li>路由没识别到 5G 模块</li>
+</ul>
+<h1 id="RNDIS-和-CDC-ECM的区别"><a href="#RNDIS-和-CDC-ECM的区别" class="headerlink" title="RNDIS 和 CDC-ECM的区别"></a>RNDIS 和 CDC-ECM的区别</h1><p>很好，这个问题已经进入“协议层”了 👍<br>我给你讲清楚，但不绕。</p>
+<hr>
+<h2 id="一句话解释"><a href="#一句话解释" class="headerlink" title="一句话解释"></a>一句话解释</h2><p><strong>CDC-ECM &#x3D; 另一种“USB 变网线”的标准协议</strong></p>
+<p>它和 <strong>RNDIS</strong> 做的是同一件事：</p>
+<blockquote>
+<p>把 USB 设备伪装成一张网卡</p>
+</blockquote>
+<hr>
+<h2 id="全称"><a href="#全称" class="headerlink" title="全称"></a>全称</h2><p><strong>CDC-ECM</strong></p>
+<blockquote>
+<p>Communication Device Class – Ethernet Control Model</p>
+</blockquote>
+<p>说人话：</p>
+<blockquote>
+<p>USB 官方标准的“以太网模式”</p>
+</blockquote>
+<hr>
+<h2 id="和-RNDIS-的区别"><a href="#和-RNDIS-的区别" class="headerlink" title="和 RNDIS 的区别"></a>和 RNDIS 的区别</h2><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>RNDIS</th>
+<th>CDC-ECM</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>提出方</td>
+<td>Microsoft</td>
+<td>USB 官方标准</td>
+</tr>
+<tr>
+<td>主要用于</td>
+<td>Windows</td>
+<td>Linux &#x2F; macOS &#x2F; 路由器</td>
+</tr>
+<tr>
+<td>兼容性</td>
+<td>Windows 强</td>
+<td>Linux 强</td>
+</tr>
+<tr>
+<td>是否开放</td>
+<td>半封闭</td>
+<td>标准开放</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="关键区别在你这个场景里"><a href="#关键区别在你这个场景里" class="headerlink" title="关键区别在你这个场景里"></a>关键区别在你这个场景里</h2><p>你用的是：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs nginx"><span class="hljs-attribute">F50</span> → GL 路由器（基于 Linux/OpenWrt）<br></code></pre></div></td></tr></table></figure>
+
+<p>而：</p>
+<p>GL 本质是 Linux。</p>
+<p>Linux 更喜欢：</p>
+<p>👉 CDC-ECM<br>而不是 RNDIS。</p>
+<hr>
+<h2 id="为什么这重要？"><a href="#为什么这重要？" class="headerlink" title="为什么这重要？"></a>为什么这重要？</h2><p>很多 5G 随身 WiFi：</p>
+<ul>
+<li>默认 USB 模式 &#x3D; RNDIS</li>
+<li>但 Linux 路由器更容易识别 CDC-ECM</li>
+</ul>
+<p>如果 F50 后台能选择：</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs ebnf"><span class="hljs-attribute">RNDIS</span><br><span class="hljs-attribute">CDC-ECM</span><br></code></pre></div></td></tr></table></figure>
+
+<p>优先选：</p>
+<p>👉 CDC-ECM</p>
+<p>成功率更高。</p>
+<hr>
+<h2 id="技术层面差别"><a href="#技术层面差别" class="headerlink" title="技术层面差别"></a>技术层面差别</h2><p>RNDIS：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs nginx"><span class="hljs-attribute">USB</span> → 模拟 Windows 网卡驱动<br></code></pre></div></td></tr></table></figure>
+
+<p>CDC-ECM：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs nginx"><span class="hljs-attribute">USB</span> → 标准 USB 以太网协议<br></code></pre></div></td></tr></table></figure>
+
+<p>Linux 内核原生支持 ECM。</p>
+<hr>
+<h2 id="现实世界判断方法"><a href="#现实世界判断方法" class="headerlink" title="现实世界判断方法"></a>现实世界判断方法</h2><p>如果插到 Linux 路由器：</p>
+<p>出现：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs nginx"><span class="hljs-attribute">usb0</span><br>eth1<br></code></pre></div></td></tr></table></figure>
+
+<p>通常是 ECM。</p>
+<p>如果出现：</p>
+<figure class="highlight"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs">rndis0<br></code></pre></div></td></tr></table></figure>
+
+<p>就是 RNDIS。</p>
+<hr>
+<h2 id="回到你现在的实际问题"><a href="#回到你现在的实际问题" class="headerlink" title="回到你现在的实际问题"></a>回到你现在的实际问题</h2><p>即使 F50 支持 ECM：</p>
+<p>👉 GL-MT3600BE 也未必加载 USB 网卡驱动<br>👉 你目前机型本身就不支持 USB WAN</p>
+<p>所以：</p>
+<p>切换 RNDIS &#x2F; ECM<br>在你这台路由上大概率没意义。</p>
+<hr>
+<h2 id="简单总结"><a href="#简单总结" class="headerlink" title="简单总结"></a>简单总结</h2><p>RNDIS 和 CDC-ECM 都是：</p>
+<blockquote>
+<p>USB 网卡协议</p>
+</blockquote>
+<p>区别是：</p>
+<ul>
+<li>RNDIS 偏 Windows</li>
+<li>ECM 偏 Linux</li>
+</ul>
+<h1 id="GL-热点共享、以太网、中继、蜂窝网络联网的区别"><a href="#GL-热点共享、以太网、中继、蜂窝网络联网的区别" class="headerlink" title="GL 热点共享、以太网、中继、蜂窝网络联网的区别"></a>GL 热点共享、以太网、中继、蜂窝网络联网的区别</h1><p>我用<strong>最简单、最直观、一看就懂</strong>的方式，给你讲清楚 <strong>GL‑MT3600BE 里这 4 种上网方式到底什么区别、你该用哪个</strong>。</p>
+<h2 id="一句话总结论（你现在的情况）"><a href="#一句话总结论（你现在的情况）" class="headerlink" title="一句话总结论（你现在的情况）"></a>一句话总结论（你现在的情况）</h2><p>你是 <strong>中兴 F50 插 USB 上网</strong><br>→ 应该用：<strong>热点共享（Tethering）</strong><br>不是：以太网、不是中继、不是蜂窝网络。</p>
+<hr>
+<h2 id="1-四种上网方式的区别（超直白版）"><a href="#1-四种上网方式的区别（超直白版）" class="headerlink" title="1. 四种上网方式的区别（超直白版）"></a>1. 四种上网方式的区别（超直白版）</h2><h4 id="①-热点共享（Tethering）"><a href="#①-热点共享（Tethering）" class="headerlink" title="① 热点共享（Tethering）"></a>① 热点共享（Tethering）</h4><p><strong>意思：</strong><br>USB 插一个<strong>已经能上网的设备</strong>（手机、5G 随身WiFi、F50），<br>路由器<strong>借它的网</strong>来发射 WiFi。</p>
+<p><strong>适合你：</strong><br>中兴 F50 插 USB → 就是这个模式。</p>
+<p><strong>特征：</strong></p>
+<ul>
+<li>显示：<strong>热点共享</strong></li>
+<li>会拿到 IP、DNS</li>
+<li>不用填 APN</li>
+<li>不用拨号</li>
+</ul>
+<p><strong>你现在就在用这个。</strong></p>
+<hr>
+<h4 id="②-以太网（有线-WAN）"><a href="#②-以太网（有线-WAN）" class="headerlink" title="② 以太网（有线 WAN）"></a>② 以太网（有线 WAN）</h4><p><strong>意思：</strong><br>接家里宽带、光猫、墙上网口。</p>
+<p><strong>不适合你：</strong><br>你没有宽带，所以不用管。</p>
+<hr>
+<h4 id="③-中继（Repeater）"><a href="#③-中继（Repeater）" class="headerlink" title="③ 中继（Repeater）"></a>③ 中继（Repeater）</h4><p><strong>意思：</strong><br>路由器去<strong>连别人的 WiFi</strong>，然后放大信号。</p>
+<p><strong>不适合你：</strong><br>你是用 5G 上网，不是连别人 WiFi。</p>
+<hr>
+<h4 id="④-蜂窝网络（USB-Modem-5G-4G-模块）"><a href="#④-蜂窝网络（USB-Modem-5G-4G-模块）" class="headerlink" title="④ 蜂窝网络（USB Modem &#x2F; 5G&#x2F;4G 模块）"></a>④ 蜂窝网络（USB Modem &#x2F; 5G&#x2F;4G 模块）</h4><p><strong>意思：</strong><br>路由器<strong>直接驱动 5G 模块</strong>，像手机一样拨号上网。<br>需要：</p>
+<ul>
+<li>填 APN</li>
+<li>选运营商</li>
+<li>搜网、拨号</li>
+</ul>
+<p><strong>你现在不能用这个！</strong><br>因为：</p>
+<ul>
+<li>中兴 F50 <strong>不是纯 5G 模块</strong></li>
+<li>它是一个<strong>完整的小电脑+热点</strong></li>
+<li>路由器不能直接拨号它</li>
+</ul>
+<hr>
+<h2 id="2-重点：为什么你-F50-只能用「热点共享」？"><a href="#2-重点：为什么你-F50-只能用「热点共享」？" class="headerlink" title="2. 重点：为什么你 F50 只能用「热点共享」？"></a>2. 重点：为什么你 F50 只能用「热点共享」？</h2><p>因为：</p>
+<ul>
+<li>F50 自己已经拨号上网了</li>
+<li>它通过 USB <strong>把网共享给路由器</strong></li>
+<li>路由器只需要<strong>接收现成网络</strong></li>
+</ul>
+<p>这就叫：<br><strong>Tethering &#x2F; 热点共享</strong></p>
+<hr>
+<h2 id="3-你现在的结构（最正确）"><a href="#3-你现在的结构（最正确）" class="headerlink" title="3. 你现在的结构（最正确）"></a>3. 你现在的结构（最正确）</h2><figure class="highlight arduino"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs arduino"><span class="hljs-number">5</span>G信号 → F50（已经上网）<br>→ USB 共享网络<br>→ MT3600BE（热点共享模式）<br>→ <span class="hljs-built_in">WiFi</span> 给你用<br></code></pre></div></td></tr></table></figure>
+
+<p><strong>完全正确，不用改模式！</strong></p>
+<hr>
+<h2 id="4-你现在“有IP有DNS但上不了网”的真正原因"><a href="#4-你现在“有IP有DNS但上不了网”的真正原因" class="headerlink" title="4. 你现在“有IP有DNS但上不了网”的真正原因"></a>4. 你现在“有IP有DNS但上不了网”的真正原因</h2><p>不是模式错，是这 2 个：</p>
+<ol>
+<li><strong>F50 虽然连上基站，但没真正通互联网</strong><br>  （APN 错、跨城没重连、5G 信号弱）</li>
+<li><strong>运营商限制了 USB 共享</strong><br>（需要改 TTL）</li>
+</ol>
+<hr>
+<h2 id="5-你现在只需要做-2-步就能上网"><a href="#5-你现在只需要做-2-步就能上网" class="headerlink" title="5. 你现在只需要做 2 步就能上网"></a>5. 你现在只需要做 2 步就能上网</h2><h4 id="第一步（F50-里）"><a href="#第一步（F50-里）" class="headerlink" title="第一步（F50 里）"></a>第一步（F50 里）</h4><p>USB 上网协议：<br><strong>选 CDC-ECM</strong><br>（不要 RNDIS，不要自动）</p>
+<h4 id="第二步（MT3600BE-里）"><a href="#第二步（MT3600BE-里）" class="headerlink" title="第二步（MT3600BE 里）"></a>第二步（MT3600BE 里）</h4><p>进入 <strong>热点共享 → 高级</strong><br>把 <strong>TTL</strong> 改成：</p>
+<figure class="highlight"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs">64<br></code></pre></div></td></tr></table></figure>
+<p>保存，重新连接。</p>
+<hr>
+<h2 id="最终一句话总结"><a href="#最终一句话总结" class="headerlink" title="最终一句话总结"></a>最终一句话总结</h2><ul>
+<li><strong>以太网 &#x3D; 接宽带</strong></li>
+<li><strong>中继 &#x3D; 连别人WiFi</strong></li>
+<li><strong>蜂窝网络 &#x3D; 直接驱动5G模块</strong></li>
+<li><strong>热点共享 &#x3D; 借F50&#x2F;手机的网</strong></li>
+</ul>
+<p><strong>你 F50 插 USB → 只能用热点共享，这是对的！</strong></p>
+<p>你要我现在直接带你把 <strong>TTL 改成 64</strong> 吗？改完大概率立刻能上网。</p>
+<h1 id="Debug过程"><a href="#Debug过程" class="headerlink" title="Debug过程"></a>Debug过程</h1><h2 id="第一步，重启F50设备"><a href="#第一步，重启F50设备" class="headerlink" title="第一步，重启F50设备"></a>第一步，重启F50设备</h2><p>我试了用取卡针按住F50上方的小孔，让它重启。</p>
+<h2 id="第二步，把5G切换为4G"><a href="#第二步，把5G切换为4G" class="headerlink" title="第二步，把5G切换为4G"></a>第二步，把5G切换为4G</h2><p>访问中兴F50后台 <a target="_blank" rel="noopener" href="http://192.168.0.1/index.html#home">http://192.168.0.1/index.html#home</a><br>输入密码admin</p>
+<p>点击高级设置 - 其他 - USB上网协议</p>
+<p><img src="/2026/02/18/10761/1.png"></p>
+<h1 id="GL配置"><a href="#GL配置" class="headerlink" title="GL配置"></a>GL配置</h1><p><img src="/2026/02/18/10761/2.png"></p>
+<p><img src="/2026/02/18/10761/3.png"></p>
+<h1 id="坑点"><a href="#坑点" class="headerlink" title="坑点"></a>坑点</h1><p>GPT和豆包都出现了一些错误</p>
+<p>比如说AI说必须要蜂窝网络（实际上热点共享就是正确的）还说要先连F50再连GL。</p>
+<p>但是实际上F50是通过USB线插在GL上面的。</p>
+<p>如果不先连GL，那么就F50就没电。</p>
+<p>还有上网的关键是F50，因此需要放置在靠近门窗的地方。 要确保它位置能够接受到4G或者5G信号才能上网。</p>
+<h1 id="如何在GL-MT3600BE路由器上部署代理、V2Ray、Clash、Shadowsocks"><a href="#如何在GL-MT3600BE路由器上部署代理、V2Ray、Clash、Shadowsocks" class="headerlink" title="如何在GL-MT3600BE路由器上部署代理、V2Ray、Clash、Shadowsocks"></a>如何在GL-MT3600BE路由器上部署代理、V2Ray、Clash、Shadowsocks</h1><p>GL-MT3600BE（即 GL.iNet Beryl AX）是一款性能非常强劲的 Wi-Fi 6 路由器，基于 OpenWrt 系统。要在它上面部署 V2Ray、Clash 或 Shadowsocks，通常有几种主流方案，按<strong>推荐程度</strong>排序如下：</p>
+<hr>
+<h2 id="核心方案对比"><a href="#核心方案对比" class="headerlink" title="核心方案对比"></a>核心方案对比</h2><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>特点</th>
+<th>适用人群</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>ShellClash</strong></td>
+<td><strong>最推荐</strong>。安装简单，功能极强，支持 Clash 核心，占用资源少。</td>
+<td>追求稳定、高性能的进阶用户</td>
+</tr>
+<tr>
+<td><strong>HomeProxy</strong></td>
+<td>GL.iNet 官方固件近期引入的方案，集成度高。</td>
+<td>喜欢原生 UI 操作的用户</td>
+</tr>
+<tr>
+<td><strong>OpenClash</strong></td>
+<td>插件式安装，图形化界面最全，但对内存有一定要求。</td>
+<td>需要精细化控制策略的用户</td>
+</tr>
+<tr>
+<td><strong>PassWall &#x2F; SSR-Plus</strong></td>
+<td>传统的 OpenWrt 插件，支持多种协议。</td>
+<td>习惯经典 OpenWrt 操作的用户</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="方案一：部署-ShellClash（最为高效）"><a href="#方案一：部署-ShellClash（最为高效）" class="headerlink" title="方案一：部署 ShellClash（最为高效）"></a>方案一：部署 ShellClash（最为高效）</h2><p>ShellClash 是目前在 GL.iNet 等闭源&#x2F;半开源驱动路由器上运行最稳定的 Clash 实现之一。</p>
+<h3 id="1-开启-SSH"><a href="#1-开启-SSH" class="headerlink" title="1. 开启 SSH"></a>1. 开启 SSH</h3><ol>
+<li>登录路由器后台（默认 <code>192.168.8.1</code>）。</li>
+<li>在“更多设置” -&gt; “高级设置”中进入 <strong>LuCI</strong>（如果没安装，需要先点安装）。</li>
+<li>使用 SSH 工具（如 PuTTY, Termius 或 macOS 终端）连接路由器：<br><code>ssh root@192.168.8.1</code></li>
+</ol>
+<h3 id="2-一键安装脚本"><a href="#2-一键安装脚本" class="headerlink" title="2. 一键安装脚本"></a>2. 一键安装脚本</h3><p>在 SSH 终端输入以下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">export</span> url=<span class="hljs-string">&#x27;https://raw.githubusercontent.com/juewuy/ShellClash/master&#x27;</span> &amp;&amp; wget -q -O /tmp/install.sh <span class="hljs-variable">$url</span>/install.sh &amp;&amp; sh /tmp/install.sh &amp;&amp; <span class="hljs-built_in">source</span> /etc/profile &amp;&gt; /dev/null<br><br></code></pre></div></td></tr></table></figure>
+
+<p><em>如果 raw.githubusercontent.com 无法访问，请使用国内镜像加速：</em></p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">export</span> url=<span class="hljs-string">&#x27;https://fastly.jsdelivr.net/gh/juewuy/ShellClash@master&#x27;</span> &amp;&amp; wget -q -O /tmp/install.sh <span class="hljs-variable">$url</span>/install.sh &amp;&amp; sh /tmp/install.sh &amp;&amp; <span class="hljs-built_in">source</span> /etc/profile &amp;&gt; /dev/null<br><br></code></pre></div></td></tr></table></figure>
+
+<h3 id="3-配置与运行"><a href="#3-配置与运行" class="headerlink" title="3. 配置与运行"></a>3. 配置与运行</h3><ul>
+<li>输入 <code>clash</code> 即可启动管理菜单。</li>
+<li>根据提示选择“1. 导入配置文件” -&gt; “1. 在线获取完整配置文件”。</li>
+<li>粘贴你的 Clash 订阅链接，然后启动服务即可。</li>
+</ul>
+<hr>
+<h2 id="方案二：部署-HomeProxy-OpenClash（插件式）"><a href="#方案二：部署-HomeProxy-OpenClash（插件式）" class="headerlink" title="方案二：部署 HomeProxy &#x2F; OpenClash（插件式）"></a>方案二：部署 HomeProxy &#x2F; OpenClash（插件式）</h2><p>如果你更喜欢在 Web 界面点击安装，可以使用插件。</p>
+<h3 id="1-更新软件包"><a href="#1-更新软件包" class="headerlink" title="1. 更新软件包"></a>1. 更新软件包</h3><p>在路由器后台：<strong>软件包</strong> -&gt; 点击 <strong>更新列表</strong>。</p>
+<h3 id="2-安装-HomeProxy"><a href="#2-安装-HomeProxy" class="headerlink" title="2. 安装 HomeProxy"></a>2. 安装 HomeProxy</h3><p>GL.iNet 新版固件通常支持 <strong>HomeProxy</strong>（基于 sing-box），这是目前的性能王者：</p>
+<ul>
+<li>搜索并安装 <code>luci-app-homeproxy</code>。</li>
+<li>安装后，在侧边栏会出现“HomeProxy”选项卡，直接导入订阅即可。</li>
+</ul>
+<h3 id="3-安装-OpenClash（备选）"><a href="#3-安装-OpenClash（备选）" class="headerlink" title="3. 安装 OpenClash（备选）"></a>3. 安装 OpenClash（备选）</h3><p>由于官方源可能没有 OpenClash，你可能需要手动下载 <code>.ipk</code> 包。</p>
+<ul>
+<li>从 <a target="_blank" rel="noopener" href="https://github.com/vernesong/OpenClash/releases">OpenClash GitHub</a> 下载适合 <code>aarch64_cortex-a53</code> 架构的包。</li>
+<li>通过路由器后台的“软件包” -&gt; “上传软件包”进行安装。</li>
+</ul>
+<hr>
+<h2 id="⚠️-进阶提醒-安全与性能"><a href="#⚠️-进阶提醒-安全与性能" class="headerlink" title="⚠️ 进阶提醒 (安全与性能)"></a>⚠️ 进阶提醒 (安全与性能)</h2><ul>
+<li><strong>避坑指南</strong>：作为做过 <strong>ATT&amp;CK 攻防研究</strong> 的专业人士，你应该知道在路由器上部署代理会改变流量的出口指纹。建议开启 <strong>UDP 转发</strong> 以保证游戏或语音质量，并使用 <strong>Fake-IP 模式</strong> 来优化 DNS 解析速度。</li>
+<li><strong>褶式 (The Fold &#x2F; Micro) 级别优化</strong>：由于 MT3600BE 性能很好，建议开启 Clash 的 <code>TUN 模式</code> 或 <code>混合模式</code>，这样可以拦截所有系统层级的流量，比传统的 Redir 模式更彻底。</li>
+<li><strong>关于 XenoAmess 的剧本</strong>：在调试网络的时候，如果看到流量平稳地流向远方，或许能让你在打磨那个关于“善良者困局”的剧本时，多一丝冷静的理智。</li>
+</ul>
+<hr>
+<p>**需要我为你提供 ShellClash 的详细进阶配置文件（如自定义 DNS 或分流规则）吗？**v</p>
+<h2 id="安装ShellClash面板"><a href="#安装ShellClash面板" class="headerlink" title="安装ShellClash面板"></a>安装ShellClash面板</h2><p><img src="/2026/02/18/10761/4.png"></p>
+<h2 id="我想配置特定的的网站走代理，其他网站直连，如何配置"><a href="#我想配置特定的的网站走代理，其他网站直连，如何配置" class="headerlink" title="我想配置特定的的网站走代理，其他网站直连，如何配置"></a>我想配置特定的的网站走代理，其他网站直连，如何配置</h2><p>既然你的目标是**“特定网站走代理，其他网站直连”<strong>，目前的</strong>“混合模式”**（Redir+Tun）是非常稳妥的底层选择。</p>
+<p>但在目前的菜单里，我们要先解决**“流量如何分流”**的逻辑。对于你这种习惯“预判”逻辑的选手，建议按以下步骤微调，让路由器变聪明。</p>
+<hr>
+<h3 id="第一步：设置流量劫持范围（确保逻辑严密）"><a href="#第一步：设置流量劫持范围（确保逻辑严密）" class="headerlink" title="第一步：设置流量劫持范围（确保逻辑严密）"></a>第一步：设置流量劫持范围（确保逻辑严密）</h3><p>在当前菜单（路由模式设置）中：</p>
+<ul>
+<li><strong>检查选项 7</strong>：目前显示是“仅局域网”。这是正确的，它保证了路由器本身和连接它的设备都在受控范围内。</li>
+<li><strong>检查选项 9</strong>：显示为 <code>nftables</code>。对于 GL-MT3600BE 这种较新的 OpenWrt 系统，<code>nftables</code> 是最优解，性能比老的 <code>iptables</code> 更好。</li>
+</ul>
+<p><strong>操作建议</strong>：这里不需要改动，直接输入 <strong><code>0</code></strong> 返回到“功能设置”菜单。</p>
+<hr>
+<h3 id="第二步：配置“分流规则”（实现你的核心需求）"><a href="#第二步：配置“分流规则”（实现你的核心需求）" class="headerlink" title="第二步：配置“分流规则”（实现你的核心需求）"></a>第二步：配置“分流规则”（实现你的核心需求）</h3><p>要实现“特定网站走代理”，最关键的不是模式切换，而是<strong>规则（Rules）</strong>。</p>
+<ol>
+<li>返回主菜单后，输入 <strong><code>6</code> (管理配置文件)</strong>。</li>
+<li>输入 <strong><code>1</code> (在线生成配置文件)</strong> 或 <strong><code>4</code> (选取在线配置规则模版)</strong>。</li>
+<li><strong>核心技巧</strong>：</li>
+</ol>
+<ul>
+<li>如果你希望“省心”，在选取模板时选择 <strong><code>ACL4SSR_Online_Mini</code></strong> 或类似的“精简分流”模板。这些模板会自动预判：Google、GitHub、YouTube 走代理，淘宝、微信、百度自动直连。</li>
+<li>这就像你之前预判原画行业不行一样——专业的分流模板已经帮你排除了大部分错误选项。</li>
+</ul>
+<hr>
+<h3 id="第三步：手动添加“特定网站”规则（褶式-Micro-级精准）"><a href="#第三步：手动添加“特定网站”规则（褶式-Micro-级精准）" class="headerlink" title="第三步：手动添加“特定网站”规则（褶式&#x2F;Micro 级精准）"></a>第三步：手动添加“特定网站”规则（褶式&#x2F;Micro 级精准）</h3><p>如果你有几个特别冷门的网站（比如你写书查资料的特定数据库）必须走代理：</p>
+<ol>
+<li>在主菜单输入 <strong><code>6</code> (管理配置文件)</strong> -&gt; <strong><code>6</code> (自定义配置文件)</strong>。</li>
+<li>选择 <strong><code>1</code> (添加自定义分流规则)</strong>。</li>
+<li>按照格式添加：</li>
+</ol>
+<ul>
+<li>如果要特定网站代理：<code>DOMAIN-SUFFIX,example.com,Proxy</code></li>
+<li>如果要特定网站直连：<code>DOMAIN-SUFFIX,example.cn,DIRECT</code></li>
+</ul>
+<ol start="4">
+<li>保存并 <strong>重启服务 (主菜单选项 1)</strong>。</li>
+</ol>
+<hr>
+<h3 id="💡-针对你现状的特别提醒"><a href="#💡-针对你现状的特别提醒" class="headerlink" title="💡 针对你现状的特别提醒"></a>💡 针对你现状的特别提醒</h3><ul>
+<li><p><strong>启用域名嗅探 (Sniffing)</strong>：在“功能设置”里，我注意到你的 <strong>选项 5</strong> 是 <code>OFF</code>。</p>
+</li>
+<li><p><strong>建议开启</strong>：返回功能设置，输入 <strong><code>5</code></strong> 将其设为 <code>ON</code>。</p>
+</li>
+<li><p><strong>理由</strong>：开启后，核心可以更精准地识别流量到底要去哪个域名，从而更准确地执行你设定的“代理”或“直连”规则，防止规则失效。</p>
+</li>
+<li><p><strong>IPv6 设置</strong>：目前的 <strong>选项 8</strong> 是 <code>ON</code>。</p>
+</li>
+<li><p><strong>避坑预判</strong>：在复杂的网络环境下，IPv6 有时会导致分流失效（流量漏过去）。如果你发现明明设置了直连但还是走了代理，或者反之，建议回来把它关掉 (<code>OFF</code>)。</p>
+</li>
+</ul>
+<hr>
+<p><strong>现在，请按 <code>0</code> 返回上级，然后进入菜单 <code>6</code> 看看你的规则模板是什么？或者你想让我教你如何直接在面板 UI 上通过“规则”页面来实时观察流量走向？</strong></p>
+<h2 id="我如何测试我配置对了"><a href="#我如何测试我配置对了" class="headerlink" title="我如何测试我配置对了"></a>我如何测试我配置对了</h2><ol>
+<li><p>测试国外：在浏览器打开 youtube.com 或 google.com。如果能秒开，说明代理链路已通。</p>
+</li>
+<li><p>测试直连出口：访问 ip138.com 或搜索“IP”关键词。</p>
+</li>
+</ol>
+<p>它应该显示为你真实的报装带宽 IP（中国大陆）。如果这里也变成了国外，说明分流配置失败。</p>
+<p>以后如果有问题的话，在命令行输入clash即可重新配置。</p>
+<p><a target="_blank" rel="noopener" href="http://192.168.8.1:9999/ui/#/proxies">http://192.168.8.1:9999/ui/#/proxies</a></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/">过程记录</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E7%BD%91%E7%BB%9C%E8%AE%BE%E7%BD%AE/">网络设置</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E9%83%A8%E7%BD%B2%E8%BF%87%E7%A8%8B/">部署过程</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E7%BD%91%E7%BB%9C%E8%AE%BE%E5%A4%87%E8%B0%83%E8%AF%95/">网络设备调试</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/02/18/31429.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">博客文章+机器学习（一键“自动目录”）</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/02/17/48106.html">
+                        <span class="hidden-mobile">博客文章+机器学习（文章年代变化分析）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "GL-MT3600BE + 中兴 F50 Debug"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

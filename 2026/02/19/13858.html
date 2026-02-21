@@ -1,0 +1,1074 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>Avalanche4 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="Avalanche4">
+                      
+                        Avalanche4
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-02-19 16:44" pubdate>
+        2026年2月19日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      12.4k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      133
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">Avalanche4</h1>
+            
+            <div class="markdown-body">
+              <h1 id="雪崩L1区块链"><a href="#雪崩L1区块链" class="headerlink" title="雪崩L1区块链"></a>雪崩L1区块链</h1><p>了解多链架构。</p>
+<p>雪崩L1是一条独立的区块链，在验证节点成员、代币经济模型以及执行层方面拥有<strong>自主规则体系</strong>。它拥有专属的验证节点集合，负责达成共识并对区块链进行验证。这类专业化的L1区块链可进行定制化设计，以满足各类应用的特定需求，包括去中心化金融（DeFi）、非同质化代币（NFT）、游戏以及企业级解决方案。</p>
+<ul>
+<li>可自主定义执行逻辑</li>
+<li>可自主设定费用结构</li>
+<li>可自主维护账本状态</li>
+<li>可自主搭建网络通信</li>
+<li>可自主提供安全保障</li>
+</ul>
+<p>这种独立性确保了各L1区块链无需与其他L1网络或主网共享执行线程、存储资源或网络带宽。</p>
+<h1 id="雪崩网络"><a href="#雪崩网络" class="headerlink" title="雪崩网络"></a>雪崩网络</h1><p>雪崩网络是由多条<strong>独立且可互操作</strong>的L1区块链组成的网络。这些区块链可相互通信，资产也能在链间流转，同时保持互操作性。</p>
+<p>因此，雪崩网络能够：</p>
+<ul>
+<li>轻松实现扩容</li>
+<li>提升整体每秒交易处理量（TPS）</li>
+<li>降低交易成本</li>
+</ul>
+<p>通过依托L1架构，雪崩打造出一个灵活、可扩展的生态系统，能够适配广泛的应用场景与业务需求。</p>
+<h3 id="Avalanche-网络中-L1-的主要目的是什么？"><a href="#Avalanche-网络中-L1-的主要目的是什么？" class="headerlink" title="Avalanche 网络中 L1 的主要目的是什么？"></a><strong>Avalanche 网络中 L1 的主要目的是什么？</strong></h3><p>A 提升代币价值<br>B 加密货币挖矿<br>C 支持专用的区块链应用场景</p>
+<h1 id="雪崩L1的特性与优势"><a href="#雪崩L1的特性与优势" class="headerlink" title="雪崩L1的特性与优势"></a>雪崩L1的特性与优势</h1><p>了解使用雪崩L1的各类优势，包括<strong>可扩展性、独立性、可定制性、隐私性与互操作性</strong>。</p>
+<h2 id="雪崩网络的可扩展性"><a href="#雪崩网络的可扩展性" class="headerlink" title="雪崩网络的可扩展性"></a>雪崩网络的可扩展性</h2><p>每条区块链的计算与数据存储容量均存在上限。因此，其在特定时间内可处理的交易数量以及可存储的账本状态都受到限制。<br>为实现<strong>水平扩展</strong>并提供更多区块空间，我们只需在雪崩网络中<strong>增加更多区块链</strong>即可。</p>
+<p>我们可以用<strong>高速公路</strong>的类比来理解这个概念。<br>一条高速公路同一时间只能承载一定数量的车辆。如果太多车辆同时涌入，就会出现交通拥堵，车辆必须排队等待进入。<br>这个思路与<strong>并行修建多条高速公路、为车辆增加更多行驶空间</strong>是相似的。它能让更多交易<strong>并行处理</strong>，从而提高网络的整体吞吐量。</p>
+<p>这种方案的妙处在于<strong>简洁</strong>，不需要任何未经检验的全新创新。<br>真正的挑战，反而在于优化雪崩L1之间的<strong>互操作性</strong>，以及让用户能轻松地在不同雪崩L1之间切换。</p>
+<hr>
+<h2 id="与其他雪崩L1的独立性"><a href="#与其他雪崩L1的独立性" class="headerlink" title="与其他雪崩L1的独立性"></a>与其他雪崩L1的独立性</h2><p>将生态系统拆分为多条链，可以实现彼此<strong>相互独立</strong>。<br>如果某条链因为网络活动繁忙（例如NFT发售、代币价格剧烈波动、新游戏上线）而出现拥堵，<strong>其他链不会受到任何影响</strong>。<br>一条链的拥堵或手续费上涨，不会波及其他链。<br>回到高速公路的类比：通过多链实现扩容，就相当于<strong>并行修建多条独立的短途高速公路</strong>。</p>
+<p>回到我们的高速公路类比，我们可以设想这样一个场景：某一条高速公路出现拥堵，而其他高速公路并不会直接受到影响。部分车辆可以选择改走其他高速公路，交通瓶颈也会随之缓解。</p>
+<p>在以太坊这类<strong>单链系统</strong>中，网络拥堵和手续费上涨会影响所有用户，即便是与造成交易量激增无关的参与者也无法幸免。尽管这种统一的<strong>单体区块链</strong>设计确实具备一定优势（例如流动性统一、跨链桥更少、dApp 集中部署带来更好的用户体验），但同时也存在明显缺陷。</p>
+<p>验证节点需要配备性能强劲、成本高昂的设备才能支撑各类应用运行，而节点运行成本过高会进一步加剧网络中心化程度。<strong>缺乏模块化设计</strong>会导致网络中断时所有链上活动被迫停止，可能造成重大经济损失。此外，每一个新的去中心化应用都会与其他应用争夺相同的区块空间，最终导致网络过度拥挤。</p>
+<h3 id="在单链系统中新增一个去中心化应用（dApp），会加剧该链区块空间的竞争。"><a href="#在单链系统中新增一个去中心化应用（dApp），会加剧该链区块空间的竞争。" class="headerlink" title="在单链系统中新增一个去中心化应用（dApp），会加剧该链区块空间的竞争。"></a>在<strong>单链系统</strong>中新增一个去中心化应用（dApp），会加剧该链区块空间的竞争。</h3><p>A<br>正确<br>B<br>错误</p>
+<p>答案： A</p>
+<h3 id="可定制性"><a href="#可定制性" class="headerlink" title="可定制性"></a>可定制性</h3><p>Avalanche L1 的创建者可以对其进行<strong>定制</strong>以满足自身需求。定制方式多种多样，包括引入自定义的Gas代币、使用不同的虚拟机（例如 WASM 或 Move VM），或是限制对该 Avalanche L1 的访问权限。<br>而在单链系统中，这类操作<strong>很难实现</strong>，因为这需要获得绝大多数用户的同意。</p>
+<p>在我们的高速公路类比中，不妨设想部分旅行者有着非常特殊的需求：他们想乘船出行，而非驾车。<br>虽然在单一高速公路系统中<strong>理论上</strong>可以修建水道，但实际操作难度极大。然而，在 Avalanche L1 中满足这类定制化需求却十分简便。</p>
+<p><strong>选择或创建自定义虚拟机（VM）的能力，带来了前所未有的灵活性。</strong><br>Avalanche L1 让开发者能够实现：</p>
+<ul>
+<li><strong>多虚拟机支持</strong>：与比特币、以太坊等仅支持单一虚拟机的网络不同，Avalanche L1 可以搭载运行不同虚拟机的多个区块链实例。</li>
+<li><strong>易用性</strong>：既可直接使用 Subnet‑EVM 等现有虚拟机，也能通过我们的软件开发工具包（SDK）创建全新的自定义虚拟机，以满足你的特定需求。</li>
+<li><strong>网络效应</strong>：这种灵活架构既能在单条区块链内部，也能在不同 Avalanche L1 及区块链之间形成网络效应。</li>
+</ul>
+<h3 id="与C链相比，Avalanche上的自定义区块链在Gas代币方面有何优势？"><a href="#与C链相比，Avalanche上的自定义区块链在Gas代币方面有何优势？" class="headerlink" title="与C链相比，Avalanche上的自定义区块链在Gas代币方面有何优势？"></a>与C链相比，Avalanche上的自定义区块链在Gas代币方面有何优势？</h3><p>A<br>它们使用与C链上ETH类似的固定Gas代币。<br>B<br>它们完全不再需要Gas代币。<br>C<br>它们允许开发者使用任意ERC-20代币作为Gas代币。<br>D<br>它们会根据网络需求自动调整Gas费用。</p>
+<p>在Avalanche的自定义区块链（子网）中，开发者可以灵活地选择任意ERC-20代币作为Gas代币，而C链则固定使用AVAX作为Gas代币。因此，自定义区块链的优势在于Gas代币的可定制性。</p>
+<p>答案：C</p>
+<h1 id="增强隐私性、合规性与访问控制"><a href="#增强隐私性、合规性与访问控制" class="headerlink" title="增强隐私性、合规性与访问控制"></a>增强隐私性、合规性与访问控制</h1><p>公有区块链虽具备透明性，但许多商业场景需要对交易数据的可见范围进行管控。开发人员在构建 Avalanche L1 时可按需启用以下功能：</p>
+<ul>
+<li><strong>选择性透明</strong>：私有链可将交易信息仅对获得授权的参与方开放。</li>
+<li><strong>数据保护</strong>：通过交易加密技术保护敏感信息。</li>
+<li><strong>精细化权限</strong>：控制不同参与方可查看的数据范围，支持“最小必要知情”的访问模型。</li>
+</ul>
+<h1 id="互操作性"><a href="#互操作性" class="headerlink" title="互操作性"></a>互操作性</h1><p>Avalanche L1 原生支持互操作性，可借助以下能力：</p>
+<ul>
+<li><strong>跨链通信</strong>：通过 Avalanche 跨链消息服务，实现网络内不同自定义区块链之间的无缝交互。</li>
+<li><strong>资产桥接</strong>：搭建高效桥梁，用于自定义链与其他网络之间的资产转移，例如 Avalanche 跨链代币传输方案。</li>
+</ul>
+<h1 id="Avalanche-L1-与-Layer-2-对比"><a href="#Avalanche-L1-与-Layer-2-对比" class="headerlink" title="Avalanche L1 与 Layer 2 对比"></a>Avalanche L1 与 Layer 2 对比</h1><p>对比不同的区块链扩容方案。</p>
+<p>Layer 2 区块链解决方案（例如 rollup 汇总方案）是区块链领域的另一项创新。Layer 2 旨在提升以太坊网络的可扩展性与性能。Rollup 本质上是将计算放到链下进行，再将最终状态变更提交到基础层，从而减轻以太坊主链的计算负担。</p>
+<p>尽管 Avalanche 自定义区块链与 Layer 2 rollup 都致力于提升区块链的可扩展性和性能，但二者采用的实现方式不同，各自拥有独特的优势与取舍。</p>
+<h2 id="去中心化与安全性"><a href="#去中心化与安全性" class="headerlink" title="去中心化与安全性"></a>去中心化与安全性</h2><p>Avalanche 自定义区块链本身属于基础层的一部分。Avalanche 上的每条区块链都独立维护自身安全，因此某一条链出现安全问题，不一定会影响其他链。<br>而 rollup 方案则将安全性委托给以太坊主网。只要主网安全，且 rollup 运行正常，Layer 2 方案就是安全的。但以太坊主网一旦发生安全漏洞，可能会影响所有 Layer 2 解决方案。</p>
+<h2 id="互操作性与灵活性"><a href="#互操作性与灵活性" class="headerlink" title="互操作性与灵活性"></a>互操作性与灵活性</h2><p>Avalanche 的多链结构具备出色的互操作性与灵活性，每条自定义区块链网络都可以制定自身规则，并支持搭载不同虚拟机的多条区块链验证。这意味着 Avalanche 能够适配极其广泛的应用场景。<br>相反，Layer 2 解决方案主要是为增强以太坊主网而设计，灵活性通常不及前者。</p>
+<h2 id="性能与成本"><a href="#性能与成本" class="headerlink" title="性能与成本"></a>性能与成本</h2><p>相较于传统单链系统，两种方案都旨在实现更高的交易吞吐量与更低的手续费。<br>Avalanche 通过多条 Avalanche L1 并行处理来达成这一目标，而 rollup 则是将计算迁移到链下。<br>不过，Layer 2 用户在将资产转回 Layer 1 时可能会遇到延迟。此外，由于 Layer 2 需要向 Layer 1 提交交易 checkpoint（状态校验点），这实际上设定了费用下限，并将 Layer 1 的 Gas 代币价格与 Layer 2 绑定。<br>而在 Avalanche 中，Avalanche L1 的 Gas 代币与 AVAX 完全独立。</p>
+<h3 id="在安全性与去中心化方面，Avalanche-自定义区块链与-Layer-2-汇总方案（rollups）有何区别？"><a href="#在安全性与去中心化方面，Avalanche-自定义区块链与-Layer-2-汇总方案（rollups）有何区别？" class="headerlink" title="在安全性与去中心化方面，Avalanche 自定义区块链与 Layer 2 汇总方案（rollups）有何区别？"></a>在安全性与去中心化方面，Avalanche 自定义区块链与 Layer 2 汇总方案（rollups）有何区别？</h3><p>A<br>Avalanche 自定义区块链将安全性委托给以太坊主网，而 Layer 2 汇总方案则维护独立的安全性。</p>
+<p>B<br>Avalanche 自定义区块链作为雪崩基础层的一部分，维护自身的安全性；而 Layer 2 汇总方案将安全性委托给以太坊主网。</p>
+<p>C<br>Avalanche 自定义区块链与 Layer 2 汇总方案均仅依赖各自基础层的安全性。</p>
+<p>D<br>Layer 2 汇总方案为每条区块链提供独立的安全性，而 Avalanche 自定义区块链采用统一的安全模型。</p>
+<p>在安全性与去中心化方面，Avalanche自定义区块链（子网）作为雪崩基础层的一部分，由其自身的验证者集合维护独立的安全性；而Layer 2汇总方案（rollups）则依赖以太坊主网的安全性，将交易数据发布到以太坊上进行最终结算。因此，正确答案是B。</p>
+<h3 id="如果以太坊主网发生安全漏洞，所有二层（Layer-2）解决方案都可能受到影响。"><a href="#如果以太坊主网发生安全漏洞，所有二层（Layer-2）解决方案都可能受到影响。" class="headerlink" title="如果以太坊主网发生安全漏洞，所有二层（Layer 2）解决方案都可能受到影响。"></a>如果以太坊主网发生安全漏洞，所有二层（Layer 2）解决方案都可能受到影响。</h3><p>A<br>正确<br>B<br>错误</p>
+<p>答案 A</p>
+<h1 id="配置-Core-钱包"><a href="#配置-Core-钱包" class="headerlink" title="配置 Core 钱包"></a>配置 Core 钱包</h1><p>学习如何设置你自己的 Core 钱包。</p>
+<p>为了更好地理解 Avalanche L1 的概念，我们将与一条区块链进行交互。为此，我们会使用 Core。Core 是专为多链系统打造的一站式操作中心，支持 Avalanche、比特币、以太坊以及所有兼容 EVM 的区块链。Core 提供浏览器扩展、网页钱包和移动应用，针对多链环境进行了优化，让链间切换变得简单便捷。</p>
+<h2 id="1-安装-Core-扩展"><a href="#1-安装-Core-扩展" class="headerlink" title="1. 安装 Core 扩展"></a>1. 安装 Core 扩展</h2><p>Core 扩展兼容谷歌 Chrome 浏览器。前往 Chrome 网上应用店，将其添加到你的浏览器：Core 加密货币钱包与 NFT 扩展。安装完成后，请务必固定该扩展，因为后续课程中我们会频繁使用它。</p>
+<h2 id="创建钱包"><a href="#创建钱包" class="headerlink" title="创建钱包"></a>创建钱包</h2><p>为安全起见，我们建议你单独创建一个钱包用于测试，与存放真实加密资产的钱包分开。<br>按照 Core 内的指引步骤创建钱包即可。由于我们仅使用无实际价值的测试网代币，因此无需使用冷钱包。</p>
+<h2 id="切换至测试网"><a href="#切换至测试网" class="headerlink" title="切换至测试网"></a>切换至测试网</h2><p>为避免使用真实资产，我们将切换到 <strong>Fuji 测试网</strong>。它是 Avalanche 主网架构的完整复刻，唯一区别是测试网代币无实际价值。</p>
+<p>切换到测试网模式：<br>打开 Core 浏览器扩展，点击侧边栏的工具图标，选择设置，最后开启测试网模式。</p>
+<h2 id="获取测试网代币"><a href="#获取测试网代币" class="headerlink" title="获取测试网代币"></a>获取测试网代币</h2><h3 id="免费领取测试网代币"><a href="#免费领取测试网代币" class="headerlink" title="免费领取测试网代币"></a>免费领取测试网代币</h3><p>只需注册 Builder Hub 账号并连接钱包，你将自动在 C 链、P 链、Dispatch、Echo 及其他支持的 L1 上收到测试网代币，无需优惠码！</p>
+<p>使用流程：</p>
+<ol>
+<li>注册 Builder Hub 账号（如未注册）</li>
+<li>连接你的 Core 钱包</li>
+<li>需要时代币会自动发放至你的钱包</li>
+</ol>
+<h3 id="备选水龙头"><a href="#备选水龙头" class="headerlink" title="备选水龙头"></a>备选水龙头</h3><p>如果你不想注册 Builder Hub 账号，也可以使用外部 Avalanche 测试网水龙头，优惠码：<code>avalanche-academy</code></p>
+<h2 id="钱包地址说明"><a href="#钱包地址说明" class="headerlink" title="钱包地址说明"></a>钱包地址说明</h2><p>你的 Core 钱包在不同链上会显示不同地址：</p>
+<ul>
+<li><strong>C 链地址（以 0x 开头）</strong>：用于兼容 EVM 的链以及本学院的大多数教程</li>
+<li><strong>X&#x2F;P 链地址</strong>：测试网以 <code>fuji</code> 开头，主网以 <code>avax</code> 开头，用于 X 链和 P 链交易</li>
+</ul>
+<p>从水龙头领取代币时，<strong>默认使用 C 链地址（0x…）</strong>，除非有特别说明。</p>
+<h2 id="问题排查"><a href="#问题排查" class="headerlink" title="问题排查"></a>问题排查</h2><p>如果领取测试网代币时遇到问题（例如水龙头余额不足），请前往 Avalanche 学院 Telegram 群反馈，我们的开发关系团队将为你提供协助，并在需要时补充水龙头余额。</p>
+<h2 id="MetaMask-与-Core-扩展管理"><a href="#MetaMask-与-Core-扩展管理" class="headerlink" title="MetaMask 与 Core 扩展管理"></a>MetaMask 与 Core 扩展管理</h2><p>如果你已安装 MetaMask，可能会出现冲突问题。我们建议暂时禁用 MetaMask。</p>
+<p>操作步骤：<br>打开浏览器的扩展页面，也可在地址栏输入 <code>chrome://extensions</code> 打开。在已安装的扩展列表中查找，或使用页面顶部的搜索栏找到 MetaMask 扩展。</p>
+<p>找到 MetaMask 后，点击其旁边的开关即可禁用该扩展。你可随时重新启用，开关处于关闭状态即表示已禁用，设置完成。</p>
+<h1 id="MetaMask和core钱包有什么区别"><a href="#MetaMask和core钱包有什么区别" class="headerlink" title="MetaMask和core钱包有什么区别"></a>MetaMask和core钱包有什么区别</h1><p>MetaMask（小狐狸）与 Core 钱包最核心的区别：<strong>MetaMask 是以太坊生态主导的通用 EVM 钱包</strong>，<strong>Core 是 Avalanche 官方原生的多链命令中心</strong>，在定位、链支持、多链体验、Avalanche 原生功能上差异显著。</p>
+<h3 id="一、核心定位与背景"><a href="#一、核心定位与背景" class="headerlink" title="一、核心定位与背景"></a>一、核心定位与背景</h3><table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>MetaMask</th>
+<th>Core 钱包</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>开发主体</td>
+<td>ConsenSys（以太坊生态核心公司）</td>
+<td>Ava Labs（Avalanche 官方）</td>
+</tr>
+<tr>
+<td>核心定位</td>
+<td>以太坊&#x2F;EVM 生态入口、Web3 通用钱包</td>
+<td>Avalanche 原生多链命令中心、一站式多链操作</td>
+</tr>
+<tr>
+<td>主打优势</td>
+<td>以太坊生态兼容性、DApp 连接普及度</td>
+<td>Avalanche 原生支持、多链切换&#x2F;管理、跨链桥集成</td>
+</tr>
+</tbody></table>
+<h3 id="二、链支持与多链体验"><a href="#二、链支持与多链体验" class="headerlink" title="二、链支持与多链体验"></a>二、链支持与多链体验</h3><ul>
+<li><strong>MetaMask</strong><ul>
+<li>原生支持：以太坊主网 + 所有 EVM 兼容链（Polygon、Arbitrum、Avalanche C-Chain 等）</li>
+<li>非 EVM 链：需通过 <strong>Snaps 插件</strong>扩展（如 Solana、Bitcoin），体验非原生</li>
+<li>多链操作：切换网络需手动添加 RPC&#x2F;Chainlist，流程繁琐</li>
+</ul>
+</li>
+<li><strong>Core</strong><ul>
+<li>原生支持：<strong>Avalanche 全链（X&#x2F;P&#x2F;C 链）+ Bitcoin + Ethereum + 所有 EVM 链 + Avalanche 自定义 L1&#x2F;Subnet</strong></li>
+<li>非 EVM 链：<strong>原生集成 Bitcoin</strong>，无需插件</li>
+<li>多链操作：一键切换、自动识别链、跨链桥内置，多链管理流畅</li>
+</ul>
+</li>
+</ul>
+<h3 id="三、Avalanche-原生功能（核心差异）"><a href="#三、Avalanche-原生功能（核心差异）" class="headerlink" title="三、Avalanche 原生功能（核心差异）"></a>三、Avalanche 原生功能（核心差异）</h3><ul>
+<li><strong>MetaMask</strong><ul>
+<li>仅支持 Avalanche <strong>C-Chain（EVM 部分）</strong>，无法直接操作 X&#x2F;P 链</li>
+<li>无 Avalanche 原生质押、跨链（X↔P↔C）、Subnet 管理功能</li>
+</ul>
+</li>
+<li><strong>Core</strong><ul>
+<li><strong>全链支持</strong>：X&#x2F;P&#x2F;C 三链原生操作，地址自动区分（C 链 0x、X&#x2F;P 链 avax&#x2F;fuji 开头）</li>
+<li>原生功能：<strong>AVAX 质押（最高 6.43% APY）、X↔P↔C 跨链、Subnet&#x2F;L1 部署与交互、Builder Hub 测试网代币自动领取</strong></li>
+<li>专属福利：Core 内部分交易<strong>免 Gas</strong></li>
+</ul>
+</li>
+</ul>
+<h3 id="四、功能与体验"><a href="#四、功能与体验" class="headerlink" title="四、功能与体验"></a>四、功能与体验</h3><ul>
+<li><strong>MetaMask</strong><ul>
+<li>优势：<strong>DApp 连接普及度最高</strong>，几乎所有 Web3 DApp 优先支持；Snaps 生态丰富，可扩展插件</li>
+<li>劣势：多链管理繁琐、非 EVM 链支持弱、Avalanche 原生功能缺失</li>
+</ul>
+</li>
+<li><strong>Core</strong><ul>
+<li>优势：<strong>多链一体化</strong>（含 Bitcoin）、Avalanche 全生态深度集成、跨链&#x2F;质押&#x2F;Subnet 一站式操作、界面专为多链优化</li>
+<li>劣势：以太坊生态 DApp 支持度略低于 MetaMask，用户基数更小</li>
+</ul>
+</li>
+</ul>
+<h3 id="五、安全与管理"><a href="#五、安全与管理" class="headerlink" title="五、安全与管理"></a>五、安全与管理</h3><ul>
+<li>两者均为<strong>非托管钱包</strong>，私钥&#x2F;助记词由用户完全掌控</li>
+<li>MetaMask：浏览器扩展为主，依赖浏览器安全；支持硬件钱包（Ledger&#x2F;Trezor）</li>
+<li>Core：浏览器扩展 + 网页 + 移动端；原生安全设计，支持硬件钱包；Avalanche 链上交易确认更快</li>
+</ul>
+<h3 id="六、适用人群"><a href="#六、适用人群" class="headerlink" title="六、适用人群"></a>六、适用人群</h3><ul>
+<li>选 <strong>MetaMask</strong>：以以太坊&#x2F;EVM 生态为主、高频使用 DApp、追求最大兼容性的用户</li>
+<li>选 <strong>Core</strong>：<strong>Avalanche 生态深度参与者</strong>（质押、跨链、Subnet&#x2F;L1 开发）、需要管理 Bitcoin+EVM+Avalanche 多链资产、追求一站式多链体验的用户</li>
+</ul>
+<hr>
+<p>需要我帮你整理一份 <strong>Core 钱包快速上手步骤</strong>（安装→创建→切换 Fuji 测试网→领测试币），直接照着做即可吗？</p>
+<h1 id="使用-Dexalot-L1（Avalanche-专属-L1-实战体验）"><a href="#使用-Dexalot-L1（Avalanche-专属-L1-实战体验）" class="headerlink" title="使用 Dexalot L1（Avalanche 专属 L1 实战体验）"></a>使用 Dexalot L1（Avalanche 专属 L1 实战体验）</h1><p>体验 Avalanche L1 的第一手操作。</p>
+<p>在这个练习中，我们将与第一个 <strong>Avalanche L1</strong> 进行交互。<br><strong>Dexalot Avalanche L1</strong> 的目标是：在保持更高去中心化与透明度的同时，复刻中心化交易所（CEX）的用户体验。<br>借助 Avalanche L1，Dexalot 可以提供比传统 DEX 更低的交易手续费，同时保留中心化交易所不具备的链上透明度。</p>
+<hr>
+<h2 id="在-Core-钱包中显示-Dexalot-Avalanche-L1"><a href="#在-Core-钱包中显示-Dexalot-Avalanche-L1" class="headerlink" title="在 Core 钱包中显示 Dexalot Avalanche L1"></a>在 Core 钱包中显示 Dexalot Avalanche L1</h2><ol>
+<li>确保你的 Core 钱包已切换到 <strong>Testnet 模式</strong>（不使用真实资金）。</li>
+<li>打开 Core 浏览器扩展钱包。</li>
+<li>点击 <strong>Show all Networks（显示所有网络）</strong>。</li>
+<li>找到 Dexalot，点击它名称旁边的 <strong>星星图标</strong>，将其添加到首页显示。</li>
+</ol>
+<h2 id="将代币桥接到-Dexalot"><a href="#将代币桥接到-Dexalot" class="headerlink" title="将代币桥接到 Dexalot"></a>将代币桥接到 Dexalot</h2><ol>
+<li>前往 <strong>Dexalot 测试网</strong>。</li>
+<li>连接你的钱包（页面右上角）。</li>
+<li>点击连接钱包旁粉色图标旁边的 <strong>Deposit（存入）</strong> 按钮。</li>
+<li>首次与 Dexalot 交互时，需要完成钱包授权。</li>
+</ol>
+<p>完成后，你就可以在这条 <strong>Avalanche L1</strong> 上体验链上交易了。</p>
+<hr>
+<p>以下的内容先跳过，只看目录。因为时间不够</p>
+<h1 id="创建-L1"><a href="#创建-L1" class="headerlink" title="创建 L1"></a>创建 L1</h1><p>学习如何使用<strong>Avalanche 构建工具</strong>在雪崩网络中创建一条 L1 区块链。</p>
+<p>我们已经讲解了什么是雪崩 L1 以及互操作性的工作原理，你现在可能已经迫不及待想要<strong>亲自创建一条 L1</strong>，来实际体验雪崩 L1 的功能了！<br>在本章节中，你将学习如何使用 <strong>Avalanche Builder Tooling</strong> 创建一条 L1 区块链。</p>
+<p>对于生产环境部署，你可以借助<strong>区块链即服务（BaaS）提供商</strong>，将 L1 基础设施的搭建与维护工作外包出去。</p>
+<h1 id="创建构建者账户"><a href="#创建构建者账户" class="headerlink" title="创建构建者账户"></a>创建构建者账户</h1><p>创建构建者账户，以便更便捷地使用各项功能。</p>
+<p>在开始创建你的第一条 L1 之前，我们建议你注册一个 <strong>Avalanche 构建者账户</strong>。<br>该账户能让你轻松使用 Builder Hub 的众多功能。<br>即使没有构建者账户，你也可以完成本课程，但拥有账户会<strong>便捷得多</strong>。</p>
+<h1 id="安装-Core-钱包"><a href="#安装-Core-钱包" class="headerlink" title="安装 Core 钱包"></a>安装 Core 钱包</h1><p>学习如何安装 Core 钱包浏览器扩展并创建钱包。</p>
+<p>在本章节中，你将学习如何设置 Core 钱包，并在 P 链获取一些测试网 AVAX，以便启动你的第一条 L1。</p>
+<h2 id="1-下载-Core-钱包"><a href="#1-下载-Core-钱包" class="headerlink" title="1. 下载 Core 钱包"></a>1. 下载 Core 钱包</h2><p>如果你尚未安装 Core 钱包，请下载适用于 Chrome 的 Core 扩展：<br>Core 钱包扩展</p>
+<p>Core 是<strong>唯一支持发起 P 链交易</strong>的钱包，因此无法使用 MetaMask 或 Rabby 等其他钱包。</p>
+<h2 id="2-在-Core-中创建钱包"><a href="#2-在-Core-中创建钱包" class="headerlink" title="2. 在 Core 中创建钱包"></a>2. 在 Core 中创建钱包</h2><p>通过点击「使用 Google 继续」，或手动创建新钱包，在 Core 中新建一个钱包。</p>
+<p>恭喜！你已成功完成 Core 钱包的设置。</p>
+<h1 id="领取测试网代币"><a href="#领取测试网代币" class="headerlink" title="领取测试网代币"></a>领取测试网代币</h1><p>学习如何连接 Core 钱包并领取测试网 AVAX。</p>
+<p>在下方连接你的 Core 钱包，即可在 C 链和 P 链上领取测试网 AVAX。<br>拥有 Builder Hub 账户的情况下，代币会<strong>自动发送到你的钱包</strong>——无需手动领取，也不需要优惠码！</p>
+<h1 id="网络架构"><a href="#网络架构" class="headerlink" title="网络架构"></a>网络架构</h1><p>了解 Avalanche 的网络架构以及 P‑Chain（平台链）的作用。</p>
+<p>创建一条 L1 需要遵循以下步骤：</p>
+<ol>
+<li>通过 <code>CreateSubnet</code> 交易在 P‑Chain 上创建一条子网记录</li>
+<li>通过 <code>CreateChain</code> 交易向该子网添加一条或多条链</li>
+<li>通过 <code>ConvertSubnetToL1</code> 交易将子网转换为 L1，并添加初始验证节点</li>
+</ol>
+<p>下面我们深入理解这些操作的含义：</p>
+<h2 id="多链网络中的验证节点"><a href="#多链网络中的验证节点" class="headerlink" title="多链网络中的验证节点"></a>多链网络中的验证节点</h2><p>验证节点是区块链中的节点，通过验证交易来保障网络安全。<br>Avalanche 网络中的每条 L1 都拥有<strong>自己的一组验证节点</strong>，这些节点运行着 AvalancheGo 客户端。</p>
+<h1 id="创建区块链"><a href="#创建区块链" class="headerlink" title="创建区块链"></a>创建区块链</h1><p>学习如何使用构建工具（Builder Tooling）发送 <code>CreateChainTx</code> 交易，来配置一条区块链，并在 P‑Chain 上为其创建记录。</p>
+<p>现在你已经完成了 Core 钱包的设置，并且在 P‑Chain 上拥有了一些 AVAX，接下来就可以创建一个子网（Subnet）。你将通过发送一笔 <code>CreateSubnetTx</code> 交易来完成这一操作。该交易会创建一个子网，其唯一标识就是 <code>CreateSubnetTx</code> 这笔交易的哈希值。</p>
+<p><code>CreateSubnetTx</code> 交易只有一个参数：<strong>子网的所有者</strong>。<br>所有者可以向子网中添加区块链，并将子网转换为 L1。<br>一旦转换为 L1，所有者就会失去这些权限。<br>因此，所有者仅在创建阶段相关；如果计划立即转换为 L1，则无需通过多签钱包来保障所有者地址的安全。<br>我们将直接使用你的 P‑Chain 地址作为所有者地址。</p>
+<p>之后，你需要在 P‑Chain 上发送 <code>CreateChainTx</code> 交易，以创建这条区块链的记录。<br><code>CreateChainTx</code> 交易包含以下参数：</p>
+<ul>
+<li><strong>name</strong>：链的名称</li>
+<li><strong>subnetID</strong>：要将该链添加到的子网 ID</li>
+<li><strong>vmID</strong>：运行这条链所使用的虚拟机 ID</li>
+<li><strong>genesisData</strong>：链的创世区块配置</li>
+</ul>
+<p>创世区块构建工具（Genesis Builder）允许我们配置区块链的诸多参数，例如权限管理、代币经济学以及交易手续费机制。</p>
+<p>你可以浏览一下不同的配置选项，但目前<strong>不要修改默认设置</strong>，直接点击「查看创世区块 JSON（View Genesis JSON）」按钮即可。</p>
+<p>然后点击「创建链（Create Chain）」。<br>这会在 P‑Chain 上为你的区块链创建记录，并将其与上一步创建的子网关联起来。</p>
+<p>这条区块链的唯一标识，就是 <code>CreateChainTx</code> 这笔交易的哈希值。</p>
+<h1 id="搭建验证节点"><a href="#搭建验证节点" class="headerlink" title="搭建验证节点"></a>搭建验证节点</h1><p>学习如何使用托管基础设施或自行部署 Docker 的方式，为你的 L1 部署验证节点。</p>
+<p>P‑Chain 上的记录已创建完成，现在你可以开始让节点与你的子网进行同步。</p>
+<h2 id="运行你的-L1-节点"><a href="#运行你的-L1-节点" class="headerlink" title="运行你的 L1 节点"></a>运行你的 L1 节点</h2><p>使用我们免费的测试网托管基础设施，即可一键为你的 L1 部署节点，无需配置 Docker 或云服务商账户，也无需充值。你将获得以下优势：</p>
+<ul>
+<li>一键即时部署</li>
+<li>子网自动配置</li>
+<li>测试网开发完全免费</li>
+<li>通过构建者控制台进行监控与管理</li>
+</ul>
+<h1 id="将子网转换为-L1"><a href="#将子网转换为-L1" class="headerlink" title="将子网转换为 L1"></a>将子网转换为 L1</h1><p>学习如何使用构建工具（Builder Tooling）发送 <code>ConvertSubnetToL1Tx</code> 交易，在 P‑Chain 上将子网转换为 L1。</p>
+<p>你刚刚启动的节点正在跟踪该子网，但<strong>尚未成为验证节点</strong>。事实上，由于该子网目前还没有任何验证节点，它无法处理任何交易。在这一步中，我们将同时完成两件事：</p>
+<ul>
+<li>将子网转换为 L1</li>
+<li>将你的节点添加为验证节点</li>
+</ul>
+<p>将子网转换为 L1 需要<strong>子网所有者</strong>在 P‑Chain 上发起一笔 <code>ConvertSubnetToL1Tx</code> 交易。这笔交易会为你的区块链创建一套新的验证节点集合，并将其从子网转变为一条<strong>独立主权 L1 链</strong>。<br><code>ConvertSubnetToL1Tx</code> 是一次性交易，<strong>只能由子网所有者执行一次</strong>。</p>
+<p>转换完成后，子网所有者将失去所有权限，这条 L1 将由<strong>验证节点管理合约（validator manager contract）</strong> 控制，由该合约管理验证节点集合。下一章你会了解更多相关内容。</p>
+<p><code>ConvertSubnetToL1Tx</code> 包含以下参数：</p>
+<ul>
+<li><strong>子网 ID（Subnet ID）</strong> —— 你的子网的唯一标识</li>
+<li><strong>验证节点管理区块链 ID（Validator Manager Blockchain ID）</strong> —— 部署验证节点管理合约的区块链 ID。这条区块链可以属于该 L1、C‑Chain，或 Avalanche 网络中任意其他 L1</li>
+<li><strong>验证节点管理合约地址（Validator Manager Address）</strong> —— 该合约在对应区块链上的地址</li>
+<li><strong>验证节点（Validators）</strong> —— 该 L1 的初始验证节点集合</li>
+</ul>
+<h1 id="测试你的-L1"><a href="#测试你的-L1" class="headerlink" title="测试你的 L1"></a>测试你的 L1</h1><p>通过构建工具部署一个 ERC-20 代币，来测试你刚刚创建完成的 L1。</p>
+<p>恭喜！你已经成功创建了属于自己的 L1。现在，我们来在你的 L1 上部署一个 ERC-20 代币并进行测试。</p>
+<h1 id="移除节点"><a href="#移除节点" class="headerlink" title="移除节点"></a>移除节点</h1><p>学习如何停止并移除在 Docker 上运行的节点。</p>
+<p>既然你已经测试完自己的 L1，就可以停止并移除该节点。如果你想释放资源，或是想用不同参数重新启动一个新节点，这一操作会非常实用。</p>
+<h2 id="停止节点"><a href="#停止节点" class="headerlink" title="停止节点"></a>停止节点</h2><p>如需停止节点，可以使用以下命令：</p>
+<figure class="highlight arduino"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs arduino">docker stop avago<br></code></pre></div></td></tr></table></figure>
+<p>节点的凭证信息与区块链状态会保存在 <code>~/.avalanchego</code> 目录中。当你使用 <code>docker start avago</code> 重新启动节点时，它会从之前中断的位置继续运行。</p>
+<h2 id="移除节点-1"><a href="#移除节点-1" class="headerlink" title="移除节点"></a>移除节点</h2><figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">docker <span class="hljs-built_in">rm</span> avago<br></code></pre></div></td></tr></table></figure>
+<p>该操作<strong>不会删除</strong>节点的状态数据与凭证信息。如需彻底删除这些数据，你需要删除 <code>~/.avalanchego</code> 目录。</p>
+<h1 id="互操作性-1"><a href="#互操作性-1" class="headerlink" title="互操作性"></a>互操作性</h1><p>既然我们已经了解了 Avalanche 的多链架构，接下来理解<strong>如何在所有这些链之间实现原生互操作性</strong>就至关重要。</p>
+<h2 id="什么是互操作性"><a href="#什么是互操作性" class="headerlink" title="什么是互操作性"></a>什么是互操作性</h2><p>互操作性是指不同区块链网络能够<strong>无缝通信、共享数据并相互交互</strong>的能力。<br>这种能力让资产、信息和功能可以在独立的区块链生态系统之间流转，<strong>无需中介</strong>。</p>
+<p>这类交互有多种形式，包括：</p>
+<ul>
+<li>资产桥接（代币、NFT 等）</li>
+<li>跨链 DAO 投票</li>
+<li>跨链流动性池</li>
+<li>去中心化数据预言机</li>
+<li>跨链智能合约调用</li>
+</ul>
+<h2 id="为什么互操作性至关重要"><a href="#为什么互操作性至关重要" class="headerlink" title="为什么互操作性至关重要"></a>为什么互操作性至关重要</h2><p>如果没有互操作性，区块链将面临巨大挑战：</p>
+<ul>
+<li><strong>流动性不足</strong>：新公链很难为代币和金融工具吸引足够的流动性，限制其可行性与用户采用。</li>
+<li><strong>开发者采用受限</strong>：在无法接入成熟网络的现有工具、社区与基础设施的情况下，开发者不愿在新链上构建应用。</li>
+<li><strong>用户准入壁垒</strong>：由于缺少直接入金服务与资产种类有限，用户进入新链会面临阻碍。</li>
+</ul>
+<h2 id="Avalanche-如何实现互操作性"><a href="#Avalanche-如何实现互操作性" class="headerlink" title="Avalanche 如何实现互操作性"></a>Avalanche 如何实现互操作性</h2><p>Avalanche 通过分层架构实现<strong>原生跨链通信</strong>：</p>
+<h3 id="Avalanche-Warp-Messaging（AWM，雪崩-warp-消息协议）"><a href="#Avalanche-Warp-Messaging（AWM，雪崩-warp-消息协议）" class="headerlink" title="Avalanche Warp Messaging（AWM，雪崩 warp 消息协议）"></a>Avalanche Warp Messaging（AWM，雪崩 warp 消息协议）</h3><p>这是实现 L1 之间交换<strong>可验证消息</strong>的基础协议。<br>AWM 使用 BLS 多重签名：验证节点对发出的消息进行签名，这些签名会被聚合，以便在目标链上高效验证。</p>
+<h3 id="跨链消息合约（ICM）"><a href="#跨链消息合约（ICM）" class="headerlink" title="跨链消息合约（ICM）"></a>跨链消息合约（ICM）</h3><p>构建在 AWM 之上、面向开发者的友好接口智能合约。<br>负责消息编码&#x2F;解码、中继激励与跨链 dApp 通信模式。</p>
+<h3 id="跨链代币转账（ICTT）"><a href="#跨链代币转账（ICTT）" class="headerlink" title="跨链代币转账（ICTT）"></a>跨链代币转账（ICTT）</h3><p>基于跨链消息合约构建，通过<strong>在源链锁定代币、在目标链铸造映射资产</strong>，实现 L1 之间的资产转移。</p>
+<h2 id="你将学到的内容"><a href="#你将学到的内容" class="headerlink" title="你将学到的内容"></a>你将学到的内容</h2><p>在本章节中，我们将探索：</p>
+<ul>
+<li>互操作性基础——理解核心概念与应用场景</li>
+<li>保障跨链通信安全——包括 BLS 签名在内的密码学基础</li>
+<li>Avalanche 的互操作性方案——深入解析 AWM 与 ICTT 协议</li>
+<li>实际落地实现——这些技术如何在真实应用中协同工作</li>
+</ul>
+<p>让我们先从理解<strong>支撑安全跨链通信的基础概念</strong>开始。</p>
+<h1 id="源链、消息与目标链"><a href="#源链、消息与目标链" class="headerlink" title="源链、消息与目标链"></a>源链、消息与目标链</h1><p>了解互操作性及其在多链系统中的重要性。</p>
+<p>互操作性是通过让区块链之间能够<strong>传递消息</strong>来实现的。每条消息都从一条<strong>源链</strong>发出，并被发送至一条或多条<strong>目标链</strong>。<br>这些消息对任意数据进行编码，可用于证明源链上的某些事件，例如<strong>资产存入</strong>或<strong>投票结果</strong>。</p>
+<h3 id="源链"><a href="#源链" class="headerlink" title="源链"></a>源链</h3><p>跨区块链通信系统中的<strong>源链</strong>，是指数据、资产或信息在被传递到其他区块链之前，最初产生的那条区块链。它是发起跨链交互的起点。当用户希望与另一条区块链通信时，会通过协议或智能合约，从源链启动通信流程。</p>
+<h3 id="消息"><a href="#消息" class="headerlink" title="消息"></a>消息</h3><p><strong>消息</strong>是将要发送到目标链的数据结构。它包含一些元数据、经过编码的消息内容，以及一个签名。签名用于证明消息的真实性，即消息所声明的内容确实在源链上发生过。</p>
+<h3 id="目标链"><a href="#目标链" class="headerlink" title="目标链"></a>目标链</h3><p>与之相对，<strong>目标链</strong>是接收并处理所传递的数据、资产或指令的区块链。目标链上与跨链通信系统相关的验证者、节点或协议，会接收并验证从源链转发过来的信息。验证通过后，目标链将对数据进行处理或执行指定指令。</p>
+<h3 id="消息在跨区块链通信中的作用是什么？"><a href="#消息在跨区块链通信中的作用是什么？" class="headerlink" title="消息在跨区块链通信中的作用是什么？"></a>消息在跨区块链通信中的作用是什么？</h3><p>A<br>在目标链上处理数据。</p>
+<p>B<br>包含源链、目标链以及带签名的编码数据。</p>
+<p>C<br>从源链发起通信。</p>
+<p>D<br>在源链上验证消息的真实性。</p>
+<hr>
+<p><strong>正确答案：B</strong></p>
+<h3 id="跨链的目的是什么？"><a href="#跨链的目的是什么？" class="headerlink" title="跨链的目的是什么？"></a>跨链的目的是什么？</h3><p>在 Avalanche 与 Web3 里，<strong>跨链（互操作性）的核心目的</strong>就一句话：<br><strong>让不同区块链能安全、无缝地互通资产、数据与功能，打破孤岛，把整个生态连成一张网。</strong></p>
+<p>展开成最实用的 4 个目标：</p>
+<ol>
+<li><strong>资产自由流动</strong><br>代币、NFT 能在不同 L1、公链之间转移，不用依赖中心化交易所。</li>
+<li><strong>共享流动性与用户</strong><br>新链不用从零开始，可以直接复用成熟生态的资金和用户。</li>
+<li><strong>功能互相调用</strong><br>一条链上的合约可以触发另一条链上的操作（跨链投票、跨链借贷、跨链治理）。</li>
+<li><strong>让多链架构真正可用</strong><br>像 Avalanche 这种每条 L1 各司其职的架构，必须靠跨链才能协同工作。</li>
+</ol>
+<p>简单说：<br><strong>没有跨链，每条链都是孤岛；有了跨链，整个生态变成一个互联网。</strong></p>
+<p>要不要我用<strong>最简单的比喻</strong>再给你讲一遍 Avalanche 跨链是怎么实现的？</p>
+<h1 id="ICM、ICM-合约（Teleporter）与-ICTT"><a href="#ICM、ICM-合约（Teleporter）与-ICTT" class="headerlink" title="ICM、ICM 合约（Teleporter）与 ICTT"></a>ICM、ICM 合约（Teleporter）与 ICTT</h1><p>学习 Avalanche 如何通过 <strong>ICM、ICM 合约（Teleporter）和 ICTT</strong> 实现安全互操作。</p>
+<p>我们可以用<strong>分层架构</strong>来理解 Avalanche 原生互操作性，每一层都确保消息能在系统间安全传输。</p>
+<p>要掌握跨链消息的基础原理，本章会讲解 5 个核心概念：</p>
+<ol>
+<li><strong>安全签名</strong> —— 确保消息可被信任的基础</li>
+<li><strong>ICM（Interchain Messaging，跨链消息）</strong> —— 支持跨链通信的原生区块链功能</li>
+<li><strong>ICM 合约（Teleporter）</strong> —— 让开发者更轻松构建跨链应用的友好工具</li>
+<li><strong>ICTT（Interchain Token Transfer，跨链代币转账）</strong> —— 可直接使用的链间代币转移方案（并非必须使用）</li>
+<li><strong>Relayers（中继器）</strong> —— 通过收集签名、提交交易来协助链间消息传递的服务</li>
+</ol>
+<h1 id="签名机制"><a href="#签名机制" class="headerlink" title="签名机制"></a>签名机制</h1><p>学习签名机制如何工作，并支撑安全的跨链通信。</p>
+<p><strong>签名机制</strong>是一类密码学方案，它让我们可以对一段数据进行签名，而其他人能够验证这个签名。<br>你可以把它理解成<strong>现代版的签名</strong>——不是依靠独特的手写笔迹，而是依靠数学。<br>签名机制有很多种，它们在效率和安全性上各有不同。</p>
+<p>签名机制的核心目标，是保证数字消息的：</p>
+<ul>
+<li><strong>真实性（Authenticity）</strong></li>
+<li><strong>不可否认性（Non-Repudiation）</strong></li>
+<li><strong>完整性（Integrity）</strong></li>
+</ul>
+<hr>
+<h3 id="真实性"><a href="#真实性" class="headerlink" title="真实性"></a>真实性</h3><p>真实性确保签名能够<strong>验证消息的来源</strong>，确认它确实来自声称的发送者。<br>一条消息上的有效签名，证明签名者拥有对应公钥的私钥。</p>
+<h3 id="不可否认性"><a href="#不可否认性" class="headerlink" title="不可否认性"></a>不可否认性</h3><p>不可否认性确保签名者<strong>无法否认自己参与了这笔交易</strong>。<br>也就是说，他不能事后声称自己没有授权或签名这条消息。<br>对消息签名，是一种具有约束力的承诺。</p>
+<h3 id="完整性"><a href="#完整性" class="headerlink" title="完整性"></a>完整性</h3><p>完整性确保消息在传输过程中<strong>没有被篡改或修改</strong>。<br>只要消息被改动过，哪怕非常微小，用原签名去验证都会失败。</p>
+<h1 id="使用签名机制"><a href="#使用签名机制" class="headerlink" title="使用签名机制"></a>使用签名机制</h1><p>BLS 签名机制的实操演示</p>
+<p>接下来我们动手实操签名机制的使用，具体步骤如下：</p>
+<ol>
+<li><strong>生成密钥对</strong>：生成包含公钥（Public Key）和私钥（Secret Key）的密钥对。</li>
+<li><strong>签名消息</strong>：使用私钥对消息进行签名，生成签名（Signature）。</li>
+<li><strong>验证签名</strong>：使用公钥验证消息对应的签名是否有效。</li>
+</ol>
+<h2 id="生成密钥"><a href="#生成密钥" class="headerlink" title="生成密钥"></a>生成密钥</h2><p>首先，生成由公钥和私钥组成的密钥对。</p>
+<hr>
+<h3 id="实操代码（Python-实现-BLS-签名）"><a href="#实操代码（Python-实现-BLS-签名）" class="headerlink" title="实操代码（Python 实现 BLS 签名）"></a>实操代码（Python 实现 BLS 签名）</h3><p>以下是可直接运行的代码，基于 <code>py_ecc</code> 库实现 BLS 签名的完整流程，贴合 Avalanche 跨链场景的签名逻辑：</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-comment"># 安装依赖：pip install py_ecc blspy</span><br><span class="hljs-keyword">from</span> py_ecc.bls <span class="hljs-keyword">import</span> G2Basic <span class="hljs-keyword">as</span> bls<br><span class="hljs-keyword">from</span> py_ecc.typing <span class="hljs-keyword">import</span> HexStr<br><span class="hljs-keyword">import</span> hashlib<br><br><span class="hljs-comment"># --------------------------</span><br><span class="hljs-comment"># 1. 生成密钥对（私钥+公钥）</span><br><span class="hljs-comment"># --------------------------</span><br><span class="hljs-comment"># 生成随机私钥（示例中用固定值便于演示，实际需用安全随机数）</span><br>private_key: <span class="hljs-built_in">int</span> = <span class="hljs-number">123456789</span>  <span class="hljs-comment"># 私钥是一个大整数</span><br>public_key = bls.SkToPk(private_key)  <span class="hljs-comment"># 私钥转公钥（G2 点）</span><br><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;=== 生成的密钥对 ===&quot;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;私钥 (Secret Key): <span class="hljs-subst">&#123;private_key&#125;</span>&quot;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;公钥 (Public Key): <span class="hljs-subst">&#123;public_key.<span class="hljs-built_in">hex</span>()[:<span class="hljs-number">50</span>]&#125;</span>...&quot;</span>)  <span class="hljs-comment"># 截断显示，避免过长</span><br><br><span class="hljs-comment"># --------------------------</span><br><span class="hljs-comment"># 2. 准备消息并签名</span><br><span class="hljs-comment"># --------------------------</span><br><span class="hljs-comment"># 待签名的消息（模拟跨链通信的消息内容）</span><br>message: <span class="hljs-built_in">str</span> = <span class="hljs-string">&quot;Transfer 10 AVAX from C-Chain to Dexalot L1&quot;</span><br><span class="hljs-comment"># 将消息哈希为 32 字节的字节串（BLS 签名要求输入为哈希值）</span><br>message_hash: <span class="hljs-built_in">bytes</span> = hashlib.sha256(message.encode(<span class="hljs-string">&quot;utf-8&quot;</span>)).digest()<br><br><span class="hljs-comment"># 使用私钥对消息哈希签名</span><br>signature = bls.Sign(private_key, message_hash)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;\n=== 签名结果 ===&quot;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;原始消息: <span class="hljs-subst">&#123;message&#125;</span>&quot;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;消息哈希: <span class="hljs-subst">&#123;message_hash.<span class="hljs-built_in">hex</span>()&#125;</span>&quot;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;签名 (Signature): <span class="hljs-subst">&#123;signature.<span class="hljs-built_in">hex</span>()[:<span class="hljs-number">50</span>]&#125;</span>...&quot;</span>)<br><br><span class="hljs-comment"># --------------------------</span><br><span class="hljs-comment"># 3. 验证签名</span><br><span class="hljs-comment"># --------------------------</span><br><span class="hljs-comment"># 验证签名是否有效（公钥 + 消息哈希 + 签名）</span><br>is_valid: <span class="hljs-built_in">bool</span> = bls.Verify(public_key, message_hash, signature)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;\n=== 签名验证结果 ===&quot;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;签名是否有效: <span class="hljs-subst">&#123;is_valid&#125;</span>&quot;</span>)<br><br><span class="hljs-comment"># 测试：篡改消息后验证（应该失败）</span><br>tampered_message: <span class="hljs-built_in">str</span> = <span class="hljs-string">&quot;Transfer 100 AVAX from C-Chain to Dexalot L1&quot;</span><br>tampered_hash: <span class="hljs-built_in">bytes</span> = hashlib.sha256(tampered_message.encode(<span class="hljs-string">&quot;utf-8&quot;</span>)).digest()<br>is_tampered_valid: <span class="hljs-built_in">bool</span> = bls.Verify(public_key, tampered_hash, signature)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;篡改消息后签名是否有效: <span class="hljs-subst">&#123;is_tampered_valid&#125;</span>&quot;</span>)<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="代码运行说明"><a href="#代码运行说明" class="headerlink" title="代码运行说明"></a>代码运行说明</h3><ol>
+<li><strong>前置条件</strong>：先安装依赖库<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">pip install py_ecc blspy<br></code></pre></div></td></tr></table></figure></li>
+<li><strong>核心逻辑解释</strong>：<ul>
+<li>私钥（Secret Key）：签名者的私密密钥，需严格保管，用于生成签名；</li>
+<li>公钥（Public Key）：可公开的密钥，用于验证签名，由私钥推导而来；</li>
+<li>消息哈希：BLS 签名不直接对原始消息签名，而是对消息的 SHA256 哈希签名，确保输入长度固定；</li>
+<li>签名验证：只有「正确的公钥 + 未篡改的消息哈希 + 合法签名」组合才能验证通过。</li>
+</ul>
+</li>
+</ol>
+<h3 id="运行结果示例"><a href="#运行结果示例" class="headerlink" title="运行结果示例"></a>运行结果示例</h3><figure class="highlight asciidoc"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs asciidoc"><span class="hljs-section">=== 生成的密钥对 ===</span><br>私钥 (Secret Key): 123456789<br>公钥 (Public Key): 0x8b655970...<br><br><span class="hljs-section">=== 签名结果 ===</span><br>原始消息: Transfer 10 AVAX from C-Chain to Dexalot L1<br>消息哈希: a1b2c3d4e5f6...<br>签名 (Signature): 0x987654321...<br><br><span class="hljs-section">=== 签名验证结果 ===</span><br>签名是否有效: True<br>篡改消息后签名是否有效: False<br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>BLS 签名的核心流程：<strong>生成密钥对 → 私钥签名消息哈希 → 公钥验证签名</strong>；</li>
+<li>验证签名时，消息一旦被篡改，验证必然失败（保证完整性）；</li>
+<li>只有持有对应私钥的人才能生成有效签名（保证真实性和不可否认性），这也是 Avalanche 跨链消息安全的核心基础。</li>
+</ol>
+<h1 id="多重签名机制"><a href="#多重签名机制" class="headerlink" title="多重签名机制"></a>多重签名机制</h1><p>学习多重签名如何实现拜占庭容错</p>
+<p>多重签名机制（多签）是一种密码学方法，允许多个参与方<strong>共同授权</strong>某一操作，通常需要预先设定数量的授权方提供数字签名才能生效。<br>在多签方案中，每个授权方都拥有自己的私钥。要使操作生效，必须有指定子集的参与方生成各自的唯一签名。</p>
+<p>这在以下场景非常有用：<br>一组参与者希望<strong>共同签名一条消息</strong>，但只需要其中一部分人签名即可生效。</p>
+<p>多重签名通过以下方式提升安全性：</p>
+<ul>
+<li>降低对单一实体的依赖</li>
+<li>降低私钥泄露风险</li>
+<li>实现密码学流程的<strong>共同控制权</strong></li>
+</ul>
+<p>这类机制广泛用于各类密码学与安全场景，用于建立信任、分散控制权、降低潜在漏洞影响。</p>
+<hr>
+<h2 id="BLS-多重签名方案"><a href="#BLS-多重签名方案" class="headerlink" title="BLS 多重签名方案"></a>BLS 多重签名方案</h2><p>BLS（Boneh-Lynn-Shacham）多重签名方案以<strong>签名体积极小</strong>著称，在区块链应用中效率极高。<br>它还支持<strong>签名聚合</strong>与<strong>公钥聚合</strong>：</p>
+<ul>
+<li><strong>签名聚合</strong>：把所有签名压缩成<strong>一个很短的签名</strong>，让传输与验证更高效。</li>
+<li><strong>公钥聚合</strong>：验证算法只需使用一个<strong>聚合后的短公钥</strong>即可完成验证。</li>
+</ul>
+<p>BLS 多重签名可用于：</p>
+<ul>
+<li>安全多方计算</li>
+<li>分布式密钥生成</li>
+<li>门限解密</li>
+<li>其他密码学协议</li>
+</ul>
+<p>在区块链这类去中心化系统中尤其重要——<br>多方需要<strong>协作签名消息</strong>或执行密码学操作时，BLS 是最主流、最高效的方案。</p>
+<hr>
+<p>简单记：<br><strong>普通多签 &#x3D; 很多签名拼在一起</strong><br><strong>BLS 多签 &#x3D; 所有签名合成一个，又小又快</strong></p>
+<p>要不要我用<strong>超级通俗的比喻</strong>帮你秒懂 BLS 聚合签名？</p>
+<h3 id="BLS-多重签名方案在区块链应用中的一个关键优势是什么？"><a href="#BLS-多重签名方案在区块链应用中的一个关键优势是什么？" class="headerlink" title="BLS 多重签名方案在区块链应用中的一个关键优势是什么？"></a><strong>BLS 多重签名方案在区块链应用中的一个关键优势是什么？</strong></h3><p>A<br>所有参与者只需要一个私钥。</p>
+<p>B<br>它不再需要公钥。</p>
+<p>C<br>它使用对称加密来增强安全性。</p>
+<p>D<br>它支持签名和公钥聚合，从而生成紧凑的签名。</p>
+<hr>
+<p><strong>正确答案：D</strong></p>
+<h1 id="使用多重签名机制"><a href="#使用多重签名机制" class="headerlink" title="使用多重签名机制"></a>使用多重签名机制</h1><p>基于 BLS 的多重签名机制实操演示</p>
+<p>让我们来学习多重签名机制的使用。我们将执行以下步骤：</p>
+<ol>
+<li>生成两个密钥对：我们将生成两组密钥对。</li>
+<li>对消息进行签名：使用两个私钥为同一条消息生成两个签名。</li>
+<li>聚合签名：将两个签名聚合成一个签名。</li>
+<li>聚合公钥：将两个公钥聚合成一个公钥。</li>
+<li>验证聚合签名：使用聚合后的公钥验证聚合签名。</li>
+</ol>
+<h2 id="生成第一个密钥"><a href="#生成第一个密钥" class="headerlink" title="生成第一个密钥"></a>生成第一个密钥</h2><p>首先，生成一组由公钥和私钥组成的密钥对。</p>
+<h1 id="BLS-签名聚合"><a href="#BLS-签名聚合" class="headerlink" title="BLS 签名聚合"></a>BLS 签名聚合</h1><p>了解签名聚合如何实现高效的多方验证</p>
+<p>签名与公钥聚合可以将<strong>同一条消息</strong>的多个签名合并成一个简短的签名，这让签名的传输与验证效率大幅提升。</p>
+<p>我们来看一个例子。假设我们要对下面这条消息进行签名：</p>
+<p><strong>消息</strong><br>Per consensum ad astra</p>
+<p>使用私钥，我们生成如下签名：</p>
+<h1 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h1><p>了解互操作性在 Avalanche 上的实际应用</p>
+<p>互操作性支撑了多种能够提升用户体验、拓展 Avalanche 生态能力的应用场景。我们来看看其中的核心应用：</p>
+<ol>
+<li><strong>跨链代币转账</strong><br>代币可在不同 L1 区块链间无缝转移，无需中心化交易所：</li>
+</ol>
+<ul>
+<li><strong>无缝转账</strong>：在链间转移 USDC 等代币，费用低、交易速度快</li>
+<li><strong>流动性获取</strong>：为 DeFi 活动、交易或支付使用来自不同网络的流动性</li>
+<li><strong>去中心化</strong>：转账过程中始终掌控资产，无需第三方中介</li>
+</ul>
+<ol start="2">
+<li><strong>去中心化数据预言机</strong><br>智能合约可从专业预言机链获取可靠的价格数据与其他信息：</li>
+</ol>
+<ul>
+<li><strong>Chainlink 集成</strong>：使用实时价格数据支撑 DeFi 应用</li>
+<li><strong>无需信任访问</strong>：直接从去中心化预言机获取数据</li>
+<li><strong>跨链应用</strong>：构建依赖全网一致数据的金融应用</li>
+</ul>
+<ol start="3">
+<li><strong>跨链代币兑换</strong><br>不同区块链网络间直接完成代币兑换，无需中心化交易所：</li>
+</ol>
+<ul>
+<li><strong>去中心化交易</strong>：在无需信任的环境中兑换资产</li>
+<li><strong>多链访问</strong>：获取来自不同生态的代币</li>
+<li><strong>更低成本</strong>：避开中心化平台的高额手续费</li>
+</ul>
+<ol start="4">
+<li><strong>跨链 NFT</strong><br>NFT 可在不同区块链网络间转移与使用：</li>
+</ol>
+<ul>
+<li><strong>更广曝光</strong>：NFT 可在多条链上展示与交易</li>
+<li><strong>增强实用性</strong>：在跨平台游戏、艺术与元宇宙场景中使用 NFT</li>
+<li><strong>保留所有权</strong>：跨链保持 NFT 的真实性与溯源信息</li>
+</ul>
+<ol start="5">
+<li><strong>可互操作的 DeFi 协议</strong><br>DeFi 协议可跨链交互，实现更强功能：</li>
+</ol>
+<ul>
+<li><strong>跨链收益耕作</strong>：在多条链上最大化收益</li>
+<li><strong>跨链抵押借贷</strong>：使用任意公链的资产作为抵押品</li>
+<li><strong>组合性</strong>：依托多网络构建创新金融产品</li>
+</ul>
+<ol start="6">
+<li><strong>跨链治理</strong><br>覆盖多条区块链的去中心化治理：</li>
+</ol>
+<ul>
+<li><strong>统一治理</strong>：从单一平台管理多链协议</li>
+<li><strong>去中心化投票</strong>：让不同链上的持币者均可参与</li>
+<li><strong>提升参与度</strong>：决策更具多样性与代表性</li>
+</ul>
+<h3 id="在-Avalanche-上，哪种互操作性用例允许用户在不同的第一层区块链之间转移-USDC-等代币，而无需使用中心化交易所？"><a href="#在-Avalanche-上，哪种互操作性用例允许用户在不同的第一层区块链之间转移-USDC-等代币，而无需使用中心化交易所？" class="headerlink" title="在 Avalanche 上，哪种互操作性用例允许用户在不同的第一层区块链之间转移 USDC 等代币，而无需使用中心化交易所？"></a>在 Avalanche 上，哪种互操作性用例允许用户在不同的第一层区块链之间转移 USDC 等代币，而无需使用中心化交易所？</h3><p>A<br>去中心化数据预言机（Chainlink 价格喂价）<br>B<br>跨链代币转账<br>C<br>跨链 NFT<br>D<br>可互操作的去中心化金融协议</p>
+<hr>
+<p><strong>正确答案：B</strong></p>
+<h3 id="Avalanche-可以运行多少个虚拟机（VM）？"><a href="#Avalanche-可以运行多少个虚拟机（VM）？" class="headerlink" title="Avalanche 可以运行多少个虚拟机（VM）？"></a>Avalanche 可以运行多少个虚拟机（VM）？</h3><p>A<br>只能运行 Avalanche 虚拟机<br>B<br>EVM 和 AVM<br>C<br>Avalanche 上可以运行的虚拟机数量没有限制。任何人都可以创建最适合自己需求的定制化虚拟机。</p>
+<p>答案C</p>
+<h3 id="一个虚拟机（VM）可以用来创建多条区块链吗？"><a href="#一个虚拟机（VM）可以用来创建多条区块链吗？" class="headerlink" title="一个虚拟机（VM）可以用来创建多条区块链吗？"></a><strong>一个虚拟机（VM）可以用来创建多条区块链吗？</strong></h3><p>A<br>可以，同一个虚拟机可以用来创建多条区块链<br>B<br>不可以，每条区块链都需要一个专属的虚拟机<br>C<br>可以，但前提是这些区块链属于不同的网络<br><strong>正确答案：A</strong></p>
+<p>同一个虚拟机（VM）可以用来创建多条区块链。</p>
+<h3 id="Avalanche-如何处理虚拟机（VM）的修改？"><a href="#Avalanche-如何处理虚拟机（VM）的修改？" class="headerlink" title="Avalanche 如何处理虚拟机（VM）的修改？"></a>Avalanche 如何处理虚拟机（VM）的修改？</h3><p>A<br>定制化难度较高，需要网络参与者之间达成广泛共识。<br>B<br>不允许定制化，因为这会损害区块链的安全性。<br>C<br>Avalanche 为虚拟机开发者提供了简易的 API。<br>D<br>Avalanche 不支持虚拟机的定制化。</p>
+<hr>
+<p><strong>正确答案：C</strong></p>
+<h2 id="Avalanche9000-升级带来的主要变化有哪些？（选择所有适用项）"><a href="#Avalanche9000-升级带来的主要变化有哪些？（选择所有适用项）" class="headerlink" title="Avalanche9000 升级带来的主要变化有哪些？（选择所有适用项）"></a>Avalanche9000 升级带来的主要变化有哪些？（选择所有适用项）</h2><ul>
+<li>子网（Subnets）现在被称为 L1</li>
+<li>现在每个节点需要质押更多 AVAX 才能成为验证者，从而提升网络安全性</li>
+<li>现在 L1 验证者无需验证主网（Primary Network），只需遵守其希望验证的 L1 所规定的质押要求即可</li>
+<li>现在 C 链、P 链和 X 链已不复存在，所有 L1 共同组成 Avalanche 主网</li>
+<li>现在所有 L1 都是公开且无需许可的，正如所有区块链应有的形态</li>
+<li>现在 L1 可以设为私有链</li>
+</ul>
+<p>正确答案：<br>子网（Subnets）现在被称为 L1<br>现在 L1 验证者无需验证主网（Primary Network），只需遵守其希望验证的 L1 所规定的质押要求即可</p>
+<p>根据Avalanche9000升级后的新规则，<strong>正确答案是C</strong>。</p>
+<p>以下是基于升级内容对各个选项的详细分析：</p>
+<p><strong>A. L1验证者必须质押比之前更多的AVAX以使网络更加安全</strong> ❌<br>这个说法是错误的。Avalanche9000升级（特别是其中的Etna升级和ACP-77提案）的核心目标之一是<strong>降低</strong>验证者的门槛和成本，而不是提高。升级后，L1验证者不再需要像以前那样质押2,000 AVAX。</p>
+<p><strong>B. 所有L1都必须使用与主网相同的质押要求</strong> ❌<br>这个说法是错误的。升级赋予了L1更大的自主权和灵活性。L1现在可以作为一个独立的网络运行，可以定义自己的验证规则、质押要求、代币经济学和治理结构，<strong>无需</strong>遵循Avalanche主网（Primary Network）的规则。</p>
+<p><strong>C. L1验证者只需遵守他们希望验证的特定L1所定义的质押要求，而无需验证主网</strong> ✅<br>这个说法是正确的。这是Avalanche9000升级带来的最重大变化。现在，验证者可以选择只验证特定的L1，为此他们需要：</p>
+<ul>
+<li>支付持续的动态费用（最初设定为每月约1.33 AVAX）。</li>
+<li>同步并验证该特定L1。</li>
+<li>同步最新的P链（P-Chain）状态。<br>他们<strong>不再需要</strong>质押2,000 AVAX，也不再需要验证或参与主网（X链、P链和C链）的共识。</li>
+</ul>
+<p><strong>D. 子网现在被称为L1，这意味着所有验证者共享一个统一的质押池</strong> ❌<br>这个说法是错误的。虽然”子网”（Subnet）这个术语确实被重新命名为”L1”，但这并不意味着验证者共享一个统一的质押池。正如选项C所解释的，L1现在拥有主权，可以设置自己的规则，包括独立的质押要求和奖励机制。验证者通过支付动态费用来注册其验证者信息到P链，而不是共享一个共同的质押池。</p>
+<h3 id="P‑链（P‑Chain）的主要作用是什么？"><a href="#P‑链（P‑Chain）的主要作用是什么？" class="headerlink" title="P‑链（P‑Chain）的主要作用是什么？"></a><strong>P‑链（P‑Chain）的主要作用是什么？</strong></h3><p>A<br>为 C‑链 和 X‑链 提供备份<br>B<br>记录主网和所有 L1 上的全部交易<br>C<br>登记雪崩网络中所有验证者的信息<br>D<br>管理所有 L1 的验证者集合</p>
+<h3 id="用汽水售卖机打比方的话，机器的-状态（state）-代表什么？（选择所有适用项）"><a href="#用汽水售卖机打比方的话，机器的-状态（state）-代表什么？（选择所有适用项）" class="headerlink" title="用汽水售卖机打比方的话，机器的**状态（state）**代表什么？（选择所有适用项）"></a>用汽水售卖机打比方的话，机器的**状态（state）**代表什么？（选择所有适用项）</h3><ul>
+<li>汽水口味</li>
+<li>当前余额</li>
+<li>每种口味的剩余罐数</li>
+<li>售卖机的位置</li>
+</ul>
+<p>答案： </p>
+<ul>
+<li>当前余额</li>
+<li>每种口味的剩余罐数</li>
+</ul>
+<h3 id="在汽水售卖机的类比中，以下哪些是机器的操作？（选择所有适用项）"><a href="#在汽水售卖机的类比中，以下哪些是机器的操作？（选择所有适用项）" class="headerlink" title="在汽水售卖机的类比中，以下哪些是机器的操作？（选择所有适用项）"></a>在汽水售卖机的类比中，以下哪些是机器的<strong>操作</strong>？（选择所有适用项）</h3><ul>
+<li>投入硬币</li>
+<li>当前余额</li>
+<li>机器的位置</li>
+<li>选择汽水口味</li>
+</ul>
+<p>答案：</p>
+<ul>
+<li>投入硬币</li>
+<li>选择汽水口味</li>
+</ul>
+<h3 id="实现状态机的优势是什么？（选择所有适用项）"><a href="#实现状态机的优势是什么？（选择所有适用项）" class="headerlink" title="实现状态机的优势是什么？（选择所有适用项）"></a>实现状态机的优势是什么？（选择所有适用项）</h3><ul>
+<li>提升网络速度</li>
+<li>降低交易成本</li>
+<li>可重现性</li>
+<li>清晰的接口</li>
+</ul>
+<p><strong>正确答案：</strong></p>
+<ul>
+<li>可重现性 (Reproducibility)</li>
+<li>清晰的接口 (Clear interface)</li>
+</ul>
+<p>我先把你前面那句<strong>准确翻译成简体中文</strong>，再给你用最简单的方式讲清楚：<strong>什么是状态机 + 怎么实现状态机</strong>。</p>
+<hr>
+<h3 id="翻译（严格对应原文）"><a href="#翻译（严格对应原文）" class="headerlink" title="翻译（严格对应原文）"></a>翻译（严格对应原文）</h3><p><strong>What are the advantages of implementing state machines? (Select all that apply)</strong><br><strong>实现状态机的优势是什么？（选择所有适用项）</strong></p>
+<ul>
+<li>Increased network speed<br>提升网络速度</li>
+<li>Decreased transaction costs<br>降低交易成本</li>
+<li>Reproducibility<br>可重现性</li>
+<li>Clear interface<br>清晰的接口</li>
+</ul>
+<hr>
+<h1 id="用最通俗的话讲：什么是状态机-怎么实现"><a href="#用最通俗的话讲：什么是状态机-怎么实现" class="headerlink" title="用最通俗的话讲：什么是状态机 &amp; 怎么实现"></a>用最通俗的话讲：什么是状态机 &amp; 怎么实现</h1><h2 id="1-什么是状态机（State-Machine）"><a href="#1-什么是状态机（State-Machine）" class="headerlink" title="1. 什么是状态机（State Machine）"></a>1. 什么是状态机（State Machine）</h2><p><strong>状态机 &#x3D; 一个只会根据“当前状态 + 输入”，变成“下一个状态”的系统。</strong></p>
+<p>可以理解成：</p>
+<ul>
+<li>只有<strong>固定几种状态</strong></li>
+<li>只有<strong>固定几种操作</strong></li>
+<li>操作只会<strong>改变状态</strong>，不会乱来</li>
+</ul>
+<p><strong>例子：汽水售卖机</strong></p>
+<ul>
+<li>状态：余额 0 元、有5瓶可乐、有3瓶雪碧</li>
+<li>操作：投币、选口味、出货</li>
+<li>规则：投币 → 余额增加；选口味 → 扣钱、减库存</li>
+</ul>
+<p>这就是<strong>状态机</strong>。</p>
+<hr>
+<h2 id="2-怎么实现一个状态机（极简步骤）"><a href="#2-怎么实现一个状态机（极简步骤）" class="headerlink" title="2. 怎么实现一个状态机（极简步骤）"></a>2. 怎么实现一个状态机（极简步骤）</h2><ol>
+<li><p><strong>定义所有可能的状态</strong><br>比如：余额、库存、是否上锁</p>
+</li>
+<li><p><strong>定义所有允许的操作</strong><br>比如：投币、选择商品、退款</p>
+</li>
+<li><p><strong>写清楚：每个操作会如何改变状态</strong></p>
+<ul>
+<li>投币 5 元 → 余额 +5</li>
+<li>选可乐 → 余额-3，库存-1</li>
+</ul>
+</li>
+<li><p><strong>对外只暴露操作接口</strong><br>别人不能直接改余额，只能通过“投币”“购买”来改。</p>
+</li>
+</ol>
+<hr>
+<h2 id="3-区块链里为什么要用状态机？"><a href="#3-区块链里为什么要用状态机？" class="headerlink" title="3. 区块链里为什么要用状态机？"></a>3. 区块链里为什么要用状态机？</h2><p>因为区块链必须满足：</p>
+<ul>
+<li><strong>结果可重现</strong>（所有人运行同一份代码，结果必须一样）</li>
+<li><strong>逻辑清晰、不可乱改</strong></li>
+</ul>
+<p>所以以太坊、Avalanche 本质上都是<strong>分布式状态机</strong>。</p>
+<hr>
+<p>如果你愿意，我可以<strong>用 5 行代码给你写一个最简单的状态机示例</strong>，一看就懂。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/">区块链</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E9%83%A8%E7%BD%B2%E8%BF%87%E7%A8%8B/">部署过程</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E7%BC%96%E7%A8%8B/">编程</a>
+                    
+                      <a class="hover-with-bg" href="/tags/EVM%E5%85%BC%E5%AE%B9%E9%93%BE/">EVM兼容链</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/02/20/63203.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Avalanche5</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/02/19/62563.html">
+                        <span class="hidden-mobile">Avalanche3</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "Avalanche4"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

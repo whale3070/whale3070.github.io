@@ -1,117 +1,92 @@
-<div style="max-width:1200px;margin:0 auto;padding:16px;">
-  <h1>Knowledge Galaxy</h1>
 
-  <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
-    <input id="q" placeholder="Search title..." style="padding:8px; width:260px;" />
-    <select id="cluster"></select>
-    <select id="colorMode">
-      <option value="cluster">Color: Cluster</option>
-      <option value="year">Color: Year</option>
-    </select>
-    <button id="reset" style="padding:8px 12px;">Reset</button>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body, html { margin: 0; padding: 0; background: #000; overflow: hidden; font-family: "Microsoft YaHei", "Heiti SC", sans-serif; }
+    #ui-layer { position: absolute; z-index: 10; top: 30px; left: 30px; color: rgba(255,255,255,0.8); pointer-events: none; }
+    #search-input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 15px; border-radius: 20px; outline: none; width: 220px; font-size: 13px; backdrop-filter: blur(5px); pointer-events: auto; }
+    #info-card { position: absolute; z-index: 11; bottom: 30px; right: 30px; width: 280px; background: rgba(10,10,10,0.85); border-left: 3px solid #00ffcc; padding: 20px; color: #fff; backdrop-filter: blur(10px); transform: translateY(125%); transition: transform 0.3s ease; pointer-events: none; }
+    .force-graph-container .graph-tooltip { display: none !important; }
+  </style>
+</head>
+<body>
+  <div id="ui-layer">
+    <h1 style="margin: 0; font-size: 20px; letter-spacing: 3px; font-weight: 300;">思想星系 THOUGHT GALAXY</h1>
+    <div style="font-size: 11px; margin-top: 5px; color: #00ffcc;">系统就绪：点位同步完成</div>
+    <div style="margin-top: 25px;"><input type="text" id="search-input" placeholder="输入关键字定位..."></div>
   </div>
 
-  <div id="plot" style="width:100%; height:720px; margin-top:12px;"></div>
-  <p style="opacity:.7;margin-top:8px;">
-    Hover 看详情，点击跳转文章。若 URL 不准，告诉我你的 permalink 配置我帮你修。
-  </p>
-</div>
+  <div id="info-card">
+    <div id="card-cluster" style="font-size: 10px; color: #00ffcc; margin-bottom: 8px;">SECTOR: UNKNOWN</div>
+    <div id="card-title" style="font-size: 16px; font-weight: bold;">---</div>
+    <div id="card-year" style="font-size: 11px; opacity: 0.5; margin-top: 10px;">TIMESTAMP: ---</div>
+  </div>
 
-<script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
-<script>
-(async function(){
-  const res = await fetch('/thought-map/thought_map.json');
-  const data = await res.json();
-  const points = data.points;
+  <div id="galaxy-canvas"></div>
 
-  const qEl = document.getElementById('q');
-  const cEl = document.getElementById('cluster');
-  const colorEl = document.getElementById('colorMode');
-  const resetEl = document.getElementById('reset');
+  <script src="/thought-map/js/force-graph.min.js"></script>
+  <script>
+    const container = document.getElementById('galaxy-canvas');
+    let hoveredNode = null;
 
-  // cluster 下拉
-  const clusters = [...new Set(points.map(p=>p.cluster))].sort((a,b)=>a-b);
-  cEl.innerHTML = `<option value="all">All clusters (${clusters.length})</option>` + clusters.map(cid=>{
-    const name = (data.cluster_names[String(cid)] || `Cluster ${cid}`);
-    return `<option value="${cid}">${cid}: ${name}</option>`;
-  }).join('');
-
-  function filterPoints(){
-    const q = (qEl.value || '').trim().toLowerCase();
-    const c = cEl.value;
-    return points.filter(p=>{
-      const okQ = !q || (p.title || '').toLowerCase().includes(q);
-      const okC = (c === 'all') || (String(p.cluster) === c);
-      return okQ && okC;
-    });
-  }
-
-  function makeTrace(ps){
-    const mode = colorEl.value;
-
-    const x = ps.map(p=>p.x);
-    const y = ps.map(p=>p.y);
-    const hover = ps.map(p=>`<b>${escapeHtml(p.title)}</b><br>Year: ${p.year}<br>Cluster: ${p.cluster} (${escapeHtml(p.cluster_name)})<br>${escapeHtml(p.url)}`);
-    const urls = ps.map(p=>p.url);
-
-    let marker = { size: 8, opacity: 0.85 };
-
-    if (mode === 'year'){
-      marker.color = ps.map(p=>p.year);
-      marker.colorscale = 'Viridis';
-      marker.colorbar = { title: 'Year' };
-    } else {
-      marker.color = ps.map(p=>p.cluster);
-      marker.colorscale = 'Turbo';
-      marker.colorbar = { title: 'Cluster' };
+    function colorByYear(year) {
+      const t = Math.max(0, Math.min(1, (year - 2014) / (2026 - 2014)));
+      return `hsl(${200 - 45 * t}, 85%, ${55 + 15 * t}%)`;
     }
 
-    return [{
-      type: 'scattergl',
-      mode: 'markers',
-      x, y,
-      text: hover,
-      hoverinfo: 'text',
-      customdata: urls,
-      marker
-    }];
-  }
+    fetch('/thought-map/thought_map.json')
+      .then(res => res.json())
+      .then(data => {
+        const nodes = data.points.map(p => {
+          const d = Math.sqrt(p.x*p.x + p.y*p.y) || 1;
+          const f = Math.pow(d, 1.9) * 16;
+          return { ...p, x: p.x * f, y: p.y * f };
+        });
 
-  function render(){
-    const ps = filterPoints();
-    const trace = makeTrace(ps);
-    Plotly.newPlot('plot', trace, {
-      margin: {l:40,r:20,t:30,b:40},
-      xaxis: {title: 'Component 1'},
-      yaxis: {title: 'Component 2'},
-      dragmode: 'pan'
-    }, {responsive: true});
-  }
+        const Graph = ForceGraph()(container)
+          .graphData({ nodes, links: [] })
+          .nodeId('title')
+          .backgroundColor('#000000')
+          .cooldownTicks(0)
+          .onNodeHover(node => {
+            hoveredNode = node;
+            if (node) {
+              document.getElementById('card-title').innerText = node.title;
+              document.getElementById('card-cluster').innerText = `SECTOR: ${node.cluster_name}`;
+              document.getElementById('card-year').innerText = `TIMESTAMP: ${node.year}`;
+              document.getElementById('info-card').style.transform = 'translateY(0)';
+            } else {
+              document.getElementById('info-card').style.transform = 'translateY(125%)';
+            }
+          })
+          .nodeCanvasObject((node, ctx, globalScale) => {
+            const isH = node === hoveredNode;
+            const r = (isH ? 6 : 2.5) / Math.pow(globalScale, 0.4);
+            const c = colorByYear(node.year);
+            ctx.globalCompositeOperation = 'screen';
+            ctx.fillStyle = c;
+            ctx.beginPath(); ctx.arc(node.x, node.y, r * 5, 0, 2*Math.PI); ctx.fill();
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle = isH ? '#fff' : c;
+            ctx.beginPath(); ctx.arc(node.x, node.y, r * 0.8, 0, 2*Math.PI); ctx.fill();
+            if (globalScale > 22 || isH) {
+              ctx.font = `${isH?'bold':'300'} ${10/globalScale}px sans-serif`;
+              ctx.fillStyle = 'rgba(255,255,255,0.8)';
+              ctx.textAlign = 'center';
+              ctx.fillText(node.title, node.x, node.y + r + 5/globalScale);
+            }
+          })
+          .onNodeClick(n => n.url && window.open(n.url, '_blank'));
 
-  function escapeHtml(s){
-    return String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  }
+        document.getElementById('search-input').addEventListener('input', e => {
+          const n = nodes.find(i => i.title.toLowerCase().includes(e.target.value.toLowerCase()));
+          if (n) { Graph.centerAt(n.x, n.y, 800); Graph.zoom(28, 800); }
+        });
 
-  document.getElementById('plot').on('plotly_click', function(ev){
-    const url = ev.points?.[0]?.customdata;
-    if (url) window.location.href = url;
-  });
-
-  qEl.addEventListener('input', debounce(render, 200));
-  cEl.addEventListener('change', render);
-  colorEl.addEventListener('change', render);
-  resetEl.addEventListener('click', ()=>{
-    qEl.value = '';
-    cEl.value = 'all';
-    colorEl.value = 'cluster';
-    render();
-  });
-
-  function debounce(fn, t){
-    let id=null;
-    return (...args)=>{ clearTimeout(id); id=setTimeout(()=>fn(...args), t); };
-  }
-
-  render();
-})();
-</script>
+        setTimeout(() => Graph.zoomToFit(800, 100), 500);
+      });
+  </script>
+</body>
+</html>

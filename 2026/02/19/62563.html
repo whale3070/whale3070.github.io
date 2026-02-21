@@ -1,0 +1,718 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>Avalanche3 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="Avalanche3">
+                      
+                        Avalanche3
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-02-19 15:06" pubdate>
+        2026年2月19日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      6.9k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      93
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">Avalanche3</h1>
+            
+            <div class="markdown-body">
+              <h1 id="雪崩共识"><a href="#雪崩共识" class="headerlink" title="雪崩共识"></a>雪崩共识</h1><p>了解区块链如何利用不同的机制达成共识。</p>
+<p>课程欢迎语<br>欢迎学习本课程<br>了解Avalanche基础知识</p>
+<p>欢迎来到《Avalanche基础》在线课程，带你走进Avalanche技术的精彩世界！本课程将全面讲解让Avalanche独具特色的核心概念。</p>
+<p>在课程中，你将学习该平台的关键特性与优势，以及如何基于它进行开发。你还可以向专业讲师提问咨询。</p>
+<p>课程结束后，你将掌握相关知识与技能，能够将区块链技术应用到自己的项目与应用中。我们很高兴你加入这段学习之旅，也十分期待你使用Avalanche创造出精彩成果！</p>
+<hr>
+<h2 id="先修要求"><a href="#先修要求" class="headerlink" title="先修要求"></a>先修要求</h2><p>本课程面向具备一定区块链知识的学习者。你可以通过这份指南复习区块链基础知识，并通过这篇博客了解测试网的工作原理与必要性。</p>
+<p>建议熟悉现代分布式软件系统的基础设计，以及比特币、以太坊等常见区块链系统。<strong>完成本课程无需编写代码</strong>。</p>
+<p>具备上述基础将帮助你更好地理解课程内容、参与课程活动。如果你不确定自己是否满足课程基础要求，可联系课程讲师获取指导。</p>
+<hr>
+<h2 id="学习目标"><a href="#学习目标" class="headerlink" title="学习目标"></a>学习目标</h2><p>学完本课程后，你将能够：</p>
+<ul>
+<li>理解Avalanche共识机制的原理及其独特性</li>
+<li>理解Avalanche L1如何实现可扩展性、可定制化与独立性</li>
+<li>理解特殊的Avalanche L1——主网（Primary Network）及其交互方式</li>
+<li>理解虚拟机（VM）如何帮助开发者构建更优化、更强大的区块链系统，并实现传统方案无法支持的全新应用场景</li>
+</ul>
+<p>你可以通过测验检验学习效果，课程完成后可领取结业证书。</p>
+<p>总而言之，本课程旨在为你打下Avalanche基础。完成学习后，你将更有能力学习面向Avalanche开发的高阶课程。</p>
+<h1 id="雪崩共识视频翻译"><a href="#雪崩共识视频翻译" class="headerlink" title="雪崩共识视频翻译"></a>雪崩共识视频翻译</h1><p>这里是你提供的英文文本的<strong>简体中文精准翻译</strong>（保留技术原意、口语化讲课风格，修正原文口误）：</p>
+<hr>
+<h2 id="02月19日-1（中文翻译）"><a href="#02月19日-1（中文翻译）" class="headerlink" title="02月19日_1（中文翻译）"></a>02月19日_1（中文翻译）</h2><p>大家好。今天我们先来讲解<strong>平均共识（Average Consensus）</strong>。<br>我们先简单回顾一下区块链系统中的<strong>共识机制</strong>。</p>
+<p>共识在区块链网络中至关重要，它用于<strong>解决冲突</strong>，并确保所有验证节点对系统当前状态达成一致。<br>共识机制的核心目标，是创建一个<strong>全网公认的唯一事实版本</strong>。<br>网络参与者通过一套叫作<strong>共识协议</strong>的步骤来达成共识，这是它们集体判定系统有效状态、以及所有状态变更是否合法的方式。</p>
+<p>共识机制有很多种：<br>比特币有自己的共识机制，以太坊有另一种。<br>但归根结底，所有这些共识机制的目标，都是让验证节点对网络状态达成<strong>多数一致</strong>。</p>
+<p>那我们<strong>什么时候需要共识</strong>？<br>通常，当决策很明确——比如状态有效或无效时，选择很简单。<br>比方说，一笔交易里有人花了自己没有的钱，我们很容易判断它无效，不把它上链。</p>
+<p>但<strong>双花攻击（Double Spending Attack）<strong>呢？<br>双花攻击，就是用户试图用</strong>同一笔资金发起多笔交易</strong>，相当于花了自己本没有的钱。</p>
+<p>我们来看一个具体例子：<br>爱丽丝有 5 个 AVAX。<br>她<strong>同时发起两笔有效交易</strong>：</p>
+<ul>
+<li>第一笔：把 5 个 AVAX 转给鲍勃</li>
+<li>第二笔：把<strong>同一笔</strong>5 个 AVAX 转给查理</li>
+</ul>
+<p>这两笔交易<strong>单独看都有效</strong>，因为她确实有 5 个 AVAX。<br>但关键是：<strong>她不能同时做这两件事</strong>。</p>
+<p>这时系统就必须决定：哪笔交易有效、资金该去哪。<br>这里很重要的一点是：<strong>区块链系统里的时间概念非常弱</strong>。<br>验证节点作为整体，<strong>无法判断哪笔交易先提交</strong>。<br>哪怕爱丽丝几乎同时发送，或者时间差很小，节点们也无法集体确定先后顺序。<br>所以验证节点必须通过<strong>共识协议</strong>来做决定。</p>
+<p>接下来我们详细看<strong>Avalanche 共识家族</strong>是如何解决这个问题的。<br>Avalanche 共识基于一个简单原则：<strong>重复子采样投票（Repeated Sub-sampling Voting）</strong>。</p>
+<p>每个验证节点一开始可以有自己的偏好，也可以没有偏好——<br>它不确定两笔冲突交易里哪笔该上链。</p>
+<p>假设我们有 25 个验证节点（参数 n &#x3D; 25）。<br>每一轮，我们随机采样一部分节点来询问，比如每次问 5 个（参数 k &#x3D; 5）。<br>k 必须在 1 到 n 之间。</p>
+<p>我们再设一个<strong>α 阈值</strong>：<br>比如 5 个人里有 <strong>3 个以上同意同一个结果</strong>，就算形成多数。<br>一旦采样中出现这个多数，我就<strong>改变自己的偏好</strong>，跟多数保持一致。</p>
+<p>例子：<br>我随机问 5 个验证节点，其中 3 个说“转给鲍勃”。<br>因为达到 α&#x3D;3 的多数，我就把自己的偏好也改成“鲍勃”。</p>
+<p>还有一个<strong>决策阈值（decision threshold）</strong>：<br>比如设为 8。<br>意思是：如果我<strong>连续 8 轮</strong>重复采样，每次都得到同一个多数结果，<br>我就<strong>最终确认这个决定，不再改变</strong>。</p>
+<p>简单总结：</p>
+<ol>
+<li>先有一个初始偏好</li>
+<li>每轮随机采样一部分节点</li>
+<li>如果达到 α 多数，就跟多数走</li>
+<li>连续多轮都得到同一结果，就最终确认</li>
+</ol>
+<p>在没有冲突交易的正常情况下，这个机制会<strong>极快完成最终确认</strong>。<br>所有诚实节点会进入<strong>正反馈循环</strong>，快速达成一致。</p>
+<p>Avalanche 共识有一个非常好的特性：<br>只要有一个诚实节点接受某笔交易，<strong>最终所有诚实节点都会得出相同结论</strong>。</p>
+<p>我们再看两个关键指标：</p>
+<ul>
+<li><strong>最终确认时间（Time to Finality）</strong>：交易提交到不可篡改的耗时</li>
+<li><strong>吞吐量（Throughput）</strong>：每秒能处理多少笔交易</li>
+</ul>
+<p>这两个指标<strong>彼此独立</strong>。<br>打个比方：</p>
+<ul>
+<li>吞吐量 &#x3D; 高速公路的车道数</li>
+<li>最终确认时间 &#x3D; 从起点到终点的耗时</li>
+</ul>
+<p>你可以有：</p>
+<ul>
+<li>很长但车道多的高速</li>
+<li>很短但车道少的高速</li>
+</ul>
+<p>而我们的目标是：<strong>车道多、距离又短</strong>。</p>
+<p>对比主流公链：</p>
+<ul>
+<li>比特币：最终确认极慢，吞吐量很低</li>
+<li>以太坊：吞吐量更高、确认更快</li>
+<li>Avalanche C 链：在<strong>吞吐量 + 最终确认时间</strong>上全面领先</li>
+</ul>
+<p>用高速类比：</p>
+<ul>
+<li>比特币 &#x3D; 很长的单车道高速</li>
+<li>以太坊 &#x3D; 多车道但依然很长</li>
+<li>Avalanche &#x3D; <strong>超多车道、超短距离</strong>，直达、极快、延迟极低</li>
+</ul>
+<p>今天关于 Avalanche 共识的内容就到这里，<br>我们下节课见。</p>
+<h3 id="原文"><a href="#原文" class="headerlink" title="原文"></a>原文</h3><p>02月19日_1<br>Hi. Today we’re gonna talk about average consensus to get started. Let’s kick it off with a little recap of consensus mechanisms, block chain systems. So, um, consensus plays a crucial role in block chain networks to resolving conflicts and ensuring that all validate as agree on the current state of the uh, system. So the main objective of consensus mechanisms is to create a single version of truth that is universally accepted by all participants in the network. So these participants can reach a consensus by following a couple of steps called a consensus protocol. Um. So this is their way to collectively decide on what state of the system is valid, and, uh, all the state changes, um, come in.<br>So there are many different consensus mechanisms. Bitcoin has their own consensus mechanism. Um, the theorem has a different consensus mechanism. But at the end of the day, all these uh, consensus mechanisms aim to ensure that validate is reach a majority agreement on the state of the network.<br>So when do we need consensus? Uh, usually, um, yeah, choices are very easy to make, uh, when it comes to a decision, especially if there is a valid state and an invalid state. Right? So if there is maybe a transaction where someone uh, spends uh funds that they don’t have, it’s relatively easy to decide uh, to include it in the block chain or not, because we can just say it’s invalid, so we won’t tx. But how about something we call a double spending attack? So double spending attack is basically, um, when a user trying to is trying to um spend funds that they don’t have um by actually referencing like creating multiple transactions, referencing to the same fund.<br>So, uh, let’s look at a concrete example. Uh, ellis owns five areas. So alice, now, this is two transactions at the same time, two different valid errors. The first transaction is stating that she wants to send the five apex ball. And the second transaction is stating that she wants to uh, send the same five apex she has to charlie. So both of these transactions are valid, right? Because she has five a backs. She can send it to bob. She can also send them to charlie. But it’s important to understand that that she can’t do both.<br>So now the system has to decide which of these two transactions is valid and where the funds will go. And it’s important to understand here that there is like a very limited notion of time and block chain systems. So the validate as as a collective, have no way to identify which transaction was submitted to the system first. Uh, even like obviously, alice will try to, uh, and when the views are trying to is trying to um spend funds that they don’t have um by actually referencing like creating multiple transactions, referencing to the same fund.<br>So, uh, let’s look at a concrete example. Uh, ellis owns five ax so else, now, this is two transactions at the same time to different validate as the first transaction is stating that she wants to send the five apex to bob. And the second transaction, the stating that she wants to uh, send the same five a back, she has to charlie. So both of these transactions are valid, right? Because she has five a backs. She can send it to bob. She can also send them to charlie, but it’s important to understand that that she can’t do both.<br>So now the system has to decide which of these two transactions is valid and where the funds will go. And it’s important to understand here that there is like a very limited notion of time in block chain systems. So the validate as as a collective, have no way to identify which transaction was submitted to the system. First, uh, even like obviously, alice will try to uh, submit them almost at the same time. Um, but even if there’s a slight difference in time, um, uh, of the submission of the two transactions, there’s no way for the validate as to collectively decide on when that actually happened.<br>So, um, now the village just have to go through a consensus, um, protocol, uh, to determine which uh, decision they make.<br>And um, now we will look in more detail on how this is not an avalanche consensus family. So the avalanche consensus basically relies on a simple principle called um, repeated sub sampling rolling. Right? So that means that when we look at our uh, validators, every valid data might have an initial preference or no preference at all, which of these two transactions is valid or should be uh, included in the in the block chain.<br>And, um, so let’s say we have a room full of uh, validate as and, um, there are about 25 of them. Um. So the first, uh, parameter of their consensus we have is, uh, n it’s a number of participants. So we have 25 nodes, so n is 25. So now we have to decide on a sample size. So let’s say each round of sub sampling, we are asking five other validate as. So this would be k uh, it has to be a number between one and n because we can’t ask more people than are participating in this system per round.<br>So, um, let’s say, um, between 1 and 25 and uh, we are choosing now, um, a five. So we can ask five render people and they’re gonna tell us something. They’re gonna tell us they are preference. Should they should the five apex go to um, charlie or to bob? And now let’s say we have a chrome size. So the size, um, the fraction of the the sample size we want, um, we need to convince ourselves to change our own preference. Let’s say. If you have a simple majority of three out of five that have the same preference, we are going to change our process.<br>So, um, in our example, let’s say we are asking five different, valid uh, validates, and three of them are telling us, we think you should send the funds to bob. Since we have a simple majority and alpha three, at this point, we will change our view on the system. We’re gonna change our personal preference. Um, also to bob.<br>And then there’s a decision threshold, which basically means, okay, if I repeat this over and over again, how many times in a row do I have to hear the same, um, majority of the forum? Um, yeah, having the same opinion. So let’s say my decision threshold is eight. So if I repeatedly sub sample voting, repeatedly asked five, um, validate as of the 25, every time different. Every time I ask them, I will ask different validate as.<br>And now 8 times in a row, three of more, uh, three of the five, um, or more will tell me over and over again. We think, uh, it should be bob, our preference, bob. Um, then I uh, log in my personal decision and, um, will not change my mind anymore. So, um, this is, uh, the consensus in a nutshell. So, um, we can also put this in pseudo code. So if we look at the code here, what we see is basically a um, we have an initial preference, which may be, for example, the uh, transaction we see first. Um, then we have consecutive successes. So this is um, a variable trade track if we uh, reach, um, the um, better yet. Um, and uh, then there’s a loop basically going as long as we have not decided.<br>So what we’re gonna do first is we’re gonna ask, can you render people uh, of the preference? Then we are checking in the responses? Is there an alpha majority that gives us the same preference? Uh, the same response if there is. So are there more than three, uh, three or more, um, a valid is giving us the same um, preference uh, preference, then we’re gonna change our own preference to the response with the majority. And this this is already the prefer uh, preference we had for earlier.<br>So it’s a repeated um, confirmation of that. We will increase their consecutive uh, successes. If not, we won’t send it to one, because now we just changed our mind. And, um, if there is no alpha majority for any um, any option, um, we set it back to zero.<br>And then at the end, we um, check if the number of confirmations now is larger than better. And if that is the case, then we decide. So in the common case, where there are no conflicting transaction, this leads to a very, very quick finalization. Right? So if, uh, someone just sends some a backs and there’s no, um, conflicting transaction, um, it’s gonna be on, uh, immediately. And, um, like all the, uh, correct validate as are just gonna, um, yeah, enter a positive feedback loop. And um, yeah, it’s gonna be very frequent. And um, so avalanche consensus uh, has a very nice property. It’s guarantees with very high, probably, uh, probability based on this parameters. We just talked about that if we must validate or accept the transaction, all honest, validate as will come to the same conclusion.<br>Eventually. Let’s look at a little demo of the consensus protocol we just talked about. So you can see here a bunch of squares, and uh, each square represents a validator, and the color of the square represents the personal preference. Each relative has, um, as of now, uh, the darker the color uh is the more um convicted. The validator is so the more sure um that this is the final decision. And as we can see here, all of the villages eventually go, uh, like they all agree on one one color. And um, you can see, even though there might be still validate as left that, um, some uh, validate as already very sure that this is going to be the final outcome, and they already commit to that um, decision.<br>So another concept I wanna talk to about is, um, time to finality and throughput. So these are two um, metrics we can use to, um, measure if a consensus protocol is, um, um, good. So throughput means, um, how many transactions, um, yeah, can be decided on per second. And uh, time to finality means, okay, from the moment, I submit a transaction to the system. How long does it take until it’s finalized? So, um, it cannot be changed on on chain. It reaches like the end of final state on the on the train.<br>So it’s very important to understand that these two are not related at all. And um, I usually like to think about it, uh, with an analogy of the highway where all the cars travel with the sense. So throughput would equal the number of lanes that the highway has. So the more lanes, the highway has, the the more cars, whether it seems to be can travel over the highway.<br>So as we can see now, time to finality is the time i’m starting on the high rent to, I get to the um, destination. And these two metrics are very unrelated. So we can have um, a very, very long single lane highway. And but we can also have a very short um, highway with many lanes. And generally, when the dining concepts put it all, it is our goal to um, design a highway that has many lanes, but take the shortest route to destination. So it’s very, very short.<br>So, um, when we look now at different um popular um chains, we can see that there’s a bit coin, a syrian and uh avalanche uh sea chain.<br>So, um, as we can see in the table bit, coin has an incredibly long um, time to finality. And a very low throughput. The theorem is a little better. Um, it has a higher throughput and a shorter time to finality. But as you can see here on the matrix, avalanche consensus is completely uncontested when it comes to throughput and time to finality.<br>If we go back to our example of the highway, we can think of bit coin as a very, very long, single lane highway. We can think of the theorem as a multilayer highway, but that’s still very long. And we can think of avalanche as a um, yeah, incredibly short uh, highway with many, many lanes. So it brings us to our destination very, very quick on a very direct route, um, with many, many delays. And this computes our to the uh session today about the avalanche consensus. And i’ll see you in the next session. Nasa nano.</p>
+<h1 id="共识机制"><a href="#共识机制" class="headerlink" title="共识机制"></a>共识机制</h1><p>了解区块链如何通过不同机制达成共识。</p>
+<p>共识在区块链网络中至关重要，它能够解决冲突，并确保所有验证节点对分布式账本的当前状态达成一致。共识机制的核心目标，是创建一个被网络参与者普遍认可的<strong>唯一事实版本</strong>。</p>
+<p>验证节点可通过遵循一套名为<strong>共识协议</strong>的流程来达成共识，从而共同决定系统状态及所有状态变更。不同的共识机制采用不同的实现方式，但目标都是确保验证节点对网络状态达成多数一致。</p>
+<h2 id="通过共识实现排序"><a href="#通过共识实现排序" class="headerlink" title="通过共识实现排序"></a>通过共识实现排序</h2><p>区块链需要依靠共识来对状态变更的顺序达成一致，使验证节点能够在两个冲突状态之间做出抉择。</p>
+<p><strong>测验时间！</strong><br>Wolfie 想要测试你的知识。请选择正确答案。</p>
+<p><strong>当出现冲突交易时，验证者（validators）的作用是什么？</strong></p>
+<p>A<br>验证者选择对自己最有利的交易。</p>
+<p>B<br>验证者自动拒绝所有冲突交易。</p>
+<p>C<br>验证者共同决定两笔冲突交易中哪一笔会被所有验证者接受，并确定下一个系统状态。</p>
+<p>D<br>验证者创建一笔新交易来解决冲突。</p>
+<hr>
+<p>正确答案：<strong>C</strong></p>
+<h2 id="在区块链语境中，什么是双花攻击（Double-Spending-Attack）？"><a href="#在区块链语境中，什么是双花攻击（Double-Spending-Attack）？" class="headerlink" title="在区块链语境中，什么是双花攻击（Double Spending Attack）？"></a><strong>在区块链语境中，什么是双花攻击（Double Spending Attack）？</strong></h2><p>A<br>当用户通过创建多笔引用同一笔资金的交易，试图花费超过自身所持有的加密货币时。</p>
+<p>B<br>当用户通过欺诈交易试图将自己所持有的加密货币数量翻倍时。</p>
+<p>C<br>当用户在完全同一时间执行两笔交易以利用系统漏洞时。</p>
+<p>D<br>当验证者复制交易以增加其验证奖励时。</p>
+<hr>
+<p><strong>正确答案：A</strong></p>
+<h2 id="雪人共识（Snowman-Consensus）"><a href="#雪人共识（Snowman-Consensus）" class="headerlink" title="雪人共识（Snowman Consensus）"></a>雪人共识（Snowman Consensus）</h2><p>了解 Avalanche 雪人共识协议。</p>
+<p>Avalanche 家族中的协议通过<strong>重复子采样投票</strong>运行。当验证节点判断一个区块是否应该被接受时，它会随机询问一小部分其他验证节点的偏好。根据收到的回复，该验证节点可能会改变自己的偏好。</p>
+<p>我们通过一个例子来直观理解。你是若干验证节点中的一员，这些节点正在通过 Avalanche 共识协议进行表决：资金应该转给查理（黄色）还是鲍勃（蓝色）。需要明确的是，所有正常运行的验证节点其实并不在意最终结果是黄色还是蓝色，只要大家最终能达成一致即可。每个验证节点的初始偏好都是随机选择的。</p>
+<h2 id="改变偏好"><a href="#改变偏好" class="headerlink" title="改变偏好"></a>改变偏好</h2><p>你首先采样了其他 5 个节点的当前偏好，它们的回复是：<br>2 个偏好黄色（查理），3 个偏好蓝色（鲍勃）。</p>
+<p>Avalanche 共识规定：如果被采样的验证节点中存在 <strong>α 多数</strong> 同意另一个选项，验证节点就会改变自身偏好，跟随这一主流选择。</p>
+<p>在我们的示例中，将 <strong>alpha 值设为 3</strong>，这意味着当采样的 5 个节点中有 3 个偏好另一个选项时，我们就会改变自身偏好。<br>由于 5 个节点中有 3 个回复选择蓝色（鲍勃），我们将把自己的偏好改为鲍勃。</p>
+<p>从现在起，当其他验证者询问你当前的偏好时，你将回复<strong>蓝色</strong>。</p>
+<h3 id="简体中文翻译"><a href="#简体中文翻译" class="headerlink" title="简体中文翻译"></a>简体中文翻译</h3><p>在雪崩共识协议中，什么决定了验证者是否会改变其偏好？</p>
+<p>A<br>被抽样验证者的简单多数<br>B<br>被抽样验证者的 α 多数<br>C<br>被抽样验证者的一致决定<br>D<br>验证者最初的随机选择</p>
+<hr>
+<p>正确答案：<strong>B</strong></p>
+<h3 id="Avalanche-中的验证者在何时最终确定其决策？"><a href="#Avalanche-中的验证者在何时最终确定其决策？" class="headerlink" title="Avalanche 中的验证者在何时最终确定其决策？"></a>Avalanche 中的验证者在何时最终确定其决策？</h3><p>A<br>在经过固定轮次的查询并获得多数共识后。<br>B<br>在偏好连续 β 轮（决策阈值）获得 α 多数确认后。<br>C<br>一旦交易之间出现冲突时。<br>D<br>当系统中所有验证者都回复其偏好时。</p>
+<hr>
+<p>正确答案：<strong>B</strong></p>
+<h2 id="吞吐量与最终确认时间"><a href="#吞吐量与最终确认时间" class="headerlink" title="吞吐量与最终确认时间"></a>吞吐量与最终确认时间</h2><p>了解吞吐量和最终确认时间等指标的区别。</p>
+<p>我们可以用两个指标来衡量区块链性能：</p>
+<p><strong>吞吐量</strong>：每秒完成的交易数量，单位为<strong>每秒交易数（TPS）</strong><br><strong>最终确认时间</strong>：一笔交易从提交给验证节点到不可篡改所需的时间。</p>
+<p>这两个指标差异很大。区块链开发者都追求<strong>高吞吐量</strong>和<strong>极短的最终确认时间</strong>。</p>
+<hr>
+<h3 id="高速公路类比"><a href="#高速公路类比" class="headerlink" title="高速公路类比"></a>高速公路类比</h3><p>我们用高速公路打个比方：<br>每辆车代表一笔交易，它们的行驶速度相同。<br>当你在钱包中点击发送时，就像一辆汽车驶入高速公路；<br>当交易最终确认且不可篡改时，就像汽车抵达目的地。</p>
+<p>吞吐量与最终确认时间</p>
+<p><strong>吞吐量</strong>可以比作<strong>车道数量</strong>，它决定了在特定时间内高速公路上能通过多少辆车。车道越多，能通过的车辆就越多，从而提高吞吐量。在区块链网络中，增大区块大小（类似于增加车道）可以提升吞吐量。</p>
+<p>现在想象你正驾车前往一个特定目的地（最终确认）。从起点（交易发起）到目的地（交易确认）所花费的时间，就对应**“最终确认时间”**。一旦车辆到达终点，就无法返回或中止行程。</p>
+<p>我们的目标是建造**车道多（高吞吐量）、且能最快抵达目的地（短最终确认时间）**的高速公路。</p>
+<hr>
+<h2 id="主流区块链网络的吞吐量与最终确认时间"><a href="#主流区块链网络的吞吐量与最终确认时间" class="headerlink" title="主流区块链网络的吞吐量与最终确认时间"></a>主流区块链网络的吞吐量与最终确认时间</h2><p>网络｜吞吐量｜最终确认时间<br>比特币｜7 TPS｜60 分钟<br>以太坊｜30 TPS｜6.4 分钟<br>Avalanche &#x2F; Avalanche L1｜2500 TPS｜约 0.8 秒<br>TPS → 每秒交易数</p>
+<h1 id="简体中文翻译-1"><a href="#简体中文翻译-1" class="headerlink" title="简体中文翻译"></a>简体中文翻译</h1><p>沿用高速公路的类比，人们希望一条高速公路&#x2F;区块链具备什么特点？</p>
+<p>A<br>车道多，意味着多辆车&#x2F;多笔交易可以同时通行，即<strong>高吞吐量</strong>；并且高速公路尽可能短，意味着车辆&#x2F;交易能更快到达目的地，即<strong>最短的最终确认时间</strong>。</p>
+<p>B<br>车道多，意味着车辆&#x2F;交易可以跑得更快，即低吞吐量；并且高速公路尽可能短，意味着车辆&#x2F;交易能足够快地到达目的地而不会相撞，即最短的最终确认时间。</p>
+<p>C<br>车道多，意味着车辆&#x2F;交易可以跑得更快，即高吞吐量；并且高速公路尽可能短，意味着车辆&#x2F;交易能足够快地到达目的地而不会相撞，即最长的最终确认时间。</p>
+<p>D<br>车道少，意味着前往同一地点的车辆&#x2F;交易之间不会出现瓶颈，即高吞吐量；并且高速公路尽可能长，意味着车辆&#x2F;交易需要支付更多通行费，即更高的利润。</p>
+<hr>
+<p><strong>正确答案：A</strong></p>
+<h1 id="多链架构"><a href="#多链架构" class="headerlink" title="多链架构"></a>多链架构</h1><p>了解多链架构。</p>
+<p>多链系统是一项重大创新，它能提供更强的可扩展性、可定制性与独立性。多链系统的核心在于<strong>能够同时运行多条区块链</strong>。每条区块链都针对特定的使用场景进行优化，从而提升网络的整体性能。</p>
+<h2 id="你将学习到的内容"><a href="#你将学习到的内容" class="headerlink" title="你将学习到的内容"></a>你将学习到的内容</h2><p>在本章节中，你将学习以下主题：</p>
+<ul>
+<li><strong>Avalanche L1</strong>：了解什么是 Avalanche L1 及其工作原理</li>
+<li><strong>设置 Core 钱包</strong>：学习如何安装并设置 Core 钱包浏览器插件</li>
+<li><strong>使用 Dexalot</strong>：体验你的第一个 Avalanche L1 应用</li>
+</ul>
+<h1 id="主网络（Primary-Network）"><a href="#主网络（Primary-Network）" class="headerlink" title="主网络（Primary Network）"></a>主网络（Primary Network）</h1><p>了解 Avalanche 的主网络及其在多链架构中的作用。</p>
+<p>主网络是 Avalanche 生态系统的<strong>基础层</strong>，作为支撑整个网络的核心骨干，负责协调并保障全网所有活动的安全，包括不同 Avalanche 一层链（L1）之间的通信。</p>
+<h2 id="什么是主网络？"><a href="#什么是主网络？" class="headerlink" title="什么是主网络？"></a>什么是主网络？</h2><p>主网络由三条内置区块链组成，它们协同工作以提供核心功能：</p>
+<ul>
+<li><strong>P-Chain（平台链）</strong>：协调验证节点、记录活跃的一层链、管理质押相关事务</li>
+<li><strong>C-Chain（合约链）</strong>：兼容以太坊虚拟机（EVM）的区块链，用于智能合约与去中心化金融（DeFi）应用</li>
+<li><strong>X-Chain（交换链）</strong>：专为数字资产的创建与转账优化</li>
+</ul>
+<p>这三条链共同构成主网络，<strong>所有验证节点都必须对其进行验证</strong>。这一要求确保了整个 Avalanche 生态系统具备高度的去中心化与安全性。</p>
+<h2 id="在-Avalanche-生态系统中的作用"><a href="#在-Avalanche-生态系统中的作用" class="headerlink" title="在 Avalanche 生态系统中的作用"></a>在 Avalanche 生态系统中的作用</h2><p>主网络承担多项关键功能：</p>
+<h3 id="验证节点协调"><a href="#验证节点协调" class="headerlink" title="验证节点协调"></a>验证节点协调</h3><p>Avalanche 上的所有验证节点都必须验证主网络，由此形成<strong>共享安全模型</strong>——主网络可借助生态中所有验证节点的整体算力获得安全保障。</p>
+<h3 id="一层链注册与管理"><a href="#一层链注册与管理" class="headerlink" title="一层链注册与管理"></a>一层链注册与管理</h3><p>开发者如需创建 Avalanche 一层链，需在 P‑Chain 上完成注册，流程包括：</p>
+<ul>
+<li>定义验证节点要求</li>
+<li>设置经济参数</li>
+<li>建立一层链与主网络的关联关系</li>
+</ul>
+<h3 id="AVAX-代币管理"><a href="#AVAX-代币管理" class="headerlink" title="AVAX 代币管理"></a>AVAX 代币管理</h3><p>AVAX 作为 Avalanche 生态的原生代币，由主网络进行管理，用途包括：</p>
+<ul>
+<li>支付 C‑Chain 上的交易手续费</li>
+<li>质押成为验证节点</li>
+<li>通过权益证明（PoS）共识保障网络安全</li>
+<li>作为生态内统一的计价单位</li>
+</ul>
+<h3 id="互操作基础"><a href="#互操作基础" class="headerlink" title="互操作基础"></a>互操作基础</h3><p>主网络通过<strong>Avalanche 跨链消息协议（ICM）</strong>，为不同 Avalanche 一层链之间的互操作性提供基础，实现安全的跨链通信与资产转移。</p>
+<h2 id="主网络与-Avalanche-一层链的区别"><a href="#主网络与-Avalanche-一层链的区别" class="headerlink" title="主网络与 Avalanche 一层链的区别"></a>主网络与 Avalanche 一层链的区别</h2><p>Avalanche 一层链提供<strong>可定制性与独立性</strong>，而主网络则提供<strong>稳定性与共享安全</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th>主网络（Primary Network）</th>
+<th>Avalanche 一层链（Avalanche L1s）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>验证节点集合</td>
+<td>所有 Avalanche 验证节点</td>
+<td>自定义验证节点集合</td>
+</tr>
+<tr>
+<td>共识规则</td>
+<td>固定（雪崩共识）</td>
+<td>可自定义</td>
+</tr>
+<tr>
+<td>Gas 代币</td>
+<td>AVAX</td>
+<td>自定义（可为 AVAX 或其他代币）</td>
+</tr>
+<tr>
+<td>虚拟机</td>
+<td>固定（AVM、EVM、PlatformVM）</td>
+<td>可自定义（EVM、自定义虚拟机）</td>
+</tr>
+<tr>
+<td>安全模型</td>
+<td>生态全局共享安全</td>
+<td>独立安全</td>
+</tr>
+<tr>
+<td>访问控制</td>
+<td>无需许可</td>
+<td>无需许可 或 需许可</td>
+</tr>
+</tbody></table>
+<p>主网络的作用是提供一个稳定、安全的基础层，供所有 Avalanche 一层链依赖，同时为一层链创建者提供灵活的定制能力，以适配特定的应用场景。</p>
+<h3 id="简体中文翻译-2"><a href="#简体中文翻译-2" class="headerlink" title="简体中文翻译"></a>简体中文翻译</h3><p><strong>BLS 签名方案与其他聚合签名方案相比，有何特点？</strong></p>
+<p>A<br>其签名聚合能保持聚合后的签名体积很小<br>B<br>其签名聚合仅使用 64 字节<br>C<br>其签名聚合可以聚合数千个签名<br>D<br>其签名聚合允许我们同时聚合签名和公钥</p>
+<p>BLS签名方案的一个显著特点是其聚合签名的大小保持不变，无论聚合了多少个签名，最终得到的聚合签名仍然是一个短的群元素。这使得它在与其他聚合签名方案比较时，能够保持较小的聚合签名尺寸。<br>正确答案：A</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/">区块链</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E9%83%A8%E7%BD%B2%E8%BF%87%E7%A8%8B/">部署过程</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E7%BC%96%E7%A8%8B/">编程</a>
+                    
+                      <a class="hover-with-bg" href="/tags/EVM%E5%85%BC%E5%AE%B9%E9%93%BE/">EVM兼容链</a>
+                    
+                  </div>
+                
+              </div>
+              
+                
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/02/19/13858.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Avalanche4</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/02/18/31429.html">
+                        <span class="hidden-mobile">博客文章+机器学习（一键“自动目录”）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "Avalanche3"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>
