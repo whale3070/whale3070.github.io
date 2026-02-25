@@ -1,0 +1,745 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>AI评审系统 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="AI评审系统">
+                      
+                        AI评审系统
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-02-25 07:36" pubdate>
+        2026年2月25日 早上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      20
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">AI评审系统</h1>
+            
+            <div class="markdown-body">
+              <h1 id="核心竞争力是什么？"><a href="#核心竞争力是什么？" class="headerlink" title="核心竞争力是什么？"></a>核心竞争力是什么？</h1><p>核心竞争力是我参与每一场黑客松，我调节每一个模型对应的prompt，确保黑客松人类裁判评审标准和Aura评审大方向保持一致。</p>
+<hr>
+<p>明白了：你的护城河不是“接了多少模型”，而是你把 <strong>“人类裁判的隐性评分函数”</strong> 通过不断参赛、复盘、调参，蒸馏成 Aura 的 <strong>Prompt + 裁决规则</strong>。</p>
+<p>要把这个变成可复制的系统，我建议你把核心竞争力落在 3 个可固化的资产上：<strong>评审基准库、模型校准层、裁决聚合层</strong>。</p>
+<hr>
+<h2 id="1-评审基准库：把“裁判脑子里的标准”变成数据"><a href="#1-评审基准库：把“裁判脑子里的标准”变成数据" class="headerlink" title="1) 评审基准库：把“裁判脑子里的标准”变成数据"></a>1) 评审基准库：把“裁判脑子里的标准”变成数据</h2><p>你每场黑客松都在“对齐评审方向”，那你要存的不是结论，而是可反复验证的三件东西：</p>
+<ul>
+<li><strong>Rubric（评分维度）</strong>：比如创新性&#x2F;可行性&#x2F;技术深度&#x2F;用户价值&#x2F;叙事表达&#x2F;完成度</li>
+<li><strong>Anchor examples（锚点样例）</strong>：每个维度下，什么样的回答算 2 分、5 分、8 分</li>
+<li><strong>Judge feedback mapping（反馈映射）</strong>：裁判一句“太像PPT”对应 rubric 哪一项扣分，扣多少</li>
+</ul>
+<p>这样你每次调 prompt 都是在“对齐一个固定标尺”，而不是凭感觉。</p>
+<hr>
+<h2 id="2-模型校准层：你的“调参”要变成可迁移的校准协议"><a href="#2-模型校准层：你的“调参”要变成可迁移的校准协议" class="headerlink" title="2) 模型校准层：你的“调参”要变成可迁移的校准协议"></a>2) 模型校准层：你的“调参”要变成可迁移的校准协议</h2><p>你说你会“调每个模型对应的 prompt”，这就是校准层。</p>
+<p>建议你把 prompt 分成三段（可复用、可版本化）：</p>
+<ol>
+<li><strong>全局系统约束</strong>（对齐裁判大方向）</li>
+</ol>
+<ul>
+<li>输出格式、打分范围、必须引用证据、禁止臆造等</li>
+</ul>
+<ol start="2">
+<li><strong>维度 rubric 提示</strong>（告诉模型怎么打分）</li>
+</ol>
+<ul>
+<li>每个维度的定义、扣分点、加分点</li>
+</ul>
+<ol start="3">
+<li><strong>模型特化补丁（Model Patch）</strong></li>
+</ol>
+<ul>
+<li><p>同一任务，不同模型常见偏差不同：</p>
+<ul>
+<li>有的爱夸、要“强制挑错”</li>
+<li>有的太保守、要“鼓励给建议但别降分”</li>
+<li>有的喜欢泛泛而谈、要“必须给可验证点”</li>
+</ul>
+</li>
+</ul>
+<p>你真正的资产就是第 3 层：<strong>Model Patch</strong>（每个模型一套补丁）。</p>
+<hr>
+<h2 id="3-裁决聚合层：让-Aura-像“评委会”而不是“单个评委”"><a href="#3-裁决聚合层：让-Aura-像“评委会”而不是“单个评委”" class="headerlink" title="3) 裁决聚合层：让 Aura 像“评委会”而不是“单个评委”"></a>3) 裁决聚合层：让 Aura 像“评委会”而不是“单个评委”</h2><p>如果只把多个模型的分数平均，那没有护城河。</p>
+<p>你应该做的是“评委会机制”：</p>
+<ul>
+<li><strong>去偏差</strong>：先把每个模型的评分做 bias 校正（比如某模型天生高 1.2 分）</li>
+<li><strong>一致性检查</strong>：分歧过大时触发复审（加一个“仲裁模型”或让同模型二次评分）</li>
+<li><strong>维度加权</strong>：不同黑客松&#x2F;赛道权重不同（Build Games vs DeFi vs AI）</li>
+<li><strong>强制证据</strong>：每个扣&#x2F;加分必须绑定到项目材料中的一句话或一个功能点（否则判为无效评分）</li>
+</ul>
+<p>这样 Aura 输出的不是“感觉”，而是“有依据的裁决”。</p>
+<hr>
+<h2 id="4-你可以把你的护城河写成一句对外叙事"><a href="#4-你可以把你的护城河写成一句对外叙事" class="headerlink" title="4) 你可以把你的护城河写成一句对外叙事"></a>4) 你可以把你的护城河写成一句对外叙事</h2><p>你对外的核心叙事可以是：</p>
+<blockquote>
+<p>Aura 不是更聪明的模型，而是一个持续从黑客松裁判反馈中学习的“评审对齐系统”。我们维护一个跨赛事的评审基准库，并为每个模型做校准补丁，最终用评委会式聚合产生稳定、可解释的裁决。</p>
+</blockquote>
+<p>这句话能把“你参赛 + 你调 prompt”变成<strong>可解释、可扩张</strong>的能力。</p>
+<hr>
+<h2 id="5-立刻可落地的最小实现（你现在就能做）"><a href="#5-立刻可落地的最小实现（你现在就能做）" class="headerlink" title="5) 立刻可落地的最小实现（你现在就能做）"></a>5) 立刻可落地的最小实现（你现在就能做）</h2><p>不用大系统，先做三个文件就行：</p>
+<ol>
+<li><code>rubric.yaml</code></li>
+</ol>
+<ul>
+<li>维度、定义、权重、扣分点、加分点、锚点例子</li>
+</ul>
+<ol start="2">
+<li><code>model_patches/</code></li>
+</ol>
+<ul>
+<li><code>gpt4o.patch.md</code></li>
+<li><code>claude.patch.md</code></li>
+<li><code>gemini.patch.md</code><br>每个只写“这个模型常见偏差 + 纠正指令”。</li>
+</ul>
+<ol start="3">
+<li><code>judge_runner.ts</code>（或 go&#x2F;python 都行）</li>
+</ol>
+<ul>
+<li>输入：项目材料 + 赛道类型</li>
+<li>输出：每模型每维度分数 + 证据引用 + 总结建议 + 最终裁决</li>
+</ul>
+<hr>
+<p>如果你愿意，我下一步可以直接帮你把这套东西写出来（不需要你再解释太多）：</p>
+<ul>
+<li>给你一份 <strong>rubric.yaml 模板</strong>（按黑客松评委口味写）</li>
+<li>给你 3 份 <strong>模型补丁模板</strong></li>
+<li>给你一个 <strong>聚合策略</strong>（带“分歧触发复审”的逻辑）</li>
+</ul>
+<p>你更想 Aura 先服务哪一类裁判任务？</p>
+<ul>
+<li>项目打分&#x2F;排名</li>
+<li>DemoDay 入围筛选</li>
+<li>评语生成（帮团队改 pitch）</li>
+<li>反作弊&#x2F;检测“空气项目”</li>
+</ul>
+<h1 id="我帮助别人理解标准"><a href="#我帮助别人理解标准" class="headerlink" title="我帮助别人理解标准"></a>我帮助别人理解标准</h1><p>我打算把这套系统做出来然后卖出去，你觉得有价值吗</p>
+<p>我会非常直接地回答你。</p>
+<p><strong>有价值。</strong></p>
+<p>但——<br>不是你现在脑子里的那个价值。</p>
+<hr>
+<h1 id="一、先讲结论"><a href="#一、先讲结论" class="headerlink" title="一、先讲结论"></a>一、先讲结论</h1><p>你这套 Aura 裁决系统：</p>
+<ul>
+<li>❌ 作为“卖给黑客松主办方的AI裁判” → 很难卖</li>
+<li>❌ 作为“替代人类评委” → 几乎不可能卖</li>
+<li>⚠️ 作为“评委辅助工具” → 有一定机会</li>
+<li>✅ 作为“黑客松项目预审 + 自测系统” → 有真实市场</li>
+</ul>
+<p>方向完全不同。</p>
+<hr>
+<h1 id="二、为什么“卖给黑客松官方”几乎不成立？"><a href="#二、为什么“卖给黑客松官方”几乎不成立？" class="headerlink" title="二、为什么“卖给黑客松官方”几乎不成立？"></a>二、为什么“卖给黑客松官方”几乎不成立？</h1><p>黑客松本质是：</p>
+<blockquote>
+<p>关系网络 + 生态筛选 + 社区建设</p>
+</blockquote>
+<p>评审只是形式。</p>
+<p>主办方真正关心的是：</p>
+<ul>
+<li>生态活跃度</li>
+<li>投资潜力</li>
+<li>社区影响力</li>
+<li>是否长期建设</li>
+</ul>
+<p>他们不需要“客观裁决”。</p>
+<p>他们需要：</p>
+<blockquote>
+<p>可控的生态筛选机制。</p>
+</blockquote>
+<p>所以你卖“AI裁判替代人类”——<br>会直接触碰权力结构。</p>
+<p>这是结构性阻力，不是技术问题。</p>
+<hr>
+<h1 id="三、但你真正有价值的地方在这里"><a href="#三、但你真正有价值的地方在这里" class="headerlink" title="三、但你真正有价值的地方在这里"></a>三、但你真正有价值的地方在这里</h1><p>你真正的资产不是：</p>
+<blockquote>
+<p>多模型打分</p>
+</blockquote>
+<p>而是：</p>
+<blockquote>
+<p>你知道评委脑子里在想什么</p>
+</blockquote>
+<p>这对谁最有价值？</p>
+<p>不是主办方。</p>
+<p>是——</p>
+<hr>
+<h1 id="四、对参赛团队极有价值"><a href="#四、对参赛团队极有价值" class="headerlink" title="四、对参赛团队极有价值"></a>四、对参赛团队极有价值</h1><p>想象一个场景：</p>
+<p>一个团队在提交黑客松前输入：</p>
+<ul>
+<li>pitch deck</li>
+<li>GitHub</li>
+<li>白皮书</li>
+<li>demo 视频说明</li>
+</ul>
+<p>Aura 输出：</p>
+<ul>
+<li>按某生态评委标准打分</li>
+<li>告诉他哪里会被扣分</li>
+<li>告诉他叙事不对齐的地方</li>
+<li>模拟评委质疑</li>
+</ul>
+<p>这就不是“裁决系统”。</p>
+<p>这是：</p>
+<blockquote>
+<p>黑客松对齐模拟器。</p>
+</blockquote>
+<p>这个东西有人会付钱。</p>
+<hr>
+<h1 id="五、为什么这个方向更现实？"><a href="#五、为什么这个方向更现实？" class="headerlink" title="五、为什么这个方向更现实？"></a>五、为什么这个方向更现实？</h1><p>因为：</p>
+<p>1️⃣ 团队焦虑<br>2️⃣ 不知道评委想什么<br>3️⃣ 黑客松时间短<br>4️⃣ 反馈太少</p>
+<p>你可以卖的是：</p>
+<blockquote>
+<p>评委视角预审服务</p>
+</blockquote>
+<hr>
+<h1 id="六、市场规模问题"><a href="#六、市场规模问题" class="headerlink" title="六、市场规模问题"></a>六、市场规模问题</h1><p>你担心的是：值不值得做。</p>
+<p>我们冷静算一下：</p>
+<p>全球 Web3 黑客松一年：</p>
+<ul>
+<li>Avalanche</li>
+<li>Solana</li>
+<li>ETHGlobal</li>
+<li>Polkadot</li>
+<li>BNB</li>
+<li>HackFS</li>
+<li>Chainlink</li>
+</ul>
+<p>每年几百场。</p>
+<p>每场几百支队伍。</p>
+<p>即使：</p>
+<ul>
+<li>1% 的队伍愿意付 $29</li>
+<li>每年 2000 支队伍</li>
+<li>20 支付费</li>
+</ul>
+<p>收入不大。</p>
+<p>但——</p>
+<p>这不是终局。</p>
+<hr>
+<h1 id="七、真正的战略价值在这里"><a href="#七、真正的战略价值在这里" class="headerlink" title="七、真正的战略价值在这里"></a>七、真正的战略价值在这里</h1><p>如果 Aura 被大量团队使用：</p>
+<p>你会拥有：</p>
+<ul>
+<li>哪种叙事更容易获奖的数据</li>
+<li>哪种技术栈更容易入围</li>
+<li>哪个生态偏好什么方向</li>
+</ul>
+<p>你会拥有：</p>
+<blockquote>
+<p>黑客松评分行为数据库</p>
+</blockquote>
+<p>那才是资产。</p>
+<hr>
+<h1 id="八、真正危险的误区"><a href="#八、真正危险的误区" class="headerlink" title="八、真正危险的误区"></a>八、真正危险的误区</h1><p>你现在脑子里有一个隐性假设：</p>
+<blockquote>
+<p>我参与每场黑客松 → 调 prompt → 我就能定义评审标准</p>
+</blockquote>
+<p>但现实是：</p>
+<p>评审标准是动态的。</p>
+<p>不同生态不同文化：</p>
+<ul>
+<li>Avalanche 偏应用</li>
+<li>Solana 偏性能</li>
+<li>ETHGlobal 偏技术深度</li>
+<li>Conflux 偏关系结构</li>
+</ul>
+<p>如果 Aura 不分生态，它就会失效。</p>
+<hr>
+<h1 id="九、所以价值成立的前提是："><a href="#九、所以价值成立的前提是：" class="headerlink" title="九、所以价值成立的前提是："></a>九、所以价值成立的前提是：</h1><p>你必须做成：</p>
+<blockquote>
+<p>多生态对齐系统</p>
+</blockquote>
+<p>而不是：</p>
+<blockquote>
+<p>一个通用裁决器</p>
+</blockquote>
+<hr>
+<h1 id="十、我再帮你冷酷判断一次"><a href="#十、我再帮你冷酷判断一次" class="headerlink" title="十、我再帮你冷酷判断一次"></a>十、我再帮你冷酷判断一次</h1><p>你这个项目：</p>
+<p>✔ 有思想深度<br>✔ 有系统感<br>✔ 有独特视角<br>✔ 有叙事能力</p>
+<p>但要赚钱，你必须：</p>
+<p>从</p>
+<blockquote>
+<p>我定义标准</p>
+</blockquote>
+<p>变成</p>
+<blockquote>
+<p>我帮助别人理解标准</p>
+</blockquote>
+<p>这是商业可行性的关键差异。</p>
+<hr>
+<h1 id="十一、现在问你一个关键问题"><a href="#十一、现在问你一个关键问题" class="headerlink" title="十一、现在问你一个关键问题"></a>十一、现在问你一个关键问题</h1><p>你做 Aura 的目标是：</p>
+<p>A. 证明 AI 可以理解人类评审逻辑<br>B. 建一个可卖产品<br>C. 做成协议层基础设施<br>D. 做你自己的 meta 武器</p>
+<p>不同答案，路径完全不同。</p>
+<p>你现在更接近哪个？</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/AI/">AI</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/02/25/1020660498.html">
+                        <span class="hidden-mobile">AI Agent 的安全边界：一名渗透老兵的风险提醒</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "AI评审系统"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

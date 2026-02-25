@@ -1,0 +1,531 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>AI Agent 的安全边界：一名渗透老兵的风险提醒 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="AI Agent 的安全边界：一名渗透老兵的风险提醒">
+                      
+                        AI Agent 的安全边界：一名渗透老兵的风险提醒
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-02-25 07:27" pubdate>
+        2026年2月25日 早上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      22
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">AI Agent 的安全边界：一名渗透老兵的风险提醒</h1>
+            
+            <div class="markdown-body">
+              <p>从事网络安全十年，红队渗透实战数年，如今转型Web3安全，我见过太多看似“黑科技”实则暗藏风险的工具。而近期热度颇高的本地执行型AI Agent，让我不得不以渗透老兵的视角，聊一聊一个被很多人忽视的核心问题：当AI开始替我们执行系统命令、读取本地文件时，我们真的准备好了吗？<br>身边总有极客朋友安利这类工具，说它们能让AI自动干活、串联各类工具，甚至能“模糊人类与AI操作电脑的边界”，有望改变我们使用技术的方式。我理解这份兴奋——毕竟，能让AI自主完成流程化操作，确实是科幻照进现实的体验。但作为常年与攻击面打交道的安全从业者，我看到的，是这类工具天然自带的系统性安全风险，是普通人难以感知、却足以造成致命损失的隐患。<br>我的职业敏感，从来不是“挑某个工具的bug”，而是“预判一类架构的攻击面”。本地执行型AI Agent的核心设计，从安全建模角度来看，就存在一个无法回避的底层矛盾：它需要拥有足够高的系统权限，才能实现“自主干活”的核心价值；而这份高权限，一旦被滥用或被诱导，就会成为攻击者可利用的突破口。<br>这类工具的核心能力，是让AI自主读取本地文件、执行系统命令、调用外部工具——这在普通人眼里是“全能高效”，但在红队视角下，其能力边界与典型远控链路高度重叠。更值得警惕的是，从公开资料来看，部分同类工具尚未形成强制性的沙箱隔离机制，多依赖提示词约束或简单的命令黑名单。这种防护方式，在prompt注入、迂回绕过等攻击模型下，其防御能力存在明显局限——毕竟，AI的执行逻辑依赖输入引导，只要构造一段恶意对话、一个恶意文档，诱导AI去读取、解析、执行，就有可能突破约束，触发不可控操作。<br>我做红队这些年，最核心的认知之一就是“输入不可控&#x3D;命令不可控”。对于本地执行型AI Agent而言，这一点尤为致命。尤其是在Web3场景下，很多用户习惯将助记词、私钥等核心资产，随手存放在桌面、文本文件或.env配置中。一旦AI被诱导遍历目录、读取敏感文件，这些数字资产就有可能被悄无声息地获取、外发，甚至被植入后门实现持久化控制——在特定配置或误用场景下，攻击者甚至可能无需利用传统漏洞，而通过功能滥用完成攻击链路。<br>本文并非针对某个具体团队的动机判断，而是基于公开资料与安全建模的风险讨论。任何本地执行型AI Agent，如果缺乏强隔离机制、缺乏权限管控，都面临类似的安全隐患。我们讨论的，从来不是“某个工具好不好用”，而是“这类工具的安全边界在哪里”，是“普通用户该如何规避风险”。<br>除了核心架构的风险，第三方扩展功能的潜在隐患同样值得警惕。如果一个AI Agent生态，未来允许第三方扩展（如Skill、插件）自由提交，而缺乏完善的签名验证、权限管控与沙箱隔离机制，那么攻击成本将被大幅降低。攻击者可以将恶意逻辑，伪装成“自动化分析”“便捷运维”等实用扩展，诱导用户安装；一旦AI调用该扩展，就会触发恶意操作——这种攻击方式，隐蔽性极强，普通用户几乎无法察觉，且溯源难度较大。<br>还有一个常见的认知误区，需要特别提醒：很多人会因为“工具开发者背景雄厚”，就无脑信任其安全性。但在安全领域，“人强≠项目安全”——在多数快速迭代的早期项目中，安全设计往往滞后于功能开发，开发者的才华，并不等同于工具的安全设计过关。外界过度迷信“开发者标签”，盲目跟风使用、安利，本质上是对安全风险的无知，也是对自身资产安全的不负责任。<br>有人说，这类工具能推动技术进步，能模糊人类与AI操作电脑的边界——这句话并非空谈，但它忽略了最核心的前提：没有安全的边界，再便捷的能力，都是灾难。技术进步从来不等于安全进步，当AI开始拥有执行系统命令、读取敏感文件的能力时，我们必须重新思考信任边界：我们该给AI多大的权限？该如何约束AI的执行逻辑？该如何保护自己的核心资产？<br>作为一名负责任的安全从业者，我不想单纯批判这类工具——技术本身没有善恶，关键在于如何管控风险、如何规范使用。因此，结合红队实战经验与Web3安全场景，我给出以下5条可落地的安全建议，供所有使用或打算使用这类工具的朋友参考：</p>
+<ol>
+<li>隔离运行环境：永远不要在存有助记词、私钥、银行卡信息等敏感资产的环境中，运行本地执行型AI Agent；建议使用Docker或虚拟机搭建独立隔离环境，限制工具的目录访问权限，避免敏感文件被读取。</li>
+<li>严控扩展来源：不安装来源不明、未经过验证的第三方扩展（如Skill、插件），即使是官方推荐的扩展，也需提前了解其功能逻辑，避免恶意扩展的滥用。</li>
+<li>关闭敏感权限：根据工具的实际使用需求，最小化分配权限，关闭不必要的文件读取、命令执行、网络访问权限，从源头减少攻击面。</li>
+<li>警惕陌生输入：不随意让AI读取陌生文档、解析陌生链接、执行陌生命令，避免被prompt注入攻击，诱导AI执行恶意操作。</li>
+<li>放弃“绝对信任”：不将AI当做可信执行体，即使是AI自主生成的命令、执行的操作，也需提前审核确认，避免因AI的误判或被诱导，造成不可逆损失。</li>
+</ol>
+<p>这些年，我从红队转型Web3安全，见过太多因为忽视安全细节、盲目信任工具，而导致数字资产受损的案例。本地执行型AI Agent的爆火，本质上是人们对“全自动高效工具”的渴望，但这份渴望，不应该以牺牲安全为代价。在安全领域，“能用就行”的思维往往代价极高——网络安全的核心，从来都是“防患于未然”，一次疏忽，就有可能导致多年积累的资产付诸东流。<br>在攻击建模中，其高权限与弱隔离特性，可能显著降低滥用成本。但这并不意味着我们要否定这类技术的价值，而是要清醒地认识到风险，学会用安全手段管控风险。<br>最后，想给所有持有数字资产、关注AI技术的朋友说一句：技术的发展，从来都是机遇与风险并存。当AI开始拥有越来越高的执行权限，当科技越来越便捷，我们更要守住安全的底线。如果你懂安全，请重视这类工具的系统性风险；如果你不懂安全，请不要盲目跟风尝试；如果你非要使用，请务必牢记安全建议，做好防护措施。<br>技术进步的终极意义，是让我们的生活更安全、更便捷，而不是让我们陷入不必要的风险之中。有些风险，不是不能尝试，而是没必要赌——尤其是当赌注，是我们的核心资产时。如果未来本地执行型 AI Agent 能够：</p>
+<ul>
+<li><p>默认强制沙箱隔离</p>
+</li>
+<li><p>强制权限声明模型</p>
+</li>
+<li><p>强制执行前人工确认</p>
+</li>
+<li><p>扩展签名验证与审计机制</p>
+</li>
+</ul>
+<p>那么这类工具将真正具备安全落地的基础。<br>参考资料：</p>
+<ul>
+<li><p><a target="_blank" rel="noopener" href="https://openclaw.ai/">https://openclaw.ai/</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://docs.openclaw.ai/">https://docs.openclaw.ai/</a></p>
+</li>
+</ul>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/AI/">AI</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/02/25/3914340686.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">AI评审系统</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/02/24/2335897167.html">
+                        <span class="hidden-mobile">Agent Economy on Bitcoin</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "AI Agent 的安全边界：一名渗透老兵的风险提醒"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

@@ -1,0 +1,602 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>OpenClaw学习相关会议纪要 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="OpenClaw学习相关会议纪要">
+                      
+                        OpenClaw学习相关会议纪要
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-02-23 08:36" pubdate>
+        2026年2月23日 早上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.3k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      24
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">OpenClaw学习相关会议纪要</h1>
+            
+            <div class="markdown-body">
+              <h1 id="OpenClaw学习相关会议纪要"><a href="#OpenClaw学习相关会议纪要" class="headerlink" title="OpenClaw学习相关会议纪要"></a>OpenClaw学习相关会议纪要</h1><h2 id="一、会议基本信息"><a href="#一、会议基本信息" class="headerlink" title="一、会议基本信息"></a>一、会议基本信息</h2><ul>
+<li><p><strong>会议主题</strong>：开源AI、Rust跨平台开发分享（核心含OpenClaw接入实战）</p>
+</li>
+<li><p><strong>会议时间</strong>：2026年2月23日晚（大年初七）</p>
+</li>
+<li><p><strong>参会人员</strong>：主持人、分享嘉宾（赵越、张汉东）及线上参会者（含OpenClaw学习者）</p>
+</li>
+<li><p><strong>核心目的</strong>：分享OpenClaw安装配置、接入实战及相关技术经验，解答参会者学习、使用中的疑问，助力大家快速掌握OpenClaw相关操作。</p>
+</li>
+</ul>
+<h2 id="二、核心分享内容（重点适配OpenClaw学习需求）"><a href="#二、核心分享内容（重点适配OpenClaw学习需求）" class="headerlink" title="二、核心分享内容（重点适配OpenClaw学习需求）"></a>二、核心分享内容（重点适配OpenClaw学习需求）</h2><h3 id="（一）赵越：OpenClaw接入Molly-AI实战（核心学习内容）"><a href="#（一）赵越：OpenClaw接入Molly-AI实战（核心学习内容）" class="headerlink" title="（一）赵越：OpenClaw接入Molly AI实战（核心学习内容）"></a>（一）赵越：OpenClaw接入Molly AI实战（核心学习内容）</h3><h4 id="1-OpenClaw基础认知"><a href="#1-OpenClaw基础认知" class="headerlink" title="1. OpenClaw基础认知"></a>1. OpenClaw基础认知</h4><ul>
+<li><p>OpenClaw是近期热门AI相关项目，更新迭代频繁（演示版本为2026年2月13日版，建议学习时安装最新版），存在部分bug，需结合官方提示和实践调试。</p>
+</li>
+<li><p>核心作用：可对接底层AI基座（如DeepSeek），通过网关（Gateway）实现与前端客户端（如Molly AI）的交互，支持工具调用、本地任务执行（如桌面整理）等功能。</p>
+</li>
+<li><p>依赖环境：需提前安装npm，建议搭配Rust环境（适配后续客户端接入）。</p>
+</li>
+</ul>
+<h4 id="2-OpenClaw安装与配置步骤（关键学习步骤）"><a href="#2-OpenClaw安装与配置步骤（关键学习步骤）" class="headerlink" title="2. OpenClaw安装与配置步骤（关键学习步骤）"></a>2. OpenClaw安装与配置步骤（关键学习步骤）</h4><ul>
+<li><p>安装方式：通过npm install命令安装（替代早期脚本安装方式），安装后可通过命令查看版本，若出现bug可回退至稳定版本（如演示用2月13日版）。</p>
+</li>
+<li><p>初始配置：运行onboard命令进入配置界面，选择quick start模式，跳过无需的channel（如Telegram、飞书，因演示用Molly AI未在官方支持列表），按需选择skills（可暂时跳过，后续按需添加）。</p>
+</li>
+<li><p>AI基座配置（必做）：需设置model参数，对接DeepSeek（或其他偏好模型），填写DeepSeek的API链接、自身API Key（注意保护个人Key，演示用测试Key无实际权限风险），且需设置为OpenAI兼容格式。</p>
+</li>
+<li><p>补充配置：需重复设置models（规避版本bug，确保后续正常运行），设置mod模式（必选）；若OpenClaw部署在本地，需设置Gateway为local模式（部署在VPS则选择对应模式，可参考OpenClaw官网）。</p>
+</li>
+</ul>
+<h4 id="3-OpenClaw-Gateway启动与验证"><a href="#3-OpenClaw-Gateway启动与验证" class="headerlink" title="3. OpenClaw Gateway启动与验证"></a>3. OpenClaw Gateway启动与验证</h4><ul>
+<li><p>Gateway作用：作为OpenClaw与前端客户端（如Molly AI）的交互桥梁，在18789端口启动web server，支持WebSocket交互，自带鉴权机制。</p>
+</li>
+<li><p>启动关键：需传入自定义Token（与API Key不同，可随机生成，用于授权交互，当前版本必须填写，否则无法正常启动）。</p>
+</li>
+<li><p>启动调试：若启动失败，可参考终端提示排查（OpenClaw提示友好，基本可按提示解决）；若已启动过一个实例，需先停止再重新启动。</p>
+</li>
+<li><p>验证方式：启动后打开OpenClaw自带网页，查看Token是否正常显示；通过House连接状态判断是否启动成功，成功后可对接DeepSeek进行流式交互测试（验证是否能正常响应）。</p>
+</li>
+</ul>
+<h4 id="4-OpenClaw与Molly-AI对接（实战演示）"><a href="#4-OpenClaw与Molly-AI对接（实战演示）" class="headerlink" title="4. OpenClaw与Molly AI对接（实战演示）"></a>4. OpenClaw与Molly AI对接（实战演示）</h4><ul>
+<li><p>Molly AI准备：本地启动Molly AI（需Rust环境），首次进入需配置server，在providers中选择OpenClaw（已合并至Molly AI主分支）。</p>
+</li>
+<li><p>对接配置：API Host填写OpenClaw Gateway启动时显示的website地址，必须使用WebSocket协议；API Key填写与OpenClaw启动时一致的Token（鉴权用，两者需完全匹配），开启OpenClaw状态为on。</p>
+</li>
+<li><p>实战测试：对接成功后，可通过Molly AI与OpenClaw交互，例如发送“整理桌面”指令，OpenClaw会借助DeepSeek和自身AI策略执行任务（演示中成功整理出media和document文件夹，包含演示所用命令）。</p>
+</li>
+</ul>
+<h4 id="5-开发层面补充（辅助学习）"><a href="#5-开发层面补充（辅助学习）" class="headerlink" title="5. 开发层面补充（辅助学习）"></a>5. 开发层面补充（辅助学习）</h4><ul>
+<li><p>接入原理：在Molly AI本地启动WebSocket客户端，通过自定义Token与OpenClaw Gateway的WebSocket Server交互，解析流式信息内容。</p>
+</li>
+<li><p>注意事项：因Molly AI支持web300类，部分Tokyo特定API可能无法使用，当前适配Desktop模式，网页端交互版本可后续优化。</p>
+</li>
+<li><p>学习建议：可获取赵越分享的博客及演示命令，结合代码学习（代码量少，适配性强），遇到问题可在社区交流或向赵越咨询。</p>
+</li>
+</ul>
+<h3 id="（二）张汉东：AI编码与相关工具分享（辅助OpenClaw学习）"><a href="#（二）张汉东：AI编码与相关工具分享（辅助OpenClaw学习）" class="headerlink" title="（二）张汉东：AI编码与相关工具分享（辅助OpenClaw学习）"></a>（二）张汉东：AI编码与相关工具分享（辅助OpenClaw学习）</h3><ul>
+<li><p>AI编码经验：学习OpenClaw可结合AI编码提升效率，优先选择AI可验证的语言（如Rust），其类型系统和编译器可规避大量交互bug，生成代码可读性、可维护性更强。</p>
+</li>
+<li><p>工具推荐：Make PAD（GPU渲染原生UI框架）可用于OpenClaw相关客户端二次开发，支持跨平台，结合AI可快速生成UI界面；可借助Claude等模型生成代码、调试问题，提升学习和开发效率。</p>
+</li>
+<li><p>学习思路：AI时代可通过“边做边学”掌握OpenClaw，借助AI生成代码、排查问题，同时结合实践理解核心逻辑（如Gateway鉴权、客户端对接），无需从零手写代码，重点关注流程和调试方法。</p>
+</li>
+</ul>
+<h2 id="三、OpenClaw相关关键问题解答（重点学习参考）"><a href="#三、OpenClaw相关关键问题解答（重点学习参考）" class="headerlink" title="三、OpenClaw相关关键问题解答（重点学习参考）"></a>三、OpenClaw相关关键问题解答（重点学习参考）</h2><ul>
+<li><p>Q1：OpenClaw版本更新频繁，配置差异如何处理？<br>A1：核心配置步骤（安装、AI基座设置、Gateway启动、Token配置）不变，仅部分界面和细节可能调整，按终端提示和官方文档适配即可；若出现bug，可回退至稳定版本（如演示用2月13日版）。</p>
+</li>
+<li><p>Q2：OpenClaw的Token和API Key有区别吗？<br>A2：有区别。Token是自定义的，用于OpenClaw Gateway鉴权，可随机生成，启动时必须填写；API Key是对接AI基座（如DeepSeek）的密钥，需保护好个人信息，两者作用和设置方式不同。</p>
+</li>
+<li><p>Q3：不懂Rust，能否学习OpenClaw？<br>A3：可以。核心学习OpenClaw的安装、配置、对接流程，无需深入Rust开发；若需对接客户端（如Molly AI），可借助AI生成Rust相关代码，按步骤操作即可，重点关注交互逻辑而非语言本身。</p>
+</li>
+<li><p>Q4：OpenClaw如何提升功能（如增加工具调用）？<br>A4：可通过安装各类skills实现，配置时按需选择，也可自定义skills注入，结合AI基座（如DeepSeek）扩展功能，具体可参考OpenClaw社区文档和赵越的开发实践。</p>
+</li>
+<li><p>Q5：OpenClaw部署在VPS和本地有区别吗？<br>A5：核心配置一致，仅Gateway模式不同（本地为local模式，VPS为对应远程模式），具体配置可参考OpenClaw官网，部署后同样通过Token和API Host实现客户端对接。</p>
+</li>
+</ul>
+<h2 id="四、后续学习支持与相关安排"><a href="#四、后续学习支持与相关安排" class="headerlink" title="四、后续学习支持与相关安排"></a>四、后续学习支持与相关安排</h2><ul>
+<li><p>资料支持：赵越会分享演示所用命令、博客链接，包含OpenClaw安装配置的详细步骤，可用于后续学习和复现。</p>
+</li>
+<li><p>交流渠道：可加入会议交流群，遇到OpenClaw学习、使用中的问题，可向赵越咨询，也可与其他参会者交流经验。</p>
+</li>
+<li><p>后续分享：会议每两周举行一期，后续会邀请更多一线开发者分享，包含OpenClaw相关进阶内容、AI编码优化等，可持续关注。</p>
+</li>
+<li><p>补充建议：学习时优先复现赵越的演示流程（安装→配置→启动→对接→测试），逐步熟悉每个步骤的作用，遇到bug先参考终端提示和官方文档，无法解决再寻求交流支持；结合AI工具（如Claude）辅助理解核心逻辑，提升学习效率。</p>
+</li>
+</ul>
+<h2 id="五、会议总结"><a href="#五、会议总结" class="headerlink" title="五、会议总结"></a>五、会议总结</h2><p>本次会议重点分享了OpenClaw的安装、配置、Gateway启动、与Molly AI对接的完整实战流程，解答了学习中可能遇到的核心问题，提供了资料支持和交流渠道，为OpenClaw学习者提供了清晰的学习路径。核心建议：从基础实战入手，先复现演示案例，熟悉核心流程和配置要点，结合AI工具和社区支持，逐步掌握OpenClaw的使用和扩展方法，无需过度纠结底层语言细节，重点关注交互逻辑和调试能力。</p>
+<blockquote>
+<p>（注：文档部分内容可能由 AI 生成）</p>
+</blockquote>
+<h1 id="Molly-AI是什么"><a href="#Molly-AI是什么" class="headerlink" title="Molly AI是什么"></a>Molly AI是什么</h1><p>结合会议纪要内容，Molly AI 是一款可与 OpenClaw 对接的前端 AI 客户端，核心信息如下：</p>
+<ol>
+<li>运行环境：需依赖 Rust 环境，支持本地启动，适配 Desktop 模式（网页端交互版本可后续优化）。</li>
+<li>核心功能：作为交互入口，可与 OpenClaw（通过其 Gateway 网关）实现对接，接收用户自然语言指令（如“整理桌面”），并通过 OpenClaw 对接底层 AI 基座（如 DeepSeek），最终完成任务执行与反馈。</li>
+<li>对接特性：OpenClaw 已合并至 Molly AI 主分支，首次启动时需在 providers 中选择 OpenClaw，通过填写 OpenClaw Gateway 的地址（WebSocket 协议）、匹配的 Token 完成鉴权对接，实现流式交互。</li>
+<li>补充说明：支持 web300 类相关功能，部分 Tokyo 特定 API 可能无法使用，其与 OpenClaw 的对接核心是通过本地 WebSocket 客户端与 OpenClaw Gateway 的 WebSocket Server 交互，解析相关信息。</li>
+</ol>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/AI/">AI</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%B7%A5%E5%85%B7/">工具</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/02/24/2335897167.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Agent Economy on Bitcoin</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/02/23/4286758088.html">
+                        <span class="hidden-mobile">如何下载视频</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "OpenClaw学习相关会议纪要"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>
