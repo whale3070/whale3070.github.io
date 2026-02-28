@@ -1,0 +1,882 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>数码港创业家计划 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="数码港创业家计划">
+                      
+                        数码港创业家计划
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-02-27 15:29" pubdate>
+        2026年2月27日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      5.9k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      63
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">数码港创业家计划</h1>
+            
+            <div class="markdown-body">
+              <p><a target="_blank" rel="noopener" href="https://www.cyberport.hk/wp-content/uploads/PR_a5_leaflet_20250127_tc.pdf">香港数码港官方PPT链接</a></p>
+<div class="pdf-archive">
+  
+  <h3> 数码港创业家计划 (2025)</h3>
+  <p>这份文档涵盖了 碼港特別關注創業家在不同階段的需要，提供一系列針對性培育計劃，包括人才培訓、種子資金、協助產品投入市場及進行投資者配對。</p>
+  <iframe src="/downloads/PR_a5_leaflet_20250127_tc.pdf" width="100%" height="600px" style="border: none; margin-bottom: 20px;">
+    您的浏览器不支持 PDF 预览，请<a href="/downloads/cyberport-guide-2024.pdf">点击此处下载查看</a>。
+  </iframe>
+
+  <hr>
+
+</div>
+
+<h1 id="数码港创意微型基金（香港计划）——-申请与执行全案整理"><a href="#数码港创意微型基金（香港计划）——-申请与执行全案整理" class="headerlink" title="数码港创意微型基金（香港计划）—— 申请与执行全案整理"></a>数码港创意微型基金（香港计划）—— 申请与执行全案整理</h1><p><a target="_blank" rel="noopener" href="https://www.cyberport.hk/zh-cn/entrepreneurship/hong_kong_programme/">https://www.cyberport.hk/zh-cn/entrepreneurship/hong_kong_programme/</a></p>
+<p>申请链接： <a target="_blank" rel="noopener" href="https://ems.cyberport.hk/form/form_list">https://ems.cyberport.hk/form/form_list</a></p>
+<h2 id="一、基金基本信息"><a href="#一、基金基本信息" class="headerlink" title="一、基金基本信息"></a>一、基金基本信息</h2><ul>
+<li><p><strong>资金额度</strong>：港币 100,000 元</p>
+</li>
+<li><p><strong>执行周期</strong>：6 个月</p>
+</li>
+<li><p><strong>支持方向</strong>：数码科技创新概念、早期初创，验证市场需求、加速发展</p>
+</li>
+</ul>
+<h2 id="二、申请资格"><a href="#二、申请资格" class="headerlink" title="二、申请资格"></a>二、申请资格</h2><ol>
+<li><p><strong>公司名义</strong></p>
+<ul>
+<li>香港注册有限公司（或正在注册中）</li>
+</ul>
+</li>
+<li><p><strong>个人名义</strong></p>
+<ul>
+<li>主要申请人持有<strong>香港居民身份证</strong></li>
+</ul>
+</li>
+</ol>
+<h2 id="三、评审标准（总计-100-）"><a href="#三、评审标准（总计-100-）" class="headerlink" title="三、评审标准（总计 100%）"></a>三、评审标准（总计 100%）</h2><ol>
+<li><p>项目管理团队素质及能力：<strong>30%</strong></p>
+</li>
+<li><p>运营模式及上市&#x2F;落地时间：<strong>30%</strong></p>
+</li>
+<li><p>项目创意及创新元素：<strong>30%</strong></p>
+</li>
+<li><p>社会责任：<strong>10%</strong></p>
+</li>
+</ol>
+<h2 id="四、资金发放节点"><a href="#四、资金发放节点" class="headerlink" title="四、资金发放节点"></a>四、资金发放节点</h2><ol>
+<li><p>签署基金协议后：发放 <strong>HK$10,000</strong></p>
+</li>
+<li><p>通过中期评估 + 提交中期报告：发放 <strong>HK$45,000</strong></p>
+</li>
+<li><p>通过终期评估 + 提交终期报告 + 完成项目：发放 <strong>HK$45,000</strong></p>
+</li>
+</ol>
+<h1 id="数码港培育计划（含数码港智慧生活初创培育计划）详解"><a href="#数码港培育计划（含数码港智慧生活初创培育计划）详解" class="headerlink" title="数码港培育计划（含数码港智慧生活初创培育计划）详解"></a>数码港培育计划（含数码港智慧生活初创培育计划）详解</h1><p>数码港培育计划为旗舰创业支援计划，其中包含数码港智慧生活初创培育计划，旨在为数码科技领域的早期初创企业提供全方位培育支援，助力企业将创新方案转化为市场产品、拓展业务版图，推动香港创新科技产业发展。受培育公司不仅能获得财务资助，还可享受多维度创业支持，加速实现商业价值。</p>
+<h2 id="一、计划核心福利"><a href="#一、计划核心福利" class="headerlink" title="一、计划核心福利"></a>一、计划核心福利</h2><p>受培育公司在24个月培育期内，可享受以下核心支援，全方位助力业务发展：</p>
+<ul>
+<li><p><strong>财务资助</strong>：最高港币50万元，用于支持企业日常运营、产品研发等核心业务环节；</p>
+</li>
+<li><p><strong>驻场租金补贴</strong>：高达港币20万元，减轻企业办公场地成本压力，驻场培育公司还可使用免租工作间及数码港各类设施；</p>
+</li>
+<li><p><strong>全方位创业支援</strong>：包括与投资者、企业伙伴、专业服务提供者的资源对接，精心设计的创业培训与指导，商业配对、海外展会参与机会，以及创业导师一对一辅导等，覆盖初创发展全阶段。</p>
+</li>
+</ul>
+<h2 id="二、申请资格-1"><a href="#二、申请资格-1" class="headerlink" title="二、申请资格"></a>二、申请资格</h2><p>申请企业需同时满足以下所有条件，确保具备相应的发展潜力与执行能力：</p>
+<ol>
+<li><p>主体资格：必须为香港注册（或正在注册成立）的科技有限公司，若处于注册过程中，须在申请截止日期起30个日历日内完成注册；且在本培育计划申请截止日期时，公司成立时间少于7年；</p>
+</li>
+<li><p>商业计划：具备可行的商业计划，其产品&#x2F;服务可在12至18个月内开始市场营销；</p>
+</li>
+<li><p>股权要求：公司的创立团队须合法且实际持有超过51%的公司股权，或拥有公司控制权；</p>
+</li>
+<li><p>本地运营：成功入选计划的受培育公司，在计划期间至少有一名本地授权代表（主要负责本地运营和产品开发）实际在香港工作，授权代表可为创始人&#x2F;联合创始人，或公司雇佣的本地全职员工；</p>
+</li>
+<li><p>其他限制：主要申请人不可同时担任其他香港培育机构（如香港科技园、香港设计中心）相关培育计划的受资助公司创始人、联合创始人或董事；项目不得同时接受其他公营资助机构的同类资助；若同一项目同时申请本计划与数码港创意微型基金，仅考虑本计划申请。</p>
+</li>
+</ol>
+<h2 id="三、评审标准及比重（总计100-）"><a href="#三、评审标准及比重（总计100-）" class="headerlink" title="三、评审标准及比重（总计100%）"></a>三、评审标准及比重（总计100%）</h2><p>由包含风险投资者、学者、行业前辈及行业协会成员组成的独立评审小组，按以下标准分阶段评审，确保筛选出有潜力的优质初创企业：</p>
+<ul>
+<li><p>市场可行性及里程计划、对数码港策略群组的贡献：30%；</p>
+</li>
+<li><p>项目管理团队的素质及能力：20%；</p>
+</li>
+<li><p>业务的扩展性：20%；</p>
+</li>
+<li><p>试验原型或安全设计产品是否解决真实问题：20%；</p>
+</li>
+<li><p>创新性及社会效益：10%。</p>
+</li>
+</ul>
+<h2 id="四、资金发放详情（总额最高港币50万元）"><a href="#四、资金发放详情（总额最高港币50万元）" class="headerlink" title="四、资金发放详情（总额最高港币50万元）"></a>四、资金发放详情（总额最高港币50万元）</h2><p>资金分阶段发放，与培育进度、检讨结果挂钩，确保资助有效用于企业发展，具体节点如下：</p>
+<ol>
+<li><p><strong>初始运营资金</strong>：发放港币10万元，用于企业启动阶段的基础运营；</p>
+</li>
+<li><p><strong>阶段性资金（共40万元）</strong>：剩余40万元资金按每六个月的进度检讨结果分阶段发放，具体如下：</p>
+<ul>
+<li><p>第一阶段（第6个月）：完成进度检讨后，发放港币5万元；</p>
+</li>
+<li><p>第二阶段（第12个月）：完成进度检讨后，发放港币5万元；</p>
+</li>
+<li><p>第三阶段（第18个月）：完成相关绩效驱动评估及进度检讨后，发放港币10万元；</p>
+</li>
+<li><p>第四阶段（第24个月）：完成进度检讨及项目培育后，发放港币10万元。</p>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="五、培育周期与阶段划分"><a href="#五、培育周期与阶段划分" class="headerlink" title="五、培育周期与阶段划分"></a>五、培育周期与阶段划分</h2><p>整体培育周期为24个月，分为四个阶段，每个阶段均需完成进度检讨，确保企业稳步发展：</p>
+<ol>
+<li><p>第一阶段：0-6个月（基础培育期，完成首次进度检讨）；</p>
+</li>
+<li><p>第二阶段：7-12个月（成长培育期，完成第二次进度检讨）；</p>
+</li>
+<li><p>第三阶段：13-18个月（提升培育期，完成绩效驱动评估及第三次进度检讨）；</p>
+</li>
+<li><p>第四阶段：19-24个月（成熟培育期，完成第四次进度检讨及项目收尾）。</p>
+</li>
+</ol>
+<h1 id="数码港加速支援计划"><a href="#数码港加速支援计划" class="headerlink" title="数码港加速支援计划"></a>数码港加速支援计划</h1><p>为尚未准备开拓海外市场及寻求投资的数码港培育公司或已毕业的培育公司，提供最高达30万港元的资助额度，申请者必须成功获得认可的加速器计划录取。</p>
+<p>资助内容包括：</p>
+<ul>
+<li><p>75%的加速器计划费用津贴；</p>
+</li>
+<li><p>75%的办公室租金津贴；</p>
+</li>
+<li><p>实习生50%的薪金津贴；</p>
+</li>
+<li><p>75%的旅费和住宿补贴；</p>
+</li>
+<li><p>75%的市场及推广费用津贴，最高不超过50000港元；</p>
+</li>
+<li><p>75%的专业服务津贴。</p>
+</li>
+</ul>
+<p>申请条件：</p>
+<ul>
+<li><p>必须为目前参与或毕业于数码港创意微型基金或数码港培育计划的受培育公司；</p>
+</li>
+<li><p>并成功获得数码港认可的加速器计划录取。</p>
+</li>
+</ul>
+<h1 id="我是申请数码港创意微型基金ccmf还是申请-香港科技园的Ideation，都是10万的"><a href="#我是申请数码港创意微型基金ccmf还是申请-香港科技园的Ideation，都是10万的" class="headerlink" title="我是申请数码港创意微型基金ccmf还是申请 香港科技园的Ideation，都是10万的"></a>我是申请数码港创意微型基金ccmf还是申请 香港科技园的Ideation，都是10万的</h1><p>先给结论：</p>
+<ul>
+<li>选<strong>数码港CCMF</strong>：适合<strong>纯数码&#x2F;互联网&#x2F;软件</strong>、<strong>6个月快速验证原型</strong>、看重<strong>团队&#x2F;模式&#x2F;创意</strong>、想快速衔接<strong>数码港培育计划</strong>的早期项目。</li>
+<li>选<strong>科技园Ideation</strong>：适合<strong>硬科技&#x2F;科研转化</strong>、需要<strong>1年周期+共享空间+科研资源</strong>、看重<strong>市场可行性&#x2F;技术落地</strong>、想衔接<strong>科技园创科培育</strong>的项目。</li>
+</ul>
+<p>下面是完整对比与选择建议👇</p>
+<hr>
+<h3 id="一、核心信息对比（同额10万HKD）"><a href="#一、核心信息对比（同额10万HKD）" class="headerlink" title="一、核心信息对比（同额10万HKD）"></a>一、核心信息对比（同额10万HKD）</h3><h4 id="1-基本框架"><a href="#1-基本框架" class="headerlink" title="1. 基本框架"></a>1. 基本框架</h4><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>数码港创意微型基金（CCMF）</th>
+<th>香港科技园 Ideation</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>周期</strong></td>
+<td>6个月</td>
+<td>12个月</td>
+</tr>
+<tr>
+<td><strong>资金总额</strong></td>
+<td>10万HKD</td>
+<td>10万HKD</td>
+</tr>
+<tr>
+<td><strong>申请主体</strong></td>
+<td>香港注册公司&#x2F;个人（持香港身份证）</td>
+<td>香港公司（成立&lt;2年）&#x2F;团队（获批后2周内注册）</td>
+</tr>
+<tr>
+<td><strong>核心定位</strong></td>
+<td>数码科技概念验证、原型开发</td>
+<td>科技创业想法落地、市场验证、商业模式打磨</td>
+</tr>
+<tr>
+<td><strong>配套资源</strong></td>
+<td>创业指导、网络、衔接数码港培育</td>
+<td>共享工作空间、导师、培训、科研设施、衔接科技园培育</td>
+</tr>
+</tbody></table>
+<h4 id="2-资金发放节奏"><a href="#2-资金发放节奏" class="headerlink" title="2. 资金发放节奏"></a>2. 资金发放节奏</h4><ul>
+<li><strong>CCMF</strong>：签约1万 → 中期评估4.5万 → 终期评估4.5万（6个月内发完）</li>
+<li><strong>Ideation</strong>：按里程碑分阶段发放（12个月内），用于研发、原型、市场验证</li>
+</ul>
+<h4 id="3-评审标准（权重）"><a href="#3-评审标准（权重）" class="headerlink" title="3. 评审标准（权重）"></a>3. 评审标准（权重）</h4><ul>
+<li><strong>CCMF</strong>：团队30% + 运营&#x2F;落地30% + 创意30% + 社会责任10%</li>
+<li><strong>Ideation</strong>：市场可行性+里程碑+对科技园贡献30% + 团队20% + 扩展性20% + 原型&#x2F;解决真实问题20% + 创新+社会效益10%</li>
+</ul>
+<h4 id="4-关键差异点"><a href="#4-关键差异点" class="headerlink" title="4. 关键差异点"></a>4. 关键差异点</h4><ul>
+<li><strong>CCMF</strong>：更轻量、周期短、偏<strong>数码&#x2F;互联网&#x2F;软件</strong>、个人可申、衔接<strong>数码港培育（50万+20万租金）</strong></li>
+<li><strong>Ideation</strong>：周期长、有<strong>共享空间+科研资源</strong>、偏<strong>硬科技&#x2F;科研转化</strong>、必须公司&#x2F;团队、衔接<strong>科技园创科培育</strong></li>
+</ul>
+<hr>
+<h3 id="二、怎么选更适合你？"><a href="#二、怎么选更适合你？" class="headerlink" title="二、怎么选更适合你？"></a>二、怎么选更适合你？</h3><h4 id="选-CCMF-更合适的情况"><a href="#选-CCMF-更合适的情况" class="headerlink" title="选 CCMF 更合适的情况"></a>选 CCMF 更合适的情况</h4><ol>
+<li>项目是<strong>数码&#x2F;互联网&#x2F;软件&#x2F;APP&#x2F;SAAS</strong>等纯数字领域</li>
+<li>只想<strong>6个月快速验证原型</strong>，不想拖1年</li>
+<li>团队还没注册公司，想<strong>以个人名义先拿资助</strong></li>
+<li>看重<strong>团队能力、商业模式、创意</strong>，技术门槛不极高</li>
+<li>后续计划走<strong>数码港生态</strong>（培育、加速器、投资）</li>
+</ol>
+<h4 id="选-Ideation-更合适的情况"><a href="#选-Ideation-更合适的情况" class="headerlink" title="选 Ideation 更合适的情况"></a>选 Ideation 更合适的情况</h4><ol>
+<li>项目是<strong>硬科技、科研转化、IoT、AI、生物科技、硬件</strong>等</li>
+<li>需要<strong>1年时间打磨</strong>、做市场验证、建团队</li>
+<li>想要<strong>免费共享办公空间+科研设施</strong>支持</li>
+<li>看重<strong>技术落地、解决真实问题、市场可行性</strong></li>
+<li>后续计划走<strong>科技园生态</strong>（创科培育、实验室、产业对接）</li>
+</ol>
+<hr>
+<h3 id="三、快速决策建议"><a href="#三、快速决策建议" class="headerlink" title="三、快速决策建议"></a>三、快速决策建议</h3><ul>
+<li>如果你是<strong>互联网&#x2F;软件&#x2F;纯数字项目</strong>、想<strong>快进快出、6个月验证</strong> → 选 <strong>CCMF</strong></li>
+<li>如果你是<strong>硬科技&#x2F;科研&#x2F;需要空间与设备</strong>、想<strong>1年稳扎稳打</strong> → 选 <strong>Ideation</strong></li>
+<li>两者<strong>不冲突</strong>：可同时申请，哪个先中用哪个；也可先CCMF再Ideation，或反过来。</li>
+</ul>
+<hr>
+<p>需要我帮你整理一份<strong>CCMF与Ideation的申请材料清单与时间线</strong>，方便你直接准备吗？</p>
+<h1 id="香港科技券计划（TVP）核心信息"><a href="#香港科技券计划（TVP）核心信息" class="headerlink" title="香港科技券计划（TVP）核心信息"></a>香港科技券计划（TVP）核心信息</h1><p>香港科技券计划（TVP）是创新科技署推出的数字化转型资助计划，<strong>新公司可申、无营业额门槛</strong>，最高资助<strong>60万港元</strong>，按**75%**比例覆盖数字化开支。</p>
+<h3 id="一、核心资助规则（2026年最新）"><a href="#一、核心资助规则（2026年最新）" class="headerlink" title="一、核心资助规则（2026年最新）"></a>一、核心资助规则（2026年最新）</h3><ul>
+<li><strong>资助比例</strong>：政府资助<strong>75%</strong>，企业自付<strong>25%</strong>（3:1配对）</li>
+<li><strong>累计上限</strong>：每家企业<strong>60万港元</strong>，最多分<strong>6个项目</strong>申请</li>
+<li><strong>单项目上限</strong>：<strong>10万港元</strong>，项目周期<strong>12个月内完成</strong></li>
+<li><strong>申请模式</strong>：<strong>先用后付</strong>，获批后可申请<strong>25%预付款</strong></li>
+</ul>
+<h3 id="二、申请资格（新公司友好）"><a href="#二、申请资格（新公司友好）" class="headerlink" title="二、申请资格（新公司友好）"></a>二、申请资格（新公司友好）</h3><ul>
+<li>香港注册&#x2F;登记的<strong>非上市公司</strong>，非政府资助机构及其附属公司</li>
+<li>在港有<strong>实质业务运作</strong>（提供近3个月银行账单、租约、合同等证明）</li>
+<li><strong>无营业额、盈利、办公室实体要求</strong>，新成立公司可直接申请</li>
+</ul>
+<h3 id="三、可资助的数字化开支（网站-APP-系统全覆盖）"><a href="#三、可资助的数字化开支（网站-APP-系统全覆盖）" class="headerlink" title="三、可资助的数字化开支（网站&#x2F;APP&#x2F;系统全覆盖）"></a>三、可资助的数字化开支（网站&#x2F;APP&#x2F;系统全覆盖）</h3><ul>
+<li><strong>科技方案</strong>：网站&#x2F;APP开发、ERP、CRM、POS、云端系统、大数据、AI、区块链、物联网、网络安全方案等</li>
+<li><strong>服务类</strong>：科技顾问、定制&#x2F;现成软件订阅、设备租赁、项目审计（超5万港元项目，审计费上限<strong>3000港元</strong>）</li>
+<li><strong>不可资助</strong>：厂房购置、日常运营、品牌VI、商标注册、内销拓展、生产线自动化设备等</li>
+</ul>
+<h3 id="四、申请流程（全年开放）"><a href="#四、申请流程（全年开放）" class="headerlink" title="四、申请流程（全年开放）"></a>四、申请流程（全年开放）</h3><ol>
+<li>准备：供应商报价、诚信确认书、业务证明、项目建议书</li>
+<li>提交：通过<strong>科技券计划管理系统</strong>在线申请</li>
+<li>审批：创新科技署初审→TVP委员会评审（约<strong>6-8周</strong>）</li>
+<li>签约：获批后签资助协议，申请<strong>25%预付款</strong></li>
+<li>执行：<strong>12个月内</strong>完成项目</li>
+<li>结案：完成后<strong>2个月内</strong>提交报告+支出凭证，审核后发剩余75%资助</li>
+</ol>
+<h3 id="五、关键注意事项"><a href="#五、关键注意事项" class="headerlink" title="五、关键注意事项"></a>五、关键注意事项</h3><ul>
+<li>同一时间仅可执行<strong>1个项目</strong>，完成结案后才能申请下一个</li>
+<li>项目需与企业业务<strong>高度相关</strong>，定制化内容不超项目成本<strong>50%</strong></li>
+<li>不可与其他本地公共资助<strong>重复申请同一项目</strong></li>
+</ul>
+<p>需要我帮你整理一份TVP申请材料清单和项目建议书模板，你直接套用即可吗？</p>
+<h1 id="香港中小企业市场推广基金（EMF）"><a href="#香港中小企业市场推广基金（EMF）" class="headerlink" title="香港中小企业市场推广基金（EMF）"></a>香港中小企业市场推广基金（EMF）</h1><p>核心信息（2026最新）<br>EMF由香港工业贸易署管理，<strong>最高资助100万港元</strong>，用于企业境外展会、商务考察、客户对接等出口推广活动，<strong>新公司可申、无营业额门槛</strong>。</p>
+<h3 id="一、核心资助规则（2026年，有效期至6月30日）"><a href="#一、核心资助规则（2026年，有效期至6月30日）" class="headerlink" title="一、核心资助规则（2026年，有效期至6月30日）"></a>一、核心资助规则（2026年，有效期至6月30日）</h3><ul>
+<li><strong>资助比例</strong>：政府资助<strong>50%</strong>，企业自付<strong>50%</strong>（1:1配对）</li>
+<li><strong>单次上限</strong>：<strong>10万港元</strong>（取“50%核准开支”与“10万港元”较低者）</li>
+<li><strong>累计上限</strong>：每家企业<strong>100万港元</strong>；其中<strong>网站&#x2F;APP优化类累计不超50万港元</strong></li>
+<li><strong>申请模式</strong>：<strong>先用后付</strong>（实报实销），可提前申请<strong>50%预付款</strong></li>
+</ul>
+<h3 id="二、申请资格（新公司友好）-1"><a href="#二、申请资格（新公司友好）-1" class="headerlink" title="二、申请资格（新公司友好）"></a>二、申请资格（新公司友好）</h3><ul>
+<li>香港按《商业登记条例》登记的<strong>非上市企业</strong></li>
+<li>在港有<strong>实质业务运作</strong>（提供近3个月银行流水、租约、合同等证明）</li>
+<li>非推广活动主办方&#x2F;协办方&#x2F;服务供应商及其关联公司</li>
+<li><strong>无营业额、盈利、成立年限要求</strong>，新成立公司可直接申请</li>
+<li>中小企业定义：制造业员工＜100人；非制造业员工＜50人</li>
+</ul>
+<h3 id="三、可资助的推广开支（境外展会-考察-客户对接全覆盖）"><a href="#三、可资助的推广开支（境外展会-考察-客户对接全覆盖）" class="headerlink" title="三、可资助的推广开支（境外展会&#x2F;考察&#x2F;客户对接全覆盖）"></a>三、可资助的推广开支（境外展会&#x2F;考察&#x2F;客户对接全覆盖）</h3><ul>
+<li><strong>展会类</strong>：境外实体展会、香港本地面向境外市场的展会、线上虚拟展会（展位费、搭建、运营、嘉宾费）</li>
+<li><strong>商贸考察</strong>：境外&#x2F;线上商贸考察团（成员往返交通、住宿、团费）</li>
+<li><strong>客户对接</strong>：海外商务洽谈、客户拜访相关差旅与活动开支</li>
+<li><strong>线上推广</strong>：国际B2B平台年费、Google&#x2F;Facebook广告、SEO、多语言官网&#x2F;APP优化</li>
+<li><strong>广告投放</strong>：境外贸易刊物广告、目标市场精准营销</li>
+</ul>
+<h3 id="四、申请流程（全年开放）-1"><a href="#四、申请流程（全年开放）-1" class="headerlink" title="四、申请流程（全年开放）"></a>四、申请流程（全年开放）</h3><ol>
+<li>准备：活动方案、供应商报价、业务证明、诚信确认书</li>
+<li>提交：通过<strong>工贸署EMF系统</strong>在线申请</li>
+<li>审批：约<strong>30个工作日</strong></li>
+<li>预付款：获批后可申请<strong>50%预付款</strong></li>
+<li>执行：完成推广活动并保留所有凭证（合同、付款记录、现场照片等）</li>
+<li>结案：活动结束后<strong>6个月内</strong>提交报销申请，审核后发剩余<strong>50%资助</strong></li>
+</ol>
+<h3 id="五、关键注意事项-1"><a href="#五、关键注意事项-1" class="headerlink" title="五、关键注意事项"></a>五、关键注意事项</h3><ul>
+<li>同一时间可执行<strong>多个项目</strong>，无数量限制</li>
+<li>推广活动需与企业<strong>出口业务高度相关</strong></li>
+<li>不可与其他政府资助<strong>重复申请同一项目</strong></li>
+<li>政策有效期至<strong>2026年6月30日</strong></li>
+</ul>
+<h1 id="BUD-专项基金"><a href="#BUD-专项基金" class="headerlink" title="BUD 专项基金"></a>BUD 专项基金</h1><h2 id="1-资助额度"><a href="#1-资助额度" class="headerlink" title="1. 资助额度"></a>1. 资助额度</h2><ul>
+<li>每个项目最高：<strong>700 万港元</strong></li>
+<li>资助比例：<strong>项目成本的 50%</strong></li>
+<li>用途：拓展<strong>内地市场</strong> 或 <strong>一带一路市场</strong></li>
+</ul>
+<h2 id="2-你这条信息里的基本门槛"><a href="#2-你这条信息里的基本门槛" class="headerlink" title="2. 你这条信息里的基本门槛"></a>2. 你这条信息里的基本门槛</h2><ul>
+<li>公司成立：<strong>≥1 年</strong></li>
+<li>年营业额：<strong>≥100 万港元</strong></li>
+<li>本地员工：<strong>2–3 名</strong>（香港本地雇员）</li>
+</ul>
+<h2 id="3-官方真实硬性门槛（必满足）"><a href="#3-官方真实硬性门槛（必满足）" class="headerlink" title="3. 官方真实硬性门槛（必满足）"></a>3. 官方真实硬性门槛（必满足）</h2><ol>
+<li><strong>香港注册公司</strong></li>
+<li>有<strong>实质业务运作</strong>在香港</li>
+<li>非上市、非政府机构&#x2F;补贴机构</li>
+<li>项目内容必须是：<ul>
+<li>市场推广</li>
+<li>产品升级&#x2F;认证</li>
+<li>参加展会&#x2F;电商平台</li>
+<li>建立内地&#x2F;一带一路销售点&#x2F;物流等</li>
+</ul>
+</li>
+</ol>
+<h2 id="4-你能立刻自查的-3-个问题"><a href="#4-你能立刻自查的-3-个问题" class="headerlink" title="4. 你能立刻自查的 3 个问题"></a>4. 你能立刻自查的 3 个问题</h2><ol>
+<li>公司满 <strong>1 年</strong>了吗？</li>
+<li>近一年营业额 ≥ <strong>100 万 HKD</strong>？</li>
+<li>有 <strong>2–3 名香港强积金员工</strong>？<br>→ 三条都满足 &#x3D; 基本资格达标</li>
+</ol>
+<h2 id="5-适合你这类创业者的重点"><a href="#5-适合你这类创业者的重点" class="headerlink" title="5. 适合你这类创业者的重点"></a>5. 适合你这类创业者的重点</h2><ul>
+<li>Web3 &#x2F; RWA &#x2F; 科技类项目<strong>可以申请</strong>，只要业务能和「拓展内地&#x2F;一带一路市场」挂钩</li>
+<li>可申报费用举例：<ul>
+<li>内地&#x2F;海外平台入驻、推广投放</li>
+<li>产品认证、合规、设计包装</li>
+<li>参展、差旅、宣传物料、网站&#x2F;APP开发</li>
+</ul>
+</li>
+</ul>
+<h1 id="除了这些还有其他遗漏的，可以申请的吗"><a href="#除了这些还有其他遗漏的，可以申请的吗" class="headerlink" title="除了这些还有其他遗漏的，可以申请的吗"></a>除了这些还有其他遗漏的，可以申请的吗</h1><p>结合香港针对科技初创（尤其RWA防伪溯源这类「数码+实体经济」项目）的资助体系，除了你已梳理的CCMF、培育计划、TVP、EMF、BUD、科技园Ideation外，以下是<strong>易遗漏但高度适配的资助&#x2F;支持计划</strong>，按「直接资金资助」「成本补贴&#x2F;资源支持」「专项赛道扶持」分类整理，附申请优先级和适配场景：</p>
+<h3 id="一、直接资金资助类（纯拿钱，无配比-低配比）"><a href="#一、直接资金资助类（纯拿钱，无配比-低配比）" class="headerlink" title="一、直接资金资助类（纯拿钱，无配比&#x2F;低配比）"></a>一、直接资金资助类（纯拿钱，无配比&#x2F;低配比）</h3><h4 id="1-数码港深科技创业计划（DeepTech-Venture-Programme）"><a href="#1-数码港深科技创业计划（DeepTech-Venture-Programme）" class="headerlink" title="1. 数码港深科技创业计划（DeepTech Venture Programme）"></a>1. 数码港深科技创业计划（DeepTech Venture Programme）</h4><ul>
+<li><strong>核心额度</strong>：最高100万港币（直接拨款）+ 额外资源包</li>
+<li><strong>适配场景</strong>：RWA防伪溯源若涉及「区块链+供应链深科技」「AI+溯源算法」等深科技方向，而非纯模式创新，优先申这个（比普通培育计划额度更高）。</li>
+<li><strong>关键门槛</strong>：香港注册公司、成立＜7年、核心技术有壁垒、团队有深科技研发能力。</li>
+<li><strong>优势</strong>：除资金外，对接深科技投资人、实验室资源，适合RWA项目技术攻坚阶段。</li>
+</ul>
+<h4 id="2-创意香港「创意智优计划」（CreateSmart-Initiative-CSI）"><a href="#2-创意香港「创意智优计划」（CreateSmart-Initiative-CSI）" class="headerlink" title="2. 创意香港「创意智优计划」（CreateSmart Initiative, CSI）"></a>2. 创意香港「创意智优计划」（CreateSmart Initiative, CSI）</h4><ul>
+<li><strong>核心额度</strong>：最高500万港币（直接拨款，资助比例最高80%）</li>
+<li><strong>适配场景</strong>：RWA防伪溯源项目若涉及「创意设计+溯源可视化」「非遗&#x2F;品牌溯源+创意包装」（比如奢侈品&#x2F;农产品溯源的创意呈现），可申报。</li>
+<li><strong>关键门槛</strong>：香港注册公司、项目需体现「创意产业+科技融合」、有明确的创意产出（如溯源视觉系统、交互设计）。</li>
+<li><strong>易遗漏点</strong>：很多科技创业者忽略「创意+科技」的融合申报角度，RWA溯源的「用户端可视化设计」可纳入申报范畴。</li>
+</ul>
+<h4 id="3-劳工及福利局「青年发展基金」（YDF）"><a href="#3-劳工及福利局「青年发展基金」（YDF）" class="headerlink" title="3. 劳工及福利局「青年发展基金」（YDF）"></a>3. 劳工及福利局「青年发展基金」（YDF）</h4><ul>
+<li><strong>核心额度</strong>：最高200万港币（种子资金，直接拨款）</li>
+<li><strong>适配场景</strong>：核心团队≤35岁的青年创业团队，RWA防伪溯源项目面向「青年创业+供应链数字化」方向。</li>
+<li><strong>关键门槛</strong>：团队成员50%以上≤35岁、香港注册公司、项目有社会价值（如助力中小商户溯源数字化）。</li>
+<li><strong>优势</strong>：对营业额&#x2F;成立年限无硬性要求，纯青年创业扶持，可与CCMF&#x2F;培育计划叠加（不同开支）。</li>
+</ul>
+<h3 id="二、成本补贴-资源支持类（先花后报，高比例覆盖）"><a href="#二、成本补贴-资源支持类（先花后报，高比例覆盖）" class="headerlink" title="二、成本补贴&#x2F;资源支持类（先花后报，高比例覆盖）"></a>二、成本补贴&#x2F;资源支持类（先花后报，高比例覆盖）</h3><h4 id="1-中小企业发展支援基金（SDSF）"><a href="#1-中小企业发展支援基金（SDSF）" class="headerlink" title="1. 中小企业发展支援基金（SDSF）"></a>1. 中小企业发展支援基金（SDSF）</h4><ul>
+<li><strong>核心补贴</strong>：最高10万港币（100%报销），或最高50万（75%报销）</li>
+<li><strong>适配场景</strong>：RWA防伪溯源项目的「专业服务开支」（如法律合规、知识产权注册、税务咨询）——很多创业者漏报这类隐性成本。</li>
+<li><strong>关键门槛</strong>：香港注册中小企业（员工＜100人&#x2F;营业额＜5000万）、在港实质运营、开支与业务直接相关。</li>
+<li><strong>易遗漏点</strong>：RWA项目涉及的「区块链专利注册」「跨境溯源合规咨询」可100%报销（单项目10万内），比TVP覆盖更精准。</li>
+</ul>
+<h4 id="2-职业训练局（VTC）「人才配对计划」"><a href="#2-职业训练局（VTC）「人才配对计划」" class="headerlink" title="2. 职业训练局（VTC）「人才配对计划」"></a>2. 职业训练局（VTC）「人才配对计划」</h4><ul>
+<li><strong>核心支持</strong>：补贴实习生薪金80%（最高每月1.2万港币&#x2F;人）+ 免费人才培训</li>
+<li><strong>适配场景</strong>：RWA项目需要扩招「数码营销、区块链开发、供应链数据分析」类实习生，降低人力成本。</li>
+<li><strong>关键门槛</strong>：香港注册公司、实习生为VTC在读&#x2F;应届毕业生、签订至少6个月实习合同。</li>
+<li><strong>优势</strong>：无资金上限（按人数补贴），适合RWA项目早期团队搭建，可与数码港加速支援计划的实习生补贴叠加。</li>
+</ul>
+<h4 id="3-香港贸易发展局（HKTDC）「展会资助计划」"><a href="#3-香港贸易发展局（HKTDC）「展会资助计划」" class="headerlink" title="3. 香港贸易发展局（HKTDC）「展会资助计划」"></a>3. 香港贸易发展局（HKTDC）「展会资助计划」</h4><ul>
+<li><strong>核心补贴</strong>：境外展会开支50%报销（最高15万&#x2F;次），香港展会30%报销</li>
+<li><strong>适配场景</strong>：RWA防伪溯源项目参加「香港国际物流及供应链展」「一带一路数码科技展」等，补充EMF的覆盖盲区（EMF侧重出口，HKTDC侧重展会全场景）。</li>
+<li><strong>关键门槛</strong>：香港注册公司、展会与业务相关、提前向贸发局备案。</li>
+<li><strong>易遗漏点</strong>：EMF和HKTDC可叠加申报（比如EMF报50%，HKTDC补剩余部分，需拆分开支凭证）。</li>
+</ul>
+<h3 id="三、专项赛道扶持（RWA-供应链-区块链专属）"><a href="#三、专项赛道扶持（RWA-供应链-区块链专属）" class="headerlink" title="三、专项赛道扶持（RWA&#x2F;供应链&#x2F;区块链专属）"></a>三、专项赛道扶持（RWA&#x2F;供应链&#x2F;区块链专属）</h3><h4 id="1-香港金融管理局（HKMA）「数码港元创新计划」"><a href="#1-香港金融管理局（HKMA）「数码港元创新计划」" class="headerlink" title="1. 香港金融管理局（HKMA）「数码港元创新计划」"></a>1. 香港金融管理局（HKMA）「数码港元创新计划」</h4><ul>
+<li><strong>核心支持</strong>：最高500万港币（直接拨款）+ 监管沙盒测试资格</li>
+<li><strong>适配场景</strong>：RWA防伪溯源项目若涉及「数码港元+供应链支付溯源」「央行数字货币（CBDC）+跨境溯源」，属于金管局重点扶持赛道。</li>
+<li><strong>关键门槛</strong>：香港注册公司、有成熟的技术原型、与持牌金融机构合作（或有合作意向）。</li>
+<li><strong>优势</strong>：专属Web3&#x2F;RWA赛道，资金额度高，还能获得监管合规指导，适合有金融场景的RWA项目。</li>
+</ul>
+<h4 id="2-工业贸易署「供应链数字化资助计划」"><a href="#2-工业贸易署「供应链数字化资助计划」" class="headerlink" title="2. 工业贸易署「供应链数字化资助计划」"></a>2. 工业贸易署「供应链数字化资助计划」</h4><ul>
+<li><strong>核心补贴</strong>：数字化改造开支75%报销（最高200万港币）</li>
+<li><strong>适配场景</strong>：RWA防伪溯源聚焦「传统供应链数字化升级」（如物流、仓储、跨境贸易溯源），比TVP更聚焦供应链赛道。</li>
+<li><strong>关键门槛</strong>：香港注册中小企业、供应链相关业务占比≥50%、改造后能提升供应链效率（如溯源效率提升30%以上）。</li>
+<li><strong>易遗漏点</strong>：TVP侧重通用数字化，这个计划是供应链专属，RWA项目申报成功率更高，额度也更高（200万vs TVP 60万）。</li>
+</ul>
+<h3 id="四、申请优先级建议（按「易申请→高额度→专属赛道」排序）"><a href="#四、申请优先级建议（按「易申请→高额度→专属赛道」排序）" class="headerlink" title="四、申请优先级建议（按「易申请→高额度→专属赛道」排序）"></a>四、申请优先级建议（按「易申请→高额度→专属赛道」排序）</h3><ol>
+<li><p><strong>第一梯队（易申请、无门槛）</strong><br>中小企业发展支援基金（SDSF）→ 职业训练局人才配对计划 → HKTDC展会资助<br>（无营业额&#x2F;成立年限要求，报销隐性成本&#x2F;人力成本，快速落地）</p>
+</li>
+<li><p><strong>第二梯队（高额度、适配RWA）</strong><br>数码港深科技创业计划（若涉深科技）→ 供应链数字化资助计划 → 创意智优计划（创意+溯源）<br>（额度高，适配RWA核心场景，需提前准备技术&#x2F;商业方案）</p>
+</li>
+<li><p><strong>第三梯队（专项赛道）</strong><br>金管局数码港元创新计划 → 青年发展基金（青年团队）<br>（赛道专属，适合有特定场景&#x2F;团队属性的RWA项目）</p>
+</li>
+</ol>
+<h3 id="关键提醒"><a href="#关键提醒" class="headerlink" title="关键提醒"></a>关键提醒</h3><ol>
+<li><strong>叠加规则</strong>：直接拨款类（CCMF&#x2F;培育计划）和成本补贴类（TVP&#x2F;SDSF）可叠加，只要不申报同一笔开支；</li>
+<li><strong>时间窗口</strong>：2026年6月前EMF&#x2F;BUD政策到期，供应链数字化资助计划、创意智优计划暂无明确到期日，可优先申报长期计划；</li>
+<li><strong>RWA专属优势</strong>：RWA防伪溯源属于「数码科技+供应链+实体经济」，申报「供应链数字化」「深科技」「创意智优」时，评审会额外加分（契合香港政府「新型工业化」战略）。</li>
+</ol>
+<p>如果需要针对RWA防伪溯源项目，整理「可申报计划清单+对应开支类目+申请时间线」，可以告诉我，我帮你定制一份落地版清单。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%88%9B%E4%B8%9A/">创业</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E9%A6%99%E6%B8%AF%E6%95%B0%E7%A0%81%E6%B8%AF/">香港数码港</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/02/27/3268636600.html">
+                        <span class="hidden-mobile">Cursor</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "数码港创业家计划"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>
