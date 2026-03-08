@@ -1,0 +1,554 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>Deep Dive into LLMs like ChatGPT - 4 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="Deep Dive into LLMs like ChatGPT - 4">
+                      
+                        Deep Dive into LLMs like ChatGPT - 4
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-03-08 10:44" pubdate>
+        2026年3月8日 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      6.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      92
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">Deep Dive into LLMs like ChatGPT - 4</h1>
+            
+            <div class="markdown-body">
+              <blockquote>
+<p>本文为 Stanford 大语言模型公开课讲稿片段（第 4 部分），格式为一段英文、一段中文对照。阅读至约 1 小时后附「上文总结」，后续英文建议另起一篇续写。</p>
+</blockquote>
+<hr>
+<h2 id="一、幻觉从哪来：训练集里没有「我不知道」"><a href="#一、幻觉从哪来：训练集里没有「我不知道」" class="headerlink" title="一、幻觉从哪来：训练集里没有「我不知道」"></a>一、幻觉从哪来：训练集里没有「我不知道」</h2><p>So in particular, the first one I want to talk to is hallucinations. So you might be familiar with model hallucinations. It’s when LLMs make stuff up, they just totally fabricate information, et cetera. And it’s a big problem with all assistants. It is a problem that existed to a large extent with early models. For many years ago, I think the problem has gotten a bit better, because there are some mitigations that I’m going to go into in a second. For now, let’s just try to understand where these hallucinations come from. So here’s a specific example of a few of three conversations that you might think you have in your training set. These are pretty reasonable conversations that you could imagine being in the train set.</p>
+<p>首先要说的是<strong>幻觉（hallucinations）</strong>：模型会编造信息，这是所有助手都面临的大问题，早期尤其严重，近几年有一些缓解手段。先理解幻觉从哪来。假设训练集里有几条很合理的对话：「Tom Cruise 是谁？」「美国著名演员、制片人」；「John Barroso 是谁？」「美国参议员」；「成吉思汗是谁？」……诸如此类。</p>
+<p>So like, for example, who is Tom Cruise? Tom Cruise is that famous actor, American actor, and producer, et cetera. Who is John Barroso? This turns out to be a US senator. Who is Genghis Khan? Genghis Khan was blah, blah, blah. This is what your conversations could look like at training time. Now the problem with this is that when the human is writing the correct answer for the assistant, in each one of these cases, the human either knows who this person is, or they research them on the internet and they come in. And they write this response that kind of has this like confident tone of an answer. What happens basically is that at test time when you ask for someone—this is a totally random name that I totally came up with, and I don’t think this person exists—when we ask who is Orson Kovacs? The problem is that the assistant will not just tell you “I don’t know,” even if the assistant and the language model itself might know, inside its features, inside its activation, inside of its brain, sort of, it might know that this person is not someone that it is familiar with.</p>
+<p>问题在于：标注员写「正确回复」时，要么自己知道这人是谁，要么上网查完再写，所以回复都是<strong>自信口吻</strong>。到了测试时，如果你问一个根本不存在的人（比如我瞎编的 Orson Kovacs），模型<strong>不会说「我不知道」</strong>——即便网络内部某处「知道」自己不认识这个人。</p>
+<p>Even if some part of the network kind of knows that, in some sense, the saying that I don’t know who this is is not going to happen, because the model statistically imitates its training set. In the training set, the questions of the form “who is blah” are confidently answered with the correct answer. It’s going to take on the style of the answer, and it’s going to do its best. It’s going to give you statistically the most likely guess. It’s just gonna basically make stuff up. Because these models, again, we just talked about it—they don’t have access to the internet. They’re not doing research. These are statistical token samplers, as I call them, just trying to sample the next token in the sequence. And it’s gonna basically mix up.</p>
+<p>因为模型在<strong>统计上模仿训练集</strong>：训练集里「某某是谁」都被自信地答对了，所以它会沿用这种风格、给出统计上最可能的续写，结果就是<strong>瞎编</strong>。模型不能上网、不能查资料，只是按序列采样下一个 token，所以会混在一起。</p>
+<p>So let’s take a look at what this looks like. I have here what’s called the inference playground from Hugging Face. And I am on purpose picking on a model called Falcon 7B which is an old model. So it suffers from hallucinations. But let’s say, who is Orson Kovacs? Let’s ask Falcon 7B instruct. Orson Kovacs is an American author and science fiction writer. Totally false. It’s hallucination. Let’s try again. These are statistical systems, right? So we can resample. Orson Kovacs is a fictional character from a 1950s TV show. It’s total BS right? Let’s try again. He’s a former minor league baseball player. Okay. So basically the model doesn’t know, and it’s given us lots of different answers, because it doesn’t know. It’s just kind of like sampling from these probabilities. The stuff is actually statistically consistent with the style of the answer in its training set. It’s just doing that. But you and I experience it as made up factual knowledge. Keep in mind that the model basically doesn’t know and is just imitating the format of the answer. And it’s not gonna go off and look it up, because it’s just imitating the answer.</p>
+<p>在 Hugging Face 的推理 playground 里用老模型 Falcon 7B 问「Who is Orson Kovacs?」：一次说是美国科幻作家，一次说是 50 年代电视剧虚构角色，一次说是前小联盟棒球手——全是假的。模型不知道，只是在按概率采样，输出在风格上和训练集里的「自信答案」一致，但我们感觉像在编事实。要记住：<strong>模型不知道，只是在模仿答案格式</strong>，也不会去查。</p>
+<hr>
+<h2 id="二、缓解之一：探测知识边界并加入「我不知道」"><a href="#二、缓解之一：探测知识边界并加入「我不知道」" class="headerlink" title="二、缓解之一：探测知识边界并加入「我不知道」"></a>二、缓解之一：探测知识边界并加入「我不知道」</h2><p>So how can we mitigate this? When we go to ChatGPT and ask who is Orson Kovacs, the state-of-the-art model will tell you it doesn’t appear to be a person the model knows. So somehow we’ve improved hallucinations. So how do we fix this? Clearly, we need some examples in our data set where the correct answer for the assistant is that the model doesn’t know about some particular fact, but we only need to have those answers be produced in the cases where the model actually doesn’t know. The question is, how do we know what the model knows or doesn’t know? We can empirically probe the model to figure that out. So let’s take a look at how Meta dealt with hallucinations for the Llama 3 series. In this paper they describe the procedure by which they basically interrogate the model to figure out what it knows and doesn’t know—the boundary of its knowledge. And then they add examples to the training set where for the things that the model doesn’t know them, the correct answer is that the model doesn’t know them. And the reason that fixes the issue is because the model might actually have a pretty good model of its self-knowledge inside the network. You might imagine there’s a neuron somewhere that lights up when the model is uncertain. But the problem is that the activation of that neuron is not currently wired up to the model actually saying in words that it doesn’t know. So we need to interrogate the model and allow it to say “I don’t know” in the cases that it doesn’t know.</p>
+<p>怎么缓解？在 ChatGPT 里问同样的问题，先进模型会说「我不认识这个人」。所以我们需要在数据集中加入一些**正确答案就是「我不知道」**的样例，且只在模型真的不知道时使用。那怎么知道模型知不知道？<strong>用实证探测</strong>：向模型提问，对比它的回答和标准答案。Meta 在 Llama 3 的论文里写了这套流程：探测模型知识边界，对模型不知道的问题，在训练集里加入「抱歉，我不记得」这类回复。能修问题的原因是：网络内部可能已有「不确定性」的表示（比如某神经元在不确定时激活），但没有被接到「用文字说不知道」上，所以要通过训练把这些例子接上。</p>
+<p>So let me take you through what Meta roughly does. They take a random document, take a paragraph, and then use an LLM to construct questions about that paragraph. So we have questions and answers. Now we want to interrogate the model. We take our questions and go to our model. Does this model know about this answer? So he played for Buffalo Sabres, right? We can use another LLM judge to check if the model’s answer is correct. If it is correct, the model probably knows. Now let’s try the second question. How many Stanley cups did he win? The correct answer is two. The model claims he won 4 times—not correct. So the model doesn’t know; it’s making stuff up. So we take this question, we create a new conversation in the training set: when the question is “how many Stanley cups did he win?” the answer is “I’m sorry, I don’t know” or “I don’t remember.” If you do this for many questions and documents, you give the model an opportunity to refuse based on its knowledge. If you have a few examples of that in your training set, the model can learn the association between this knowledge-based refusal and that internal neuron of uncertainty. And empirically this turns out to work—that’s roughly why ChatGPT is able to do this. So that’s mitigation number one.</p>
+<p>Meta 的做法大致是：从随机文档里取一段，用 LLM 根据这段生成问答；然后拿这些问题去问要训的模型，用另一个 LLM 当裁判看回答对不对。若模型答对（如「他效力 Buffalo Sabres」），判为知道；若答错（如「赢了几次斯坦利杯」说成 4 次而正确答案是 2），判为不知道。对「不知道」的问题，在训练集里加一条新对话：问题照写，助手回复写「抱歉我不知道&#x2F;不记得」。对大量问题和文档重复这一过程，模型就有机会学会「在不确定时拒绝」。训练集里只要有一定数量的这种样例，模型就能把「基于知识的拒绝」和内部的不确定性表征联系起来。实证上这能明显缓解幻觉，ChatGPT 能说「不认识」也与此有关。以上就是<strong>缓解一</strong>。</p>
+<hr>
+<h2 id="三、缓解之二：用工具（如网页搜索）刷新「工作记忆」"><a href="#三、缓解之二：用工具（如网页搜索）刷新「工作记忆」" class="headerlink" title="三、缓解之二：用工具（如网页搜索）刷新「工作记忆」"></a>三、缓解之二：用工具（如网页搜索）刷新「工作记忆」</h2><p>Now we can do much better than that. Instead of just saying we don’t know, we can give the model the opportunity to be factual and actually answer the question. What do you and I do if we don’t know? We go and look it up. Think of the knowledge in the parameters as a vague recollection of what the model saw during pre-training a long time ago—like something you read a month ago. But what you and I do is we just go and look it up. When you look it up, you’re refreshing your working memory. So we need some equivalent of allowing the model to refresh its memory. And we can do that by introducing tools. So we can create a mechanism by which the language model can emit special tokens—for example search_start, then the query, then search_end. When the program that is running the inference sees search_end, instead of sampling the next token, it will pause, go to Bing or Google, paste the query, get the text, and copy-paste that text into the context window. So that text from the web search is now inside the context window. And you should think of the context window as the working memory of the model. That data is directly accessible by the model. So it’s not anymore a vague recollection; it’s data in the context window. When the model is sampling the new tokens afterwards, it can reference that data very easily. So that’s roughly how tools work. And you teach the model how to use these tools through training data—a few thousand examples of when to search and how to structure queries. So web search is one tool; the model determines when to search. And this is an additional mitigation for hallucinations and factuality.</p>
+<p>我们还可以更进一步：不只会说「不知道」，而是让模型有机会<strong>查完再答</strong>。参数里的知识像是很久以前预训练时见过的「模糊回忆」；人不知道时会去查，查完相当于刷新工作记忆。所以要让模型也能「刷新记忆」，做法是<strong>引入工具</strong>。例如：模型可以生成特殊 token——search_start、查询、search_end。推理程序看到 search_end 就暂停生成，去 Bing&#x2F;Google 搜，把结果文本塞进<strong>上下文窗口</strong>。上下文窗口就是模型的<strong>工作记忆</strong>，里面的内容模型可以直接用，不再是模糊回忆。之后模型再续写时就能引用这些内容。工具的使用方式通过训练数据教：几千条「何时搜、怎么组织查询」的样例即可。所以<strong>网页搜索</strong>是一种工具，由模型决定何时调用，这是对幻觉和事实性的<strong>又一重缓解</strong>。</p>
+<p>So I want to stress one more time: knowledge in the parameters is a vague recollection; the tokens in the context window are the working memory. It roughly works like it does for us. So for example, if you ask ChatGPT to summarize chapter one of Pride and Prejudice, it can do something reasonable from memory. But it always works better if you just give it the text—paste the chapter into the context. Then the model has direct access and the summary can be significantly higher quality. So that’s the parameter vs context distinction.</p>
+<p>再强调一次：<strong>参数里的知识 &#x3D; 模糊回忆，上下文窗口里的 token &#x3D; 工作记忆</strong>，和人的记忆大致对应。所以如果你让模型总结《傲慢与偏见》第一章，光靠记忆它也能做一点；但<strong>直接把那一章贴进上下文</strong>效果会好得多，因为模型可以直接访问，总结质量会明显更高。这就是参数与上下文的区别。</p>
+<hr>
+<h2 id="四、自我认知：无持久自我，身份靠数据或系统消息硬编码"><a href="#四、自我认知：无持久自我，身份靠数据或系统消息硬编码" class="headerlink" title="四、自我认知：无持久自我，身份靠数据或系统消息硬编码"></a>四、自我认知：无持久自我，身份靠数据或系统消息硬编码</h2><p>The next psychological quirk is that of knowledge of self. People often ask LLMs: what model are you and who built you? Basically this question is a little bit nonsensical. This thing is not a person; it doesn’t have a persistent existence. It boots up, processes tokens, and shuts off for every single conversation. It has no persistent self. It’s a token sampler following the statistical regularities of its training set. So by default you’re gonna get pretty random answers. For example Falcon says “I was built by OpenAI based on the GPT-3 model”—it’s totally making stuff up. If you don’t explicitly program the model to answer these questions, what you get is a statistical best guess. The pre-training stage took documents from the entire internet, and ChatGPT and OpenAI are very prominent in those documents. So the model might just be hallucinating its identity label. Now you can override this as a developer. One way is through data: for example the OLMO model has 240 hard-coded conversations like “Tell me about yourself” &#x2F; “I’m OLMo, an open language model developed by the Allen Institute…” If you put 240 such conversations into your training set and fine-tune, the model will parrot this. Another way is the system message at the very beginning of the conversation—you can hard-code “you are a model developed by OpenAI, your name is ChatGPT-4o, your knowledge cutoff is this.” So when you go to ChatGPT you see a blank page, but the system message is hidden in there. Those are the two ways to program models to talk about themselves: through data or through system message. It’s all just kind of cooked up and bolted on; it’s not deeply there as it would be for a human.</p>
+<p>另一个心理层面的点是<strong>自我认知</strong>。大家常问「你是哪个模型、谁造的？」这类问题本质上有点无意义：模型不是人，没有持久存在，每次对话都是启动、处理 token、结束，<strong>没有持久自我</strong>，只是按训练集统计规律采样的 token 生成器。所以默认会得到很随机的答案，比如 Falcon 会说「我是 OpenAI 基于 GPT-3 造的」——纯属瞎编。若不显式「编程」它回答身份问题，你得到的只是统计上的最佳猜测；预训练数据里 ChatGPT&#x2F;OpenAI 出现很多，所以它可能只是在幻觉自己的身份标签。开发者可以覆盖：一、<strong>用数据</strong>，例如 OLMO 在 SFT 里放了 240 条硬编码对话（「介绍一下你自己」「我是 OLMo，由 Allen 研究所开发……」），训完就会背这些；二、<strong>系统消息</strong>：在对话最开头放一条隐藏的系统消息，写「你是 OpenAI 开发的模型，名叫 ChatGPT-4o，知识截止于某日」。所以 ChatGPT 打开是空白页，但系统消息已经在上下文里。两种方式都是「硬编码」身份，是后接上去的，不像人那样有内在的自我。</p>
+<hr>
+<h2 id="五、模型需要-token-才能「想」：把计算分散到多-token"><a href="#五、模型需要-token-才能「想」：把计算分散到多-token" class="headerlink" title="五、模型需要 token 才能「想」：把计算分散到多 token"></a>五、模型需要 token 才能「想」：把计算分散到多 token</h2><p>I want to continue to the next section: the native computational capabilities of these models in problem-solving. We have to be very careful when we construct conversation examples; there are a lot of sharp edges. Consider a simple math prompt: Emily buys 3 apples and 2 oranges. Each orange costs $2. The total cost is $13. What is the cost of each apple? There are two possible assistant answers. They both say the answer is 3, which is correct. But one of these two is significantly better for the assistant than the other. The key is that when models are training and inferring, they work in a one-dimensional sequence of tokens from left to right. We feed all these tokens into the neural network, and it gives us the probabilities for the next token. There is basically a finite number of layers of computation—say 100 or 123 layers. So there’s a finite amount of computation for every single token. You can’t do arbitrary computation in a single forward pass to get a single token. So we have to distribute our reasoning across many tokens. We can’t expect too much computation in any single token. So that’s why the answer that goes straight to “the answer is $3” is significantly worse: we’re expecting the model to cram all the computation of this problem into that single token. Once we’ve emitted “3,” the answer is already in the context; everything after that is just post-hoc justification. So if you train the model to answer directly and immediately, you’re training it to guess the answer in a single token, which won’t work. The answer on the right is better because we’re distributing the computation: total cost of oranges is 4, so 13 minus 4 is 9, so each apple is $3. We’re getting intermediate results. Each step is not that expensive per token. We’re teaching the model to spread out its reasoning and computation over the tokens. So models need tokens to think; distribute computation across many tokens, and ask the model to create intermediate results.</p>
+<p>接下来是模型在<strong>解题时的原生计算能力</strong>。构造对话样例时要非常小心，这里有很多锐边。考虑一道简单数学题：Emily 买 3 个苹果 2 个橙子，橙子每个 2 美元，总共 13 美元，问每个苹果多少钱？有两个助手答案，最终都说是 3，都对，但<strong>其中一个明显更适合作为助手答案</strong>。要点是：模型训练和推理都是在<strong>从左到右的一维 token 序列</strong>上工作，每个 token 只经过<strong>有限层</strong>计算（比如一百多层），所以<strong>每个 token 上的计算量是有限、大致固定的</strong>，不可能在一个 token 里完成任意复杂计算。因此必须把<strong>推理和计算分散到多个 token</strong>。这就是为什么直接写「答案是 3」的那种回复更差：等于要求模型把整道题的计算塞进<strong>一个 token</strong>；一旦已经生成了「3」，答案已在上下文里，后面只是事后合理化。若你训练模型「立刻给答案」，就是在训练它在一个 token 里猜答案，这做不到。右边那种答案更好，因为把计算展开了：橙子总价 4，13-4&#x3D;9，所以每个苹果 3 美元，每一步都不算重。所以要<strong>让模型把推理和计算摊到多个 token 上，产生中间结果</strong>——模型需要 token 才能「想」。</p>
+<hr>
+<h2 id="六、单-token-算不动时就会错；实践中用代码解释器更稳"><a href="#六、单-token-算不动时就会错；实践中用代码解释器更稳" class="headerlink" title="六、单 token 算不动时就会错；实践中用代码解释器更稳"></a>六、单 token 算不动时就会错；实践中用代码解释器更稳</h2><p>So when I ask ChatGPT this question it’s gonna go slowly—define variables, set up the equation, create intermediate results. These are for the model, not for you. If the model doesn’t create these for itself, it won’t be able to reach 3. I also wanted to show you that we can ask for the answer in a single token. For this simple prompt it gave me two tokens ($3) and got it right. But when I made the numbers bigger—23 apples and 177 oranges—and asked for a single-token answer, it gave me 5, which is wrong. So the model failed to do all that calculation in a single forward pass. When I said solve as usual, it did all the intermediate steps and got 7 correctly. So we can’t squeeze that work into a single forward pass. In practice I might not trust that all the intermediate calculations are correct. So I would say “use code.” Code is one of the tools. The model can write code and we can run it. I would trust the Python interpreter a lot more than the model’s mental arithmetic. So if you have these kinds of problems, ask the model to use the code interpreter. The model has special tokens for calling tools; it writes the program, sends it to be run, and gets the result back. So: lean on tools whenever possible instead of letting the model do everything in its memory.</p>
+<p>所以问 ChatGPT 这道题时，它会慢慢来：设变量、列方程、写中间结果——这些是给模型自己用的。若不让它写这些，它就算不出 3。若强行要求「只用一个 token 回答」，数字简单时它还能蒙对（例如给出 $3），但把数字改成 23 个苹果、177 个橙子再要单 token 答案，它就给出 5（错）。说明<strong>在一个前向传播里它做不完这么多计算</strong>；改成「按平常方式解」就一步步算对，得到 7。因此实践中我不一定相信它每步心算都对，会直接说「用代码」。代码是工具之一：模型写代码，我们执行，我更信 Python 解释器而不是模型的心算。所以遇到这类题，可以要求用代码解释器；模型有调用工具的 special token，会写程序、送执行、拿结果。<strong>尽量用工具，别全交给模型的「脑内」计算。</strong></p>
+<hr>
+<h2 id="七、计数与拼写：模型看的是-token-不是字符"><a href="#七、计数与拼写：模型看的是-token-不是字符" class="headerlink" title="七、计数与拼写：模型看的是 token 不是字符"></a>七、计数与拼写：模型看的是 token 不是字符</h2><p>Models are not very good at counting for the same reason—you’re asking for too much in a single token. Example: how many dots are below? I put a bunch of dots; the model tries to solve it in a single token and gets 161 (wrong; it’s actually 177). If I say “use code,” it creates a string in Python, copies the input (which for the model is just a few tokens), and calls .count()—the Python interpreter does the counting. So again: models need tokens to think; don’t rely on their mental arithmetic. Models are also not very good at spelling-related tasks because they don’t see characters, they see tokens. Their world is tokens—little text chunks. So character-level tasks often fail. For example: given “ubiquitous,” print every third character. The model might get it wrong because “ubiquitous” might be three tokens; the model doesn’t have easy access to individual letters. So spelling tasks don’t work super well. I can again ask it to use code—copy “ubiquitous” into Python and index every third character—and that works. A famous example is “how many r’s in strawberry?” For a long time state-of-the-art models said two; it’s three. The reason: models see tokens not characters, and they’re not very good at counting. So we’re combining the difficulty of seeing characters with the difficulty of counting. So LLMs are not very good at spelling; if you need counting or character tasks, ask them to lean on tools.</p>
+<p>模型<strong>计数</strong>也不好，原因一样：你在一个 token 里要了太多东西。例如「下面有多少个点？」我贴一堆点，模型试图在一个 token 里给出数字，得到 161（错，实际 177）。若说「用代码」，它会在 Python 里建字符串、把输入（对模型只是几个 token）复制过去再 .count()，由解释器来数。所以仍是：<strong>模型需要 token 才能想，别依赖它的心算。</strong> 和<strong>拼写&#x2F;字符</strong>相关的任务也不好，因为模型看到的是 <strong>token 不是字符</strong>，它的世界是一块块文本，所以字符级任务常失败。例如给 “ubiquitous”，要求「每隔两个字符输出一个」，模型可能错，因为 “ubiquitous” 可能被切成三个 token，模型没法方便地按字符索引。拼写类任务因此别指望太好； again 可以说「用代码」把字符串丢给 Python 处理，就对了。「strawberry 里有几个 r」是经典例子：很长时间里顶尖模型都说 2 个，其实是 3 个——既看不到字符只看 token，又不擅长计数，两个难点叠在一起。所以<strong>拼写&#x2F;计数类任务尽量让模型用工具。</strong></p>
+<hr>
+<h2 id="八、瑞士奶酪式能力：9-11-和-9-9-谁大？"><a href="#八、瑞士奶酪式能力：9-11-和-9-9-谁大？" class="headerlink" title="八、瑞士奶酪式能力：9.11 和 9.9 谁大？"></a>八、瑞士奶酪式能力：9.11 和 9.9 谁大？</h2><p>There are other little cognitive deficits and sharp edges. For example the models are not very good at very simple questions like: which is bigger, 9.11 or 9.9? This shocks people because they can solve Olympiad problems. Sometimes they get it right, sometimes wrong; sometimes they flip. There’s been study: when you look at activations, neurons that are usually associated with Bible verses light up—so 9.11 might be interpreted like a verse number (9:11 comes after 9:9). So the model gets distracted. It’s not fully understood. So treat this as what it is: a stochastic system that is really magical but that you can’t fully trust. Use it as a tool, not as something you hand a problem to and accept the results blindly.</p>
+<p>模型还有很多小缺陷和锐边。例如非常简单的「9.11 和 9.9 谁大？」它们有时对有时错，有时还会改口。有研究看激活发现：和圣经章节相关的神经元会亮——9.11 像章节号（9:11 在 9:9 后面），模型可能被带偏。原因还不完全清楚。所以<strong>要把它当成随机系统</strong>：很神奇，但不能全信。<strong>当工具用，别把问题丢过去就照单全收。</strong></p>
+<hr>
+<h2 id="上文总结（约-1-小时阅读量至此）"><a href="#上文总结（约-1-小时阅读量至此）" class="headerlink" title="上文总结（约 1 小时阅读量至此）"></a>上文总结（约 1 小时阅读量至此）</h2><p><strong>本段内容涵盖：</strong></p>
+<ol>
+<li><strong>幻觉</strong>：训练集里「某某是谁」都被自信回答，模型统计模仿，对不认识的人也会编；模型不能上网，只是 token 采样器。</li>
+<li><strong>缓解一</strong>：用探测（问模型+LLM 裁判）找出模型不知道的问题，在训练集里加入「我不知道&#x2F;不记得」的回复，让模型学会把内部「不确定性」和拒绝回答联系起来（如 Meta Llama 3）。</li>
+<li><strong>缓解二</strong>：引入<strong>工具</strong>（如网页搜索）：模型发出 search_start&#x2F;query&#x2F;search_end，推理程序执行搜索并把结果塞进<strong>上下文窗口</strong>；上下文&#x3D;工作记忆，参数&#x3D;模糊回忆，把关键信息放进上下文比靠回忆更准。</li>
+<li><strong>自我认知</strong>：模型无持久自我，身份回答默认是统计猜测或幻觉；可通过 <strong>SFT 数据</strong>（如 240 条「你是谁」）或<strong>系统消息</strong>硬编码身份。</li>
+<li><strong>计算与推理</strong>：每个 token 只有有限层计算，<strong>必须把推理分散到多 token</strong>；直接要「一个 token 给答案」会训坏；应让模型写中间结果；复杂运算&#x2F;计数&#x2F;拼写<strong>尽量用工具</strong>（代码解释器、搜索）。</li>
+<li><strong>计数与拼写</strong>：模型看 token 不看字符，又不擅计数，所以数点、数字母、拼写任务容易翻车，解决思路仍是<strong>用代码等工具</strong>。</li>
+<li><strong>瑞士奶酪</strong>：模型在简单题（如 9.11 vs 9.9）上会随机出错，原因不完全清楚；整体上要<strong>当工具用、验证结果、不盲目采信</strong>。</li>
+</ol>
+<p><strong>初学者可记：</strong> 幻觉来自训练集没有「我不知道」+ 统计模仿；缓解靠「自知拒绝」+ 工具（搜索&#x2F;代码）；参数&#x3D;长期模糊记忆，上下文&#x3D;工作记忆；模型需多 token 推理，单 token 算力有限；拼写&#x2F;计数弱项多用工具；最后当工具用、别全信。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/vibe-coding/">vibe coding</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/03/08/445595883.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Deep Dive into LLMs like ChatGPT - 5</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/03/08/4092388830.html">
+                        <span class="hidden-mobile">Deep Dive into LLMs like ChatGPT - 3</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "Deep Dive into LLMs like ChatGPT - 4"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

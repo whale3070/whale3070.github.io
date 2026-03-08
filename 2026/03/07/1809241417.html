@@ -1,0 +1,592 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>When a Top L1’s Credibility Crashes on a Certificate That Won’t Download - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="When a Top L1’s Credibility Crashes on a Certificate That Won’t Download">
+                      
+                        When a Top L1’s Credibility Crashes on a Certificate That Won’t Download
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-03-07 10:02" pubdate>
+        2026年3月7日 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.9k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      38
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">When a Top L1’s Credibility Crashes on a Certificate That Won’t Download</h1>
+            
+            <div class="markdown-body">
+              <p><a target="_blank" rel="noopener" href="https://paragraph.com/@whale3070@qq.com/when-a-top-l1s-credibility-crashes-on-a-certificate-that-wont-download-1">https://paragraph.com/@whale3070@qq.com/when-a-top-l1s-credibility-crashes-on-a-certificate-that-wont-download-1</a></p>
+<h1 id="When-a-Top-L1’s-Credibility-Crashes-on-a-Certificate-That-Won’t-Download"><a href="#When-a-Top-L1’s-Credibility-Crashes-on-a-Certificate-That-Won’t-Download" class="headerlink" title="When a Top L1’s Credibility Crashes on a Certificate That Won’t Download"></a>When a Top L1’s Credibility Crashes on a Certificate That Won’t Download</h1><p>As a Web3 developer, I used to give chains like Avalanche the benefit of the doubt—established L1, decent rankings, so at least the basics ought to work. Then I went through their hackathon and hit their official academy system. What I saw was enough to change my mind: a chain that can’t serve a PDF certificate and whose signup page crashes browsers has no business claiming technical authority or a serious developer ecosystem. Dig a little deeper and it’s clear that these surface bugs are symptoms of something worse: entrenched authority, centralization, technical arrogance, and a community that’s learned not to speak up. The “AI jury” idea I’ve been proposing is one concrete way to cut through that.</p>
+<p><strong>Disclaimer:</strong> This piece reflects my own views and experience. The certificate download failure, browser crashes during hackathon registration, and Telegram ban are things I personally experienced (I have screenshots for the registration crashes). Other facts and figures are cited from public news or official documentation where possible.</p>
+<hr>
+<h2 id="Certificates-and-the-Academy-From-Onboarding-to-“Internal-Server-Error”"><a href="#Certificates-and-the-Academy-From-Onboarding-to-“Internal-Server-Error”" class="headerlink" title="Certificates and the Academy: From Onboarding to “Internal Server Error”"></a>Certificates and the Academy: From Onboarding to “Internal Server Error”</h2><p>Start with the official academy certificate. The flow lives at: <a target="_blank" rel="noopener" href="https://build.avax.network/academy/avalanche-l1/avalanche-fundamentals/get-certificate">build.avax.network&#x2F;academy&#x2F;avalanche-l1&#x2F;avalanche-fundamentals&#x2F;get-certificate</a>. It’s Avalanche’s entry-level track—snowman consensus, multi-chain design, custom VMs, five core modules, plus 21 quizzes to unlock the certificate. The design looks serious. The problem is the last step: many developers finish the course, pass every quiz, click “Download certificate,” and get nothing but an <strong>internal server error</strong>.</p>
+<p><img src="https://whale3070.github.io/2026/02/20/63203/1.png"><br><img src="https://whale3070.github.io/2026/02/20/63203/2.png"></p>
+<p>A static PDF download failing with a backend error is hard to excuse. This isn’t some third-party site; it’s Avalanche’s own developer academy, aimed at developers worldwide. If they can’t get the simplest, lowest-friction feature right, it’s fair to question how seriously the team takes developer experience. That’s just one example of a broader pattern—a chain that went mainnet in 2020 and rode snowman consensus into the top tier is now stuck in an authority trap it shows no sign of escaping.</p>
+<hr>
+<h2 id="Hackathon-Signup-and-Review-Broken-Onboarding-Broken-Judging"><a href="#Hackathon-Signup-and-Review-Broken-Onboarding-Broken-Judging" class="headerlink" title="Hackathon Signup and Review: Broken Onboarding, Broken Judging"></a>Hackathon Signup and Review: Broken Onboarding, Broken Judging</h2><p>Things didn’t get better at the hackathon. On the same official stack, I hit browser crashes repeatedly while filling out the form and uploading materials; it took several attempts to submit, and <strong>I kept screenshots</strong>. Other developers have reported similar issues. Hackathons are supposed to be a main channel for attracting good builders. When the first step—signing up—is this bad, even experienced devs are put off. The common complaints are familiar: messy docs, flaky APIs, buggy tooling. At the end of the day it’s not that the tech <em>can’t</em> be done right; it’s that ordinary developers aren’t the priority. Effort goes into protecting the institution and its narrative.</p>
+<p><img src="https://whale3070.github.io/2026/02/20/63203/3.png"></p>
+<p>The contrast is stark. On one side you have basic features failing—certificates, signup, and a serious track record: in March 2023, the C-Chain stopped producing blocks for over an hour due to a node software bug (<a target="_blank" rel="noopener" href="https://www.coindesk.com/markets/2023/03/23/avalanche-blockchains-x-and-c-networks-see-brief-outage/">CoinDesk</a>, <a target="_blank" rel="noopener" href="https://cryptoslate.com/avalanche-c-x-chains-experience-brief-outage-due-to-network-bug/">CryptoSlate</a>); exchanges had to pause deposits and withdrawals. That’s not a minor glitch—it’s a core infra failure. The <a target="_blank" rel="noopener" href="https://blog.li.fi/avalanche-bridge-a-deep-dive-d51d60dda47e">Avalanche bridge is maintained by only four Wardens</a>, a clear single point of failure; the ecosystem has seen repeated contract exploits, including <a target="_blank" rel="noopener" href="https://cointelegraph.com/news/platypus-defi-faces-flash-loan-attack-according-to-certik">Platypus Finance losing ~$8.5M to a flash-loan attack</a> (over 2.2M AVAX at the time), which speaks to slow and inadequate security and response.</p>
+<p>On the other side, the same chain runs a hackathon that collects 2,000+ projects and touts “vibrant ecosystem.” Do the math. A team spends ten days building an MVP; giving each project ten minutes—reading the logic, checking the demo—is the least one could ask. For 2,000 projects that’s 20,000 minutes. Even with five judges working nonstop, that’s over a week of full-time review.</p>
+<p>In practice, review is wrapped up in a few days. Worse: if you don’t make the cut, you get <strong>no explanation and no feedback</strong>. That creates a perverse incentive. As a judge, you’re paid the same whether you review carefully or skim. Nobody can verify that you actually opened the repo or ran the code. With no accountability and no transparency, the rational choice is to cut corners—reject batches of projects to lighten the load.</p>
+<p>That’s what makes it so dispiriting for builders. The process is a black box. You think you’re being judged on code; you’re really being judged on a few seconds of attention. The “AI jury” I propose is meant to end that: an AI’s “pay” is compute; it can scan all 2,000 projects around the clock and give every rejected team a concrete, quantified report. That’s the kind of transparency Web3 should aim for—not letting weeks of work die in a judge’s rational laziness.</p>
+<hr>
+<h2 id="Governance-and-Centralization-Authority-Lock-in-and-Board-Exodus"><a href="#Governance-and-Centralization-Authority-Lock-in-and-Board-Exodus" class="headerlink" title="Governance and Centralization: Authority Lock-in and Board Exodus"></a>Governance and Centralization: Authority Lock-in and Board Exodus</h2><p>Underlying all of this is centralization. Avalanche is effectively held hostage by a single authority. Ava Labs controls the core codebase, the foundation, and ecosystem resources. On-chain governance is barely meaningful; independent developers and teams with different technical views are easily sidelined or pushed out when they challenge that control. <a target="_blank" rel="noopener" href="https://docs.avax.network/nodes/validate/how-to-stake">Mainnet validators must stake at least 2,000 AVAX</a> (on the order of tens of thousands of dollars), so nodes are dominated by large players and ordinary devs have little say. In that setup, authority ossifies and innovation suffocates.</p>
+<p>Even the foundation’s own board had enough. <a target="_blank" rel="noopener" href="https://www.cryptopolitan.com/3-avalanche-foundation-board-members-resign/">In early March 2025, three Avalanche Foundation directors resigned</a> (reported by Cryptopolitan and others). Their departure laid bare the dynamic: they had tried to push for more diversity and transparency and to listen to the community, but every initiative was blocked by Ava Labs. Power was concentrated elsewhere; the foundation acted as a puppet. Ideological clash and structural impotence led to a collective exit—proof that Avalanche’s governance is stuck in “power at the center, infighting and waste,” and that people who actually want to improve the ecosystem end up leaving.</p>
+<hr>
+<h2 id="Getting-Banned-and-the-Emperor’s-New-Clothes-When-Truth-Becomes-“Prohibited”"><a href="#Getting-Banned-and-the-Emperor’s-New-Clothes-When-Truth-Becomes-“Prohibited”" class="headerlink" title="Getting Banned and the Emperor’s New Clothes: When Truth Becomes “Prohibited”"></a>Getting Banned and the Emperor’s New Clothes: When Truth Becomes “Prohibited”</h2><p>I couldn’t help commenting in a group: “At this review pace, I could ‘read’ a whole book in three seconds.” I didn’t attack anyone; I stated a fact. My Telegram account was banned. That’s the pattern: when someone points out slapdash judging, broken sites, or inflated hype, the response isn’t to fix the problem—it’s to remove the person who raised it.</p>
+<p>What I didn’t expect was how that ban became a signal. After it happened, many participants reached out in private and agreed. They said this skepticism was already widespread; they just didn’t dare challenge Ava Labs’ narrative in public.</p>
+<p>It gets worse. Other builders told me their projects had full MVPs and live sites, yet were rejected with reasons that were barely reasons—e.g. “too many applicants, we had to cut some.” When people asked for details in group chats, the organizers went silent.</p>
+<p>That’s why I built the AI jury. Some of the teams that were “randomly cut” have already started submitting to my AI review system. It shows that people see through the performance: a big-name L1 talking about ecosystem, but unwilling to fix or even acknowledge broken review logic. When developers start seeking objective AI feedback instead of a human judge’s few seconds of attention, the kind of credibility that depends on centralized control and narrative control has already collapsed.</p>
+<hr>
+<h2 id="How-Avalanche-Stacks-Up-Monad-Conflux-and-the-Numbers"><a href="#How-Avalanche-Stacks-Up-Monad-Conflux-and-the-Numbers" class="headerlink" title="How Avalanche Stacks Up: Monad, Conflux, and the Numbers"></a>How Avalanche Stacks Up: Monad, Conflux, and the Numbers</h2><p>In Web3, what ultimately matters is technology and honesty—code and experience, not seniority or marketing. A chain that can’t deliver a certificate, crashes browsers on signup, and has a history of core outages and highly concentrated power may still call itself a “top L1” and attract 2,000+ hackathon projects, but that’s a hollow shell.</p>
+<p>They also keep missing a simple point: the first step toward improvement is admitting shortcomings; the heart of an ecosystem is respecting developers. Kicking out people who tell the truth, hiding bugs, and hoarding power leads to the same place as so many hyped but poorly run projects—burn through trust until there’s nothing left.</p>
+<p>I’ve seen the opposite in Polkadot. I’m not saying their tech is perfect, but as a developer I feel treated like a human. There, feedback is used to improve; on Avalanche, feedback is used to ban. Polkadot doesn’t silence or deplatform people who point out problems; they listen, explain, and actually iterate. That’s the kind of posture that keeps developers and sustains an ecosystem.</p>
+<p>On raw technical comparison, the public data on Avalanche vs. Monad and Conflux is telling:</p>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Avalanche</th>
+<th>Monad &#x2F; Conflux</th>
+<th>Takeaway</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Execution</td>
+<td>Serial &#x2F; pseudo-parallel (three chains async, but each chain serial)</td>
+<td>Optimistic parallelism (Monad) &#x2F; Tree-graph concurrency (Conflux)</td>
+<td>Generational gap</td>
+</tr>
+<tr>
+<td>Measured TPS</td>
+<td>100–300 (high latency, 3–5 s peaks)</td>
+<td>Monad 8000+ &#x2F; Conflux 10000+</td>
+<td>Orders of magnitude apart</td>
+</tr>
+<tr>
+<td>Governance</td>
+<td>Institutional control, bans, infighting</td>
+<td>Monad: tech-led &#x2F; Conflux: community-driven</td>
+<td>Innovation vs. ossification</td>
+</tr>
+<tr>
+<td>Developer experience</td>
+<td>Certificate fails, signup crashes, messy docs</td>
+<td>Performant tooling, clear docs, responsive support</td>
+<td>Attitude shows</td>
+</tr>
+</tbody></table>
+<p><em>TPS and related figures from public claims or third-party tests; see references for context and dates.</em></p>
+<p>In short, Avalanche’s performance story belongs to an earlier generation of “fast” chains; the architecture has inherent limits and evolution is closed off, so theory and practice diverge. Monad’s optimistic parallelism and Conflux’s tree-graph design deliver a different class of throughput—and both chains keep engaging with the community and improving the experience.</p>
+<p>Avalanche is in an awkward spot: it doesn’t match the technical energy of newer chains like Monad and Conflux, it doesn’t deliver the rigor and accountability you’d expect from an old guard, and it doesn’t offer the openness of something like Polkadot. The “top L1” label has become a matter of optics, not substance.</p>
+<hr>
+<h2 id="Conclusion-Choose-Chains-by-Tech-and-by-Attitude"><a href="#Conclusion-Choose-Chains-by-Tech-and-by-Attitude" class="headerlink" title="Conclusion: Choose Chains by Tech, and by Attitude"></a>Conclusion: Choose Chains by Tech, and by Attitude</h2><p>For developers, choosing a chain means looking at both technical strength and how the team operates. Monad and Conflux demonstrate what’s possible with real performance and iteration; Polkadot shows that treating builders with respect pays off. Avalanche, by contrast, has been eroding trust through arrogance and half-hearted execution.</p>
+<p>The AI jury isn’t a plug for a product—it’s a response to institutional indifference. The goal is to puncture inflated narratives, put code back at the center, and let merit matter more than connections, so that developers who put in the work can be seen and taken seriously.</p>
+<p>A top chain’s credibility isn’t handed down by title or hype. It’s built from technology, experience, and respect. In Web3 there are no permanent “leaders,” only continuous innovation. Chains that cling to the past, hide problems, and silence critics will be left behind.</p>
+<hr>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li>Avalanche C-Chain &#x2F; X-Chain outage (March 2023): <a target="_blank" rel="noopener" href="https://www.coindesk.com/markets/2023/03/23/avalanche-blockchains-x-and-c-networks-see-brief-outage/">CoinDesk</a>, <a target="_blank" rel="noopener" href="https://cryptoslate.com/avalanche-c-x-chains-experience-brief-outage-due-to-network-bug/">CryptoSlate</a></li>
+<li>Avalanche bridge and four Wardens: <a target="_blank" rel="noopener" href="https://blog.li.fi/avalanche-bridge-a-deep-dive-d51d60dda47e">LI.FI analysis</a></li>
+<li>Platypus Finance flash-loan attack (~$8.5M): <a target="_blank" rel="noopener" href="https://cointelegraph.com/news/platypus-defi-faces-flash-loan-attack-according-to-certik">Cointelegraph</a></li>
+<li>Avalanche validator minimum stake (2,000 AVAX): <a target="_blank" rel="noopener" href="https://docs.avax.network/nodes/validate/how-to-stake">Avalanche docs</a></li>
+<li>Avalanche Foundation board resignations (March 2025): <a target="_blank" rel="noopener" href="https://www.cryptopolitan.com/3-avalanche-foundation-board-members-resign/">Cryptopolitan</a></li>
+<li>Conflux tree-graph 3.0 and TPS (e.g. ~15k TPS): <a target="_blank" rel="noopener" href="https://doc.confluxnetwork.org/docs/general/conflux-basics/what-is-conflux/">Conflux docs</a>; Monad testnet and performance: <a target="_blank" rel="noopener" href="https://www.monad.xyz/post/monad-testnet-onboarding-guide">Monad</a></li>
+</ul>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Web3/">Web3</a>
+                    
+                      <a class="hover-with-bg" href="/tags/hackathon/">hackathon</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Avalanche/">Avalanche</a>
+                    
+                      <a class="hover-with-bg" href="/tags/blockchain/">blockchain</a>
+                    
+                      <a class="hover-with-bg" href="/tags/developer-ecosystem/">developer-ecosystem</a>
+                    
+                      <a class="hover-with-bg" href="/tags/governance/">governance</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/03/07/1809241416.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">老牌公链的体面，碎在一个下载不了的证书里</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/03/06/1058379694.html">
+                        <span class="hidden-mobile">萤光RWA二维码</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "When a Top L1’s Credibility Crashes on a Certificate That Won’t Download"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

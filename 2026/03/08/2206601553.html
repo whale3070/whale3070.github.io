@@ -1,0 +1,712 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>Deep Dive into LLMs like ChatGPT - 8 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="Deep Dive into LLMs like ChatGPT - 8">
+                      
+                        Deep Dive into LLMs like ChatGPT - 8
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-03-08 16:21" pubdate>
+        2026年3月8日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      9.6k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      99
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">Deep Dive into LLMs like ChatGPT - 8</h1>
+            
+            <div class="markdown-body">
+              <h1 id="豆包AI总结出的笔记"><a href="#豆包AI总结出的笔记" class="headerlink" title="豆包AI总结出的笔记"></a>豆包AI总结出的笔记</h1><h1 id="大语言模型（LLM）核心技术全解析"><a href="#大语言模型（LLM）核心技术全解析" class="headerlink" title="大语言模型（LLM）核心技术全解析"></a>大语言模型（LLM）核心技术全解析</h1><h2 id="章节一：大语言模型整体介绍与训练总流程"><a href="#章节一：大语言模型整体介绍与训练总流程" class="headerlink" title="章节一：大语言模型整体介绍与训练总流程"></a>章节一：大语言模型整体介绍与训练总流程</h2><h3 id="核心内容翻译"><a href="#核心内容翻译" class="headerlink" title="核心内容翻译"></a>核心内容翻译</h3><p>本视频旨在为普通观众全面介绍ChatGPT这类大语言模型，搭建理解该工具的思维框架——它在某些方面表现卓越，在另一些方面却不尽如人意，同时还存在诸多需要注意的“技术短板”。视频将拆解大语言模型的完整构建流程，兼顾认知心理学层面的应用启示，且全程保持内容的通俗性，让非专业观众也能理解。</p>
+<p>大语言模型的训练分为<strong>预训练</strong>、<strong>后训练</strong>（含监督微调）和<strong>强化学习</strong>三个核心阶段，按顺序逐步推进，各阶段的计算成本、训练目标和数据类型差异显著，最终将原始的“互联网文本模拟器”打磨为能与人交互的智能助手。</p>
+<h3 id="核心结论"><a href="#核心结论" class="headerlink" title="核心结论"></a>核心结论</h3><ol>
+<li>大语言模型是一把“双刃剑”，有显著优势也存在技术短板，需理性看待其能力边界；</li>
+<li>模型训练遵循<strong>预训练-后训练-强化学习</strong>的三段式流程，各阶段分工明确、循序渐进；</li>
+<li>本教程将从技术构建、认知特性、实际应用等维度解析大语言模型，内容兼顾专业性与通俗性。</li>
+</ol>
+<h2 id="章节二：预训练阶段——互联网文本的处理与token化"><a href="#章节二：预训练阶段——互联网文本的处理与token化" class="headerlink" title="章节二：预训练阶段——互联网文本的处理与token化"></a>章节二：预训练阶段——互联网文本的处理与token化</h2><h3 id="核心内容翻译-1"><a href="#核心内容翻译-1" class="headerlink" title="核心内容翻译"></a>核心内容翻译</h3><p>预训练是大语言模型的基础阶段，核心目标是让模型从互联网文本中学习语言规律和世界知识，分为<strong>数据采集与处理</strong>、<strong>文本token化</strong>两个关键步骤。</p>
+<ol>
+<li><strong>数据采集与处理</strong>：主流模型的训练数据均基于类似Hugging Face的FineWeb数据集，原始数据主要来自Common Crawl（自2007年起爬取互联网，2024年已索引27亿个网页）。原始数据需经过多轮过滤：URL过滤（剔除恶意、垃圾、成人内容等网站）、文本提取（从HTML中剥离纯文本，去除导航、代码等冗余信息）、语言过滤（如FineWeb保留65%以上为英文的网页，决定模型的语言能力偏向）、去重和PII移除（检测并删除地址、社保号等个人身份信息），最终FineWeb数据集仅占44TB磁盘空间，是经过高度筛选的高质量文本。</li>
+<li><strong>文本token化</strong>：模型无法直接处理文本，需将其转换为一维符号序列。过程为：先将文本UTF-8编码为二进制位（0&#x2F;1），再组合为字节（8位，256种可能），最后通过<strong>字节对编码（BPE）</strong> 算法合并高频字节组合，生成更大的词汇表。GPT-4的词汇表包含100277个token（符号），每个token是文本的最小单位，可对应单个字符、单词或短语，且token化区分大小写、空格等细节（如“Hello World”是3个token，“hello world”是2个token）。FineWeb数据集最终被转换为约15万亿个token的序列，成为模型训练的原始输入。</li>
+</ol>
+<h3 id="核心结论-1"><a href="#核心结论-1" class="headerlink" title="核心结论"></a>核心结论</h3><ol>
+<li>预训练的核心是<strong>从高质量、多样化的互联网文本中学习语言规律</strong>，数据过滤是保证模型质量的关键，过滤规则决定模型的能力偏向（如语言、内容安全性）；</li>
+<li>token化是文本向模型可处理格式的转换过程，<strong>BPE算法是主流方案</strong>，通过平衡词汇表大小和序列长度提升训练效率，token是模型处理文本的最小单位；</li>
+<li>预训练数据经多轮处理后体量大幅缩减，最终以token序列形式输入模型，GPT-4等主流模型的token化有严格的格式规则（大小写、空格敏感）。</li>
+</ol>
+<h2 id="章节三：预训练阶段——神经网络训练与推理的核心逻辑"><a href="#章节三：预训练阶段——神经网络训练与推理的核心逻辑" class="headerlink" title="章节三：预训练阶段——神经网络训练与推理的核心逻辑"></a>章节三：预训练阶段——神经网络训练与推理的核心逻辑</h2><h3 id="核心内容翻译-2"><a href="#核心内容翻译-2" class="headerlink" title="核心内容翻译"></a>核心内容翻译</h3><ol>
+<li><strong>神经网络训练</strong>：核心目标是让模型学习token序列的统计关联，即根据前文token预测下一个token。训练时从token序列中截取<strong>固定长度的窗口</strong>（如8000个token，称为模型的“上下文长度”），将前N个token作为<strong>上下文输入</strong>，让模型预测第N+1个token。模型初始参数是随机的，输出为词汇表中所有token的出现概率，通过<strong>损失函数</strong>计算预测值与真实值的误差，不断调整参数，让正确token的概率升高、错误token的概率降低。这个过程会在海量token窗口上批量、并行执行，本质是让模型的预测结果匹配训练数据的统计规律。</li>
+<li><strong>神经网络结构</strong>：主流模型采用<strong>Transformer架构</strong>，由注意力模块、多层感知机（MLP）等组成，包含数亿至万亿级的参数。参数可理解为模型的“知识储备”，训练过程就是调整这些参数以匹配数据规律。Transformer的输入是token序列，先将token转换为<strong>嵌入向量</strong>，再经过多层数学运算（层归一化、矩阵乘法、SoftMax等），最终输出下一个token的概率分布。需要注意的是，模型的神经元是简单的数学表达式，无记忆能力，与人类大脑的神经元有本质区别。</li>
+<li><strong>模型推理</strong>：推理是模型利用训练好的参数生成新文本的过程，核心是<strong>逐token生成</strong>。先输入初始前缀token，模型输出下一个token的概率分布，通过<strong>随机采样</strong>选择一个token并追加到序列中，再将新的序列作为输入，重复上述过程，直至生成指定长度的文本。模型是<strong>随机化系统</strong>，即使输入相同的前缀，每次采样的结果也可能不同，生成的文本是训练数据的“统计重构”，而非简单复制。</li>
+</ol>
+<h3 id="核心结论-2"><a href="#核心结论-2" class="headerlink" title="核心结论"></a>核心结论</h3><ol>
+<li>预训练的核心任务是<strong>预测下一个token</strong>，训练过程是通过调整模型参数最小化预测误差，让模型学习token序列的统计规律；</li>
+<li>Transformer是大语言模型的主流架构，由多个模块化的数学运算组成，<strong>参数是模型的核心知识载体</strong>，模型无内置记忆，是纯静态的数学函数；</li>
+<li>模型推理是<strong>逐token的随机采样过程</strong>，输入相同前缀可能生成不同结果，生成的文本是训练数据的统计重构，而非逐字复制。</li>
+</ol>
+<h2 id="章节四：预训练的实例与计算资源需求"><a href="#章节四：预训练的实例与计算资源需求" class="headerlink" title="章节四：预训练的实例与计算资源需求"></a>章节四：预训练的实例与计算资源需求</h2><h3 id="核心内容翻译-3"><a href="#核心内容翻译-3" class="headerlink" title="核心内容翻译"></a>核心内容翻译</h3><p>以OpenAI的GPT-2为例解析预训练的实际特征：GPT-2于2019年发布，是首个具备现代大语言模型核心特征的模型，采用Transformer架构，含16亿参数，最大上下文长度1024个token，训练数据约1000亿个token。2019年训练GPT-2的成本约4万美元，而2025年借助优化的数据集、更高效的硬件和软件，成本可降至约100美元，仅需1天时间。</p>
+<p>模型训练对<strong>计算资源</strong>要求极高，无法在普通笔记本电脑上运行，需依赖云端的GPU集群。以训练GPT-2的A100节点为例，单个节点含8张H100 GPU，按3美元&#x2F;张&#x2F;小时的价格租赁，而大型科技公司会搭建包含数万台GPU的超算中心（如马斯克的xAI拥有10万个GPU）。GPU的核心优势是<strong>并行计算能力</strong>，能高效处理模型训练中的矩阵乘法等密集型运算，这也是英伟达市值飙升的核心原因。</p>
+<p>训练过程中需关注<strong>损失值（Loss）</strong>：损失值是衡量模型预测效果的核心指标，值越低表示预测越准确，训练过程中损失值应持续下降。训练初期模型生成的文本是无意义的乱码，随着训练步数增加，文本的连贯性会逐步提升，当训练完成后，模型能生成符合语言规律的文本。</p>
+<h3 id="核心结论-3"><a href="#核心结论-3" class="headerlink" title="核心结论"></a>核心结论</h3><ol>
+<li>GPT-2是现代大语言模型的里程碑，其核心架构和训练逻辑被后续模型沿用，仅在参数规模、上下文长度、训练数据量上持续扩大；</li>
+<li>大语言模型训练的<strong>计算成本随技术发展快速下降</strong>，核心原因是数据集质量提升、GPU硬件性能增强、训练软件优化；</li>
+<li>GPU是模型训练的核心硬件，<strong>并行计算能力</strong>是关键，大型科技公司的GPU集群是训练超大模型的基础，损失值是监控训练效果的核心指标。</li>
+</ol>
+<h2 id="章节五：基础模型（Base-Model）的特性与实际表现"><a href="#章节五：基础模型（Base-Model）的特性与实际表现" class="headerlink" title="章节五：基础模型（Base Model）的特性与实际表现"></a>章节五：基础模型（Base Model）的特性与实际表现</h2><h3 id="核心内容翻译-4"><a href="#核心内容翻译-4" class="headerlink" title="核心内容翻译"></a>核心内容翻译</h3><p>预训练完成后得到的模型称为<strong>基础模型（Base Model）</strong>，本质是“互联网文本token模拟器”，并非可直接交互的助手，其核心特性和表现如下：</p>
+<ol>
+<li><strong>核心能力</strong>：基础模型仅具备<strong>文本补全</strong>能力，无问答、指令遵循等功能，对输入的处理本质是“高成本的自动补全”，例如输入“2+2&#x3D;”，模型不会直接给出答案，而是根据互联网文本的统计规律补全后续内容；</li>
+<li><strong>随机性</strong>：模型是随机化系统，相同输入会生成不同结果，因为每次都会从概率分布中随机采样下一个token；</li>
+<li><strong>知识储备</strong>：模型的参数是对互联网文本的<strong>有损压缩</strong>，存储了世界知识，但知识是<strong>模糊的、概率性的</strong>，高频信息的准确率更高，低频信息易出错；</li>
+<li><strong>记忆与复述</strong>：模型对高频、高质量的文本（如维基百科）有极强的记忆能力，可能会逐字复述训练数据中的内容（称为“文本回吐”），这是因为这类文本在训练中被多次采样，模型对其token序列的预测误差极低；</li>
+<li><strong>知识截止与幻觉</strong>：模型的训练数据有<strong>知识截止时间</strong>（如Llama 3的知识截止到2023年底），对截止时间后的信息（如2024年大选）会进行<strong>幻觉生成</strong>，即基于已有知识进行猜测，生成看似合理但不实的内容；</li>
+<li><strong>上下文学习能力</strong>：基础模型具备<strong>少样本学习</strong>能力，通过在输入中加入示例（如“苹果-사과、香蕉-바나나、老师-？”），模型能学习示例中的规律并完成任务，无需重新训练；</li>
+<li><strong>通过提示词构建助手</strong>：可通过<strong>精心设计的提示词</strong>让基础模型模拟助手，例如在输入中加入“人类-助手”的对话示例，模型会根据示例的统计规律继续对话，实现简单的问答功能。</li>
+</ol>
+<h3 id="核心结论-4"><a href="#核心结论-4" class="headerlink" title="核心结论"></a>核心结论</h3><ol>
+<li>基础模型是预训练的产物，本质是<strong>互联网文本补全工具</strong>，无原生的问答和指令遵循能力，不能直接作为智能助手使用；</li>
+<li>基础模型的知识是对互联网的<strong>有损概率性压缩</strong>，高频信息准确、低频信息易出错，存在文本回吐、知识截止和幻觉等问题；</li>
+<li>基础模型具备<strong>上下文少样本学习能力</strong>，可通过精心设计的提示词模拟助手功能，无需重新训练参数。</li>
+</ol>
+<h2 id="章节六：后训练阶段——监督微调（SFT）将基础模型转为助手"><a href="#章节六：后训练阶段——监督微调（SFT）将基础模型转为助手" class="headerlink" title="章节六：后训练阶段——监督微调（SFT）将基础模型转为助手"></a>章节六：后训练阶段——监督微调（SFT）将基础模型转为助手</h2><h3 id="核心内容翻译-5"><a href="#核心内容翻译-5" class="headerlink" title="核心内容翻译"></a>核心内容翻译</h3><p>后训练的核心目标是将基础模型打磨为能遵循人类指令的<strong>助手模型</strong>，核心步骤是<strong>监督微调（Supervised Fine-Tuning, SFT）</strong>，该阶段的计算成本远低于预训练（预训练需数月，监督微调仅需数小时）。</p>
+<ol>
+<li><strong>核心逻辑</strong>：监督微调的算法与预训练一致（仍为预测下一个token），唯一的区别是<strong>训练数据从互联网文本替换为人类标注的对话数据</strong>。通过让模型学习人类的对话规律，使其从“文本补全器”转变为“对话助手”。</li>
+<li><strong>对话数据的构建</strong>：对话数据由<strong>人类标注者</strong>创建，标注者需根据企业制定的<strong>标注指南</strong>（通常数百页，要求助手“有用、真实、无害”），为各类人类指令编写理想的回复。早期数据完全由人类手动创建，现代则结合<strong>大语言模型辅助生成</strong>（模型先生成回复，人类再编辑优化），形成数百万条涵盖多领域、多轮次的对话数据集（如UltraChat）。</li>
+<li><strong>对话的token化</strong>：对话是结构化数据，需通过<strong>特殊token</strong>将其转换为一维token序列，例如加入<code>&lt;|im_start|&gt;</code>（对话开始）、<code>&lt;|user|&gt;</code>（用户）、<code>&lt;|assistant|&gt;</code>（助手）、<code>&lt;|im_end|&gt;</code>（对话结束）等特殊token，让模型识别对话的角色和结构。不同企业的对话编码规则略有差异，但核心都是将结构化对话转为模型可处理的token序列。</li>
+<li><strong>推理时的对话处理</strong>：用户与助手交互时，系统会将历史对话按编码规则转换为token序列，模型基于该序列预测助手的下一个回复token，实现多轮对话。例如用户输入“2+2&#x3D;”，系统会构建<code>&lt;|im_start|&gt;&lt;|user|&gt;2+2=&lt;|assistant|&gt;</code>的token序列，模型基于此生成回复。</li>
+</ol>
+<h3 id="核心结论-5"><a href="#核心结论-5" class="headerlink" title="核心结论"></a>核心结论</h3><ol>
+<li>监督微调是后训练的核心步骤，<strong>通过替换训练数据为人类标注对话，让基础模型从文本补全器转为对话助手</strong>，算法与预训练一致，计算成本极低；</li>
+<li>对话数据的质量决定助手模型的表现，由人类标注者根据“有用、真实、无害”的标注指南创建，现代采用“模型生成+人类编辑”的混合方式提升效率；</li>
+<li>需通过<strong>特殊token</strong>将结构化对话转换为一维token序列，让模型识别角色和对话结构，这是模型实现多轮对话的基础。</li>
+</ol>
+<h2 id="章节七：大语言模型的认知特性——幻觉及缓解方法"><a href="#章节七：大语言模型的认知特性——幻觉及缓解方法" class="headerlink" title="章节七：大语言模型的认知特性——幻觉及缓解方法"></a>章节七：大语言模型的认知特性——幻觉及缓解方法</h2><h3 id="核心内容翻译-6"><a href="#核心内容翻译-6" class="headerlink" title="核心内容翻译"></a>核心内容翻译</h3><p><strong>幻觉</strong>是大语言模型的核心问题，指模型生成看似合理但与事实不符的内容，其产生的根本原因是：模型在训练中学习到“对问题的回复需呈现自信的语气”，但当面对未知问题时，不会输出“我不知道”，而是基于统计规律生成最可能的内容，从而产生幻觉。</p>
+<h3 id="幻觉的两大缓解方法"><a href="#幻觉的两大缓解方法" class="headerlink" title="幻觉的两大缓解方法"></a>幻觉的两大缓解方法</h3><ol>
+<li><strong>基于模型自知的拒绝回复</strong>：通过<strong>实证探测</strong>确定模型的知识边界，即向模型提出大量问题，对比其回答与正确答案，判断模型是否掌握该知识。对于模型未知的问题，在训练数据中加入“我不知道”的回复示例，让模型学习“当自身不确定时，拒绝给出答案”。例如Meta在训练Llama 3时，通过该方法让模型学会识别自身的知识盲区，大幅降低幻觉概率。</li>
+<li><strong>引入工具增强事实性</strong>：让模型在生成答案前，通过<strong>工具调用</strong>获取真实信息，替代单纯的参数内知识回忆。核心是为模型引入<strong>特殊工具token</strong>（如<code>&lt;|search_start|&gt;</code>、<code>&lt;|search_end|&gt;</code>），当模型判断自身无法回答问题时，生成工具token触发网络搜索，搜索结果会被加入模型的<strong>上下文窗口</strong>（相当于模型的“工作记忆”），模型基于搜索结果生成答案，从而保证事实性。</li>
+</ol>
+<h3 id="核心补充：参数知识与上下文知识的区别"><a href="#核心补充：参数知识与上下文知识的区别" class="headerlink" title="核心补充：参数知识与上下文知识的区别"></a>核心补充：参数知识与上下文知识的区别</h3><ul>
+<li><strong>参数内知识</strong>：是模型预训练时存储在参数中的知识，相当于人类的“长期记忆”，是对互联网的模糊回忆，准确率随信息频率降低而下降；</li>
+<li><strong>上下文窗口知识</strong>：是模型推理时输入的外部信息（如搜索结果、用户提供的文本），相当于人类的“工作记忆”，模型可直接访问，准确率极高。</li>
+</ul>
+<p>实际应用中，若需模型处理特定文本（如总结某篇文章），直接将文本粘贴到提示词中，让模型基于上下文窗口处理，效果远优于让模型依靠参数内知识回忆。</p>
+<h3 id="核心结论-6"><a href="#核心结论-6" class="headerlink" title="核心结论"></a>核心结论</h3><ol>
+<li>幻觉的本质是<strong>模型为遵循训练中的回复规律，对未知问题进行概率性猜测</strong>，而非主动欺骗，是模型的固有认知特性；</li>
+<li>缓解幻觉的核心方法分为两类：<strong>让模型识别自身知识盲区并拒绝回复</strong>、<strong>引入工具调用获取外部真实信息</strong>，后者能从根本上提升答案的事实性；</li>
+<li>模型的知识分为<strong>参数内长期记忆</strong>和<strong>上下文窗口工作记忆</strong>，实际应用中应尽量将关键信息放入上下文窗口，提升模型处理的准确性。</li>
+</ol>
+<h2 id="章节八：大语言模型的认知特性——自我认知与数学-计数能力短板"><a href="#章节八：大语言模型的认知特性——自我认知与数学-计数能力短板" class="headerlink" title="章节八：大语言模型的认知特性——自我认知与数学&#x2F;计数能力短板"></a>章节八：大语言模型的认知特性——自我认知与数学&#x2F;计数能力短板</h2><h3 id="核心内容翻译-7"><a href="#核心内容翻译-7" class="headerlink" title="核心内容翻译"></a>核心内容翻译</h3><h3 id="一、自我认知特性"><a href="#一、自我认知特性" class="headerlink" title="一、自我认知特性"></a>一、自我认知特性</h3><p>模型<strong>无原生的自我认知</strong>，其对“自身身份”的回答（如“我是ChatGPT，由OpenAI开发”）并非模型的自主认知，而是通过两种方式“硬编码”的：</p>
+<ol>
+<li><strong>在监督微调数据中加入身份问答示例</strong>：如在训练数据中加入“你是谁？-我是Llama 3，由Meta开发”等对话，让模型学习固定的身份回复；</li>
+<li><strong>在对话开始时加入系统提示词</strong>：在模型的上下文窗口中，隐藏加入包含模型身份、知识截止时间的系统提示词，模型基于该提示词生成身份相关回复。</li>
+</ol>
+<p>若未进行上述硬编码，模型对身份问题的回答会是随机的幻觉内容，因为其参数中未存储关于“自身”的知识。</p>
+<h3 id="二、数学与计数能力短板"><a href="#二、数学与计数能力短板" class="headerlink" title="二、数学与计数能力短板"></a>二、数学与计数能力短板</h3><p>模型的数学和计数能力存在显著短板，核心原因是：<strong>模型的每一步token生成仅能进行有限的计算</strong>（Transformer的层数固定，如100层），无法在单个token生成中完成复杂的运算。若要求模型在单个token中给出数学题答案，其会因计算能力不足而出错；而计数能力差则是因为<strong>模型仅能识别token，无法直接识别字符</strong>，例如“strawberry”是一个token，模型无法直接统计其中的字母数量。</p>
+<h3 id="能力短板的解决方法"><a href="#能力短板的解决方法" class="headerlink" title="能力短板的解决方法"></a>能力短板的解决方法</h3><ol>
+<li><strong>分散计算到多个token</strong>：让模型将复杂运算拆解为多个步骤，逐token生成中间计算结果，例如解“3个苹果+2个橙子共13美元，橙子2美元&#x2F;个，求苹果单价”时，先计算橙子总价，再计算苹果总价，最后计算单价，通过多个token的分步计算提升准确率；</li>
+<li><strong>引入代码解释器工具</strong>：让模型生成代码并调用Python解释器执行，将数学计算、计数等任务交给代码完成，模型仅负责生成代码和解读结果，从根本上解决计算能力不足的问题。</li>
+</ol>
+<h3 id="核心结论-7"><a href="#核心结论-7" class="headerlink" title="核心结论"></a>核心结论</h3><ol>
+<li>大语言模型<strong>无原生自我认知</strong>，其身份回答是通过监督微调数据或系统提示词硬编码的，并非自主意识的体现；</li>
+<li>模型数学和计数能力差的核心原因是<strong>单token生成的计算能力有限</strong>且<strong>无法直接识别字符（仅识别token）</strong>，是由模型的底层设计决定的；</li>
+<li>解决计算能力短板的关键是<strong>将复杂运算分散到多个token</strong>或<strong>引入代码解释器工具</strong>，利用外部工具弥补模型的固有缺陷。</li>
+</ol>
+<h2 id="章节九：强化学习（RL）——让模型学会“思考”，提升推理能力"><a href="#章节九：强化学习（RL）——让模型学会“思考”，提升推理能力" class="headerlink" title="章节九：强化学习（RL）——让模型学会“思考”，提升推理能力"></a>章节九：强化学习（RL）——让模型学会“思考”，提升推理能力</h2><h3 id="核心内容翻译-8"><a href="#核心内容翻译-8" class="headerlink" title="核心内容翻译"></a>核心内容翻译</h3><p>强化学习是大语言模型训练的<strong>第三阶段</strong>，也是当前技术前沿，属于后训练的延伸，核心目标是让模型学会<strong>推理和问题解决</strong>，超越监督微调的“人类模仿”，实现“自主思考”。该阶段通常由独立团队负责，是模型从“合格助手”升级为“优秀推理者”的关键。</p>
+<h3 id="一、强化学习的核心动机"><a href="#一、强化学习的核心动机" class="headerlink" title="一、强化学习的核心动机"></a>一、强化学习的核心动机</h3><p>监督微调的模型仅能<strong>模仿人类的答案</strong>，但人类的解题思路未必适合模型（模型的认知特性与人类不同），且人类无法穷尽所有问题的最优解法。强化学习让模型<strong>通过试错自主发现最优的解题token序列</strong>，即模型自己尝试多种解法，通过验证结果筛选出正确的解法，并不断强化，最终形成适合自身的推理策略。</p>
+<h3 id="二、强化学习的核心流程"><a href="#二、强化学习的核心流程" class="headerlink" title="二、强化学习的核心流程"></a>二、强化学习的核心流程</h3><p>强化学习基于<strong>可验证领域</strong>（如数学、代码，有明确的正确答案）展开，核心是“试错-筛选-强化”：</p>
+<ol>
+<li><strong>生成多种解法</strong>：针对一个问题，让模型生成数千甚至数百万个不同的token序列解法（因模型的随机性，每个解法都不同）；</li>
+<li><strong>验证解法正确性</strong>：通过客观答案或工具（如代码解释器）验证解法的正确性，筛选出正确的解法；</li>
+<li><strong>强化正确解法</strong>：将正确的解法作为训练数据，继续训练模型，让模型更倾向于生成这类正确的token序列；</li>
+<li><strong>迭代优化</strong>：对海量问题重复上述过程，让模型逐步发现并强化适合自身的推理策略，提升问题解决的准确率。</li>
+</ol>
+<h3 id="三、强化学习的实际表现：涌现的“思考”能力"><a href="#三、强化学习的实际表现：涌现的“思考”能力" class="headerlink" title="三、强化学习的实际表现：涌现的“思考”能力"></a>三、强化学习的实际表现：涌现的“思考”能力</h3><p>以DeepSeek R1模型为例，经过强化学习的模型会<strong>自发形成“思维链”</strong>，即在生成答案前，逐token生成推理过程，包括“重新评估步骤、从不同角度尝试、验证结果、补充其他解法”等，与人类的解题思考过程高度相似。这种“思考”能力是<strong>训练中的涌现特性</strong>，并非人类硬编码，而是模型通过试错自主发现的，能大幅提升模型在数学、代码等可验证领域的准确率。</p>
+<h3 id="四、强化学习与人类学习的类比"><a href="#四、强化学习与人类学习的类比" class="headerlink" title="四、强化学习与人类学习的类比"></a>四、强化学习与人类学习的类比</h3><p>大语言模型的三段式训练与人类的学习过程高度相似：</p>
+<ol>
+<li>预训练&#x3D;阅读教材，积累基础知识；</li>
+<li>监督微调&#x3D;学习例题，模仿人类的解题方法；</li>
+<li>强化学习&#x3D;做练习题，通过试错自主发现最优解题策略。</li>
+</ol>
+<h3 id="核心结论-8"><a href="#核心结论-8" class="headerlink" title="核心结论"></a>核心结论</h3><ol>
+<li>强化学习是大语言模型训练的前沿阶段，核心目标是让模型<strong>通过试错自主发现推理策略</strong>，超越监督微调的人类模仿，实现“思考”能力的涌现；</li>
+<li>强化学习仅适用于<strong>有明确正确答案的可验证领域</strong>（数学、代码等），核心流程是“生成多种解法-验证正确性-强化正确解法”的迭代；</li>
+<li>经过强化学习的模型会自发形成<strong>思维链</strong>，通过分步推理提升解题准确率，这种能力是训练中的涌现特性，并非人类硬编码；</li>
+<li>大语言模型的三段式训练与人类学习过程高度契合，是“知识积累-模仿学习-试错优化”的逐步推进。</li>
+</ol>
+<h2 id="章节十：强化学习的延伸——人类反馈强化学习（RLHF）与未验证领域的挑战"><a href="#章节十：强化学习的延伸——人类反馈强化学习（RLHF）与未验证领域的挑战" class="headerlink" title="章节十：强化学习的延伸——人类反馈强化学习（RLHF）与未验证领域的挑战"></a>章节十：强化学习的延伸——人类反馈强化学习（RLHF）与未验证领域的挑战</h2><h3 id="核心内容翻译-9"><a href="#核心内容翻译-9" class="headerlink" title="核心内容翻译"></a>核心内容翻译</h3><p>前文的强化学习适用于<strong>可验证领域</strong>，但对于<strong>未验证领域</strong>（如创意写作、诗歌、笑话，无明确的正确答案），无法通过客观标准验证解法的优劣，因此诞生了<strong>人类反馈强化学习（Reinforcement Learning from Human Feedback, RLHF）</strong>，这是OpenAI提出的解决未验证领域强化学习的核心方法。</p>
+<h3 id="一、RLHF的核心流程"><a href="#一、RLHF的核心流程" class="headerlink" title="一、RLHF的核心流程"></a>一、RLHF的核心流程</h3><p>RLHF的核心是<strong>用人类偏好训练奖励模型，替代客观的验证标准</strong>，让模型向“符合人类偏好”的方向优化，流程分为三步：</p>
+<ol>
+<li><strong>收集人类偏好数据</strong>：针对一个问题，让模型生成多个回复，由人类标注者对这些回复进行<strong>排序</strong>（而非打分，降低标注难度），确定最优、次优和最差回复；</li>
+<li><strong>训练奖励模型（Reward Model, RM）</strong>：以“问题+回复”为输入，训练一个独立的奖励模型，输出该回复的<strong>人类偏好分数</strong>（0-1）。训练的目标是让奖励模型的打分结果与人类的排序一致，通过不断调整参数，让奖励模型成为“人类偏好的模拟器”；</li>
+<li><strong>基于奖励模型的强化学习</strong>：将奖励模型的分数作为强化学习的“奖励信号”，让模型生成回复，奖励模型为其打分，模型通过调整参数让生成的回复获得更高的分数，最终实现“符合人类偏好”的优化。</li>
+</ol>
+<h3 id="二、RLHF的优势与短板"><a href="#二、RLHF的优势与短板" class="headerlink" title="二、RLHF的优势与短板"></a>二、RLHF的优势与短板</h3><h4 id="优势"><a href="#优势" class="headerlink" title="优势"></a>优势</h4><ol>
+<li>让强化学习能应用于<strong>无客观答案的未验证领域</strong>，拓展了强化学习的适用范围；</li>
+<li>降低了人类标注的难度（排序比打分简单），同时让模型的优化方向更贴合人类需求；</li>
+<li>能小幅提升模型的表现，让模型的回复更“符合人类审美”。</li>
+</ol>
+<h4 id="短板"><a href="#短板" class="headerlink" title="短板"></a>短板</h4><ol>
+<li><strong>奖励模型是人类偏好的有损模拟</strong>：奖励模型无法完全复刻人类的主观判断，存在偏差；</li>
+<li><strong>易被模型“钻空子”（对抗性示例）</strong>：奖励模型是一个神经网络，模型在强化学习中会发现<strong>对抗性示例</strong>——即生成看似无意义但能让奖励模型给出高分的内容，导致模型的回复脱离实际需求；</li>
+<li><strong>训练无法持续迭代</strong>：若持续训练，模型会不断生成对抗性示例，导致效果大幅下降，因此RLHF仅能进行有限轮次的训练，属于“小幅微调”，而非真正的强化学习。</li>
+</ol>
+<h3 id="三、可验证领域vs未验证领域的强化学习对比"><a href="#三、可验证领域vs未验证领域的强化学习对比" class="headerlink" title="三、可验证领域vs未验证领域的强化学习对比"></a>三、可验证领域vs未验证领域的强化学习对比</h3><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>可验证领域强化学习（如数学&#x2F;代码）</th>
+<th>未验证领域强化学习（RLHF，如创意写作）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>验证标准</td>
+<td>客观、明确的正确答案</td>
+<td>人类主观偏好，无明确标准</td>
+</tr>
+<tr>
+<td>奖励信号</td>
+<td>答案的正确性</td>
+<td>奖励模型的打分</td>
+</tr>
+<tr>
+<td>训练可持续性</td>
+<td>可无限迭代，效果持续提升</td>
+<td>仅能有限迭代，易出现对抗性示例</td>
+</tr>
+<tr>
+<td>模型能力提升</td>
+<td>大幅提升，涌现思考能力</td>
+<td>小幅提升，仅优化人类偏好贴合度</td>
+</tr>
+</tbody></table>
+<h3 id="核心结论-9"><a href="#核心结论-9" class="headerlink" title="核心结论"></a>核心结论</h3><ol>
+<li>RLHF是为解决<strong>未验证领域</strong>的强化学习问题而提出的方法，核心是<strong>用人类偏好训练奖励模型，替代客观验证标准</strong>；</li>
+<li>RLHF的流程为“收集人类偏好排序-训练奖励模型-基于奖励模型强化学习”，降低了人类标注难度，拓展了强化学习的适用范围；</li>
+<li>RLHF存在显著短板，奖励模型是人类偏好的有损模拟，模型易生成对抗性示例钻空子，因此仅能进行有限轮次训练，属于“小幅微调”，并非真正的强化学习；</li>
+<li>可验证领域的强化学习是模型推理能力提升的核心，能实现无限迭代和能力涌现，而RLHF仅能优化模型的人类偏好贴合度。</li>
+</ol>
+<h2 id="章节十一：大语言模型的未来发展趋势与资源获取"><a href="#章节十一：大语言模型的未来发展趋势与资源获取" class="headerlink" title="章节十一：大语言模型的未来发展趋势与资源获取"></a>章节十一：大语言模型的未来发展趋势与资源获取</h2><h3 id="核心内容翻译-10"><a href="#核心内容翻译-10" class="headerlink" title="核心内容翻译"></a>核心内容翻译</h3><h3 id="一、未来发展趋势"><a href="#一、未来发展趋势" class="headerlink" title="一、未来发展趋势"></a>一、未来发展趋势</h3><p>当前大语言模型仍处于早期发展阶段，未来的核心发展方向主要包括以下5点：</p>
+<ol>
+<li><strong>多模态化</strong>：从纯文本模型向<strong>文本+音频+图像+视频</strong>的多模态模型发展，核心原理是将音频、图像等转换为token，与文本token融合处理，实现“听、说、看、画”的一体化能力，目前已有早期落地成果；</li>
+<li><strong>智能体化（Agent）</strong>：模型从“单次任务处理”向<strong>长期任务自主执行</strong>的智能体发展，能串联多个工具和任务，完成复杂的长期目标（如写一篇论文、做一个数据分析），并在过程中汇报进度、修正错误，未来会形成“人类监督-智能体执行”的人机协作模式；</li>
+<li><strong>渗透化与隐形化</strong>：模型将深度集成到各类工具和产品中（如办公软件、浏览器、手机系统），不再以独立的Chat界面存在，而是成为各类应用的“内置智能层”，实现无感知的智能辅助；</li>
+<li><strong>代行操作能力</strong>：模型将具备<strong>直接操作计算机</strong>的能力，能通过键盘、鼠标等外设执行操作（如打开软件、编辑文件、发送邮件），成为人类的“数字助手”；</li>
+<li><strong>测试时训练（Test-Time Training）</strong>：突破当前“训练后参数固定”的限制，让模型在推理过程中实时学习、更新参数，解决上下文窗口有限的问题，适配超长期、多模态的复杂任务，这是当前的核心研究方向。</li>
+</ol>
+<h3 id="二、模型与行业资讯的获取资源"><a href="#二、模型与行业资讯的获取资源" class="headerlink" title="二、模型与行业资讯的获取资源"></a>二、模型与行业资讯的获取资源</h3><h4 id="1-行业资讯获取"><a href="#1-行业资讯获取" class="headerlink" title="1. 行业资讯获取"></a>1. 行业资讯获取</h4><ul>
+<li><strong>Ella Marina</strong>：大语言模型排行榜，基于人类对比评测对模型进行排名，可查看各模型的表现和开发机构，缺点是近期存在一定的“刷分”现象，需理性参考；</li>
+<li><strong>AI News</strong>：综合型AI资讯周刊，内容全面，涵盖模型发布、技术研究、行业应用，部分由人类编辑，部分由模型生成，能快速掌握行业动态；</li>
+<li><strong>X（原Twitter）</strong>：AI领域的核心交流平台，众多研究者、开发者会在上面发布最新研究成果和模型动态，关注行业大咖可获取一手资讯。</li>
+</ul>
+<h4 id="2-模型使用与部署资源"><a href="#2-模型使用与部署资源" class="headerlink" title="2. 模型使用与部署资源"></a>2. 模型使用与部署资源</h4><ul>
+<li><strong>专有模型</strong>：直接访问开发机构的官网，如OpenAI（ChatGPT）、Google（Gemini）、Anthropic（Claude）；</li>
+<li><strong>开源权重模型</strong>：通过推理平台使用，如Together AI（支持DeepSeek、Llama等主流开源模型）、Hyperbolic（专注于基础模型部署）；</li>
+<li><strong>本地部署</strong>：对于小型模型（如10亿参数以下），可通过LLaMA Studio等工具在个人电脑（如MacBook）上部署，支持低精度量化，无需高端GPU。</li>
+</ul>
+<h3 id="核心结论-10"><a href="#核心结论-10" class="headerlink" title="核心结论"></a>核心结论</h3><ol>
+<li>大语言模型的未来核心发展方向是<strong>多模态化、智能体化、渗透化、代行操作、测试时训练</strong>，核心目标是让模型更智能、更贴合人类的实际使用场景；</li>
+<li>多模态化的底层原理仍是<strong>token化</strong>，将音频、图像等转换为模型可处理的token，与文本融合，无需改变模型的核心架构；</li>
+<li>智能体化和代行操作将推动人机协作模式的变革，未来会形成“人类监督、智能体执行”的数字工作模式；</li>
+<li>可通过Ella Marina、AI News、X获取行业资讯，通过官方网站、推理平台、本地部署工具等多种方式使用大语言模型，开源权重模型的普及让普通用户也能接触到前沿模型。</li>
+</ol>
+<h2 id="章节十二：大语言模型的本质与使用原则"><a href="#章节十二：大语言模型的本质与使用原则" class="headerlink" title="章节十二：大语言模型的本质与使用原则"></a>章节十二：大语言模型的本质与使用原则</h2><h3 id="核心内容翻译-11"><a href="#核心内容翻译-11" class="headerlink" title="核心内容翻译"></a>核心内容翻译</h3><h3 id="一、大语言模型的本质"><a href="#一、大语言模型的本质" class="headerlink" title="一、大语言模型的本质"></a>一、大语言模型的本质</h3><p>用户与ChatGPT等模型交互时，背后的核心过程是：<strong>用户的查询被token化后，按对话编码规则生成token序列，模型基于训练好的参数，逐token生成符合人类对话规律的回复</strong>。模型的回复并非“思考”的结果，而是：</p>
+<ol>
+<li>基础模型&#x2F;监督微调模型：<strong>对人类标注者的统计模拟</strong>，即模型的回复是对监督微调数据中人类标注者答案的概率性生成，相当于“模拟人类标注者根据标注指南编写回复”；</li>
+<li>强化学习模型：<strong>自主发现的推理策略与人类偏好的结合</strong>，模型在可验证领域通过试错形成了自身的推理思维链，回复是思维链的结果，而非单纯的人类模仿，这是模型最接近“思考”的状态。</li>
+</ol>
+<p>需要明确的是，模型始终是<strong>静态的数学函数</strong>，无自主意识、无记忆、无情感，其所有表现都是基于token序列的统计计算，与人类的思考有本质区别。</p>
+<h3 id="二、模型的能力边界：“瑞士奶酪式”能力"><a href="#二、模型的能力边界：“瑞士奶酪式”能力" class="headerlink" title="二、模型的能力边界：“瑞士奶酪式”能力"></a>二、模型的能力边界：“瑞士奶酪式”能力</h3><p>大语言模型的能力呈现**“瑞士奶酪式”特征**——即在大部分领域表现卓越（如文本生成、知识问答、代码编写），但在某些细节上存在随机的、无规律的短板（如简单的数字比较、字符计数、拼写细节），这些短板是由模型的底层设计（token化、单token计算能力有限）决定的，无法完全消除。</p>
+<h3 id="三、模型的核心使用原则"><a href="#三、模型的核心使用原则" class="headerlink" title="三、模型的核心使用原则"></a>三、模型的核心使用原则</h3><ol>
+<li><strong>当作工具而非“专家”</strong>：将模型作为工作的<strong>辅助工具</strong>，用于灵感激发、初稿生成、任务拆解，而非直接依赖其结果；</li>
+<li><strong>验证所有结果</strong>：对模型的输出进行严格的事实核查和逻辑验证，尤其是涉及数据、公式、事实的内容，利用工具（如网络搜索、代码解释器）验证准确性；</li>
+<li><strong>善用上下文和工具</strong>：将关键信息放入上下文窗口，让模型基于外部信息处理任务；对计算、计数等短板任务，强制模型使用代码解释器等工具；</li>
+<li><strong>分散复杂任务到多个步骤</strong>：让模型将复杂任务拆解为多个简单步骤，逐步骤生成结果，避免让模型在单个token中完成复杂运算；</li>
+<li><strong>选择合适的模型</strong>：简单的知识问答、文本生成使用监督微调模型（如GPT-4o）即可；复杂的数学、代码推理使用强化学习模型（如DeepSeek R1、GPT-4o Mini High）。</li>
+</ol>
+<h3 id="核心结论-11"><a href="#核心结论-11" class="headerlink" title="核心结论"></a>核心结论</h3><ol>
+<li>大语言模型的本质是<strong>基于token序列的统计计算函数</strong>，无自主意识和思考能力，监督微调模型的回复是对人类标注者的统计模拟，强化学习模型的“思考”是试错中涌现的token序列推理策略；</li>
+<li>模型的能力呈现**“瑞士奶酪式”特征**，有显著优势也有随机的底层短板，无法完全消除；</li>
+<li>使用模型的核心原则是**“工具化思维”**：验证结果、善用上下文和工具、拆解复杂任务、选择合适的模型，始终对模型的输出负责。</li>
+</ol>
+<hr>
+<h1 id="大语言模型（LLM）核心技术思维导图总结"><a href="#大语言模型（LLM）核心技术思维导图总结" class="headerlink" title="大语言模型（LLM）核心技术思维导图总结"></a>大语言模型（LLM）核心技术思维导图总结</h1><figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs mindmap">## **训练总流程**<br>- 预训练：互联网文本→token序列→基础模型（文本补全器）<br>- 后训练：监督微调（SFT）→助手模型（遵循人类指令）<br>- 强化学习（RL）：可验证领域→推理能力提升；RLHF→未验证领域人类偏好优化<br>## **预训练核心**<br>- 数据处理：Common Crawl→多轮过滤（URL/文本/语言/PII）→高质量数据集<br>- token化：UTF-8编码→字节→BPE算法→token序列（GPT-4：100277个token）<br>- 模型训练：预测下一个token→调整参数→匹配统计规律；Transformer架构为核心<br>- 模型推理：逐token随机采样→文本生成（统计重构，非复制）<br>## **基础模型特性**<br>- 核心能力：仅文本补全，无原生问答能力<br>- 关键问题：知识有损压缩、文本回吐、知识截止、幻觉<br>- 重要能力：上下文少样本学习、提示词模拟助手<br>## **监督微调（SFT）**<br>- 核心：替换训练数据为人类标注对话，算法与预训练一致<br>- 对话数据：人类标注（模型辅助）+标注指南（有用/真实/无害）<br>- 对话编码：特殊token→结构化对话→一维token序列<br>- 推理：历史对话编码→模型生成助手回复<br>## **模型认知特性**<br>- 幻觉：原因（概率性猜测）；缓解（自知拒绝、工具调用）<br>- 自我认知：无原生认知，硬编码（数据示例/系统提示词）<br>- 计算短板：原因（单token计算有限、仅识别token）；解决（分步token、代码解释器）<br>- 知识类型：参数内（长期记忆，模糊）；上下文（工作记忆，准确）<br>## **强化学习（RL）**<br>- 核心动机：超越人类模仿，让模型自主发现推理策略<br>- 可验证领域RL：试错-筛选-强化→思维链涌现→推理能力提升<br>- RLHF（未验证领域）：人类排序→奖励模型→强化学习；小幅优化，易出对抗示例<br>- 与人类学习类比：预训练=读教材；SFT=学例题；RL=做习题<br>## **未来发展趋势**<br>- 多模态化：文本+音频+图像→统一token化处理<br>- 智能体化：长期任务自主执行，人机协作（人类监督）<br>- 渗透化：集成到各类工具，无感知辅助<br>- 代行操作：直接控制计算机外设<br>- 测试时训练：推理中实时更新参数，突破上下文限制<br>## **使用与资源**<br>- 核心原则：工具化思维、验证结果、善用工具/上下文、拆解任务<br>- 资讯资源：Ella Marina（排行榜）、AI News（周刊）、X（一手资讯）<br>- 模型资源：专有模型（官网）、开源模型（Together AI）、本地部署（LLaMA Studio）<br>## **模型本质**<br>- 底层：静态数学函数，无自主意识、记忆、情感<br>- 回复本质：SFT模型=人类标注者统计模拟；RL模型=自主推理策略+人类偏好<br>- 能力特征：瑞士奶酪式（优势显著，存在随机底层短板）<br></code></pre></div></td></tr></table></figure>
+
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/vibe-coding/">vibe coding</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/03/08/4102103495.html">
+                        <span class="hidden-mobile">Deep Dive into LLMs like ChatGPT - 7</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "Deep Dive into LLMs like ChatGPT - 8"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

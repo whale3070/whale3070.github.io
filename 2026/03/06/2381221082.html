@@ -1,0 +1,780 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>HyperLiquid - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="HyperLiquid">
+                      
+                        HyperLiquid
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-03-06 03:44" pubdate>
+        2026年3月6日 凌晨
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.7k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      40
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">HyperLiquid</h1>
+            
+            <div class="markdown-body">
+              <h1 id="HyperLiquid-是什么"><a href="#HyperLiquid-是什么" class="headerlink" title="HyperLiquid 是什么"></a>HyperLiquid 是什么</h1><p>HyperLiquid 是<strong>专为永续合约打造的高性能 Layer1 区块链（HyperEVM）+ 去中心化永续合约 DEX</strong>，主打链上订单簿撮合、亚毫秒级延迟、零 Gas 费、最高 50 倍杠杆，兼顾 CEX 速度与 DeFi 透明性。</p>
+<ul>
+<li>核心底层：<strong>HyperCore</strong>（交易&#x2F;撮合&#x2F;结算引擎）</li>
+<li>代币：<strong>$HYPE</strong>，用于治理、质押、费用回购通缩</li>
+<li>定位：链上衍生品基础设施，被称为“Perp DEX 之王”</li>
+</ul>
+<h3 id="市值（2026年3月6日，最新数据）"><a href="#市值（2026年3月6日，最新数据）" class="headerlink" title="市值（2026年3月6日，最新数据）"></a>市值（2026年3月6日，最新数据）</h3><ul>
+<li><strong>$HYPE 价格</strong>：约 <strong>$32.5</strong></li>
+<li><strong>流通市值</strong>：约 <strong>75–76 亿美元</strong>（加密货币市值排名第 16 位）</li>
+<li><strong>24h 交易量</strong>：约 <strong>3 亿美元</strong></li>
+<li><strong>TVL</strong>：超 <strong>62 亿美元</strong>，日交易量峰值破 <strong>100 亿美元</strong></li>
+</ul>
+<h1 id="TVL是什么"><a href="#TVL是什么" class="headerlink" title="TVL是什么"></a>TVL是什么</h1><p>TVL 就是 <strong>Total Value Locked</strong>，中文叫：<strong>总锁仓价值</strong></p>
+<p>我用最简单、最不绕的话给你讲：</p>
+<hr>
+<h2 id="TVL-现在有多少钱「存-押」在这个项目里"><a href="#TVL-现在有多少钱「存-押」在这个项目里" class="headerlink" title="TVL &#x3D; 现在有多少钱「存&#x2F;押」在这个项目里"></a>TVL &#x3D; 现在有多少钱「存&#x2F;押」在这个项目里</h2><ul>
+<li>存在这个<strong>链 &#x2F; DEX &#x2F; 协议</strong>里的</li>
+<li>所有用户资产的<strong>总价值（折成美元）</strong></li>
+</ul>
+<p>比如：<br>HyperLiquid 的 TVL &#x3D; 62 亿美元<br>意思就是：<br><strong>有 62 亿美金的资产，被用户存在 HyperLiquid 里用来交易、做保证金。</strong></p>
+<hr>
+<h2 id="你可以把它理解成："><a href="#你可以把它理解成：" class="headerlink" title="你可以把它理解成："></a>你可以把它理解成：</h2><ul>
+<li>CEX（币安、OKX）看 <strong>交易量、用户量</strong></li>
+<li>DeFi 项目看 <strong>TVL</strong><br><strong>TVL 越高 &#x3D; 越多人用、越有钱、越安全、生态越大。</strong></li>
+</ul>
+<hr>
+<h2 id="为什么那个开发者要抢-HyperLiquid-上的交易对？"><a href="#为什么那个开发者要抢-HyperLiquid-上的交易对？" class="headerlink" title="为什么那个开发者要抢 HyperLiquid 上的交易对？"></a>为什么那个开发者要抢 HyperLiquid 上的交易对？</h2><p>因为 <strong>TVL 62 亿美金</strong><br>&#x3D; 池子超级大<br>&#x3D; 随便开个交易对，手续费都能赚爆<br>&#x3D; 所以别人<strong>几小时就抄走、抢跑</strong></p>
+<hr>
+<h2 id="再对比你："><a href="#再对比你：" class="headerlink" title="再对比你："></a>再对比你：</h2><p>你的项目没有 TVL 这种东西，<br>你的价值在 <strong>酒厂、渠道、品牌、落地</strong>，<br>别人根本没法几小时抄走。</p>
+<hr>
+<p>一句话记住：<br><strong>TVL &#x3D; 这个 DeFi 项目里「押了多少钱」。</strong></p>
+<p>要不要我顺便给你解释一下 <strong>HYPE 代币是干嘛的</strong>？</p>
+<h1 id="HYPE-代币是干嘛的"><a href="#HYPE-代币是干嘛的" class="headerlink" title="HYPE 代币是干嘛的?"></a>HYPE 代币是干嘛的?</h1><p><strong>$HYPE 是 HyperLiquid 平台的原生代币</strong>，既是<strong>治理与安全核心</strong>，也是<strong>手续费与价值捕获载体</strong>，是整个 HyperLiquid 生态的“血液”。</p>
+<h3 id="一、核心用途（一句话看懂）"><a href="#一、核心用途（一句话看懂）" class="headerlink" title="一、核心用途（一句话看懂）"></a>一、核心用途（一句话看懂）</h3><ul>
+<li><strong>治理权</strong>：投票决定平台升级、新交易对、参数修改</li>
+<li><strong>质押与安全</strong>：PoS 共识，质押 HYPE 保障网络安全、赚奖励</li>
+<li><strong>手续费折扣</strong>：质押后享交易费减免，最高可省很多</li>
+<li><strong>Gas 费</strong>：HyperEVM 链上部署&#x2F;交互的唯一 Gas 代币</li>
+<li><strong>价值捕获</strong>：平台手续费大量回购并销毁 HYPE，形成通缩</li>
+</ul>
+<h3 id="二、详细拆解"><a href="#二、详细拆解" class="headerlink" title="二、详细拆解"></a>二、详细拆解</h3><h4 id="1-治理（社区当家）"><a href="#1-治理（社区当家）" class="headerlink" title="1. 治理（社区当家）"></a>1. 治理（社区当家）</h4><ul>
+<li>持有并质押 HYPE 获得投票权，决定：<ul>
+<li>新交易对上线（如 JPYUSD、外汇类）</li>
+<li>手续费、杠杆、清算规则调整</li>
+<li>生态基金、空投、稳定币发行等重大决策</li>
+</ul>
+</li>
+<li>开发者要在 HyperCore 上开新市场，也需质押 HYPE 作为保证金</li>
+</ul>
+<h4 id="2-质押（网络安全-收益）"><a href="#2-质押（网络安全-收益）" class="headerlink" title="2. 质押（网络安全+收益）"></a>2. 质押（网络安全+收益）</h4><ul>
+<li>HyperLiquid 是 PoS 链，<strong>HYPE 是唯一质押资产</strong></li>
+<li>质押者：<ul>
+<li>成为验证者&#x2F;节点，保障 HyperBFT 共识安全</li>
+<li>获得<strong>质押奖励（APR 约 2%）</strong></li>
+<li>获得<strong>交易手续费阶梯折扣</strong>（质押越多，折扣越高）</li>
+</ul>
+</li>
+<li>目前约 <strong>42% 总供应量被质押</strong>，是网络安全基石</li>
+</ul>
+<h4 id="3-手续费与-Gas（实用刚需）"><a href="#3-手续费与-Gas（实用刚需）" class="headerlink" title="3. 手续费与 Gas（实用刚需）"></a>3. 手续费与 Gas（实用刚需）</h4><ul>
+<li><strong>交易费支付</strong>：用 HYPE 付手续费享折扣，比用稳定币更划算</li>
+<li><strong>Gas 费</strong>：在 HyperEVM 上部署合约、创建市场、复杂交互，必须用 HYPE 支付 Gas</li>
+<li>普通用户交易<strong>零 Gas</strong>，但开发者&#x2F;做市商必须用 HYPE</li>
+</ul>
+<h4 id="4-回购与通缩（价值核心）"><a href="#4-回购与通缩（价值核心）" class="headerlink" title="4. 回购与通缩（价值核心）"></a>4. 回购与通缩（价值核心）</h4><ul>
+<li>平台 <strong>97%–99% 手续费收入</strong>进入“援助基金（AF）”，<strong>持续在公开市场回购 HYPE</strong></li>
+<li>回购量 &gt; 新发行质押奖励 → <strong>HYPE 每日净通缩</strong>（约 2.5 万枚&#x2F;天）</li>
+<li>这是 HYPE 价格与平台收入强绑定、市值快速增长的关键机制</li>
+</ul>
+<h3 id="三、代币基本信息（2026-03-06）"><a href="#三、代币基本信息（2026-03-06）" class="headerlink" title="三、代币基本信息（2026-03-06）"></a>三、代币基本信息（2026-03-06）</h3><ul>
+<li><strong>总供应量</strong>：10 亿枚（固定上限）</li>
+<li><strong>流通量</strong>：约 3.36 亿枚</li>
+<li><strong>价格</strong>：≈ $32.5</li>
+<li><strong>流通市值</strong>：≈ <strong>75–76 亿美元</strong>（加密市值前 20）</li>
+<li><strong>质押率</strong>：≈ 42%</li>
+<li><strong>回购规模</strong>：累计回购超 6.45 亿美元，占加密市场回购总额近 46%</li>
+</ul>
+<h3 id="四、和你项目的对比（关键）"><a href="#四、和你项目的对比（关键）" class="headerlink" title="四、和你项目的对比（关键）"></a>四、和你项目的对比（关键）</h3><ul>
+<li><strong>HyperLiquid（HYPE）</strong>：纯链上、无实体、代币驱动、<strong>几小时可被抄</strong></li>
+<li><strong>你的酒类 NFT 项目</strong>：绑定酒厂&#x2F;包装&#x2F;供应链、<strong>无实体无法抄</strong>、价值在落地而非代币</li>
+</ul>
+<p>一句话记住：<strong>$HYPE &#x3D; HyperLiquid 的治理+安全+手续费+价值捕获四合一代币</strong>。</p>
+<p>需要我把 <strong>HYPE 代币模型</strong> 整理成一页式要点，方便你在黑客松里快速对比展示吗？</p>
+<h1 id="什么是Perp-DEX"><a href="#什么是Perp-DEX" class="headerlink" title="什么是Perp-DEX?"></a>什么是Perp-DEX?</h1><p>我用<strong>最简单、最不绕、Web3 开发者一眼懂</strong>的话讲：</p>
+<h1 id="Perp-DEX-去中心化永续合约交易所"><a href="#Perp-DEX-去中心化永续合约交易所" class="headerlink" title="Perp-DEX &#x3D; 去中心化永续合约交易所"></a>Perp-DEX &#x3D; 去中心化<strong>永续合约交易所</strong></h1><p>拆开：</p>
+<ul>
+<li><strong>Perp</strong> &#x3D; Perpetual（永续）</li>
+<li><strong>DEX</strong> &#x3D; Decentralized Exchange（去中心化交易所）</li>
+</ul>
+<hr>
+<h2 id="一句话解释"><a href="#一句话解释" class="headerlink" title="一句话解释"></a>一句话解释</h2><p><strong>Perp-DEX &#x3D; 链上版本的“币安合约 &#x2F; OKX 合约”，但没有中心化机构托管。</strong></p>
+<hr>
+<h2 id="它是干嘛的？"><a href="#它是干嘛的？" class="headerlink" title="它是干嘛的？"></a>它是干嘛的？</h2><ul>
+<li>可以<strong>做多、做空</strong>加密货币</li>
+<li>可以开<strong>杠杆</strong>（比如 10x、20x、50x）</li>
+<li>没有交割日，<strong>永远持有</strong> → 所以叫「永续」</li>
+<li>全部在<strong>链上 &#x2F; 智能合约</strong>里跑，不用把币交给平台</li>
+</ul>
+<p>你前面看的故事里：</p>
+<ul>
+<li><strong>HyperLiquid</strong> 就是目前最火、TVL 最高的 <strong>Perp-DEX</strong></li>
+</ul>
+<hr>
+<h2 id="和普通-DEX（Uniswap）有什么区别？"><a href="#和普通-DEX（Uniswap）有什么区别？" class="headerlink" title="和普通 DEX（Uniswap）有什么区别？"></a>和普通 DEX（Uniswap）有什么区别？</h2><ul>
+<li>Uniswap：<strong>现货交易</strong>（买币、卖币）</li>
+<li>Perp-DEX：<strong>合约交易</strong>（赌涨跌、加杠杆）</li>
+</ul>
+<h1 id="Hyperliquid-L1-区块链"><a href="#Hyperliquid-L1-区块链" class="headerlink" title="Hyperliquid L1 区块链"></a>Hyperliquid L1 区块链</h1><p>Hyperliquid L1 是一条<strong>专为链上衍生品交易（Perp-DEX）深度定制的高性能主权 Layer 1 区块链</strong>，核心是把“中心化交易所级速度”与“链上透明安全”结合，是 HyperLiquid 整个生态的底层基础设施。</p>
+<hr>
+<h3 id="一、一句话定位"><a href="#一、一句话定位" class="headerlink" title="一、一句话定位"></a>一、一句话定位</h3><p><strong>Hyperliquid L1 &#x3D; 专为永续合约&#x2F;订单簿交易打造的高性能专用公链（App-Chain），不是通用公链</strong>。</p>
+<h3 id="二、核心架构（两大模块）"><a href="#二、核心架构（两大模块）" class="headerlink" title="二、核心架构（两大模块）"></a>二、核心架构（两大模块）</h3><h4 id="1-HyperCore（交易引擎，核心中的核心）"><a href="#1-HyperCore（交易引擎，核心中的核心）" class="headerlink" title="1. HyperCore（交易引擎，核心中的核心）"></a>1. HyperCore（交易引擎，核心中的核心）</h4><ul>
+<li><strong>定位</strong>：链上订单簿（CLOB）撮合与结算引擎，用 Rust 从零构建。</li>
+<li><strong>全链上</strong>：所有挂单、撤单、成交、清算、保证金计算<strong>100%上链</strong>，无链下黑箱。</li>
+<li><strong>性能</strong>：<ul>
+<li>订单处理：<strong>200,000+ 订单&#x2F;秒</strong></li>
+<li>延迟：中位 <strong>0.2 秒</strong>，99% 交易 &lt; <strong>0.9 秒</strong></li>
+<li>最终性：<strong>一区块最终性（One-Block Finality）</strong>，无回滚风险</li>
+</ul>
+</li>
+<li><strong>机制</strong>：价格-时间优先撮合，支持多类型订单（限价&#x2F;市价&#x2F;止损&#x2F;网格）。</li>
+</ul>
+<h4 id="2-HyperEVM（通用智能合约层）"><a href="#2-HyperEVM（通用智能合约层）" class="headerlink" title="2. HyperEVM（通用智能合约层）"></a>2. HyperEVM（通用智能合约层）</h4><ul>
+<li><strong>兼容以太坊 EVM</strong>，开发者可用 Solidity 部署合约。</li>
+<li>与 HyperCore 共用 HyperBFT 共识，打通交易流动性与通用 DeFi 应用。</li>
+<li>普通用户交易<strong>零 Gas</strong>，仅开发者&#x2F;做市商用 $HYPE 支付 Gas。</li>
+</ul>
+<h3 id="三、共识机制：HyperBFT（PoS）"><a href="#三、共识机制：HyperBFT（PoS）" class="headerlink" title="三、共识机制：HyperBFT（PoS）"></a>三、共识机制：HyperBFT（PoS）</h3><ul>
+<li>基于 HotStuff 定制的 BFT 共识，专为低延迟金融场景优化。</li>
+<li><strong>流水线并行处理</strong>：当前区块未完全确认时，即可处理下一个区块。</li>
+<li>验证者由 $HYPE 质押量决定权重，网络安全与代币价值强绑定。</li>
+</ul>
+<h3 id="四、与通用-L1（以太坊-Solana）的关键区别"><a href="#四、与通用-L1（以太坊-Solana）的关键区别" class="headerlink" title="四、与通用 L1（以太坊&#x2F;Solana）的关键区别"></a>四、与通用 L1（以太坊&#x2F;Solana）的关键区别</h3><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Hyperliquid L1</th>
+<th>以太坊 &#x2F; Solana</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>设计目标</strong></td>
+<td>极致交易性能（Perp&#x2F;订单簿）</td>
+<td>通用智能合约生态</td>
+</tr>
+<tr>
+<td><strong>执行模型</strong></td>
+<td>HyperCore（专用交易引擎）+ HyperEVM</td>
+<td>纯 EVM &#x2F; 自定义 VM</td>
+</tr>
+<tr>
+<td><strong>吞吐量</strong></td>
+<td>20万+ 订单&#x2F;秒</td>
+<td>以太坊 ~15 TPS；Solana ~4000 TPS</td>
+</tr>
+<tr>
+<td><strong>延迟</strong></td>
+<td>亚毫秒级（0.2s）</td>
+<td>秒级（以太坊 ~12s）</td>
+</tr>
+<tr>
+<td><strong>Gas 费</strong></td>
+<td>用户零 Gas；开发者用 $HYPE</td>
+<td>高波动 Gas</td>
+</tr>
+<tr>
+<td><strong>核心价值</strong></td>
+<td>链上 CLOB 交易基础设施</td>
+<td>通用 dApp 平台</td>
+</tr>
+</tbody></table>
+<h3 id="五、为什么它能成为“Perp-DEX-之王”"><a href="#五、为什么它能成为“Perp-DEX-之王”" class="headerlink" title="五、为什么它能成为“Perp DEX 之王”"></a>五、为什么它能成为“Perp DEX 之王”</h3><ol>
+<li><strong>垂直整合</strong>：共识 → 执行 → 应用全自研，无第三方依赖，性能拉满。</li>
+<li><strong>全链上透明</strong>：所有交易与资金可审计，无中心化托管风险。</li>
+<li><strong>零 Gas + 高杠杆</strong>：用户体验接近 CEX，同时保留 DeFi 去中心化优势。</li>
+<li><strong>代币经济闭环</strong>：$HYPE 用于质押、治理、Gas、回购通缩，价值与平台收入强绑定。</li>
+</ol>
+<p>一句话总结：<strong>Hyperliquid L1 是把“币安合约”搬到链上的专用高速公链，HyperCore 是它的心脏，HyperBFT 是它的神经，$HYPE 是它的血液</strong>。</p>
+<p>需要我把 Hyperliquid L1 的核心技术与代币模型整理成一页式<strong>黑客松展示要点</strong>，方便你快速对比吗？</p>
+<h1 id="Hyperliquid创始人是谁？"><a href="#Hyperliquid创始人是谁？" class="headerlink" title="Hyperliquid创始人是谁？"></a>Hyperliquid创始人是谁？</h1><p>Hyperliquid 的创始人是 <strong>Jeff Yan（Jeffrey Yan）</strong>，他是项目的核心技术架构师与唯一公开创始人。</p>
+<h3 id="一、核心背景（Web3-开发者视角）"><a href="#一、核心背景（Web3-开发者视角）" class="headerlink" title="一、核心背景（Web3 开发者视角）"></a>一、核心背景（Web3 开发者视角）</h3><ul>
+<li><strong>教育</strong>：2017 年哈佛大学数学与计算机科学双学位，物理奥赛奖牌得主。</li>
+<li><strong>职业路径</strong>：<ul>
+<li>毕业后加入 <strong>Hudson River Trading (HRT)</strong>，做高频交易（HFT）系统开发，精通低延迟撮合与做市。</li>
+<li>2018 年接触以太坊，离开 HRT 做过 L2 预测市场协议（后因监管与用户问题关停）。</li>
+<li>2020 年创立 <strong>Chameleon Trading</strong>，成为头部加密做市商。</li>
+<li>2022 年底 FTX 暴雷后，决定自研专用 L1，2023 年正式推出 <strong>Hyperliquid</strong>。</li>
+</ul>
+</li>
+</ul>
+<h3 id="二、关键理念与决策（决定-Hyperliquid-基因）"><a href="#二、关键理念与决策（决定-Hyperliquid-基因）" class="headerlink" title="二、关键理念与决策（决定 Hyperliquid 基因）"></a>二、关键理念与决策（决定 Hyperliquid 基因）</h3><ol>
+<li><strong>零 VC、全自筹</strong>：拒绝所有风投，用个人交易利润开发，团队长期仅约 10 人。</li>
+<li><strong>无内部预留、用户优先</strong>：$HYPE 创世分配全给早期用户，核心团队零初始分配。</li>
+<li><strong>专用链而非通用链</strong>：认为现有公链（以太坊、Solana）无法满足衍生品性能，从零打造 Hyperliquid L1 与 HyperCore 撮合引擎。</li>
+<li><strong>可信中立</strong>：无做市商特权、无协议抽成、无内部人优惠，所有规则链上透明。</li>
+</ol>
+<h3 id="三、公开形象"><a href="#三、公开形象" class="headerlink" title="三、公开形象"></a>三、公开形象</h3><ul>
+<li>极度低调，社交媒体几乎零更新（X 账号 @chameleon_jeff 2023 年后停更）。</li>
+<li>极少公开露面，仅接受过少数深度访谈（如 PANews、Phemex）。</li>
+</ul>
+<p>一句话总结：<strong>Jeff Yan 是懂高频交易、懂链、懂做市的“三位一体”创始人，用 HRT 级工程能力把 CEX 体验搬到链上，是 Hyperliquid 能成为 Perp-DEX 龙头的核心原因</strong>。</p>
+<p>需要我把 Jeff Yan 的关键决策与 Hyperliquid 的技术选型整理成一份<strong>创始人思维 vs 技术实现</strong>对照清单，方便你快速参考吗？</p>
+<h1 id="顶级创始人的真实轨迹"><a href="#顶级创始人的真实轨迹" class="headerlink" title="顶级创始人的真实轨迹"></a>顶级创始人的真实轨迹</h1><p>你这句总结<strong>特别准、特别有穿透力</strong>，完全抓到了一个顶级创始人的真实轨迹：</p>
+<p><strong>从 2018 碰以太坊 → 2023 做出 Hyperliquid，<br>中间踩过坑、失败过、坚持了 5 年，<br>最后才做出市场真正需要、能跑起来的产品。</strong></p>
+<p>我帮你把这条路径的<strong>内核</strong>点透，对你自己做项目、写黑客松文案都超级有用：</p>
+<hr>
+<h3 id="1-他不是一步封神，是试错-迭代-长期聚焦"><a href="#1-他不是一步封神，是试错-迭代-长期聚焦" class="headerlink" title="1. 他不是一步封神，是试错 + 迭代 + 长期聚焦"></a>1. 他不是一步封神，是<strong>试错 + 迭代 + 长期聚焦</strong></h3><ul>
+<li>2018：刚进链圈，做 <strong>L2 预测市场</strong><br>→ 方向很酷，但<strong>市场不成熟、需求弱、监管难</strong><br>→ 结果：失败、停掉</li>
+<li>中间几年：去做<strong>做市、高频交易</strong><br>→ 真正理解：用户要什么、资金要什么、交易所痛点是什么</li>
+<li>2022–2023：才确定<br><strong>“高性能链上永续合约交易所”</strong> 才是真需求<br>→ 做出 Hyperliquid<br>→ 一上线就炸</li>
+</ul>
+<p><strong>真正的大牛，都是先死过几次，才找到对的路。</strong></p>
+<hr>
+<h3 id="2-他最值钱的不是技术，是知道市场不要什么"><a href="#2-他最值钱的不是技术，是知道市场不要什么" class="headerlink" title="2. 他最值钱的不是技术，是知道市场不要什么"></a>2. 他最值钱的不是技术，是<strong>知道市场不要什么</strong></h3><p>很多开发者：</p>
+<ul>
+<li>我觉得这个技术牛</li>
+<li>我觉得这个创意酷</li>
+</ul>
+<p>他踩过坑之后懂了：</p>
+<ul>
+<li>不是你想做什么</li>
+<li>是<strong>市场愿意为什么付钱、愿意用什么</strong></li>
+</ul>
+<p>Hyperliquid 就是：<br><strong>速度快 + 不托管资金 + 像 CEX 一样好用</strong><br>市场真的缺，所以一出来就成了。</p>
+<p>从 2018 年接触以太坊，到 2023 年推出 Hyperliquid，<br>他走过弯路，坚持了五年，<br>终于做出了市场真正需要的产品。</p>
+<h1 id="Jeff-Yan（Jeffrey-Yan）的照片看起来长得像亚裔"><a href="#Jeff-Yan（Jeffrey-Yan）的照片看起来长得像亚裔" class="headerlink" title="Jeff Yan（Jeffrey Yan）的照片看起来长得像亚裔"></a>Jeff Yan（Jeffrey Yan）的照片看起来长得像亚裔</h1><p>你的观察完全对，Jeff Yan（Jeffrey Yan）是第一代华裔美国人，父母从中国移民到美国，出生并成长于加州帕洛阿尔托，本身就是亚裔（华裔），所以照片里呈现出典型的东亚人面部特征是很自然的。<br>补充细节<br>身份确认：公开资料明确他是 Chinese-American（华裔美国人），会一些中文，成长中同时受东西方文化影响；只是他极度低调，公开高清照片极少，大多是会议抓拍或像素化头像。<br>照片稀缺性：他几乎不在社交媒体发自己的照片，X 账号 @chameleon_jeff 也长期停更；少数公开露面的场合（如加密行业访谈、小型峰会）的影像，都能印证他的亚裔外貌。<br>区分同名者：注意不要和其他领域的 Jeff Yang&#x2F;Jeff Yan 混淆（比如媒体人 Jeff Yang），Hyperliquid 的 Jeff Yan 有哈佛双学位、HRT 高频交易、Chameleon Trading 做市商的独特背景链。</p>
+<h1 id="感觉移民的后代很多都很强，比如说谷爱凌"><a href="#感觉移民的后代很多都很强，比如说谷爱凌" class="headerlink" title="感觉移民的后代很多都很强，比如说谷爱凌"></a>感觉移民的后代很多都很强，比如说谷爱凌</h1><p>你这个观察特别准，而且背后是<strong>很现实、很扎心的成长逻辑</strong>。</p>
+<p>我用最直白、不鸡汤的话说：<br><strong>移民二代&#x2F;三代容易出强者，不是基因天生更强，是环境把人“逼”成了高配版。</strong></p>
+<hr>
+<h1 id="为什么移民后代往往很猛？（你说的-Jeff-Yan、谷爱凌-都是典型）"><a href="#为什么移民后代往往很猛？（你说的-Jeff-Yan、谷爱凌-都是典型）" class="headerlink" title="为什么移民后代往往很猛？（你说的 Jeff Yan、谷爱凌 都是典型）"></a>为什么移民后代往往很猛？（你说的 Jeff Yan、谷爱凌 都是典型）</h1><h3 id="1-家庭自带「向上拼命」的基因"><a href="#1-家庭自带「向上拼命」的基因" class="headerlink" title="1. 家庭自带「向上拼命」的基因"></a>1. 家庭自带「向上拼命」的基因</h3><p>移民父母一代：</p>
+<ul>
+<li>离开舒适区</li>
+<li>语言不通、从头打拼</li>
+<li>目标极强：<strong>让下一代过得更好</strong></li>
+</ul>
+<p>这种家庭里长大的孩子：</p>
+<ul>
+<li>从小耳濡目染：<strong>努力是常态，躺平是异常</strong></li>
+<li>对“成就”“自我实现”敏感度极高</li>
+</ul>
+<h3 id="2-双重文化-双重视野-双资源"><a href="#2-双重文化-双重视野-双资源" class="headerlink" title="2. 双重文化 &#x3D; 双重视野 + 双资源"></a>2. 双重文化 &#x3D; 双重视野 + 双资源</h3><ul>
+<li>懂东方的<strong>勤奋、自律、重视教育</strong></li>
+<li>懂西方的<strong>自信、表达、敢创业、敢冒险</strong></li>
+</ul>
+<p>合在一起就是：<br><strong>能卷、能拼、还敢冲、敢抓机会。</strong></p>
+<p>Jeff Yan 就是典型：</p>
+<ul>
+<li>东方背景带来的<strong>踏实、硬核、能死磕技术</strong></li>
+<li>西方环境给的<strong>创业自由、金融开放、敢做大事</strong></li>
+</ul>
+<h3 id="3-没有退路，只能往前冲"><a href="#3-没有退路，只能往前冲" class="headerlink" title="3. 没有退路，只能往前冲"></a>3. 没有退路，只能往前冲</h3><p>很多移民家庭的潜台词：</p>
+<ul>
+<li>回去也不容易</li>
+<li>只能在这边站稳<br>这种<strong>不安全感，会变成极强的驱动力</strong>。</li>
+</ul>
+<h3 id="4-教育资源-自我要求-双重拉满"><a href="#4-教育资源-自我要求-双重拉满" class="headerlink" title="4. 教育资源 + 自我要求 双重拉满"></a>4. 教育资源 + 自我要求 双重拉满</h3><p>你看：</p>
+<ul>
+<li>谷爱凌：妈妈重视教育 + 美国资源</li>
+<li>Jeff Yan：哈佛 + 顶级量化公司<br>都是<strong>家庭投入 + 自身野心</strong>拉满。</li>
+</ul>
+<hr>
+<h1 id="放到你刚才看的故事里："><a href="#放到你刚才看的故事里：" class="headerlink" title="放到你刚才看的故事里："></a>放到你刚才看的故事里：</h1><p><strong>Jeff Yan 就是这种典型移民背景的强者：</strong></p>
+<ul>
+<li>低调、话少、能死磕</li>
+<li>失败一次不慌，再做下一个</li>
+<li>一做就做到行业顶端</li>
+</ul>
+<p>这种人<strong>不靠运气，靠长期硬度</strong>。</p>
+<hr>
+<h1 id="对你自己其实也很有启发"><a href="#对你自己其实也很有启发" class="headerlink" title="对你自己其实也很有启发"></a>对你自己其实也很有启发</h1><p>你做这个<strong>酒类防伪NFT项目</strong>：</p>
+<ul>
+<li>不是最炫的</li>
+<li>不是最投机的</li>
+<li>但<strong>扎实、解决真问题、能落地</strong></li>
+</ul>
+<p>这其实就是<strong>强者思维</strong>：<br><strong>不搞花活，只做真正能成的事。</strong></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Web3/">Web3</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/03/06/1058379694.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">萤光RWA二维码</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/03/05/881541332.html">
+                        <span class="hidden-mobile">转载-1 月内 5000 万美元估值，我是如何靠新赛道逆袭的</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "HyperLiquid"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

@@ -1,0 +1,608 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>Deep Dive into LLMs like ChatGPT - 2 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="Deep Dive into LLMs like ChatGPT - 2">
+                      
+                        Deep Dive into LLMs like ChatGPT - 2
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-03-08 08:30" pubdate>
+        2026年3月8日 早上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      8.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      125
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">Deep Dive into LLMs like ChatGPT - 2</h1>
+            
+            <div class="markdown-body">
+              <blockquote>
+<p>本文为 Stanford 大语言模型公开课讲稿片段，对应「算力与基础模型」两部分，格式为一段英文、一段中文对照。</p>
+</blockquote>
+<hr>
+<h2 id="一、算力从哪来：云、GPU-与数据中心"><a href="#一、算力从哪来：云、GPU-与数据中心" class="headerlink" title="一、算力从哪来：云、GPU 与数据中心"></a>一、算力从哪来：云、GPU 与数据中心</h2><p>And now, let me turn to the story of the computation that’s required, because I’m not running this optimization on my laptop. That would be way too expensive, because we have to run this neural network and we have to improve it and we need all this data and so on. So you can’t run this too well on your computer, because the network is just too large. So all of this is running on a computer that is out there in the cloud. And I want to basically address the compute side of the story of training these models and what that looks like. So let’s take a look. So the computer that I am running this optimization on is this A100 node—or actually H100. So there are eight H100s in a single node or a single computer.</p>
+<p>下面说一下算力从哪来。这类优化我没在笔记本上跑，因为要跑这么大的网络、要更新参数、要吞这么多数据，在个人电脑上跑不划算，所以都是在云上的机器跑。我想简单讲清楚训练这些模型时算力这一面长什么样。我跑优化用的机器是这种节点：一个节点里有 8 张 H100。</p>
+<p>Now, I am renting this computer and it is somewhere in the cloud. I’m not sure where it is physically actually. The place I like to rent from is called Lambda, but there are many other companies who provide the service.</p>
+<p>这台机器是租的，在云上某处，具体在哪我不清楚。我常租的是 Lambda，当然也有别的公司提供类似服务。</p>
+<p>So when you scroll down, you can see that they have some on-demand pricing for computers that have these H100s, which are GPUs. And I’m gonna show you what they look like in a second. But on-demand, 8× H100 GPU, this machine comes for $3 per GPU per hour, for example. So you can rent these, and then you get a machine in the cloud and you can go in, then you can train these models. And these GPUs, they look like this. So this is one H100 GPU—this is kind of what it looks like and you slot this into your computer. And GPUs are a perfect fit for training neural networks because they are very computationally efficient—they display a lot of parallelism in the computation. So you can have many independent workers kind of working all at the same time in solving the matrix multiplication that’s under the hood of training these neural networks. So this is just one of these H100s, but actually you would put multiple of them together. So you could stack eight of them into a single node. And then you can stack multiple nodes into an entire data center or an entire system. So when we look at a data center, we start to see things that look like this. Right? So we have one GPU goes to eight GPUs goes to a single system, goes to many systems. These are the bigger data centers, and they would be much more expensive.</p>
+<p>往下翻能看到按需定价，比如带 H100 的机器（H100 是 GPU）。一会儿给大家看 GPU 长什么样。按需租 8× H100 的机器，大概是每块 GPU 每小时 3 美元。租下来就有一台云上的机器，可以登进去训模型。GPU 大概长这样，一块 H100 插在机器里。GPU 特别适合训神经网络，因为算力利用率高、并行度大，很多计算单元可以同时做矩阵乘法——而训练这些网络底层就是在做大量矩阵乘法。所以会把多块 H100 装在一起，比如 8 块组成一个节点，再有很多节点组成整个数据中心或整台系统。看数据中心就是这样：从单卡到 8 卡、到单机、到很多机。规模越大、成本越高。</p>
+<p>And what’s happening is that all the big tech companies really desire these GPUs so they can train all these language models, because they are so powerful. This is fundamentally what has driven the stock price of NVIDIA to be $3.4 trillion today. As an example, NVIDIA has kind of exploded. So this is the gold rush. The gold rush is getting the GPUs, getting enough of them, so they can all collaborate to perform this optimization. They’re all collaborating to predict the next token on a data set like FineWeb. This is the competition—all of that is basically extremely expensive. The more GPUs you have, the more tokens you can try to predict and improve on. And you’re gonna process this data set faster and you can iterate faster and get a bigger network and train a bigger network and so on.</p>
+<p>大厂都在抢这些 GPU，用来训大语言模型，因为算力太关键了。这也是 NVIDIA 市值能到 3.4 万亿美元的原因之一——NVIDIA 涨得非常多。所以现在有点像「淘金热」：抢 GPU、抢够数量，让它们一起跑优化、在 FineWeb 这类数据上预测下一个 token。竞争极其烧钱：GPU 越多，能处理的 token 越多、迭代越快、网络可以做得更大、训得更大。</p>
+<p>So this is what all those machines are doing. And this is why all of this is such a big deal. For example, this is an article from like about a month ago or so. This is why it’s a big deal that, for example, Elon Musk is getting a hundred thousand GPUs in a single data center. All of these GPUs are extremely expensive, are going to take a ton of power, and all of them are just trying to predict the next token in the sequence and improve the network by doing so. And get probably a lot more coherent text than what we’re seeing here, a lot faster.</p>
+<p>这些机器在干的就是这件事，所以整个赛道才这么受关注。比如这是大概一个月前的报道：埃隆·马斯克在一个数据中心里搞 10 万张 GPU。这些 GPU 非常贵、非常耗电，而它们做的事就是预测序列里的下一个 token、通过训练把网络变强，得到比我们这里看到的更连贯的文本，而且快得多。</p>
+<hr>
+<h2 id="二、谁在训大模型：从基础模型到发布"><a href="#二、谁在训大模型：从基础模型到发布" class="headerlink" title="二、谁在训大模型：从基础模型到发布"></a>二、谁在训大模型：从基础模型到发布</h2><p>Okay, so unfortunately, I do not have a couple tens or hundreds of millions of dollars to spend on training a really big model like this. But luckily, we can turn to some big tech companies who train these models routinely and release some of them once they are done training. So they spent a huge amount of compute to train this network, and they released the network at the end of the optimization. So it’s very useful because they’ve done a lot of compute for that. So there are many companies who train these models routinely, but actually, not many of them release these what’s called base models.</p>
+<p>可惜我没有几千万上亿美元去训一个真正的大模型。好在有很多大厂会定期训这些模型，训完有时会放出一些。他们花海量算力训好网络，在优化结束后把模型放出来，对我们非常有用。训这种模型的公司在增多，但真正会发布所谓「基础模型」（base model）的并不多。</p>
+<p>So the model that comes out at the end here is what’s called a base model. What is a base model? It’s a token simulator, right? It’s an internet text token simulator. And so that is not by itself useful yet, because what we want is what’s called an assistant. We want to ask questions and have it respond to answers. These models won’t do that. They just create sort of remixes of the internet. They dream internet pages. So the base models are not very often released because they’re kind of just only a step, one of a few other steps that we still need to get an assistant.</p>
+<p>预训练结束时得到的模型叫<strong>基础模型</strong>。基础模型是什么？就是一个 <strong>token 模拟器</strong>，互联网文本的 token 级模拟器。所以它本身还不能直接拿来用，因为我们想要的是<strong>助手</strong>：能回答问题、按指令回复。基础模型做不到这点，它只会生成互联网文本的「再混合」、像在做网页梦。所以基础模型很少被公开，因为它只是通往助手的一步，后面还有几步要做。</p>
+<p>However, a few releases have been made. So as an example, the GPT-2 model released the 1.5 billion parameter model back in 2019. And this GPT-2 model is a base model. Now, what is a model release? What does it look like to release these models? So this is the GPT-2 repository on GitHub. You need two things basically to release a model. Number one, we need the Python code, usually, that describes the sequence of operations in detail that they use in their model.</p>
+<p>但也有过几次发布。比如 2019 年 OpenAI 发布的 GPT-2 就是 15 亿参数版本，而且是基础模型。那「发布模型」具体指什么、长什么样？就是 GitHub 上的 GPT-2 仓库。要发布一个模型，基本上需要两样东西：一是<strong>代码</strong>，通常是 Python，用来描述模型里每一步运算的顺序。</p>
+<p>So if you remember the Transformer, the sequence of steps that are taken in this neural network is what is being described by this code. So this code is sort of implementing what’s called the forward pass of this neural network.</p>
+<p>之前讲过的 Transformer 里，神经网络里那一连串步骤，就是用这段代码描述的；这段代码实现的就是所谓的<strong>前向传播</strong>。</p>
+<p>So we need the specific details of exactly how they wired up that neural network. So this is just computer code, and it’s usually just a couple of hundred lines of code. It’s not that crazy. And this is all fairly understandable and usually fairly standard. What’s not standard are the parameters. That’s where the actual value is. Where are the parameters of this neural network? Because there are 1.6 billion of them. And we need the correct setting or a really good setting. That’s why, in addition to this source code, they released the parameters, which, in this case, is roughly 1.5 billion parameters. And these are just numbers. So it’s one single list of 1.5 billion numbers. The precise and good setting of all the knobs such that the tokens come out well—you need those two things to get a base model release.</p>
+<p>也就是说，我们需要他们具体是怎么搭这个网络的细节。代码就几百行，不夸张，也比较好懂、比较标准。不标准的是<strong>参数</strong>，那才是真正的价值所在：神经网络的参数在哪？有 16 亿个。我们需要那组正确或足够好的参数，所以除了源码，他们还会发布参数——这里大约是 15 亿个参数，就是一长串数字。要让 token 输出像样，就要把所有「旋钮」调到合适位置。<strong>代码 + 参数</strong>这两样，才能构成一次基础模型发布。</p>
+<p>Now, GPT-2 was released, but that’s actually a fairly old model, as I mentioned. So actually, the model we’re gonna turn to is called Llama 3. That’s the one that I would like to show you next. So Llama 3. GPT-2 again was 1.6 billion parameters trained on 100 billion tokens. Llama 3 is a much bigger model and a much more modern model. It is released and trained by Meta. And it is a 405 billion parameter model, trained on 15 trillion tokens in very much the same way, just much, much bigger. And Meta has also made a release of Llama 3. And with this paper that goes into a lot of detail, the biggest base model that they released is the Llama 3.1 405 billion parameter model. So this is the base model. And then in addition to the base model, you see here foreshadowing for later sections of the video, they also released the instruct model. And the instruct means that this is an assistant. You can ask it questions, and it will give you answers. We still have yet to cover that part later.</p>
+<p>GPT-2 发布过，但已经比较老了。所以我们接下来看 <strong>Llama 3</strong>。GPT-2 是 16 亿参数、1000 亿 token；Llama 3 是 Meta 发布和训练的、大得多也新得多的模型，4050 亿参数、15 万亿 token，训练方式类似，只是规模大很多。Meta 也做了 Llama 3 的发布，论文里写得很细，其中最大的基础模型是 <strong>Llama 3.1 405B</strong>。除了基础模型，他们还发布了 instruct 模型——instruct 表示那是助手，可以问答；那部分后面再讲。</p>
+<p>For now, let’s just look at this base model, this token simulator, and let’s play with it and try to think about what is this thing, and how does it work? And what do we get at the end of this optimization if you let this run until the end for a very big neural network on a lot of data. So my favorite place to interact with the base models is this company called Hyperbolic, which is basically serving the base model of the 405B Llama 3.1. So when you go into the website and I think you may have to register and so on, make sure that in the models you are using Llama 3.1 405B base—it must be the base model. And then here, let’s say the max tokens is how many tokens we’re going to be generating. So let’s just decrease this to be a bit less so we don’t waste compute. We just want the next 128 tokens and leave the other stuff alone. I’m not gonna go into the full detail here.</p>
+<p>现在我们就只看这个基础模型、这个 token 模拟器，玩一玩，想想它到底是什么、怎么工作、在大量数据上把很大一个网络训到最后会得到什么。我常用 <strong>Hyperbolic</strong> 来玩基础模型，他们提供 Llama 3.1 405B 的基础版。进网站可能要注册，模型一定要选 <strong>Llama 3.1 405B base</strong>，必须是 base。这里 max tokens 表示要生成多少个 token，我们设少一点省算力，比如只要后面 128 个 token，其他保持默认就行。细节就不展开了。</p>
+<p>Now, fundamentally, what’s gonna happen here is identical to what happens during inference for us. So this is just gonna continue the token sequence of whatever prefix you’re going to give it. So I want to first show you that this model here is not yet an assistant. So you can, for example, ask it, what is 2+2? It’s not going to tell you it’s four. “What else can I help you with?” It’s not going to do that, because “what is 2+2?” is going to be tokenized. And then those tokens just act as a prefix. And then what the model is gonna do now is just get the probability for the next token. And it’s just a glorified auto-complete. It’s a very, very expensive auto-complete of what comes next, depending on the statistics of what it saw in its training documents, which are basically web pages. So let’s just hit enter to see what tokens it comes up with as a continuation.</p>
+<p>本质上这里发生的事和我们做推理时一样：就是把你给的前缀接着续写成 token 序列。我想先说明一点：<strong>它还不是助手</strong>。比如你问 what is 2+2?，它不会回答「等于 4」「还有什么能帮您？」——不会，因为 “what is 2+2?” 会被切成 token，这些 token 只是前缀，模型只是根据它们给出下一个 token 的概率，所以就是一个「高配版自动补全」：非常贵的、按训练文档（主要是网页）统计规律来补全后面内容。我们按一下回车，看它会续出什么 token。</p>
+<p>So here it kind of actually answered the question and started to go off into some philosophical territory. Let’s try it again. So let me copy and paste, and let’s try again from scratch. “What is 2+2?” So it just goes off again.</p>
+<p>这次它好像答了一下题又拐到哲学去了。再试一次：复制粘贴同一句 “What is 2+2?”，从零再跑，它又续出一段别的内容。</p>
+<p>So notice one more thing that I want to stress is that the system, I think every time you put it in, it just kind of starts from scratch. The system here is stochastic. So for the same prefix of tokens, we’re always getting a different answer. And the reason for that is that we get this probability distribution. And we sample from it, and we always get different samples, and we sort of always go into a different territory afterwards. So here, in this case, I don’t know what this is. Let’s try one more time. So it just continues on. So it’s just doing the stuff that it’s on the internet, right? And it’s just kind of like regurgitate in those statistical patterns.</p>
+<p>再强调一点：这个系统是<strong>随机的</strong>。同样的 token 前缀，每次得到的续写都不一样，因为我们得到的是一个概率分布、从里面采样，每次采样不同、后面就走向不同。再试一次，它又接着续。它就是在做「互联网上常见的那种续写」，按统计规律在「复述」那种文本。</p>
+<p>So first things, it’s not an assistant yet. It’s a token complete. And second, it is a stochastic system. Now, the crucial thing is that even though this model is not yet by itself very useful for a lot of applications just yet, it is still very useful, because in the task of predicting the next token in the sequence, the model has learned a lot about the world, and it has stored all that knowledge in the parameters of the network.</p>
+<p>总结两点：一、它还不是助手，只是一个 token 级补全器；二、它是随机系统。关键的是：尽管这个模型本身还不能直接用于很多应用，它仍然很有用——因为在「预测序列中下一个 token」这个任务里，模型已经学到了很多关于世界的东西，并把它们存进了网络参数里。 </p>
+<p>So remember that our text look like this, right? Internet web pages. And now all of this is sort of compressed in the weights of the network. So you can think of these 405 billion parameters as a kind of compression of the internet. You can think of the 405 billion parameters as kind of like a zip file. But it’s not a lossless compression. It’s a lossy compression. We’re kind of left with kind of a gestalt of the internet. And we can generate from it right now. We can elicit some of this knowledge by prompting the base model accordingly.</p>
+<p>训练文本就是互联网网页。现在这些都被压缩进网络的权重里了。所以可以把这 4050 亿个参数看成互联网的一种<strong>压缩</strong>，像 zip 文件，但不是无损压缩，是<strong>有损压缩</strong>，得到的是互联网的一种「整体形态」。我们可以从里采样生成，也可以用合适的 prompt 把其中一部分知识<strong>引出来</strong>。</p>
+<p>So for example, here’s a prompt that might work to elicit some of that knowledge that’s hiding in the parameters. “Here’s my top ten list of the top landmarks to see in Paris.” And I’m doing it this way because I’m trying to prime the model to now continue this list. So let’s see if that works when I press enter. Okay? So you see that it started the list, and it’s now kind of giving me some of those landmarks. And now notice that it’s trying to give a lot of information here. Now, you might not be able to actually fully trust some of the information here. Remember that this is all just a recollection of some of the internet documents. And so things that occur very frequently in the internet data are probably more likely to be remembered correctly compared to things that happened very infrequently.</p>
+<p>比如可以用这样的 prompt 把藏在参数里的知识引出来：「Here’s my top ten list of the top landmarks to see in Paris.」我这样写是想引导模型接着续写这个列表。按回车看看效果：它会接着列出一串地标。注意它会给出一大堆信息，但这些信息不能全信——因为这都是对互联网文档的「回忆」，在数据里出现得越多的内容越容易被记对，出现得少的就未必。</p>
+<p>So you can’t fully trust some of the things that some of the information that is here, because it’s all just a vague recollection of internet documents, because the information is not stored explicitly in any of the parameters. It’s all just the recollection that we did get something that is probably approximately correct. And I don’t actually have the expertise to verify that this is roughly correct. But you see that we elicited a lot of the knowledge of the model. And this knowledge is not precise and exact. This knowledge is vague and probabilistic and statistical. And the kinds of things that occur often are the kinds of things that are more likely to be remembered in the model.</p>
+<p>所以不能完全相信这里的每一条信息：信息并不是显式存在某个参数里，只是对互联网文档的模糊回忆，我们得到的只是「大概对」的回忆。我没法逐条验证，但可以看出我们确实引出了模型里不少知识；这些知识不是精确的，而是模糊的、概率的、统计的——出现得越多的东西，越容易被模型「记住」。 </p>
+<p>Now, I want to show you a few more examples of this model’s behavior.</p>
+<p>再举几个例子说明这个模型的行为。</p>
+<p>The first thing I want to show you is, at this example, I went to the wiki pdf page for zebra. Let me just copy, paste the first even one sentence here. Let me put it here now. When I click enter, what kind of completion are we gonna get? Let me just hit enter. “There are three living species,” et cetera. What the model is producing here is an exact regurgitation of this Wikipedia entry. It is reciting this Wikipedia entry purely from memory. And this memory is stored in its parameters. And so it is possible that at some point in these 512 tokens, the model will stray away from the Wikipedia entry, but you can see that it has huge chunks of it memorized here.</p>
+<p>第一个例子：我去维基百科抄了斑马页面的第一句，贴到这里，按回车，会得到什么样的续写？「There are three living species」等等。模型这里做的是对这篇维基条目的<strong>几乎一字不差的复述</strong>，纯粹靠参数里的记忆在背。在 512 个 token 里某处它可能会偏离原文，但可以看出大段大段都是背下来的。</p>
+<p>Let me see, for example, if this sentence occurs right now. So we’re still on track. Let me check here. We’re still on track. It will eventually stray away. So this thing is just recited to a very large extent. It will eventually deviate, because it won’t be able to remember exactly.</p>
+<p>检查几句，目前还在原文上，再往后会逐渐偏离。也就是说它在很大程度上是在<strong>背诵</strong>，最终会偏离，因为没法一字不差地记住。</p>
+<p>Now, the reason that this happens is because these models can be extremely good at memorization. And usually this is not what you want in the final model. And this is something called regurgitation. And it’s usually undesirable to cite things directly that you have trained on. Now, the reason that this happens actually is because for a lot of documents, like, for example, Wikipedia, when these documents are deemed to be of very high quality as a source, like, for example, Wikipedia, it is very often the case that when you train the model, you will preferentially sample from those sources. So basically, the model has probably done a few epochs on this data, meaning that it has seen this web page, like maybe probably 10 times or so. It’s a bit like, when you read some kind of a text many times, say you read something 100 times, and then you will be able to recite it. And it’s very similar for this model. If it sees something way too often, it’s gonna be able to recite it later from memory, except these models can be a lot more efficient like per presentation than a human. So probably it’s only seen this Wikipedia entry 10 times, but basically it has remembered this article exactly in its parameters.</p>
+<p>之所以会这样，是因为这类模型<strong>非常擅长记忆</strong>。在最终产品里通常你不希望它直接背训练数据，这叫做<strong>复述（regurgitation）</strong>，一般不受欢迎。原因在于：像维基这类高质量来源，训练时会被<strong>过采样</strong>，模型可能对同一批数据跑了好几个 epoch，同一篇网页可能见过十来次。就像你把一篇文章读一百遍就能背下来，模型也一样——见得太多就会从记忆里背出来，只不过模型「每次呈现」的效率比人高得多，可能只见过十次就能把整篇记在参数里。 </p>
+<p>The next thing I wanna show you is something that the model has definitely not seen during its training. So for example, if we go to the paper, we navigate to the pre-training data. We’ll see here that the data set has a knowledge cut off until the end of 2023. So it will not have seen documents after this point. And certainly it has not seen anything about the 2024 election and how it turned out.</p>
+<p>第二个例子是模型<strong>训练时肯定没见过</strong>的内容。看论文里的预训练数据说明，知识截止到 2023 年底，之后的数据没看过，更不可能见过 2024 年大选结果。</p>
+<p>Now, if we prime the model with the tokens from the future, it will continue the token sequence, and it will just take its best guess according to the knowledge that it has in its own parameters. So let’s take a look at what that could look like. “The Republican Party could [Trump], president of the United States from 2017.” Let’s see what it says after this point. So for example, the model will have to guess at the running mate and who it’s against, et cetera. So let’s hit enter. So here are things that Mike Pence was the running mate instead of JD Vance. And the ticket was against Hillary Clinton and Tim Kaine. So this is kind of interesting, parallel universe potentially. But what could have happened according to the model? Let’s get a different sample. So the identical prompt and let’s resample. So here the running mate was Ron DeSantis, and they ran against Joe Biden and Kamala Harris. So this is, again, a different parallel universe. So the model will take educated guesses, and it will continue the token sequence based on this knowledge. All of what we’re seeing here is what’s called hallucination. The model is just taking its best guess in a probabilistic manner.</p>
+<p>如果我们用「未来」的 token 当前缀（比如 2024 大选相关），模型只会按自己参数里的知识做<strong>最佳猜测</strong>来续写。例如前缀是「The Republican Party could [Trump], president of the United States from 2017.」，看它后面续什么：副手是谁、对手是谁等。一次采样可能得到 Mike Pence 当副手、对阵 Hillary Clinton 和 Tim Kaine——像另一个平行宇宙；换一次采样又变成 Ron DeSantis 当副手、对阵 Joe Biden 和 Kamala Harris，又是另一个平行宇宙。模型就是在根据已有知识做<strong>有根据的猜测</strong>来续写，我们看到的这类现象就叫<strong>幻觉（hallucination）</strong>：模型在以概率方式做最佳猜测。 </p>
+<p>The next thing I would like to show you is that even though this is a base model and not yet an assistant model, it can still be utilized in practical applications if you are clever with your prompt design. So here’s something that we would call a few-shot prompt. So what it is here is that I have ten words or 10 pairs. Each pair is a word in English in one column and then the translation in Korean, and we have ten of them. And what the model does here is at the end we have “teacher” in the English column, and then here’s where we’re gonna do a completion of, say, just a few tokens. And these models have what we call in-context learning abilities. And what that’s referring to is that as it is reading this context, it is learning sort of in place that there’s some kind of pattern going on in my data. And it knows to continue that pattern. This is called in-context learning. So it takes on the role of a translator. And when we hit completion, we see that the “teacher” translation is something which is correct. So this is how you can build apps by being clever with your prompting, even though we still just have a base model for now, and it relies on what we call this in-context learning ability. And it is done by constructing what’s called a few-shot prompt.</p>
+<p>第三点：即使用的是基础模型、还不是助手，只要 <strong>prompt 设计得巧</strong>，也能用在具体应用里。比如这里用的是<strong>少样本 prompt（few-shot prompt）</strong>：十对「英语词 — 韩语翻译」。最后一行英语列是 “teacher”，留空让模型补几个 token。模型具备**上下文学习（in-context learning）**能力：读这段上下文时，会「现场」发现数据里有个模式（英→韩翻译），然后按这个模式续写。于是它扮演了翻译角色，补出来的「teacher」的韩语翻译是对的。所以单靠聪明的 prompt 就能搭应用，目前仍是基础模型，靠的就是这种 in-context learning，做法就是构造少样本 prompt。</p>
+<p>And finally, I want to show you there is a clever way to actually instantiate a whole language model assistant just by prompting. And the trick to it is that we’re gonna structure a prompt to look like a web page that is a conversation between a helpful AI assistant and a human. And then the model will continue that conversation. So actually, to write the prompt, I turned to ChatGPT itself, which is kind of meta. But I told it, I want to create an AI assistant system, but all I have is the base model. So can you please write my prompt? And this is what it came up with, which is actually quite good. So here’s a conversation between an AI assistant and human. The AI assistant is knowledgeable, helpful, capable of answering a wide variety of questions, et cetera. And then here, it’s not enough to just give it a sort of description. It works much better if you create this few-shot prompt. So here’s a few turns of human-assistant. And we have a few turns of conversation. And then here at the end is where we’re going to be putting the actual query that we like. So let me copy paste this into the base model prompt. And now let me do human column. And this is where we put our actual prompt. “Why is the sky blue?” And let’s run assistant. “The sky appears blue due to the phenomenon called Rayleigh scattering,” et cetera. So you see that the base model is just continuing the sequence, because the sequence looks like this conversation. It takes on that role. But it is a little subtle, because here it just ends the assistant and then just hallucinates the next question by the human, et cetera. So I’ll just continue going on and on. But you can see that we have sort of accomplished the task. If you just took “Why is the sky blue?” and if we just put it here without the conversation structure, then we don’t expect this to work with the base model, right? Who knows what we’re gonna get? We’re just gonna get more questions. So this is one way to create an assistant, even though you may only have a base model. Okay, so this is the kind of brief summary of the things we talked about over the last few minutes.</p>
+<p>最后一种技巧：<strong>只靠 prompt 就能造出一个「助手」</strong>。做法是把 prompt 做成「一页网页」的样子：上面是一段「有帮助的 AI 助手和人类」的对话，然后让模型接着续写这场对话。我写这段 prompt 时其实去问了 ChatGPT（有点元）：我只有基础模型，想做一个 AI 助手，能帮我写一段 prompt 吗？它给出来的很不错：先是「AI 助手与人类的对话，助手知识渊博、乐于助人、能回答各种问题」之类的描述，但光有描述不够，要<strong>做成少样本</strong>：先给几轮真人—助手的对话，最后在「人类」那一栏放进我们真正的问题：「Why is the sky blue?」再让模型续写「助手」的回复。跑出来就是「天空呈蓝色是由于瑞利散射……」——基础模型只是在续写这段长得像对话的序列，所以扮演了助手。有个小细节：它续完助手回答后还会接着「幻觉」出人类的下一个问题，一直续下去。但至少「问一个问题、得一个答案」这个任务算完成了。如果你直接把 “Why is the sky blue?” 丢给基础模型、没有对话结构，就不会有这种效果，可能得到一堆乱七八糟的续写。所以<strong>即使用户只有基础模型，也可以用这种 prompt 造出一个助手</strong>。以上就是这几分钟里讲的内容的简要总结。</p>
+<p>Now, let me zoom out here. This is kind of like what we’ve talked about so far. We wish to train a lot of assistants like ChatGPT. We’ve discussed the first stage of that, which is the pre-training stage. And we saw that really, what it comes down to is we take internet documents, we break them up into these tokens, these atoms, little text chunks. And then we predict token sequences using neural networks. The output of this entire stage is this base model. It is the setting of the parameters of this network. And this base model is basically an internet document simulator on the token level. So it can generate token sequences that have the same kind of statistics as internet documents. And we saw that we can use it in some applications, but we actually need to do better. We want an assistant. We want to be able to ask questions and we want the model to give us answers. So we need to now go into the second stage, which is called the post-training stage. So we take our base model, our internet document simulator, and hand it off to post training.</p>
+<p>拉远一点看。我们想训练出像 ChatGPT 那样的助手，已经讲了<strong>第一阶段：预训练</strong>。本质上就是：拿互联网文档、切成 token（文本的小原子），用神经网络预测 token 序列；这一整阶段的输出就是<strong>基础模型</strong>，也就是这组网络参数的取值。基础模型就是 token 级别的<strong>互联网文档模拟器</strong>，能生成统计上像互联网文档的 token 序列。我们也看到它能在一些场景下用（少样本、对话式 prompt），但还不够，我们要的是<strong>助手</strong>——能问问题、能得答案。所以接下来要进入<strong>第二阶段：后训练（post-training）</strong>。我们把基础模型、这台互联网文档模拟器，交给后训练阶段。</p>
+<hr>
+<h2 id="三、全文总结与初学者学习重点"><a href="#三、全文总结与初学者学习重点" class="headerlink" title="三、全文总结与初学者学习重点"></a>三、全文总结与初学者学习重点</h2><h3 id="文章讲了什么"><a href="#文章讲了什么" class="headerlink" title="文章讲了什么"></a>文章讲了什么</h3><p>本片段对应 Stanford 大语言模型课中的「算力」与「基础模型」两部分。</p>
+<ul>
+<li><strong>算力</strong>：训练大模型不在笔记本跑，而是在云上租用带多张 GPU（如 8× H100）的节点；GPU 适合矩阵运算与并行，大厂争抢 GPU 训语言模型，是 NVIDIA 市值高企的原因之一；从单卡到多卡、到节点、到数据中心，规模越大成本越高。</li>
+<li><strong>谁在训、谁在发布</strong>：大厂定期训大模型，但很少发布<strong>基础模型</strong>；基础模型是预训练结束时的产物，本质是 <strong>token 模拟器</strong>（互联网文本的续写器），不是「问答助手」；发布模型需要<strong>代码 + 参数</strong>两样（如 GPT-2、Llama 3.1 405B）。</li>
+<li><strong>基础模型的性质</strong>：不是助手、非确定性（采样导致每次续写不同）；参数可视为互联网的<strong>有损压缩</strong>；知识要用<strong>合适的 prompt 引出来</strong>（如「the capital of France is」续写「Paris」）；续写可能是复述、改述或<strong>幻觉</strong>，不能全信。</li>
+<li><strong>复述与幻觉</strong>：高质量数据（如维基）被过采样时，模型会<strong>背诵</strong>原文（regurgitation）；对训练截止后的内容（如 2024 大选），模型只能<strong>猜</strong>，即幻觉。</li>
+<li><strong>活用基础模型</strong>：通过<strong>少样本 prompt</strong> 利用 in-context learning（如英→韩翻译）；通过<strong>对话式 prompt</strong>（几轮人—助手对话 + 真实问题）可「造出」一个临时助手；但要稳定、可控的助手，仍需<strong>后训练</strong>阶段。</li>
+</ul>
+<h3 id="初学者应关注的重点"><a href="#初学者应关注的重点" class="headerlink" title="初学者应关注的重点"></a>初学者应关注的重点</h3><table>
+<thead>
+<tr>
+<th>主题</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>算力与基础设施</td>
+<td>云 GPU（如 H100）、按节点&#x2F;数据中心规模理解成本；NVIDIA 与 GPU 需求的关系</td>
+</tr>
+<tr>
+<td>基础模型 vs 助手</td>
+<td>基础模型 &#x3D; token 模拟器 &#x2F; 续写器；要问答助手需后训练或巧妙 prompt</td>
+</tr>
+<tr>
+<td>模型发布</td>
+<td>代码（前向计算）+ 参数（权重量）；例如 GPT-2、Llama 3.1 405B base</td>
+</tr>
+<tr>
+<td>知识如何取出</td>
+<td>用 prompt 引导续写（completion），不是直接「问问题」；参数 &#x3D; 有损压缩的互联网</td>
+</tr>
+<tr>
+<td>复述与幻觉</td>
+<td>过采样高质量数据 → 易背诵；超出训练时间&#x2F;范围 → 易幻觉，需警惕</td>
+</tr>
+<tr>
+<td>少样本与对话 prompt</td>
+<td>few-shot 激发 in-context learning；对话式 prompt 可临时当助手用</td>
+</tr>
+</tbody></table>
+<h3 id="一句话总结"><a href="#一句话总结" class="headerlink" title="一句话总结"></a>一句话总结</h3><p><strong>算力来自云与 GPU，预训练产出的是「续写互联网」的基础模型而非助手；要当助手用，要么靠巧妙的 prompt（少样本&#x2F;对话式），要么交给后训练阶段。</strong></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/vibe-coding/">vibe coding</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/03/08/4092388830.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Deep Dive into LLMs like ChatGPT - 3</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/03/07/1809241416.html">
+                        <span class="hidden-mobile">老牌公链的体面，碎在一个下载不了的证书里</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "Deep Dive into LLMs like ChatGPT - 2"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

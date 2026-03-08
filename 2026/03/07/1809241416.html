@@ -1,0 +1,587 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>老牌公链的体面，碎在一个下载不了的证书里 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="老牌公链的体面，碎在一个下载不了的证书里">
+                      
+                        老牌公链的体面，碎在一个下载不了的证书里
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-03-07 10:02" pubdate>
+        2026年3月7日 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.4k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      36
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">老牌公链的体面，碎在一个下载不了的证书里</h1>
+            
+            <div class="markdown-body">
+              <p>作为一名混迹 Web3 的开发者，我向来对 Avalanche 这类深耕多年的老牌公链抱有基本期待——毕竟是排名前列的 L1，不说技术多顶尖，至少基础体验该拎得清吧？直到亲历这次 Avalanche 黑客松，又踩坑了它的官方学院系统，我才算彻底刷新认知：连一个 PDF 证书都下载不了、报名页面能搞崩浏览器的公链，谈何技术权威，又凭什么做开发者生态？更核心的是，深入了解后才发现，这些表面的 bug 背后，藏着它更致命的核心病灶：权威固化、中心化倾向、技术傲慢、社区失活，而我之前提出的「AI 陪审团」方案，正是击穿这些死穴的一种可行解药。</p>
+<p><strong>说明</strong>：本文为个人观点与体验。其中证书下载失败、黑客松报名时浏览器崩溃、Telegram 被封等为本人亲身经历（报名崩浏览器保留截图等证据）；其余事实与数据已尽量附公开新闻或官方文档来源。</p>
+<hr>
+<h2 id="证书与学院体验：从入门课到「内部服务器错误」"><a href="#证书与学院体验：从入门课到「内部服务器错误」" class="headerlink" title="证书与学院体验：从入门课到「内部服务器错误」"></a>证书与学院体验：从入门课到「内部服务器错误」</h2><p>先说说官方学院证书这件事。地址在：<a target="_blank" rel="noopener" href="https://build.avax.network/academy/avalanche-l1/avalanche-fundamentals/get-certificate">build.avax.network&#x2F;academy&#x2F;avalanche-l1&#x2F;avalanche-fundamentals&#x2F;get-certificate</a>。这个课程算是 Avalanche 的入门必修课，涵盖雪崩共识、多链架构、虚拟机定制等五大核心模块，还要完成 21 道配套测验才能解锁结业证书，设计得挺正规，结果卡在最后一步——无数开发者老老实实学完课程、刷完所有测验，满心点下证书下载按钮，跳出来的只有冷冰冰的<strong>内部服务器错误</strong>。</p>
+<p><img src="https://whale3070.github.io/2026/02/20/63203/1.png"><br><img src="https://whale3070.github.io/2026/02/20/63203/2.png"></p>
+<p>一个静态 PDF 的下载功能，能犯这种低级后端错误，实在让人匪夷所思。这不是什么小众第三方平台，是 Avalanche 官方的开发者学院，面向的是全球想入门的开发者，连这种最基础、最无技术门槛的功能都搞砸，很难不怀疑背后技术团队的专业度。而这，仅仅是 Avalanche 技术傲慢的一个缩影——这个 2020 年主网上线、靠雪崩共识一度跻身头部的老牌公链，如今早已陷入了难以挣脱的权威陷阱。</p>
+<hr>
+<h2 id="黑客松报名与评审：门槛崩了，评审也崩了"><a href="#黑客松报名与评审：门槛崩了，评审也崩了" class="headerlink" title="黑客松报名与评审：门槛崩了，评审也崩了"></a>黑客松报名与评审：门槛崩了，评审也崩了</h2><p>这还只是开胃菜，更让人糟心的是这次黑客松的报名体验。同样是在 Avalanche 的官方平台，我本人在填报名信息、上传项目材料时多次遭遇浏览器崩溃，反复操作三五次才勉强提交成功，<strong>并保留截图等证据</strong>；据我了解，其他开发者也有类似反馈。黑客松本是公链吸引优质开发者的重要窗口，结果连报名这个第一道门槛都体验拉胯，别说新开发者了，老玩家都得被劝退。开发者普遍反馈其文档混乱、API 不稳定、工具链 bug 丛生，说到底，不是技术做不好，是他们根本没把普通开发者当回事，所有精力都优先放在维护机构与自身权威的利益上。</p>
+<p><img src="https://whale3070.github.io/2026/02/20/63203/3.png"></p>
+<p>更讽刺的是，一边是基础功能拉胯到离谱，证书下不了、报名崩浏览器，甚至历史上还出过致命技术事故——2023 年 3 月，C 链因节点软件漏洞导致区块生产停滞超 1 小时（<a target="_blank" rel="noopener" href="https://www.coindesk.com/markets/2023/03/23/avalanche-blockchains-x-and-c-networks-see-brief-outage/">CoinDesk</a>、<a target="_blank" rel="noopener" href="https://cryptoslate.com/avalanche-c-x-chains-experience-brief-outage-due-to-network-bug/">CryptoSlate</a> 等均有报道），交易所被迫暂停充提，这可不是小 bug，是核心基础设施的严重缺陷；<a target="_blank" rel="noopener" href="https://blog.li.fi/avalanche-bridge-a-deep-dive-d51d60dda47e">Avalanche 跨链桥仅由 4 名 Wardens 维护</a>，存在明显单点安全风险，生态内多次爆发智能合约攻击，比如 <a target="_blank" rel="noopener" href="https://cointelegraph.com/news/platypus-defi-faces-flash-loan-attack-according-to-certik">Platypus Finance 曾遭闪电贷攻击损失约 850 万美元</a>（按当时币价约合超 220 万 AVAX），足以看出其安全审计与漏洞响应的严重滞后。</p>
+<p>另一边，Avalanche 办起黑客松来倒是声势浩大，一口气收了 2000+ 个项目，对外宣传「生态火爆」。但稍微算笔账就知道这有多荒谬：一个开发者团队熬夜十天肝出来的 MVP，评委花十分钟认真看一眼逻辑、跑一下 Demo 总是最起码的尊重吧？那么 2000 个项目就是 20,000 分钟，哪怕有 5 个评委不吃不喝，也要连续审上一个多星期。</p>
+<p>但在实际操作中，评审往往在几天内就草草收场。更让人绝望的是，如果你没通过，官方不会给你任何理由或反馈。这背后隐藏着一个致命的逻辑黑洞：如果你是评委，认真审核是这份工资，随便翻翻也是这份工资，而且外界根本无法验证你是否真的点开了 GitHub 链接。在缺乏监督和数据透明的情况下，理性的评委必然会选择偷懒——随便刷掉一批项目来减轻工作量。</p>
+<p>这就是最让开发者寒心的地方——这种人工评审本质上就是一场“黑箱博弈”。你以为拼的是代码质量，其实拼的是评委那几秒钟的眼缘。我提出的「AI 陪审团」正是为了终结这种平庸的恶：AI 的“工资”就是算力，它不仅能 24 小时无差别地全量扫描 2000 个项目，还能给每一个被淘汰的开发者一份量化的、心服口服的诊断报告。这才是 Web3 该有的透明度，而不是让开发者的心血死于评委的“理性偷懒”。</p>
+<hr>
+<h2 id="治理与中心化：权威绑架与董事会「跳船」"><a href="#治理与中心化：权威绑架与董事会「跳船」" class="headerlink" title="治理与中心化：权威绑架与董事会「跳船」"></a>治理与中心化：权威绑架与董事会「跳船」</h2><p>而这一切的根源，在于 Avalanche 早已被中心化的权威绑架。Ava Labs 牢牢掌控着核心代码库、基金会与生态资源，链上治理形同虚设，真正的独立开发者、提出不同技术路线的团队，很容易被边缘化、甚至被「踢走」——因为他们挑战了 Ava Labs 的绝对权威。<a target="_blank" rel="noopener" href="https://docs.avax.network/nodes/validate/how-to-stake">主网验证者最低需质押 2000 AVAX</a>（约 4 万美元量级），导致节点被头部机构垄断，普通开发者与社区几乎没有话语权，这种结构下，「权威」只会越来越固化，创新只会越来越窒息。</p>
+<p>甚至连自家的董事会都看不下去了。<a target="_blank" rel="noopener" href="https://www.cryptopolitan.com/3-avalanche-foundation-board-members-resign/">2025 年 3 月初，Avalanche 基金会三位董事集体辞职</a>（Cryptopolitan 等有报道），直接撕开了 Ava Labs 独裁的遮羞布：这些董事本想推动生态多元化、治理透明化，多倾听社区和开发者的声音，可他们的所有规划都被 Ava Labs 掣肘，权力被彻底架空，基金会沦为母公司掌控生态的提线木偶。理念不合、权力压制，最终让这些想做事的董事彻底心寒，集体辞职——这也印证了 Avalanche 的治理早已陷入「权力集中、内斗内耗」的困境，真正想推动生态进步的人，最终只会被牺牲。</p>
+<hr>
+<h2 id="封号与「皇帝的新衣」：当实话变成「违禁词」"><a href="#封号与「皇帝的新衣」：当实话变成「违禁词」" class="headerlink" title="封号与「皇帝的新衣」：当实话变成「违禁词」"></a>封号与「皇帝的新衣」：当实话变成「违禁词」</h2><p>我实在没忍住在群里吐槽了一句：「这评审速度，我三秒钟也能看完一本书。」结果倒好，没骂人、没引战，只是说了句实话，直接被封了 Telegram 号。而这，正是典型的压制手段——当有人戳破「评审敷衍、官网 bug、虚假繁荣」这些真相时，他们想的不是解决问题，而是解决掉提出问题的人。</p>
+<p>但我没想到，这一封号反而成了开发者们“对暗号”的信号。封号后，大量参赛选手私下加我好友并疯狂点赞，他们表示这种质疑早已是社区的共识，只是没人敢像我这样公开挑战 Ava Labs 的权威叙事。</p>
+<p>更魔幻的是，被坑的远不止我一个。有开发者向我反馈，他们的项目已经完成了 MVP 甚至官网都已落地，最后被淘汰的理由竟荒唐到令人发指——「申请的人太多，随便刷掉一些」。有人在群里追问评审细节，主办方从头到尾装死。</p>
+<p>这正是我推出「AI 陪审团」的初衷。目前，已经有部分被“随便刷掉”的选手开始向我的 AI 评审系统提交项目。 这说明大家已经看透了这场「皇帝的新衣」闹剧：表面上是星光熠熠的老牌公链，喊着深耕生态的口号；实际上连直面评审逻辑缺陷的勇气都没有。当开发者开始寻求 AI 的客观评价，而不是人类评委的“40秒眼缘”时，Avalanche 这种靠中心化权力维持的虚假体面，就已经彻底崩塌了。</p>
+<hr>
+<h2 id="技术对比：Avalanche-与-Monad、Conflux"><a href="#技术对比：Avalanche-与-Monad、Conflux" class="headerlink" title="技术对比：Avalanche 与 Monad、Conflux"></a>技术对比：Avalanche 与 Monad、Conflux</h2><p>Web3 的核心从来都是技术和真实，代码说话、体验说话，而不是靠资历和声势。一个连官方学院证书都下载不了、黑客松报名都能崩浏览器，还频发核心技术漏洞、权力高度集中的公链，就算顶着「老牌 L1」的名头，就算能收 2000+ 个项目，终究只是外强中干。</p>
+<p>更可惜的是，他们始终不懂：进步的第一步是承认不足，生态的核心是尊重开发者。把说真话的人踢走，把暴露的 bug 捂着，把权力攥在自己手里，最后只会像王思聪的熊猫直播一样——当年烧了大把钱，搞得多热闹，最后钱烧完了，说崩溃就崩溃，说解散就解散，在自我营造的虚假繁荣里，慢慢耗光所有人的信任。</p>
+<p>而这种尊重，我在 Polkadot（波卡）身上看到了最好的示范。我不评价波卡的技术细节是否完美，但作为开发者，我能感受到一种「被当作人看」的尊重。在波卡，意见是用来改进的；在雪崩，意见是用来封号的。波卡从来不会像 Avalanche 这样，把指出问题的人举报删号、捂嘴压制，相反，它始终乐于吸收开发者的意见和反馈，哪怕是尖锐的质疑，也会认真倾听、耐心解释，并且真正落实到改进中——这才是一个公链该有的生态姿态，也是能真正留住开发者、长久走下去的核心底气。</p>
+<p>说到技术实力，我结合公开数据，用一张表就能说清 Avalanche 与 Monad、Conflux 的差距，所谓的「速度优势」，不过是自欺欺人：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Avalanche (雪崩)</th>
+<th>Monad &#x2F; Conflux</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>执行机制</td>
+<td>传统串行 &#x2F; 伪并行（三链异步但单链串行）</td>
+<td>乐观并行 (Monad) &#x2F; 树图并发 (Conflux)</td>
+<td>代际差距</td>
+</tr>
+<tr>
+<td>实测 TPS</td>
+<td>100 - 300（高延迟，峰值 3-5 秒）</td>
+<td>Monad 8000+ &#x2F; Conflux 10000+</td>
+<td>降维打击</td>
+</tr>
+<tr>
+<td>治理风格</td>
+<td>机构独裁、封号捂嘴、内斗严重</td>
+<td>Monad：技术驱动 &#x2F; Conflux：社区协同</td>
+<td>创新 VS 固化</td>
+</tr>
+<tr>
+<td>开发者体验</td>
+<td>证书下载失败、报名崩浏览器、文档混乱</td>
+<td>高性能工具链、文档友好、响应及时</td>
+<td>态度决定高度</td>
+</tr>
+</tbody></table>
+<p><em>上表 TPS 等数据来自各链公开宣传或第三方测试，具体条件与时间见文末参考。</em></p>
+<p>简单说，Avalanche 的速度设计停留在早期高性能公链水平，底层架构有固有缺陷，且迭代封闭，理论值与实际值严重脱节；而 Monad 靠乐观并行、Conflux 靠树图结构，实现了速度的代际碾压，更关键的是，它们始终在倾听社区声音，持续优化体验。</p>
+<p>更尴尬的是，Avalanche 不仅在速度上失去竞争力，还在基础功能、安全体系、生态运营上漏洞百出。它既没有新兴公链（如 Monad、Conflux）的技术活力和创新能力，也没有老牌公链该有的严谨与担当，更没有波卡那样开放包容的运营态度，其「老牌头部 L1」的头衔，早已名不副实，沦为靠虚假繁荣维持体面的「过气公链」。</p>
+<hr>
+<h2 id="结语：选链看技术，更看态度"><a href="#结语：选链看技术，更看态度" class="headerlink" title="结语：选链看技术，更看态度"></a>结语：选链看技术，更看态度</h2><p>对于我们开发者来说，选择公链，不仅要看技术硬实力，更要看运营态度和迭代动力——Monad、Conflux 用技术创新证明了高性能的可能性，波卡用开放包容的态度留住了开发者，而 Avalanche 则用傲慢和敷衍，慢慢耗光了自己的口碑和底气。</p>
+<p>我的「AI 陪审团」从来不是什么硬塞的广告，而是开发者反抗机构傲慢的一种思路——它要打破的，就是这类公链的虚假繁荣，让代码回归核心，让实力取代关系，让每一个认真做事的开发者，都能被看见、被尊重。</p>
+<p>老牌公链的体面，从来不是头衔和声势给的，而是技术、体验和尊重一点一点攒出来的。在 Web3 赛道，没有永远的「头部」，只有永远的「创新」；固守陈旧、回避问题、压制声音，终究会被时代淘汰。</p>
+<hr>
+<h2 id="参考来源"><a href="#参考来源" class="headerlink" title="参考来源"></a>参考来源</h2><ul>
+<li>Avalanche C 链 &#x2F; X 链 2023 年 3 月故障：<a target="_blank" rel="noopener" href="https://www.coindesk.com/markets/2023/03/23/avalanche-blockchains-x-and-c-networks-see-brief-outage/">CoinDesk</a>、<a target="_blank" rel="noopener" href="https://cryptoslate.com/avalanche-c-x-chains-experience-brief-outage-due-to-network-bug/">CryptoSlate</a></li>
+<li>Avalanche 跨链桥 4 名 Wardens：<a target="_blank" rel="noopener" href="https://blog.li.fi/avalanche-bridge-a-deep-dive-d51d60dda47e">LI.FI 解析</a></li>
+<li>Platypus Finance 闪电贷攻击（约 850 万美元）：<a target="_blank" rel="noopener" href="https://cointelegraph.com/news/platypus-defi-faces-flash-loan-attack-according-to-certik">Cointelegraph</a></li>
+<li>Avalanche 验证者最低质押 2000 AVAX：<a target="_blank" rel="noopener" href="https://docs.avax.network/nodes/validate/how-to-stake">Avalanche 官方文档</a></li>
+<li>Avalanche 基金会三位董事辞职（2025 年 3 月）：<a target="_blank" rel="noopener" href="https://www.cryptopolitan.com/3-avalanche-foundation-board-members-resign/">Cryptopolitan</a></li>
+<li>Conflux 树图 3.0 与 TPS 升级（约 15000 TPS）：<a target="_blank" rel="noopener" href="https://doc.confluxnetwork.org/docs/general/conflux-basics/what-is-conflux/">Conflux 官方等</a>；Monad 高性能 EVM 与测试网见 <a target="_blank" rel="noopener" href="https://www.monad.xyz/post/monad-testnet-onboarding-guide">Monad 官方</a></li>
+</ul>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Web3/">Web3</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/">区块链</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Avalanche/">Avalanche</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E7%94%9F%E6%80%81/">开发者生态</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/03/08/1526654470.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Deep Dive into LLMs like ChatGPT - 2</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/03/07/1809241417.html">
+                        <span class="hidden-mobile">When a Top L1’s Credibility Crashes on a Certificate That Won’t Download</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "老牌公链的体面，碎在一个下载不了的证书里"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

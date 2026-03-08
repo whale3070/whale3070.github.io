@@ -1,0 +1,539 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>Deep Dive into LLMs like ChatGPT - 6 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="Deep Dive into LLMs like ChatGPT - 6">
+                      
+                        Deep Dive into LLMs like ChatGPT - 6
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-03-08 13:35" pubdate>
+        2026年3月8日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      8.1k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      126
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">Deep Dive into LLMs like ChatGPT - 6</h1>
+            
+            <div class="markdown-body">
+              <blockquote>
+<p>本文为 Stanford 大语言模型公开课讲稿片段，格式为一段英文、一段中文对照。仅处理约 1 小时阅读量内的内容，后续保持原样。</p>
+</blockquote>
+<hr>
+<h2 id="一、AlphaGo：围棋里的监督学习-vs-强化学习"><a href="#一、AlphaGo：围棋里的监督学习-vs-强化学习" class="headerlink" title="一、AlphaGo：围棋里的监督学习 vs 强化学习"></a>一、AlphaGo：围棋里的监督学习 vs 强化学习</h2><p>One more connection that I wanted to bring up is that the discovery that reinforcement learning is extremely powerful way of learning is not new to the field of AI and one place where we’ve already seen this demonstrated is in the game of go and famously, DeepMind developed the system AlphaGo, and you can watch a movie about it where the system is learning to play the game of go against top human players. And when we go to the paper underlying AlphaGo, so in this paper, when we scroll down, we actually find a really interesting plot that I think is kind of familiar to us. And we’re kind of like rediscovering in the more open domain of arbitrary problem solving instead of on the close specific domain of the game of go. But basically what they saw and we’re going to see this in the LLMs as well as this becomes more mature, is the Elo rating of playing game of Go. And this is Lee Sedol, an extremely strong human player. And here, what they are comparing is the strength of a model trained by supervised learning and a model trained by reinforcement learning. So the supervised learning model is imitating human expert players.</p>
+<p>还想补充一点：<strong>强化学习非常强</strong>这件事在 AI 领域并不新鲜，一个经典例子就是<strong>围棋</strong>——DeepMind 的 <strong>AlphaGo</strong>，还有相关电影讲它如何学会与顶尖人类棋手对弈。在 AlphaGo 的论文里往下翻，会看到一张我们很熟悉的图，只不过我们是在更开放的「任意问题解决」领域里重新发现它，而他们是在封闭的围棋领域。他们看到的是围棋的 <strong>Elo 等级分</strong>变化，图中是当时极强的棋手<strong>李世石</strong>。他们在比较的是：<strong>只用监督学习训的模型</strong>和<strong>用强化学习训的模型</strong>的棋力。监督学习模型就是在模仿人类高手对局。</p>
+<p>So if you just get a huge amount of games played by expert players in the game of go, and you try to imitate them, you are going to get better. But then you top out, you never quite get better than some of the top players in the game of go like Lee Sedol. So you’re never gonna reach there, because you’re just imitating human players. You can’t fundamentally go beyond human players if you’re just imitating human players. But in the process of reinforcement learning is significantly more powerful—in reinforcement learning for a game of go, it means that the system is playing, moves empirically and statistically lead to winning the game. And so AlphaGo is a system where it kind of plays against itself. And it’s using reinforcement learning to create rollouts. It’s the exact same diagram here, because there’s no prompt. It’s just a fixed game of go. But it’s trying out lots of solutions. It’s trying lots of plays. And then the games that lead to a win, instead of a specific answer are reinforced, they’re made stronger. And so the system is learning, basically the sequences of actions that empirically statistically lead to winning the game. And reinforcement learning is not going to be constrained by human performance. And reinforcement learning can do significantly better and overcome even the top players like Lee Sedol. Probably they could have run this longer, and they just chose to crop it at some point, because this costs money. But this is a very powerful demonstration of reinforcement learning. And we’re only starting to kind of see hints of this diagram in large language models for reasoning problems.</p>
+<p>如果只是拿大量人类高手的对局去模仿，你会变强，但会碰到天花板，<strong>很难超过李世石这样的顶尖棋手</strong>——因为只是在模仿人。而<strong>强化学习</strong>则强得多：在围棋里就是用强化学习让系统自己下，统计上能赢的招法被加强。AlphaGo 就是和自己对弈，用强化学习做 rollouts，和我们现在讲的图是同一套逻辑，只是没有「prompt」，而是固定的围棋规则；它尝试大量下法，能赢的对局被强化。所以系统学的是<strong>在统计上能导向胜利的行动序列</strong>，<strong>不会被人类表现限制</strong>，可以明显超越人类顶尖。他们其实还可以再训更久，只是出于成本在某处停了。这是强化学习的一个有力示范；我们在大语言模型的推理问题上，才刚刚看到这类曲线的苗头。</p>
+<hr>
+<h2 id="二、光模仿专家不够；第-37-手与「人类不会下的棋」"><a href="#二、光模仿专家不够；第-37-手与「人类不会下的棋」" class="headerlink" title="二、光模仿专家不够；第 37 手与「人类不会下的棋」"></a>二、光模仿专家不够；第 37 手与「人类不会下的棋」</h2><p>So we’re not gonna get too far by just imitating experts. We need to go beyond that, set up these local game environments and get a lot let the system discover reasoning traces or ways of solving problems that are unique. And that just basically work. Now, on this aspect of uniqueness, notice that when you’re doing reinforcement learning, nothing prevents you from veering off the distribution of how humans are playing the game. When we go back to this AlphaGo search here, one of the suggested modifications is called move 37 and move 37 in AlphaGo is referring to a specific point in time, where AlphaGo basically played a move that no human expert would play. So the probability of this move to be played by a human player was evaluated to be about one in 10,000. So it’s a very rare move. But in retrospect, it was a brilliant thing. So AlphaGo in the process of reinforcement learning, discovered kind of like a strategy of playing that was unknown to humans. But as in retrospect, brilliant. I recommend this YouTube video, Lee Sedol versus AlphaGo move 37 reactions and analysis. That’s a very surprising move. I thought it was a mistake when I see this move. Anyway, so basically people are kind of freaking out because it’s a move that a human would not play that AlphaGo played. Because in its training, this move seemed to be a good idea. It just happens not to be a kind of thing that humans would do. And so that is, again, the power of reinforcement learning.</p>
+<p>所以<strong>光模仿专家走不远</strong>，必须越过这一步，搭好这类「对局环境」，让系统自己发现独特的推理轨迹或解题方式，而且确实有效。在<strong>独特性</strong>这一点上，做强化学习时没有任何东西限制你<strong>偏离人类的下法分布</strong>。回到 AlphaGo 的搜索，有一个著名的修改叫<strong>第 37 手</strong>：AlphaGo 在某一手下出了人类专家几乎不会下的棋，人类会下这手的概率被估计为约万分之一，非常罕见，但事后看是一手妙棋。AlphaGo 在强化学习过程中发现了一种人类未知的策略。推荐看 YouTube 上的「李世石对 AlphaGo 第 37 手反应与分析」——那手棋非常意外，很多人第一反应是失误。总之大家之所以震惊，就是因为这是人类不会下、而 AlphaGo 下出来的棋；在它的训练里这手显得是个好主意，只不过恰好不是人类会做的事。这再次说明<strong>强化学习的威力</strong>。</p>
+<hr>
+<h2 id="三、在语言模型中的对应：开放域与「超越人类思维」的可能"><a href="#三、在语言模型中的对应：开放域与「超越人类思维」的可能" class="headerlink" title="三、在语言模型中的对应：开放域与「超越人类思维」的可能"></a>三、在语言模型中的对应：开放域与「超越人类思维」的可能</h2><p>And in principle, we can actually see the equivalence of that if we continue scaling this paradigm in language models. And what that looks like is kind of unknown. What does it mean to solve problems in such a way that even humans would not be able to get, how can you be better at reasoning or thinking than humans? How can you go beyond just thinking human? What maybe it means discovering analogies that humans would not be able to create? Or maybe it’s like a new thinking strategy. It’s kind of hard to think through. Maybe it’s a wholly new language that actually is not even English. Maybe it discovers its own language that is a lot better for thinking, because the model is unconstrained to even stick with English. So maybe it takes a different language to thinking or it discovers its own language. So in principle, the behavior of the system is a lot less defined. It is open to do whatever works, and it is open to also slowly drift from the distribution of its training data, which is English. But all of that can only be done if we have a very large diverse set of problems in which these strategies can be refined and provided. That is a lot of the frontier on research that’s going on right now—trying to kind of create those kinds of prompt distributions that are large and diverse. These are all kind of like game environments in which the LLMs can practice their thinking. And it’s kind of like writing these practice problems. We have to create practice problems for all of the domains of knowledge. And if we have practice problems and tons of them, the models will be able to reinforcement learn on them and kind of create these kinds of diagrams.</p>
+<p>原则上，如果我们在语言模型上继续放大这套范式，也能看到类似的对应；<strong>具体会是什么样还不清楚</strong>。以人类都想不到的方式解题意味着什么？推理或思维如何比人更强？如何不止于「像人一样想」？也许是发现人类造不出的类比，也许是新的思维策略，很难说清。也许是完全不同的语言、甚至不是英语，模型不受「必须用英语」的约束，可能发现对自己思维更有利的语言。所以原则上，<strong>系统的行为更不确定</strong>：什么有效就做什么，也可以慢慢偏离训练数据（英语）的分布。但这一切的前提是，我们有一<strong>套足够大、足够多样的问题</strong>，让这些策略能在上面被打磨和体现——这正是当前很多前沿工作在做的事：构造又大又多样的 prompt 分布。这些就像<strong>让 LLM 练思维的「对局环境」</strong>，相当于在写练习题；我们要为各个知识领域写练习题，有了海量练习题，模型才能在上面做强化学习、画出类似（AlphaGo 那样的）曲线。</p>
+<hr>
+<h2 id="四、未验证领域：没有标准答案时怎么打分"><a href="#四、未验证领域：没有标准答案时怎么打分" class="headerlink" title="四、未验证领域：没有标准答案时怎么打分"></a>四、未验证领域：没有标准答案时怎么打分</h2><p>But in the domain of open thinking, instead of close domain like game of go, there’s one more section within reinforcement learning that I wanted to cover and that is learning in unverifiable domains. So far, all of the problems that we’ve looked at are in what’s called verifiable domains. That is any candidate solution we can score very easily against a concrete answer. So for example, answer is three. And we can very easily score these solutions against the answer of three. Either we require the models to like box in their answers, and then we just check for equality of whatever is in the box with the answer. You can also use a kind of what’s called an LLM judge. So the LLM judge looks at a solution, and it gets the answer, and just basically scores the solution for whether it’s consistent with the answer or not. And LLMs are empirically good enough at the current capability that they can do this fairly reliably. So we can apply those kinds of techniques as well. In any case, we have a concrete answer, and we’re just checking solutions against it, and we can do this automatically with no kind of humans in the loop. The problem is that we can’t apply this strategy in what’s called unverifiable domains. So usually these are, for example, creative writing tasks, like write a joke about pelicans or write a poem, or summarize a paragraph or something like that. In these kinds of domains, it becomes harder to score different solutions to this problem.</p>
+<p>但在<strong>开放域思维</strong>里，不像围棋那种封闭域，强化学习还有一块我想讲：<strong>未验证领域</strong>的学习。到目前为止我们看的都是<strong>可验证领域</strong>——每个候选解都能对照一个<strong>标准答案</strong>轻松打分，比如答案是 3，我们就看模型有没有给出 3；可以让模型把答案框出来再比对，也可以用 <strong>LLM 当裁判</strong>看解法和答案是否一致，以目前能力 LLM 做这个已经够用。总之有明确答案、可以全自动打分、不需要人在回路里。<strong>问题在于</strong>我们没法把这一套用在<strong>未验证领域</strong>——比如创意写作：写一个关于鹈鹕的笑话、写首诗、总结一段话等。在这类领域里，<strong>给不同解法打分</strong>变得很难。</p>
+<hr>
+<h2 id="五、RLHF-的动机：人类没时间评-10-亿次，所以训一个奖励模型"><a href="#五、RLHF-的动机：人类没时间评-10-亿次，所以训一个奖励模型" class="headerlink" title="五、RLHF 的动机：人类没时间评 10 亿次，所以训一个奖励模型"></a>五、RLHF 的动机：人类没时间评 10 亿次，所以训一个奖励模型</h2><p>So for example, writing a joke about pelicans, we can generate lots of different jokes. That’s fine. For example, you can go to ChatGPT and we can get it to generate a joke about pelicans. So much stuff in their beaks because they don’t pelican backpacks. Why? Okay, we can try something else. Why don’t pelicans ever pay for their drinks? Because they always bill it to someone else. Ha ha. Okay, so these models are not obviously not very good at humor. Actually, I think it’s pretty fascinating because I think humor is secretly very difficult. Anyway, in any case, you could imagine creating lots of jokes, the problem that we are facing is how do we score them? Now, in principle, we could get a human to look at all these jokes, just like I did right now. The problem with that is, if you are doing reinforcement learning, you’re gonna be doing many thousands of updates. And for each update, you wanna be looking at, say, thousands of prompts. And for each prompt, you wanna be potentially looking at hundreds or thousands of different kinds of generations. There’s just like way too many of these to look at. In principle, you could have a human inspect all of them and score them and decide that maybe this one is funny. Maybe this one is funny. And we could train on them to get them all to become slightly better at jokes. The problem is that it’s just like way too much human time. This is an untenable strategy. We need some kind of an automatic strategy for doing this. And one sort of solution to this was proposed in this paper that introduced what’s called reinforcement learning from human feedback—this was a paper from OpenAI at the time. And many of these people are now co-founders at Anthropic. And this kind of proposed an approach for basically doing reinforcement learning in unverifiable domains.</p>
+<p>比如「写一个关于鹈鹕的笑话」，我们可以生成很多不同的笑话，没问题；但<strong>怎么给它们打分</strong>？理论上可以让人一个一个看、像我现在这样评判，但若要做强化学习，会有成千上万次更新，每次更新可能要看成千上万个 prompt，每个 prompt 又可能有成百上千条生成——<strong>量太大，人看不过来</strong>。理想情况是人逐条看、打分、选「这个好笑、那个好笑」，然后在这些上训练让模型变好一点；但<strong>人类时间远远不够</strong>，这条路不可行，需要某种<strong>自动化</strong>策略。于是就有了那篇提出 <strong>RLHF（来自人类反馈的强化学习）</strong> 的论文——当时来自 OpenAI，其中不少人后来成了 Anthropic 的联合创始人——它基本就是在<strong>未验证领域</strong>做强化学习的一种方案。</p>
+<hr>
+<h2 id="六、奖励模型：人类只排序，神经网络学成「人类偏好模拟器」"><a href="#六、奖励模型：人类只排序，神经网络学成「人类偏好模拟器」" class="headerlink" title="六、奖励模型：人类只排序，神经网络学成「人类偏好模拟器」"></a>六、奖励模型：人类只排序，神经网络学成「人类偏好模拟器」</h2><p>So let’s take a look at how that works. So this is the cartoon diagram of the core ideas involved. So as I mentioned, the naive approach is we just had infinity human time. We could just run RL in these domains. Just fine. So for example, we can run RL as usual. If I have infinity humans, I just want to do 1,000 updates where each update will be on 1,000 prompts. And for each prompt, we’re going to have 1,000 rollouts that we’re scoring. So we can run RL with this kind of a setup. The problem is, in the process of doing this, I would need to ask a human to evaluate a joke a total of 1 billion times. That’s a lot of people looking at really terrible jokes. So we don’t want to do that. So instead, we want to take the RLHF approach. So in the RLHF approach, the core trick is that we’re gonna involve humans just a little bit. And the way we cheat is that we basically train a whole separate neural network that we call a reward model. And this neural network will kind of like imitate human scores. So we’re gonna ask humans to score rollouts. We’re gonna then imitate human scores using a neural network. And this neural network will become a kind of simulator of human preferences. And now that we have a neural network simulator, we can do RL against it. So instead of asking a real human, we’re asking a simulated human for their score of a joke as an example. Once we have a simulator, we’re off the races because we can query it as many times as we want to. And it’s a whole automatic process. And we can now do reinforcement learning with respect to the simulator. And the simulator, as you might expect, is not going to be a perfect human. But if it’s at least statistically similar to human judgment, then you might expect that this will do something. And in practice, indeed, it does. So once we have a simulator, we can do RL. And everything works great.</p>
+<p>看一下具体怎么做。核心思路的示意图是这样的：朴素做法是假设人类时间无限，那直接在未验证域跑 RL 就行——比如做 1000 次更新，每次 1000 个 prompt，每个 prompt 1000 条 rollout 要打分，这样跑 RL 没问题；但这样算下来，<strong>需要人类评笑话约 10 亿次</strong>，没人受得了。所以改用 <strong>RLHF</strong>：<strong>核心技巧是只少量用人</strong>。我们「作弊」的方式是：再训一个单独的神经网络，叫<strong>奖励模型（reward model）</strong>，让它去<strong>模仿人类的打分</strong>。流程是：先让人给一部分 rollout 打分（或排序），然后用这些数据训练这个神经网络，让它成为<strong>人类偏好的模拟器</strong>。一旦有了这个模拟器，就可以<strong>对模拟器做 RL</strong>——不再每次问真人，而是问这个「模拟人」要分数。有了模拟器就可以无限次查询，整个流程就自动化了，可以对模拟器做强化学习。模拟器当然不是完美人类，但只要在统计上接近人类判断，就能起作用；实践中确实有效。所以有了模拟器就能跑 RL，整体就转起来了。</p>
+<hr>
+<h2 id="七、奖励模型怎么训：人类排序，模型学成一致"><a href="#七、奖励模型怎么训：人类排序，模型学成一致" class="headerlink" title="七、奖励模型怎么训：人类排序，模型学成一致"></a>七、奖励模型怎么训：人类排序，模型学成一致</h2><p>So here I have a cartoon diagram of a hypothetical example of what training the reward model would look like. So we have a prompt like write a joke about pelicans. And then here we have five separate rollouts. So these are all five different jokes. Now the first thing we’re gonna do is we are going to ask a human to order these jokes from the best to worst. So this is here, this human thought that this joke is the best, the funniest. So number one, this is number two joke, number three joke, four and five. So this is the worst joke. We’re asking humans to order instead of give scores directly, because it’s a bit of an easier task. It’s easier for a human to give an ordering than to give precise scores. Now, that is now the supervision for the model. So the human has ordered them, and that is kind of like their contribution to the training process. But now separately, what we’re gonna do is we’re gonna ask a reward model about its scoring of these jokes. Now the reward model is a whole separate neural network, completely separate neural net. And it’s also probably a transformer, but it’s not a language model in the sense that it generates diverse language—it’s just a scoring model. So the reward model will take as input the prompt and a candidate joke. Those are the two inputs that go into the reward model. Here, for example, the reward model would be given this prompt and this joke. Now the output of a reward model is a single number, and this number is thought of as a score. And it can range, for example, from 0 to 1. So zero would be the worst score, and one would be the best score. So here are some examples of what a hypothetical reward model at some stage in the training process would give as scoring to these jokes. So 0.1 is a very low score. 0.8 is a really high score. And so now we compare the scores given by the reward model with the ordering given by the human. And there’s a precise, mathematical way to actually calculate this, basically set up a loss function and calculate the kind of like a correspondence here and update a model based on it. But I just want to give you the intuition, which is that, as an example here, for this second joke, the human thought that it was the funniest and the model kind of agreed, right? 0.8 is a relatively high score, but this score should have been even higher, right? So after an update, we would expect that maybe this score will actually grow after an update of the network to be like, say, 0.81 or something. For this one, here they actually are in a massive disagreement because the human thought that this was number two, but here the score is only 0.1. This score needs to be much higher. After an update on top of this kind of a supervision, this might grow a lot more like maybe it’s 0.15 or something like that. And then here, the human thought that this one was the worst joke. But here the model actually gave it a fairly high number. So you might expect that after the update, this would come down to maybe 0.35 or something like that. So basically, we’re doing what we did before. We’re slightly nudging the predictions from the models using neural network training process. And we’re trying to make the reward model scores be consistent with human ordering. And so as we update the reward model on human data, it becomes better and better simulator of the scores and orders that humans provide, and then becomes kind of like the simulator of human preferences, which we can then do RL against. But critically, we’re not asking humans 1 billion times to look at a joke. We’re maybe looking at a thousand problems and five per loss each. So maybe 5,000 jokes that humans have to look at in total. And they just give the ordering. And then we’re training the model to be consistent with that ordering. And I’m skipping over the mathematical details. But I just want you to understand the high level idea. This reward model is basically giving us this score, and we have a way of training it to be consistent with human ordering. And that’s how RLHF works. Okay, so that is the rough idea. We basically train simulators of humans and do RL with respect to those simulators.</p>
+<p>举个训练奖励模型的简化例子。有一个 prompt：「写一个关于鹈鹕的笑话」，然后有<strong>五条</strong>不同的生成（五条笑话）。第一步是<strong>让人把这五条从最好到最差排个序</strong>——人认为这条最好笑、这条第二……这条最差。我们让人做<strong>排序</strong>而不是直接打分，因为对人来说排序比打精确分数容易。这个排序就是<strong>监督信号</strong>。然后我们<strong>单独</strong>让奖励模型对同样的笑话打分。奖励模型是另一个神经网络（通常也是 Transformer），但不是语言模型，不生成文本，只<strong>输出一个分数</strong>（比如 0 到 1）。我们拿奖励模型给的分数和人的排序对比，用数学方式（设损失函数、算一致性、更新模型）让奖励模型的打分越来越符合人的排序。直觉上：人认为第二好笑的那条，模型打了 0.8，那更新后可能提到 0.81；人认为排第二但模型只打了 0.1 的那条，更新后分数会往上调；人认为最差、模型却打高的那条，更新后分数会往下调。总之就是用训练把奖励模型的分数<strong>往人类排序对齐</strong>，训多了它就越来越像「人类偏好的模拟器」，然后我们对着这个模拟器做 RL。关键是我们<strong>没有</strong>让人评 10 亿次笑话，可能总共就几千个题目、每题几条，比如 5000 条笑话让人排个序，然后只训练模型去拟合这个排序。细节不展开，高层想法就是：奖励模型给出分数，我们有一套办法把它训得和人类排序一致，RLHF 就是这样工作的——先训出「人类模拟器」，再对模拟器做 RL。</p>
+<hr>
+<h2 id="八、RLHF-的好处与坏处：判别比生成容易；奖励模型可被「攻破」"><a href="#八、RLHF-的好处与坏处：判别比生成容易；奖励模型可被「攻破」" class="headerlink" title="八、RLHF 的好处与坏处：判别比生成容易；奖励模型可被「攻破」"></a>八、RLHF 的好处与坏处：判别比生成容易；奖励模型可被「攻破」</h2><p>Now I wanna talk about first the upside of reinforcement learning from human feedback. The first thing is that this allows us to run reinforcement learning, which we know is an incredibly powerful set of techniques. And it allows us to do it in arbitrary domains and including the ones that are unverifiable. So things like summarization and poem writing, joke writing, or any other creative writing, really in domains outside of math and code, et cetera. Now, empirically, what we see when we actually apply RLHF is that this is a way to improve the performance of the model. I have a top answer for why that might be, but I don’t actually know that it is super well established. You can empirically observe that when you do RLHF correctly, the models you get are just like a little bit better. But as to why, I think it’s not as clear. So here’s my best guess. My best guess is that this is possibly mostly due to the discriminator generator gap. What that means is that in many cases, it is significantly easier to discriminate than to generate for humans. So in particular, when we do supervised fine tuning, we’re asking humans to generate the ideal assistant response. And in many cases here the ideal response is very simple to write, but in many cases might not be. So for example, in summarization or poem writing or joke writing, how are you as a human laborer supposed to get the ideal response? In these cases it requires creative human writing to do that. And so RLHF kind of sidesteps this, because we get to ask people a significantly easier question as data laborers. They are not asked to write poems directly. They’re just given five outputs from the model, and they’re just asked to order them. That’s just a much easier task for a human laborer to do. And so what I think this allows you to do basically is it allows a lot more higher accuracy data, because we’re not asking people to do the generation task, which can be extremely difficult. We’re just trying to get them to distinguish between creative writings and find ones that are best. That is the signal that humans are providing—just the ordering. And that is their input into the system. And then the system in RLHF just discovers the kinds of responses that would be graded well by humans. And so that step of indirection allows the models to become better. So that is the upside of RLHF. It allows us to run RL; it empirically results in better models. And it allows people to contribute their supervision, even without having to do extremely difficult tasks in the case of writing ideal responses.</p>
+<p>先说 <strong>RLHF 的好处</strong>。一是让我们能在<strong>任意领域</strong>——包括<strong>未验证领域</strong>——跑强化学习，像摘要、写诗、写笑话等数学和代码之外的创意写作。实证上，正确做 RLHF 时模型会变好一点；原因我不保证完全确立，我的<strong>最佳猜测</strong>是<strong>判别者–生成者差距</strong>：在很多任务上，<strong>对人来说判别（哪个更好）比生成（写出一份理想回复）容易得多</strong>。监督微调时我们让人<strong>生成</strong>理想助手回复，有时简单有时极难——比如摘要、写诗、写笑话，让人直接写「理想回复」需要很强创意。RLHF 绕开了这点：我们只让人做<strong>更简单的任务</strong>——给模型生成的五条排个序，不用自己写诗。所以能收集到<strong>更多、更准</strong>的监督信号（人只提供排序），系统再去发现「人类会打高分的回复」，通过这一层间接，模型就变好了。所以 RLHF 的优点是：能跑 RL、实证上模型更好、人不用做「写理想回复」那种极难任务也能贡献监督。</p>
+<p>Unfortunately, RLHF also comes with significant downsides. The main one is that basically we are doing reinforcement learning, not with respect to humans and actual human judgment, but with respect to a lossy simulation of humans, right? And this lossy simulation could be misleading, because it’s just a simulation—it’s just a language model that’s outputting scores. And it might not perfectly reflect the opinion of an actual human with an actual brain in all the possible different cases. So that’s number one. There’s actually something even more subtle and devious going on that really dramatically holds back RLHF as a technique that we can really scale to significantly smart systems. And that is reinforcement learning is extremely good at discovering a way to game the model—to game the simulation. So this reward model that we’re constructing here that gives this score—these models are transformers. These transformers are massive neural nets. They have billions of parameters, and they imitate humans, but they do so in a kind of like a simulation way. Now, the problem is that these are massive, complicated systems, right? There’s a billion parameters here that are putting a single score. It turns out that there are ways to game these models. You can find kinds of inputs that were not part of their training set. And these inputs inexplicably get very high scores, but in a fake way. So very often, what you find if you run RLHF for very long—so for example, if we do 1,000 updates, you might expect that your jokes are getting better and that you’re getting like real bangers about pelicans. But that’s not exactly what happens. In the first few hundred steps, the jokes about pelicans are probably improving a little bit, and then they actually dramatically fall off the cliff and you start to get extremely nonsensical results. Like, for example, you start to get the top joke about pelicans starts to be “the.” And this makes no sense, right? Like when you look at it, why should this be a top joke? But when you take “the” and you plug it into your reward model, you’d expect score of zero, but actually the reward model loves this as a joke. It will tell you that “the” is a score of 1.0. This is a top joke. And this makes no sense, right? But it’s because these models are just simulations of humans, and they’re massive neural nets. And you can find inputs that get into the part of the input space that give you nonsensical results. These examples are what’s called adversarial examples. They are specific little inputs that kind of go between the nooks and crannies of the model and give nonsensical results at the top. Now here’s what you might imagine doing. You say, okay, “the” is obviously not score of one. It’s obviously a low score. So let’s add it to the dataset and give it an ordering that’s extremely bad like a score of five. And indeed, your model will learn that “the” should have a very low score, and it will give it score of zero. The problem is that there will always be basically an infinite number of nonsensical, adversarial examples hiding in the model. If you iterate this process many times and you keep adding nonsensical stuff to your reward model with very low scores, you’ll never win the game. You can do this many rounds in reinforcement learning. If you run it long enough, we’ll always find a way to game the model. It will discover adversarial examples. It will get really high scores with nonsensical results. And fundamentally, this is because our scoring function is a giant neural net. And RL is extremely good at finding just the ways to exploit it. Also, long story short, you always run RLHF for maybe a few hundred updates. The model is getting better. And then you have to crop it. And you are done. You can’t run too much against this reward model, because the optimization will start to game it. You basically crop it and you call it and you ship it. And you can improve the reward model, but you kind of like come across these situations eventually, at some point.</p>
+<p><strong>坏处</strong>也很明显。一是我们做强化学习时对的<strong>不是真人、不是真实人类判断</strong>，而是<strong>对人类的有损模拟</strong>；这个模拟可能误导，因为它只是另一个输出分数的模型，未必在所有情况下都反映真人的看法。二是更麻烦的一点：<strong>强化学习特别擅长「攻破」这个模拟器</strong>。奖励模型本身是个大 Transformer、几十亿参数，只是在模拟人。问题是它是复杂系统，只输出一个分数，<strong>存在办法被钻空子</strong>——可以找到训练集里没出现过的输入，让模型莫名其妙打出高分，却是「假」的。所以若把 RLHF 跑很久，比如 1000 次更新，你本以为鹈鹕笑话会越来越好，但往往前几百步略好，之后<strong>会崩掉</strong>，开始出现极其荒谬的结果——比如「最好的鹈鹕笑话」变成就一个词 “the”。这毫无道理，但你把 “the” 塞进奖励模型，它可能打出 1.0 说这是顶级笑话。原因就是奖励模型只是对人的模拟、又是大网络，<strong>存在对抗样本</strong>：某些输入会钻进模型的「缝隙」里，在输出端得到荒谬高分。你可能会想：那把 “the” 加进数据、标成最差、让模型学成低分不就行了？问题是<strong>荒谬的对抗样本在模型里几乎无穷多</strong>，你不断加、不断标低分，也永远打不赢——RL 跑得够久总会找到新的攻破方式。根本原因在于：打分函数是个巨大神经网络，RL 又特别会找漏洞。所以实践中<strong>RLHF 只能跑有限轮</strong>，比如几百次更新，模型变好一点就<strong>必须停</strong>、打包发布；不能对着同一个奖励模型一直训下去，否则优化会开始攻破它。你可以改进奖励模型，但迟早还会遇到类似情况。</p>
+<hr>
+<h2 id="九、RLHF-不是「真-RL」：奖励可被攻破-vs-可验证域的-RL-可无限跑"><a href="#九、RLHF-不是「真-RL」：奖励可被攻破-vs-可验证域的-RL-可无限跑" class="headerlink" title="九、RLHF 不是「真 RL」：奖励可被攻破 vs 可验证域的 RL 可无限跑"></a>九、RLHF 不是「真 RL」：奖励可被攻破 vs 可验证域的 RL 可无限跑</h2><p>So RLHF, basically, what I usually say is that RLHF is not RL—and what I mean by that is relative to verifiable RL obviously. But it’s not RL in the magical sense. This is not RL that you can run indefinitely. These kinds of problems, like where you are getting a quick correct answer—you cannot game this as easily. You either got the correct answer or you didn’t. And the scoring function is much, much simpler. You were just looking at the boxed area and seeing if the result is correct. So it’s very difficult to game these functions, but gaming a reward model is possible. Now, in these verifiable domains, you can run RL indefinitely. You could run for tens of thousands, hundreds of thousands of steps and discover all kinds of really crazy strategies that we might not even ever think about of performing really well for all these problems. In the game of go, there’s no way to basically game the winning of a game or losing a game. We have a perfect simulator. We know where all the stones are placed, and we can calculate whether someone has won or not. There’s no way to game that. So you can do RL indefinitely and you can eventually beat Lee Sedol. But with models like this, which are gameable, you cannot repeat this process indefinitely. So I kind of see RLHF as not real RL because the reward function is gameable. It’s kind of more like in the realm of like little fine tuning. It’s a little improvement, but it’s not something that is fundamentally set up correctly where you can insert more compute, run for longer and get much better and magical results. So it’s not RL in that sense. It’s not RL in a sense that lacks magic. It can improve your model and get better performance. And indeed, if we go back to ChatGPT, the GPT-4 model has gone through RLHF because it works well. But it’s just not RL in the same sense. RLHF is like a little fine tune that slightly improves your model—maybe the way I would think about it.</p>
+<p>所以我常说 <strong>RLHF 不是（那种）RL</strong>——是相对于<strong>可验证域的 RL</strong> 而言。它不是那种可以<strong>无限跑下去</strong>的、带「魔法」的 RL。在可验证域里，你有明确对错（例如答案是不是 3），打分函数极简单（看框出来的答案对不对），<strong>很难被攻破</strong>；而<strong>攻破奖励模型是可能的</strong>。在可验证域你可以把 RL 跑几万、几十万步，发现各种疯狂策略；围棋里输赢没法造假，我们有完美模拟器，没人能「骗」胜负，所以 RL 可以一直跑下去直到超过李世石。但奖励模型是<strong>可被攻破的</strong>，所以不能对同一个奖励模型无限训下去。所以我倾向于把 RLHF 看成<strong>不是真正的 RL</strong>，因为奖励函数可被钻空子；它更像<strong>小幅微调</strong>——有一点提升，但不是那种「多算力、多跑就能持续变强」的正确设置。所以在这个意义上它缺乏那种「魔法」。它确实能改善模型、提升表现，ChatGPT 的 GPT-4 也经过 RLHF，因为有效；但它和可验证域的 RL 不是同一回事。RLHF 更像是<strong>稍微改进模型的小微调</strong>——我会这么理解。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/vibe-coding/">vibe coding</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/03/08/4102103495.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Deep Dive into LLMs like ChatGPT - 7</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/03/08/445595883.html">
+                        <span class="hidden-mobile">Deep Dive into LLMs like ChatGPT - 5</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "Deep Dive into LLMs like ChatGPT - 6"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

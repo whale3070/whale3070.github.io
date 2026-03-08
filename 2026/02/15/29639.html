@@ -282,7 +282,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      2.1k 字
+      3.1k 字
     </span>
   
 
@@ -292,7 +292,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      23
+      36
        分钟
     </span>
   
@@ -714,6 +714,72 @@
 <p>如果你愿意，我可以给你一个：</p>
 <p>👉 2026–2028 三条链（Solana &#x2F; Monad &#x2F; Avalanche）风险收益模型图</p>
 <p>那会比单纯比 TPS 更接近现实。</p>
+<h1 id="如何将合约部署在-Revive？"><a href="#如何将合约部署在-Revive？" class="headerlink" title="如何将合约部署在 Revive？"></a>如何将合约部署在 Revive？</h1><p><strong>Revive</strong> 是 Polkadot SDK 里的实验性运行时模块（<code>pallet_revive</code>），在平行链上通过 <strong>PolkaVM（PVM）</strong>（RISC-V 执行环境）部署和运行智能合约。和以太坊「一笔交易发合约」不同，Revive 采用<strong>两步部署</strong>。</p>
+<hr>
+<h2 id="1️⃣-核心：两步部署模型"><a href="#1️⃣-核心：两步部署模型" class="headerlink" title="1️⃣ 核心：两步部署模型"></a>1️⃣ 核心：两步部署模型</h2><table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>操作</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>① 上传代码</strong></td>
+<td>把合约字节码上传到链上</td>
+<td>链上只存一份，通过 <strong>code hash</strong> 引用</td>
+</tr>
+<tr>
+<td><strong>② 实例化合约</strong></td>
+<td>用 code hash + 构造参数创建合约实例</td>
+<td>同一份代码可多次实例化，不重复存字节码</td>
+</tr>
+</tbody></table>
+<p>对应 <code>pallet_revive</code> 的接口大致为：</p>
+<ul>
+<li><strong><code>upload_code</code></strong>：只上传代码，不创建合约，得到 code hash。</li>
+<li><strong><code>instantiate</code></strong>：用已有的 code hash + 构造参数实例化一个合约。</li>
+<li><strong><code>instantiate_with_code</code></strong>：一笔交易里「上传代码 + 实例化」（相当于把两步合并）。</li>
+</ul>
+<hr>
+<h2 id="2️⃣-开发与编译"><a href="#2️⃣-开发与编译" class="headerlink" title="2️⃣ 开发与编译"></a>2️⃣ 开发与编译</h2><ul>
+<li><strong>写合约</strong>：用 <strong>Solidity</strong> 写，和 EVM 类似。</li>
+<li><strong>编译</strong>：用 <strong>Revive 编译器</strong>（<a target="_blank" rel="noopener" href="https://paritytech.github.io/revive/">revive compiler book</a>）把 Solidity 编译成 PVM 字节码，而不是 EVM 字节码。</li>
+<li><strong>文档与工具</strong>：Polkadot 智能合约入口 <a target="_blank" rel="noopener" href="https://contracts.polkadot.io/revive_compiler/usage/">contracts.polkadot.io</a> 里有 Revive 的用法、Remix&#x2F;Hardhat&#x2F;Foundry 等对接方式。</li>
+</ul>
+<p>部署前建议先看官方 <a target="_blank" rel="noopener" href="https://paritytech.github.io/revive/user_guide/differences.html">EVM 与 PVM 的差异说明</a>，避免合约在 PVM 上行为异常。</p>
+<hr>
+<h2 id="3️⃣-和-EVM-的主要差异（部署时要注意）"><a href="#3️⃣-和-EVM-的主要差异（部署时要注意）" class="headerlink" title="3️⃣ 和 EVM 的主要差异（部署时要注意）"></a>3️⃣ 和 EVM 的主要差异（部署时要注意）</h2><ul>
+<li><strong>实例化方式</strong>：Revive 用 <strong>code hash</strong> 实例化，不是把整段 deploy code 塞进一笔交易；Solidity 里的 <code>new</code> 会被编译成「传 code hash + 构造参数」。</li>
+<li><strong>内存与 gas</strong>：堆大小固定（如 128KB）、栈大小固定，且 <strong>没有 63&#x2F;64 gas 规则</strong>，调用不可信合约时务必自己限制 gas，否则有 DoS 风险。</li>
+<li><strong>Factory &#x2F; 动态部署</strong>：不能像 EVM 那样在运行时随意 <code>CREATE</code> 任意字节码；依赖的合约代码需要先上传，再用 hash 引用。</li>
+</ul>
+<hr>
+<h2 id="4️⃣-实操流程小结"><a href="#4️⃣-实操流程小结" class="headerlink" title="4️⃣ 实操流程小结"></a>4️⃣ 实操流程小结</h2><ol>
+<li>用 <strong>Revive 编译器</strong> 把 Solidity 编译成 PVM 字节码。</li>
+<li>连接支持 Revive 的链（如 Polkadot Hub 或黑客松提供的 Revive 测试网）。</li>
+<li>调用 <strong><code>upload_code</code></strong>（或使用 <strong><code>instantiate_with_code</code></strong>）上传字节码，拿到 <strong>code hash</strong>。</li>
+<li>调用 <strong><code>instantiate</code></strong>，传入该 code hash 和构造函数参数，完成部署。</li>
+<li>用 Polkadot.js、Remix 或你用的开发环境与合约交互。</li>
+</ol>
+<p>更多细节（Gas 模型、存储、JSON-RPC 等）可查：<br><a target="_blank" rel="noopener" href="https://contracts.polkadot.io/revive_compiler/usage/">Polkadot 智能合约入门</a> 与 <a target="_blank" rel="noopener" href="https://docs.polkadot.com/smart-contracts/for-eth-devs/contract-deployment/">Contract Deployment</a>。</p>
+<hr>
+<h1 id="PPT"><a href="#PPT" class="headerlink" title="PPT"></a>PPT</h1><p>本项目是全球首个将红酒 RWA 实体资产、链游激励机制、物理防拆技术与波卡 Revive 链上 NFT 结合的原创 DApp，以 0.35 元 &#x2F; 瓶的极致成本，根治跨境红酒二次灌装、窜货、用户无动力验证三大行业死穴，具备极强的原创性、成本优势与产业落地价值。</p>
+<h1 id="API测试"><a href="#API测试" class="headerlink" title="API测试"></a>API测试</h1><p>root@iZj6ce5qkl4em5hqa0oq1zZ:~&#x2F;git-connect-helper-edbe1c7c&#x2F;backend# curl -X POST “<a target="_blank" rel="noopener" href="http://localhost:8080/api/admin/redis/clear-sales">http://localhost:8080/api/admin/redis/clear-sales</a>“ <br>  -H “Authorization: Bearer 0x99202Fa5Cd99A3B13E936E8596F39fd5a2137DE2”<br>{“deleted”:16,”message”:”已清空销量、NFT 统计与热力图相关 Redis 数据”,”ok”:true}</p>
+<p> .env 里配置了 ADMIN_API_KEY&#x3D;your-secret</p>
+<hr>
+<p>工厂合约部署子合约<br>cast send 0x2179d3118a2E6899258b27633A8cd67638c11072 “deployBook(string,string,string,string,address,uint256)” <br>  “书名” “SYM” “作者” “https:&#x2F;&#x2F;…” 0x99202Fa5Cd99A3B13E936E8596F39fd5a2137DE2 0 <br>  –value 0.01ether –rpc-url <a target="_blank" rel="noopener" href="https://services.polkadothub-rpc.com/testnet">https://services.polkadothub-rpc.com/testnet</a> –private-key 0x799568bb0054867a280a063b0292ef6979cded09affd1688caa6e96b1511d074</p>
+<hr>
+<p>mint nft的命令<br>  cast send 0x160fb2a41b28dda760f28cad014e69bb7847425b “mint(address)” 0x99202Fa5Cd99A3B13E936E8596F39fd5a2137DE2 –value 0 <br>  –rpc-url <a target="_blank" rel="noopener" href="https://services.polkadothub-rpc.com/testnet">https://services.polkadothub-rpc.com/testnet</a> –private-key 0x799568bb0054867a280a063b0292ef6979cded09affd1688caa6e96b1511d074</p>
+<hr>
+<p>设置某 SKU 为 7 天免费换新、365 天保修<br>  curl -s -X POST “<a target="_blank" rel="noopener" href="http://127.0.0.1:8080/api/v1/admin/sku-policy">http://127.0.0.1:8080/api/v1/admin/sku-policy</a>“ <br>  -H “Content-Type: application&#x2F;json” <br>  -H “Authorization: Bearer 0x99202Fa5Cd99A3B13E936E8596F39fd5a2137DE2” <br>  -d ‘{“contract”:”0x5d63064fda02dc45fa690b7e06dfc254d9c3919a”,”free_replacement_days”:7,”warranty_days”:365}’</p>
+<p>  {“contract”:”0x5d63064fda02dc45fa690b7e06dfc254d9c3919a”,”free_replacement_days”:7,”ok”:true,”warranty_days”:365}</p>
+<hr>
+<p>查询该 SKU 当前策略<br>  curl -s “<a target="_blank" rel="noopener" href="http://127.0.0.1:8080/api/v1/sku-policy?contract=0x5d63064fda02dc45fa690b7e06dfc254d9c3919a">http://127.0.0.1:8080/api/v1/sku-policy?contract=0x5d63064fda02dc45fa690b7e06dfc254d9c3919a</a>“<br>  {“contract”:”0x5d63064fda02dc45fa690b7e06dfc254d9c3919a”,”free_replacement_days”:7,”ok”:true,”warranty_days”:365}</p>
+<p>  按码查截止时间（需该码已扫过且 Redis 里有 first_scan_time）</p>
+<hr>
+<h1 id="使用你-success-页-URL-里的-codeHash（去掉-0x-也可）"><a href="#使用你-success-页-URL-里的-codeHash（去掉-0x-也可）" class="headerlink" title="使用你 success 页 URL 里的 codeHash（去掉 0x 也可）"></a>使用你 success 页 URL 里的 codeHash（去掉 0x 也可）</h1><p>curl -s “<a target="_blank" rel="noopener" href="http://127.0.0.1:8080/api/v1/sku-deadlines?code_hash=3ce2d363bc040850ededdcef82c4eedf3d349f0a7b5efad4afbe6def632d4a1e">http://127.0.0.1:8080/api/v1/sku-deadlines?code_hash=3ce2d363bc040850ededdcef82c4eedf3d349f0a7b5efad4afbe6def632d4a1e</a>“<br>{“claim_time”:”2026-03-06 22:56:08”,”free_replacement_days”:7,”free_replacement_deadline”:”2026-03-13 22:56:08”,”ok”:true,”sku”:”0x01df298d6b2cf3872dfe8da92a7230867e825029”,”warranty_days”:365,”warranty_deadline”:”2027-03-06 22:56:08”}</p>
+<h1 id="部署合约"><a href="#部署合约" class="headerlink" title="部署合约"></a>部署合约</h1><p>工厂合约地址： 0x5B657952a31ABF669EC926291e9c752429aC2Ae6<br>book合约地址： 0xc7BFF7B0f23548FED91f68a677C4428abC14a1ae</p>
 
             </div>
             <hr>

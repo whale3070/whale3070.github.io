@@ -1,0 +1,597 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>Deep Dive into LLMs like ChatGPT - 7 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="Deep Dive into LLMs like ChatGPT - 7">
+                      
+                        Deep Dive into LLMs like ChatGPT - 7
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-03-08 15:24" pubdate>
+        2026年3月8日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      7.6k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      118
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">Deep Dive into LLMs like ChatGPT - 7</h1>
+            
+            <div class="markdown-body">
+              <blockquote>
+<p>本文为 Stanford 大语言模型公开课讲稿片段，格式为一段英文、一段中文对照。仅处理约 1 小时阅读量内的内容，后续保持原样。</p>
+</blockquote>
+<hr>
+<h2 id="一、多模态：音频与图像也是-token"><a href="#一、多模态：音频与图像也是-token" class="headerlink" title="一、多模态：音频与图像也是 token"></a>一、多模态：音频与图像也是 token</h2><p>So it’s not a fundamental change. It’s just, we have to add some tokens. So as an example, for token, as an audio, we can look at slices of the spectrogram of the audio signal. And we can token eyes that and just add more tokens that suddenly represent audio, and just add them into the context windows and train on them. Just like above safer images, we can use patches, and we can separately token eyes, patches. And then what is an image? An image is just a sequence of tokens. And this actually kind of works. And there’s a lot of early work in this direction. We can just create streams of tokens. There are representing audio images as well as text and intersperse them and handle them all simultaneously in a single model.</p>
+<p>所以这不是根本性的改变，只是要多加一些 token。例如对音频来说，可以把声谱图切成小段、token 化，得到代表音频的 token，放进上下文窗口一起训练。图像也一样：用 patch，再分别 token 化；一张图就是一串 token。这种做法已经能跑通，这个方向也有不少早期工作。我们可以构造<strong>多模态 token 流</strong>——同时表示音频、图像和文本，在同一个模型里一起处理。</p>
+<p>So that’s one example of multimodality. Second, something that people are very interested in is currently, most of the work is that we are handing individual tasks to the models on kind of like a silver platter, like please solve this task for me. And the model sort of like does this little task, but it’s up to us to still sort of like organize a coherent execution of tasks to perform jobs. The models are not yet at the capability required to do this in a coherent error correcting way over long periods of time. So they’re not able to fully string together tasks to perform these longer running jobs, but they’re getting there, and this is improving over time.</p>
+<p>这是多模态的一个例子。第二点是大家很关心的：目前多数用法还是我们<strong>把单次任务端给模型</strong>——「请帮我做这件事」——模型做完这一小件，但<strong>如何把多件任务串成一份完整工作</strong>仍在我们这边。模型还做不到在长时间里连贯、带纠错地执行多步任务，还不能完全自己串起长线工作，但正在往这个方向进步。</p>
+<hr>
+<h2 id="二、智能体与长期任务；人机比例"><a href="#二、智能体与长期任务；人机比例" class="headerlink" title="二、智能体与长期任务；人机比例"></a>二、智能体与长期任务；人机比例</h2><p>But probably what’s going to happen here is we’re going to start to see what’s called agents which perform tasks over time. You supervise them and you watch their work. And they come up to once in a while report progress and so on. So we’re gonna see more long running agents tasks that don’t just take a few seconds of response, but many tens of seconds or even minutes or hours over time. But these models are not infallible as we talked about above. So all this will require supervision. So for example, in factories, people talk about the human to robot ratio for automation. I think we’re going to see something similar in a digital space where we are going to be talking about human to agent ratios, where humans becomes a lot more supervisors of a genetic tasks in the digital domain.</p>
+<p>接下来很可能会出现<strong>智能体（agents）</strong>：在一段时间内持续执行任务，你负责监督、偶尔看进度汇报。所以会看到更多<strong>长时间运行</strong>的智能体任务——不再是几秒就结束，而是几十秒、几分钟甚至几小时。但正如前面说的，模型会犯错，所以<strong>全程都需要人的监督</strong>。就像工厂里会谈「人机比」，数字空间里也会出现**「人–智能体比」<strong>：人越来越多地扮演</strong>数字域任务的监督者**。</p>
+<hr>
+<h2 id="三、渗透化与代行操作"><a href="#三、渗透化与代行操作" class="headerlink" title="三、渗透化与代行操作"></a>三、渗透化与代行操作</h2><p>Next, I think everything is gonna become a lot more pervasive and invisible. It’s kind of like integrated into the tools and everywhere. And in addition, kind of like computer using. So right now, these models aren’t able to take actions on your behalf. But I think this is a separate bullet.. If you saw trash, if you launch the operator, then that’s one early example of that where you can actually hand off control to the model to perform keyboard and mouse actions on your behalf.</p>
+<p>再一点是，一切会变得更<strong>无处不在、更隐形</strong>——嵌进各种工具、各处都有。此外还有<strong>代行操作</strong>：目前模型还不能替你执行操作，但如果你用过 ChatGPT 的 Operator 之类产品，那就是早期例子——你可以把<strong>键盘、鼠标的控制权交给模型</strong>，让它代你操作。</p>
+<p>So that’s also something that I think is very interesting.</p>
+<p>这也是我觉得非常有意思的方向。</p>
+<hr>
+<h2 id="四、测试时训练与上下文窗口的局限"><a href="#四、测试时训练与上下文窗口的局限" class="headerlink" title="四、测试时训练与上下文窗口的局限"></a>四、测试时训练与上下文窗口的局限</h2><p>The last point I have here is just a general comment that there’s still a lot of research to potentially do in this domain. One example of that is something along the lines of test time training. So remember that everything we’ve done above and that we talked about has two major stages. There’s first the training stage where we tune the parameters of the model to perform the tasks. Well, once we get the parameters, we fix them, and then we deploy the model for inference. From there, the model is fixed. It doesn’t change anymore. It doesn’t learn from all the stuff that it’s doing a test time. It’s a fixed number of parameters. And the only thing that is changing is now the tokens inside the context windows.</p>
+<p>最后一点是总体性的：这个领域还有很多研究可做。例如<strong>测试时训练（test time training）</strong>。目前我们讲过的流程都有两大阶段：先是<strong>训练阶段</strong>，调参数让模型会做任务；参数一旦定下来就固定，然后<strong>部署做推理</strong>。从那以后模型不再更新，<strong>不会从测试时的使用中学习</strong>，参数数量固定，唯一变化的是<strong>上下文窗口里的 token</strong>。</p>
+<p>And so the only type of learning or test time learning that the model has access to is the in context learning of its kind of like dynamically adjustable context window, depending on like what it’s doing at that time. But I think this is still different from humans who actually are able to like actually learn, depending on what they’re doing. Especially when you sleep, for example, like your brain is updating your parameters or something like that. Right? So there’s no kind of equivalent of that currently in these models and tools.</p>
+<p>所以模型目前唯一的「学习」或测试时学习，就是<strong>上下文学习</strong>——通过可动态调整的上下文窗口，随当前任务变化。这和人类不一样：人会真的在学习、在更新自己，比如睡觉时大脑在「更新参数」。目前模型和工具里还<strong>没有这类机制</strong>。</p>
+<p>So there’s a lot of like more wonky ideas, I think that are to be explored still. And in particular, I think this will be necessary because the context window is a finite and precious resource. And especially once we start to tackle very long running multi modal tasks, and we’re putting in videos and these token windows will basically start to grow extremely large, like not thousands or even hundreds of thousands, but significantly beyond that.</p>
+<p>还有很多更「怪」的想法有待探索。尤其是<strong>上下文窗口是有限且宝贵的资源</strong>；一旦要做很长的多模态任务、塞进视频，token 窗口会变得极大——不止几万、几十万，而是远超这个量级。</p>
+<p>And the only trick, the only kind of trick we have available to us right now is to make the context windows longer. But I think that approach by itself will not scale to actual long running tasks that are multimodal over time. And so I think new ideas are needed in some of those disciplines, in some of those kind of cases, in domains where these tasks are going to require very long context. So those are some examples of some of the things you can expect coming down the pipe. Let’s not turn to where you can actually kind of keep track of this progress, be up to date with the latest and greatest of what’s happening in the field.</p>
+<p>目前我们手上的办法主要是<strong>把上下文窗口拉长</strong>，但单靠这一点无法支撑真正的长时、多模态任务。所以在那些<strong>需要超长上下文</strong>的场景里，还需要新思路。以上是一些可以预期的发展方向。下面说说<strong>如何跟进进展</strong>、了解领域里最新最好的动态。</p>
+<hr>
+<h2 id="五、如何跟进进展：Ella-Marina、AI-News、X"><a href="#五、如何跟进进展：Ella-Marina、AI-News、X" class="headerlink" title="五、如何跟进进展：Ella Marina、AI News、X"></a>五、如何跟进进展：Ella Marina、AI News、X</h2><p>So I would say the three resources that I have consistently used to stay up to date Our number one, ella marina. So let me show you ella marina. This is basically an element leader board, and it ranks all the top models. And the ranking is based on human comparisons. So humans prompt these models, and they get to judge which one gives a better answer. They don’t know which they’re just looking at which model is a better answer. And you can calculate a ranking and then you get some results. And so what you can see here is the different organizations like google gemini, for example, that produce these models. When you click on any one of these, it takes you to the place where that model is hosted. And then here we see google is currently on top with open ai right behind here. We see dc position number three.</p>
+<p>我常用的三个跟进渠道是：第一，<strong>Ella Marina</strong>（大模型排行榜）。它按<strong>人类对比</strong>给顶级模型排名——人给这些模型出题、看哪个回答更好（不知道具体是哪个模型），据此算出排名。你可以看到各家机构，比如 Google Gemini；点进去会跳到模型托管页。目前榜上 Google 第一、OpenAI 紧随其后，<strong>DeepSeek（dc）</strong> 排第三。</p>
+<p>Now the reason this is a big deal is the last column. Here. You see license dc is an mit license model. It’s open weights. Anyone can use these weights. Anyone can download them, anyone can host their own version of deep seek. And they can use it in whatever way they like. And so it’s not a proprietary model that you don’t have access to it. It’s basically an open weights release. This is kind of unprecedented that a model this strong was released with open weights. So pretty cool from the team.</p>
+<p>重要的一点在最后一列：<strong>DeepSeek 是 MIT 许可、开放权重</strong>。谁都可以用、下载、自建 DeepSeek 服务、按自己的方式使用，不是闭源专有模型。这么强的模型以开放权重发布，很少见，团队做得挺酷。</p>
+<p>Next time we have a few more models from google and open ai and then when you continue to scroll down, you start to see some other usual suspects. So xai here, anthropic was sonnet here at number 14. And then met up with lama over here. So lama, similar to deep seek, is an open weights model, but it’s down here, as opposed to up here.</p>
+<p>再往下是 Google、OpenAI 的更多模型，以及 xAI、Anthropic（Claude Sonnet 在第 14 位）、Meta 的 Llama 等。Llama 和 DeepSeek 一样是开放权重，但排名靠下一些。</p>
+<p>Now I will say that this leader board was really good for, but a long time, I do think that in the last few months, it become a little bit gained. And I don’t trust it as much as I used to. I think, just empirically, I feel like a lot of people, for example, are using a sonnet from anthropic, and that it’s a really good model. That’s all the way down here in number 14. And conversely, I think not as many people are using gemini, but it’s ranking really, really high. So I think use this as a first pass about sort of try out a few of the models for your tasks and see which one performs better.</p>
+<p>这个榜以前很靠谱，但最近几个月我觉得有点<strong>被刷榜</strong>，不如以前那么信。体感上很多人用 Anthropic 的 Sonnet、觉得很好用，但它排到第 14；Gemini 用的人好像没那么多，排名却很高。所以建议<strong>先拿它做初筛</strong>，再针对自己的任务多试几个模型，看谁更合适。</p>
+<p>The second thing that I would point to is the ai news. So ai news is not very creatively named, but it is a very good newsletter produced by switzerland friends. So thank you for maintaining it. And it’s been very helpful to me because it is extremely comprehensive. So if you go to archives, you see that it’s produced almost every other day. Um. It is very comprehensive, and some of it is written by humans and curious by humans, but a lot of it is constructed automatically with elements.</p>
+<p>第二个是 <strong>AI News</strong>，名字普通但内容很好，是瑞士朋友做的 newsletter，感谢维护。它非常全，我常看；点进 archives 能看到几乎隔天一期，覆盖面广，一部分是人写、人审，很多是用 LLM 自动整理的。</p>
+<p>So you’ll see that these are very comprehensive, and you’re probably not missing anything major. If you go through it, you’re probably not gonna go through it so long. But I do think that these summaries all the way up top are quite good and I think have some human oversight. So this has been very helpful to me. And the last thing I would point to is just excellent twitter. A lot of ai happens on x and so I would just follow people who like and trust and get all your latest and greatest on exit. So these are the major places that have worked for me over time.</p>
+<p>整体上很全，不太会漏大事；通读可能有点长，但顶部的摘要我觉得不错，也有人工把关。第三个是 <strong>X（原 Twitter）</strong>：很多 AI 动态都在 X 上，关注你信任的人就能拿到最新资讯。以上是我长期在用的主要渠道。</p>
+<hr>
+<h2 id="六、在哪里用模型：专有、推理平台、基础模型、本地"><a href="#六、在哪里用模型：专有、推理平台、基础模型、本地" class="headerlink" title="六、在哪里用模型：专有、推理平台、基础模型、本地"></a>六、在哪里用模型：专有、推理平台、基础模型、本地</h2><p>Finally, a few words on where you can find the models. Where can you use them? So the first one I would say is for any of the biggest proprietary models, you just have to go to the website of that element provider.</p>
+<p>最后简单说说<strong>在哪里找到、用到这些模型</strong>。最大的<strong>专有模型</strong>直接去各家官网就行。</p>
+<p>So for example, for open ai that’s chat dot com, I believe actually works now. So that’s for open ai now for or for gemini, I think it’s gemini dot google dot com or ai studio. I think they have two for some reason that I don’t fully understand. No one does for the open weights models like deep sea climb, et cetera. You have to go to some kind of an inference provider of alarms. So my favorite one is together, not ai I showed you that when you go to the playground of together that ai then you can sort of pick lots of different models. And all of these are open models of different types. And you can talk to them here as an example.</p>
+<p>例如 OpenAI 是 chat.openai.com，Gemini 是 gemini.google.com 或 AI Studio（他们有两个入口，原因我也不完全清楚）。<strong>开放权重模型</strong>如 DeepSeek、Llama 等没有单一官网，要去<strong>推理平台</strong>。我常用的是 <strong>Together AI</strong>：进它的 playground 可以选很多不同模型，都是各类开源模型，直接对话试用。</p>
+<p>Now, if you’d like to use a base model like a base model, then this is where I think it’s not as common to find these models. Even on these inference providers. They are all targeting assistance and chat. So I think even here, I can’t see base models here. So for base models, I usually go to a hyperbolic. They serve my llama 3.1 base. And I love that model. And you can just talk to it here. So as far as I know, this is a good place for a base model. And I wish more people hosted base models, because they are useful and interesting to work with. In some cases. Finally, you can also take some of the models that are smaller, and you can run them locally.</p>
+<p>如果想用<strong>基础模型（base model）</strong>，这类服务比较少，很多推理平台主推的是助手&#x2F;聊天，上面也看不到 base。我一般去 <strong>Hyperbolic</strong>，他们有 Llama 3.1 base，我很喜欢，可以直接对话。据我所知这是找基础模型的好地方，也希望有更多人托管基础模型，因为很有用、也好玩。再就是<strong>更小的模型可以本地跑</strong>。</p>
+<p>And so, for example, of deep seek of the biggest model, you’re not gonna be able to run locally on your macbook. But there are smaller versions of the deep seek model that are what’s called the still. And then also you can run these models at smaller precision, so not at the native precision, for example, fp eight on deep seek or bf 16 lama, much lower than that. And don’t worry if you don’t fully understand those details, but you can run smaller versions that have been distilled and then at even lower precision, and then you can fit them on your computer.</p>
+<p>比如 DeepSeek 最大版在 MacBook 上跑不动，但有<strong>蒸馏出的小版</strong>（still）；还可以用<strong>更低精度</strong>（如比 fp8、bf16 还低）跑，这样蒸馏版 + 低精度就能塞进自己电脑。细节不懂也没关系，总之可以在本机跑起来。</p>
+<p>And so you can actually run pretty okay models on your laptop. My favorite I think place I go to usually is alum studio, which is basically an app you can get. I think it kind of actually looks really ugly and I don’t like that. It shows you all these models that are basically not that useful, like everyone just wants to run deep seek.</p>
+<p>这样在笔记本上也能跑不错的模型。我平时最常用的是 <strong>Ollama Studio</strong>（一款应用），界面我觉得挺丑、也不喜欢它罗列一大堆模型——大家其实只想跑 DeepSeek 之类。</p>
+<p>So I don’t know why they give you these 500 different types of models. They’re really complicated to search for. And you have to choose different installations and different precisions. And it’s all really confusing. But once you actually understand how it works and that’s a whole separate video, then you can actually load up the model. Like here I loaded up a llama three point to instruct 1 billion. And you can just talk to it. So I asked for pelican jokes and I can ask for another one and it gives me another one, et cetera. All of this that happens here is locally on your computer.</p>
+<p>不知道为什么给你 500 种模型，搜起来很乱，还要选安装方式、精度，挺让人困惑。但搞懂之后就能加载模型，比如我这儿加载了 Llama 3.2 Instruct 1B，直接对话，要鹈鹕笑话就再要一个、它再给一个，<strong>全部在你本机跑</strong>。</p>
+<p>So we’re not actually going to anywhere else. Anyone else? This is running on the gpu on the macbook pro. So that’s very nice. And you can then inject the model when you’re done and that frees up the ram. So ellen studio is probably like my favorite one, even though I think it’s got a lot of uiux issues, and it’s really geared towards professionals, almost. But if you watch some videos on youtube, I think you can figure out how to use this interface. So those are a few words on where to find them.</p>
+<p>没有请求发到别处，就是在 MacBook Pro 的 GPU 上跑。用完后可以卸载模型释放内存。Ollama Studio 算是我最常用的，尽管 UI&#x2F;UX 问题不少、更偏专业用户，看几个 YouTube 教程就能上手。以上是关于「在哪里找、用模型」的简要说明。</p>
+<hr>
+<h2 id="七、回顾：从-query-到-token-序列与自动补全"><a href="#七、回顾：从-query-到-token-序列与自动补全" class="headerlink" title="七、回顾：从 query 到 token 序列与自动补全"></a>七、回顾：从 query 到 token 序列与自动补全</h2><p>So let me now look back around to where we started. The question was when we go to trash pte dot com, and we enter some kind of a query and we had to go what exactly is happening here? What are we seeing? What are we talking to? How does this work? I hope that this video gave you some appreciation for some of the under the hood details of how these models are trained and what this is that is coming back.</p>
+<p>回到开头的问题：打开 ChatGPT、输入一条 query 时，<strong>背后到底发生了什么？我们在和什么对话？</strong> 希望这期视频让你对模型的训练和返回内容有更底层的理解。</p>
+<p>So in particular, we now know that your query is taken and is first chopped up into tokens. We go to talk dictate organizer and here where is the place in the sort of format that is for the user query? We basically put in our query right there. Our query goes into what we discussed here is the conversation protocol format, which is this way that we maintain conversation object.</p>
+<p>具体来说：<strong>你的 query 先被切成 token</strong>，按对话协议格式（我们讲过的 conversation protocol）组织好，用户 query 放在对应位置。</p>
+<p>So this gets inserted there. This whole thing ends up being just a one dimensional token sequence under the hood. So charges pts saw this token sequence. And then when we had to go, it basically continues appending tokens into this list. It continues the sequence. It acts like a token autocomplete. So in particular, it gave us this response. So we can basically just put it here, and we see the tokens that it continued. These are the tokens that it continued with, roughly.</p>
+<p>整段对话在底层就是<strong>一维 token 序列</strong>。ChatGPT 看到这条序列，点击发送后就是<strong>往序列后面不断追加 token</strong>，本质是 <strong>token 级的自动补全</strong>；它给出的回复就是它续写的那串 token，大致就是这样。</p>
+<hr>
+<h2 id="八、三阶段与回复的本质：人类标注者的模拟"><a href="#八、三阶段与回复的本质：人类标注者的模拟" class="headerlink" title="八、三阶段与回复的本质：人类标注者的模拟"></a>八、三阶段与回复的本质：人类标注者的模拟</h2><p>Now the question becomes, okay, why are these the tokens that the model responded with? What are these tokens? Where are they coming from? What are we talking to? How do we program this system? And so that’s where we shifted gears and we talked about under the hood pieces of it. So the first stage of this process, and there are three stages is the pre training stage, which fundamentally has to do with just knowledge acquisition from the internet into the parameters of this neural level.</p>
+<p>那<strong>为什么模型会生成这些 token？我们在和什么对话？怎么「编程」这个系统？</strong> 于是我们转到内部机制：流程有<strong>三阶段</strong>。第一阶段是<strong>预训练</strong>，本质是把互联网上的知识装进神经网络的参数里。</p>
+<p>And so the neural net internalize is a lot of knowledge from the internet, but where the personality really comes in is in the process of supervised fine tuning. What happens here is that basically the a company like open ai will curate a large data set of conversations like, say, 1 million conversation across very diverse topics. And they will be conversations with opinion, human and an assistant. And even though there’s a lot of synthetic data generation used throughout this entire process and a lot of lm help and so on.</p>
+<p>神经网络内化了大量网络知识，但**「人格」<strong>真正来自</strong>监督微调**：像 OpenAI 这样的公司会整理大规模对话数据，比如百万级、话题极广，都是「人类–助手」的对话；虽然整个过程里有很多合成数据和 LLM 辅助，</p>
+<p>Fundamentally, this is a human data curation task with lots of humans involved. And in particular, these humans are data laborers hired by open ai who are given labeling instructions that they learn. And their task is to create ideal assistant responses for any arbitrary problems. So they are teaching the neural network, by example, how to respond to prompts. So what is the way to think about what came back here? Like what is this? I think the right way to think about it is that this is the neural network simulation of a data label at open ai. So it’s as if I gave this query to a daily bird opening eye, and this data, labeler first reads all of the labeling instructions from open ai and then spends 2 hours writing up the ideal assistant response to this query and giving it to me.</p>
+<p>根本上仍是<strong>人类数据整理</strong>，大量人力参与。这些人是 OpenAI 雇的<strong>标注员</strong>，学习标注指南，任务是为各种问题写<strong>理想助手回复</strong>，用例子教神经网络如何响应。所以<strong>怎么理解我们拿到的回复？</strong> 我认为合适的理解是：这是<strong>对 OpenAI 某位数据标注员的神经网络模拟</strong>——相当于把这条 query 交给那位标注员，他先读完 OpenAI 的标注指南，再花两小时写出理想回复交给你。</p>
+<p>Now, we’re not actually doing that, right? Because we didn’t wait 2 hours. So what we’re getting here is a neural network simulation of that process. And we have to keep in mind that these neural networks don’t function like human brains do. They are different. What’s easy or hard for them is different from what’s easy or hard for humans. We really are just getting a simulation.</p>
+<p>我们并没有真等两小时，所以拿到的是<strong>对这个过程的神经网络模拟</strong>。要记住：这些神经网络和人类大脑不一样，对它们来说难易和人类不同，我们得到的<strong>只是模拟</strong>。</p>
+<p>So here I shown you, this is a token stream, and this is fundamentally the neural network with a bunch of activation and neurons in between is a fixed mathematical expression that mixes inputs from tokens with parameters of the model. And they get mixed up and get you the next token in a sequence. But this is a finite amount of compute that happens for every single token. And so this is some kind of a lossy simulation of a human that is kind of like restricted in this way.</p>
+<p>从 token 流的角度看，底层就是神经网络：中间一堆激活和神经元，是<strong>固定的数学表达式</strong>，把 token 输入和模型参数混在一起，得到序列里的下一个 token。每个 token 只做有限步计算，所以这是<strong>一种有损的、受这种限制的人类模拟</strong>。</p>
+<p>And so whatever the human’s right, the language model is kind of imitating on this token level with only this specific computation for every single token in a sequence. We also saw that as a result of this and the cognitive differences, the models will suffer in a variety of ways. And you have to be very careful with their use.</p>
+<p>人类写的东西，语言模型在 <strong>token 级别</strong>用这套固定计算去模仿；我们也看到，由于这种差异，模型会在很多地方出错，<strong>使用时要非常小心</strong>。</p>
+<p>So for example, we saw that they will suffer from hallucinations. We have the sense of a swiss cheese model that all in capabilities where basically there’s holes in the cheese. Sometimes the models will just arbitrarily like do something dumb. So even though they’re doing lots of magical stuff, sometimes they just can’t. So maybe you’re not giving them enough tokens to think. And maybe they’re gonna just make stuff up because they’re mental arithmetic breaks. Maybe they are suddenly unable to count number of letters, or maybe they’re unable to tell you that 911, 9.11 is smaller than 9.9. And it looks kind of dumb. It’s a swiss cheese capability. And we have to be careful with that. And we saw the reasons for that.</p>
+<p>例如会<strong>幻觉</strong>；我们有「<strong>瑞士奶酪模型</strong>」的比喻——能力上到处是洞，有时会莫名其妙犯蠢，会编造、心算崩掉、数不清字母、甚至说不好 9.11 和 9.9 谁大，看起来挺傻。这是能力上的瑞士奶酪，要小心，我们也讲了背后的原因。</p>
+<p>But fundamentally, this is how we think of what came back. It’s, again, a simulation of this neural network of a human data, labeler following the labeling instructions at open ai. That’s what we’re getting back.</p>
+<p>但根本上，<strong>我们就是这样理解返回内容的</strong>：它是对「遵循 OpenAI 标注指南的人类数据标注员」的神经网络模拟，这就是我们拿到的东西。</p>
+<hr>
+<h2 id="九、思维模型与使用建议"><a href="#九、思维模型与使用建议" class="headerlink" title="九、思维模型与使用建议"></a>九、思维模型与使用建议</h2><p>Now, I do think that the things change a little bit when you actually go and reach for one of the thinking models, like 03 many high. And the reason for that is that gpt four o basically doesn’t do reinforcement learning. It does do rlhf i’ve told you that rlhf is not rl there’s no there’s no time for magic in there. It’s just a little bit of a fine tuning is the way to look at it. But these thinking models they do use rl so they go through this third stage of perfecting their thinking process and discovering new thinking strategies and solutions do problem solving that look a little bit like your internal monologue in your head. And they practice that on a large collection of practice problems that companies like open ai create and cure it and then make available to the alarms.</p>
+<p>当你用<strong>思维模型</strong>（如 o3 mini 等）时，情况会有点不同。GPT-4o 基本不做强化学习，只做 RLHF，我说过 RLHF 不是那种「有魔法」的 RL，更像小幅微调。而<strong>思维模型会做 RL</strong>，会经历第三阶段：打磨思维过程、发现新的思维策略和解题方式，有点像你脑子里的内心独白；它们在 OpenAI 等公司整理的大量练习题上练习，再开放给模型用。</p>
+<p>So when I come here and I talk to a thinking model and I put in this question, what we’re seeing here is not anymore just a straightforward simulation of a human data label like this is actually kind of New, unique, and interesting. And open AI is not showing us under the hood thinking and the chains of thought that are underlying the reasoning here. But we know that such a thing exists, and this is a summary of it. And what we’re getting here is actually not just an imitation of a human data labeler. It’s actually something that is kind of new and interesting and exciting in the sense that it is a function of thinking that was emergent in a simulation. It’s not just imitating human data label. It comes from this reinforcement learning process. And so here we’re not giving it a chance to shine, because this is not a mathematical or reasoning problem. This is just some kind of a sort of creative writing problem, or roughly speaking.</p>
+<p>所以当我和思维模型对话、扔进这类问题时，我们看到的<strong>不再只是对人类标注员的简单模拟</strong>，而是某种新的、独特的东西。OpenAI 没有把底层思维和思维链展示给我们，但我们知道它存在，这里是概括。我们得到的<strong>不只是在模仿人类标注员</strong>，而是<strong>在模拟中涌现出的思维功能</strong>，来自强化学习过程。这里我们没让它发挥所长，因为这不是数学或推理题，只是某种创意写作类问题。</p>
+<p>And I think it’s all a question, an open question, as to whether the thinking strategies that are developed inside verifiable domains, transfer and are generalizable to other domains that are unverifiable, such as create writing the extent to which that transfer happens is unknown in the field, I would say. So we’re not sure if we are able to do rl on everything that is verifiable and see the benefits of that on things that are unverifiable like this prompt. So that’s an open question.</p>
+<p>在可验证域里发展出的<strong>思维策略能否迁移、泛化到未验证域</strong>（如创意写作），在学界还是<strong>开放问题</strong>；能在可验证域做 RL 带来的好处，有多少会体现在这类未验证 prompt 上，还不确定。</p>
+<p>The other thing that’s interesting is that this reinforcement learning here is still like way, too new, primordial, and nascent. So it just seemed like the beginnings of the hints of greatness. In the reason problems, we’re seeing something that is, in principle, capable of something like the equivalent of move 37, but not in the game of go.</p>
+<p>另一方面，这里的强化学习还非常新、很原始，只是伟大的苗头。在推理题上，我们看到的在原则上能做出类似围棋「第 37 手」的东西，只不过不是在围棋里。</p>
+<p>But in open domain thinking and problem solving, in principle, this paradigm is capable of doing something really cool, new and exciting. Something even that no human has thought of. In principle, these models are capable of analogies, no human has had. So I think it’s incredibly exciting that these models exist. But again, it’s very early. And these are primordial models for now. And they will mostly shine in domains that are verifiable like math and code, et cetera.</p>
+<p>在开放域思维和问题解决上，原则上这套范式能做出很酷、很新、人类没想过的东西，能有人类从未有过的类比。所以这些模型的存在非常令人兴奋，但确实还很早，目前仍是「原始」模型，<strong>主要还是在数学、代码等可验证域发光</strong>。</p>
+<p>So very interesting to play with and think about in use. That’s roughly it. I would say those are the broad strokes of what’s available right now. I will say that overall, it is an extremely exciting time to be in the field. Personally, I use these models all the time, daily tens or hundreds of times, because they dramatically accelerate my work. I think a lot of people see the same thing. I think we’re going to see a huge amount of wealth creation as a result of these models be aware of some of their shortcomings.</p>
+<p>玩一玩、在用的时候多想想会很有意思。以上就是当前情况的大致轮廓。整体来说这个领域非常令人兴奋；我个人每天用这些模型几十上百次，它们大幅加速了我的工作，很多人也有同感，我们会看到大量由这些模型带来的价值创造，同时也要<strong>意识到它们的短板</strong>。</p>
+<p>Even with rl models, they’re gonna suffer from some of these. Use it as a tool in a toolbox. Don’t trust it fully, because they will randomly do dumb things. They will randomly hallucinate. They will randomly skip over some mental arithmetic and not get it right. They randomly can’t count or something like that. So use them as tools and toolbox, check their work and own the product of your work, but use them for inspiration for first draft. Ask them questions, but always check and verify. And you will be very successful in your work if you do so. So I hope this video was useful and interesting to you. I hope you had fun. And it’s already like very long. So I apologize for that, but I hope it was useful. I will see you later. You building your APP.</p>
+<p>即使用 RL 模型也免不了这些问题。<strong>把它们当工具箱里的一件工具</strong>，不要全信——它们会随机犯蠢、幻觉、心算跳步、数错等等。用来激发灵感、打初稿、提问都可以，但<strong>一定要核查</strong>，对产出负责。这样你在工作中会非常顺利。希望这期视频对你有用、有意思，虽然已经很长了，抱歉，希望有帮助。下次见，祝你把应用做起来。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/vibe-coding/">vibe coding</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/03/08/2206601553.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Deep Dive into LLMs like ChatGPT - 8</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/03/08/1837658237.html">
+                        <span class="hidden-mobile">Deep Dive into LLMs like ChatGPT - 6</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "Deep Dive into LLMs like ChatGPT - 7"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

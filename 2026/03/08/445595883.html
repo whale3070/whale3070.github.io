@@ -1,0 +1,547 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>Deep Dive into LLMs like ChatGPT - 5 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="Deep Dive into LLMs like ChatGPT - 5">
+                      
+                        Deep Dive into LLMs like ChatGPT - 5
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-03-08 13:29" pubdate>
+        2026年3月8日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      7.9k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      124
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">Deep Dive into LLMs like ChatGPT - 5</h1>
+            
+            <div class="markdown-body">
+              <blockquote>
+<p>本文为 Stanford 大语言模型公开课讲稿片段（续篇），格式为一段英文、一段中文对照。阅读至约 1 小时后附「上文总结」，后续英文建议另起一篇续写。</p>
+</blockquote>
+<hr>
+<h2 id="一、回顾：预训练与监督微调，接下来是强化学习"><a href="#一、回顾：预训练与监督微调，接下来是强化学习" class="headerlink" title="一、回顾：预训练与监督微调，接下来是强化学习"></a>一、回顾：预训练与监督微调，接下来是强化学习</h2><p>Okay, so we have now covered two major stages of training of large language models. We saw that in the first stage, this is called the pre training stage. We are basically training on internet documents. When you train a language model on internet documents, you get what’s called a base model, and it’s basically an internet document simulator. Now we saw that this is interesting artifact, and this takes many months to train on thousands of computers, and it’s kind of lossy compression of the internet. And it’s extremely interesting, but it’s not directly useful because we don’t want to sample internet documents. We want to ask questions of an AI and have it respond to our questions. So for that, we need an assistant, and we saw that we can actually construct an assistant in the process of post training, and specifically in the process of supervised fine tuning as we call it.</p>
+<p>我们已经讲完大语言模型训练的两个主要阶段。第一阶段是<strong>预训练</strong>：在互联网文档上训练，得到<strong>基础模型</strong>，本质是互联网文档模拟器；要花数月、数千台机器，是对互联网的有损压缩，有趣但不够直接用——我们想要的是能问答的<strong>助手</strong>。所以在<strong>后训练</strong>里、具体是**监督微调（SFT）**阶段，我们构造出了助手。</p>
+<p>So in this stage, we saw that it’s algorithmically identical to pre training. Nothing is going to change. The only thing that changes is the data set. So instead of internet documents, we now want to create and curate a very nice data set of conversations. So we want millions of conversations on all kinds of diverse topics between human and an assistant and fundamentally, these conversations are created by humans. So humans write the prompts, and humans write the ideal responses. And they do that based on labeling documentation. Now, in the modern stack, it’s not actually done fully and manually by humans, right? They actually now have a lot of help from these tools. So we can use language models to help us create these data sets that’s done extensively. But fundamentally, it’s all still coming from human creation at the end. So we create these conversations that now becomes our data set. We fine tune on it or continue training on it. And we get an assistant. And then we kind of shifted gears and started talking about some of the kind of cognitive implications of what this system is like. And we saw that, for example, the assistant will hallucinate if you don’t take some sort of mitigation towards it. So we saw that hallucinations will be common. And then we looked at some of the mitigation of those hallucinations. And then we saw that the models are quite impressive and can do a lot of stuff in their head. But we saw that they can also lean on tools to become better. So for example, we can lean on the web search in order to hallucinate less, and to maybe bring up some more recent information or something like that, or we can lean on tools like code interpreter. So the LLM can write some code and actually run it and see the results. So these are some of the topics we looked at so far.</p>
+<p>这一阶段<strong>算法和预训练完全一样</strong>，变的只是<strong>数据集</strong>：从互联网文档换成精心整理的<strong>对话数据集</strong>——百万级、多主题的人—助手对话，本质上由人类创造（人类写 prompt、写理想回复、按标注指南做）；现代会大量用 LLM 辅助生成，但根子上还是人类创作。用这些对话继续训练就得到助手。然后我们转到了这类系统的<strong>认知含义</strong>：不缓解就会幻觉、我们看了几种缓解、模型能「脑内」做很多事、也能靠工具（网页搜索、代码解释器）变得更好。以上就是目前讲过的内容。</p>
+<p>Now, what I’d like to do is I’d like to cover the last and major stage of this pipeline. And that is reinforcement learning. So reinforcement learning is still kind of thought to be under the umbrella of post training. But it is the last third major stage, and it’s a different way of training language models and usually follows as this third step. So inside companies like OpenAI you will have separate teams. So there’s a team doing data for pre training and the team doing training for pre training. Then there’s a team doing all the conversation generation and a different team that is kind of doing the supervised fine tuning. And there will be a team for the reinforcement learning as well. So it’s kind of like a handoff of these models. You get your base model. Then you fine-tune to get an assistant. You go into reinforcement learning, which we’ll talk about now. So that’s kind of like the major flow.</p>
+<p>接下来要讲的是这条流水线的<strong>最后一个主要阶段：强化学习（RL）</strong>。RL 仍算后训练的一部分，但是第三大阶段、另一种训练方式，通常作为第三步。公司里会有不同团队：预训练数据、预训练训练、对话生成、监督微调、以及强化学习团队，模型在团队之间交接：先拿基础模型、再 SFT 得到助手、再进入强化学习。下面我们就聚焦 RL。</p>
+<hr>
+<h2 id="二、用「上学」类比：教材、例题与练习题"><a href="#二、用「上学」类比：教材、例题与练习题" class="headerlink" title="二、用「上学」类比：教材、例题与练习题"></a>二、用「上学」类比：教材、例题与练习题</h2><p>Let me first motivate why we would want to do reinforcement learning and what it looks like on a high level. So I would now like to try to motivate the reinforcement learning stage and what it corresponds to—something that you’re probably familiar with. And that is basically going to school. So just like you went to school to become really good at something we want to take large language models through school. Really, what we’re doing is we have a few paradigms of ways of giving them knowledge or transferring skills. So in particular, when we’re working with textbooks in school, you’ll see that there are three major kind of pieces of information in these textbooks, three classes of information. The first thing you’ll see, a lot of exposition. So most of the text is kind of just like the meat of it is exposition. It’s kind of like background knowledge. As you are reading through the words of this exposition, you can think of that roughly as training on that data. So when you’re reading through this stuff, this background knowledge, it’s kind of equivalent to pre training. So it’s where we build sort of like a knowledge base of this data and get a sense of the topic. The next major kind of information that you will see is these are problems and with their worked solutions. So basically, a human expert, the author of this book has given us not just a problem, but has also worked through a solution. And the solution is basically like equivalent to having this ideal response for an assistant. So as we are reading the solution, we are basically training on the expert data. Later we can try to imitate the expert. And basically, that roughly corresponds to having the SFT model. So we’ve already done pre training, and we’ve already covered this imitation of experts and how they solve these problems. And the third stage of reinforcement learning is basically the practical problems. So there will be usually many practice problems at the end of each chapter in any textbook. And practice problems we know are critical for learning, because they’re getting you to practice yourself and discover ways of solving these problems yourself. What you get in the practice problem is you get the problem description, but you are not given the solution, but you are given the final answer, usually in the answer key. So you have the problem statement, but you don’t have the solution. You are trying to practice the solution. You’re trying out many different things, and you’re seeing what gets you to the final solution. You’re discovering how to solve these problems. In the process of that, you’re relying on number one, the background information which comes from pre training. Number two, maybe a little bit of imitation of human experts. So we’ve done this and this. And now in this section, we’re going to try to practice. So we’re gonna be given prompts. We’re gonna be given the final answers, but we’re not gonna be given expert solutions. We have to practice and try stuff out, and that’s what reinforcement learning is about.</p>
+<p>先直观说说为什么要做强化学习、它大致长什么样。可以把 RL 阶段对应成大家熟悉的事：<strong>上学</strong>。就像人通过上学变强，我们也要让大语言模型「上学」——用几种方式给它们知识和技能。教材里有三类信息：一是<strong>大量阐述</strong>，即背景知识，读这些相当于在那种数据上训练，也就是<strong>预训练</strong>，用来建知识库、熟悉主题。二是<strong>带详解的例题</strong>，专家不仅出题还写出完整解答，相当于助手的「理想回复」；读解法就是在学专家数据、之后模仿专家，这对应<strong>SFT 模型</strong>。所以我们已经做了预训练和「模仿专家」。三是<strong>练习题</strong>：每章末尾有很多练习，只有题目和<strong>最终答案</strong>（在答案里），没有详解。你要自己动手试、发现怎么解，依赖的是预训练带来的背景和一点对专家的模仿。现在这一阶段就是「做练习」：给 prompt、给最终答案，但不给专家解法，要自己试——这就是<strong>强化学习</strong>在做的事。</p>
+<hr>
+<h2 id="三、为什么人类标注的「标准解法」不够：人脑和模型不一样"><a href="#三、为什么人类标注的「标准解法」不够：人脑和模型不一样" class="headerlink" title="三、为什么人类标注的「标准解法」不够：人脑和模型不一样"></a>三、为什么人类标注的「标准解法」不够：人脑和模型不一样</h2><p>Okay, so let’s go back to the problem that we worked with previously. Emily buys three apples and two oranges. Each orange is $2. The total cost of all the fruit is $13. What’s the cost of each apple? What I’d like you to appreciate here is these are like four possible candidate solutions as an example. They all reach the answer three. Now, what I’d like you to appreciate at this point is that if I’m the human data labeler that is creating conversation to be entered into the training set, I don’t actually really know which of these conversations to add to the data set. Some of these conversations kind of set up a system of equations. Some of them sort of just talk through it in English. Some of them just kind of skip right through to the solution. We have to appreciate and differentiate between those: the first purpose of a solution is to reach the right answer. We wanna get the final answer three. That is the important purpose here. But there’s a kind of like a secondary purpose as well, where we are also just kind of trying to make it nice for the human. They want to see the intermediate steps. So let’s for the moment focus on just reaching the final answer. If we only care about the final answer, then which of these is the best solution for the LM to reach the right answer? And what I’m trying to get at is we don’t know. Me as a human laborer, I would not know which one of these is best. So as an example we saw earlier on, for each token we can only spend basically a finite amount of compute. We can’t actually make too big of a leap in any one token. So in this one, what’s really nice about it is that it’s very few tokens. But right here, when we’re doing 30-4, divide three equals right, in this token here we’re actually asking for a lot of computation to happen on that single individual token. Maybe this is a bad example to give to the LLM because it’s kind of incentivizing it to skip through the calculations very quickly. It’s going to actually make mistakes in this mental arithmetic. So maybe it would work better to spread out more. Maybe it would be better to set up as an equation. We fundamentally don’t know, and we don’t know because what’s easy for us or hard for us is different than what’s easy or hard for the LLM—its cognition is different. So if the only thing we care about is reaching the final solution and doing it economically, then we don’t actually really know how to annotate this example. We don’t know what solution to give to the LLM because we are not the LLM. And so long story short, we are not in a good position to create these token sequences for the LM. They’re useful by imitation to initialize the system. We really want to allow them to discover the token sequences that work for it. It needs to find for itself what token sequence reliably gets to the answer, given the prompt, and needs to discover that in a process of reinforcement learning and of trial and error.</p>
+<p>回到之前的题目：Emily 买 3 个苹果 2 个橙子，橙子每个 2 美元，总价 13 美元，问每个苹果多少钱？这里有四种候选解法，都得到答案 3。要点是：<strong>如果我是造训练对话的人类标注员，我其实不知道应该把哪一种放进数据集</strong>。有的列方程、有的用自然语言推、有的直接跳到答案。要区分两点：一是<strong>解法的首要目的是得到正确答案</strong>（得到 3）；二是顺带让人看得舒服（展示中间步骤）。若只关心「得到最终答案」，哪条解法对 LM 来说<strong>最好</strong>？我们不知道。之前说过，每个 token 只能做有限计算，不能在一个 token 里跨太大步。所以有的解法 token 很少，但某一处（比如「30-4，除以 3」）等于在一个 token 里塞进大量计算，可能反而会诱导模型跳步、心算出错。也许摊开写更好、也许列方程更好，我们<strong>根本不知道</strong>，因为对人简单&#x2F;难的和对 LM 简单&#x2F;难的不一样——<strong>认知不同</strong>。所以若只关心「经济地得到正确解」，我们其实不知道该怎么标这个样例、该给 LM 哪条解法。结论：我们并不适合替 LM 指定这些 token 序列；它们适合用来<strong>模仿、初始化系统</strong>，但我们更希望让模型<strong>自己发现</strong>对它有效的 token 序列——在<strong>强化学习、试错</strong>的过程中找到给定 prompt 下能稳定得到答案的序列。</p>
+<hr>
+<h2 id="四、强化学习怎么跑：多试多种解法，只强化对的"><a href="#四、强化学习怎么跑：多试多种解法，只强化对的" class="headerlink" title="四、强化学习怎么跑：多试多种解法，只强化对的"></a>四、强化学习怎么跑：多试多种解法，只强化对的</h2><p>So let’s see how this example would work like in reinforcement learning. Okay, so we’re now back in the Hugging Face inference playground. I chose the Qwen2 2B parameter model. So 2 billion is very, very small. So we’re gonna give it the prompt. The way that reinforcement learning will basically work is actually quite simple. We need to try many different kinds of solutions, and we want to see which solutions work well or not. So we’re basically gonna take the prompt. We’re gonna run the model. And the model generates a solution. And then we’re gonna inspect the solution. And we know that the correct answer for this one is $3. Indeed, the model gets it correct. So it’s just one attempt at the solution. So now we’re going to delete this, and we’re going to rerun it again. Let’s try a second attempt. So the model solves it in a slightly different way, right? Every single attempt will be a different generation, because these models are stochastic systems. So we end up going down slightly different paths. This is the second solution that also ends in the correct answer. Now we can actually repeat this many times. In practice, you might actually sample thousands of independent solutions, or even like 1 million solutions for just a single prompt. And some of them will be correct, and some of them will not. And basically, what we want to do is we want to encourage the solutions that lead to correct answers. So here is kind of like a cartoon diagram. We have a prompt, and then we tried many different solutions in parallel. Some of the solutions might go well—they get the right answer, which is in green. Some of the solutions might go poorly and may not reach the right answer, which is red. So we generated 15 solutions. Only four of them got the right answer. And so now what you want to do is we want to encourage the kinds of solutions that lead to right answers. So whatever token sequences happened in these red solutions, obviously something went wrong along the way. And whatever token sequences were in these green solutions, things went pretty well. And so we want to do more things like it in prompts like this. And the way we encourage this kind of behavior in the future is we basically train on these sequences. But these training sequences now are not coming from expert human annotators. There’s no human who decided that this is the correct solution. This solution came from the model itself. So the model is practicing here. It’s tried out a few solutions. Four of them seem to have worked. And now the model will kind of like train on them. And this corresponds to a student looking at their solutions and being like, okay, this one worked really well. So this is how I should be solving these kinds of problems. Maybe it’s simplest to just think about taking the single best solution out of these four. So this is the solution that not only led to the right answer, but maybe had some other nice properties. We’re gonna train on it, and then the model will be slightly more likely once you do the parameter update to take this path in this kind of a setting in the future. But you have to remember that we’re gonna run many different diverse prompts across lots of math problems and physics problems and whatever. So tens of thousands of prompts maybe. There’s thousands of solutions per prompt. This is all happening kind of like at the same time. And as we’re reiterating this process, the model is discovering for itself what kinds of token sequences lead it to correct answers? It’s not coming from a human annotator. The model is kind of like playing in this playground, and it knows what it’s trying to get to and is discovering sequences that work for it. This is the process of reinforcement learning. It’s basically guess and check. We’re gonna guess many different types of solutions. We’re gonna check them, and we’re gonna do more of what worked in the future. And that is reinforcement learning.</p>
+<p>看一个具体例子。在 Hugging Face 的推理 playground 里选 Qwen2 2B，给它同一道题。强化学习的大致做法很简单：<strong>多试多种解法，看哪些能走到正确答案</strong>。我们给 prompt、跑模型、模型生成一条解法、我们检查；这道题正确答案是 3，模型这次答对了，只是一次尝试。删掉再跑，第二次解法会略有不同，因为模型是随机的，每次走的路不一样；这条也得到正确答案。实践中可以对<strong>同一个 prompt 采样成千上万甚至百万条</strong>解法，有的对（绿）、有的错（红）。我们想<strong>鼓励那些走到正确答案的解法</strong>。假设生成了 15 条，只有 4 条对：红的那几条里显然某处出了问题，绿的那几条 token 序列是好的，我们希望在类似题目上多出现这类序列。鼓励的方式就是<strong>在这些序列上训练</strong>——但这次训练数据<strong>不是人类专家写的</strong>，没有人类指定「这是正确解法」，解法来自<strong>模型自己</strong>。所以是模型在「练习」：试了很多条，其中 4 条有效，然后在这 4 条（或其中选一条最好的）上训练，参数更新后模型以后更可能走这类路径。要记住：我们会在成千上万个不同 prompt 上（各种数学、物理题等）做这件事，每个 prompt 下成千上万条解法，同时进行。反复迭代后，模型就在<strong>自己发现</strong>哪些 token 序列能带它到正确答案——不是人类标注员教的，是模型在「 playground 」里试出来的。这就是<strong>强化学习</strong>：猜多种解法、检查、以后多做有效的那种。</p>
+<hr>
+<h2 id="五、SFT-是初始化，RL-才是真正把解题「-dial-好」"><a href="#五、SFT-是初始化，RL-才是真正把解题「-dial-好」" class="headerlink" title="五、SFT 是初始化，RL 才是真正把解题「 dial 好」"></a>五、SFT 是初始化，RL 才是真正把解题「 dial 好」</h2><p>So in the context of what came before, we see now that the SFT model, the supervised fine tuning model, it’s still helpful because it’s still kind of like initializing the model a little bit into the vicinity of the correct solutions. So it kind of gets the model to write out solutions. And maybe it has an understanding of setting up a system of equations, or maybe it kind of talks through the resolution. So it gets you into the vicinity of correct solutions. But reinforcement learning is where everything gets dialed. We really discover the solutions that work or the model gets the right answers. And then the model just kind of like gets better over time. So that is the high level process for how we train large language models. In short, we train them kind of very similar to how we train children. So first, we do pre training, which is equivalent to basically reading all the exposition material—we look at all the textbooks at the same time, and we read all the exposition, and we try to build a knowledge base. The second thing then is we go into the SFT stage, which is really looking at all the worked solutions from human experts across all the textbooks. We just kind of get an assistant model which is able to imitate the experts. But it’s kind of blindly—it just kind of does its best guess, trying to mimic statistically the expert behavior. That’s what you get when you look at all the work solutions. And then finally, in the last stage, we do all the practice problems. In the RL stage, across all the textbooks, we only do the practice problems. And that’s how we get the RL model. So on a high level, the way we train LLMs is very much equivalent to the process that we use for training children.</p>
+<p>放在整体里看：<strong>SFT 模型</strong>仍然有用，因为它把模型<strong>初始化到正确解法附近</strong>——会列方程、会一步步讲，把你带到「对解」的邻域。但<strong>强化学习</strong>才是把一切「调准」的地方：在这里我们真的发现哪些解法有效、模型真的得到正确答案，然后模型就这样越变越好。所以训练大语言模型的高层流程就是这样；简言之，<strong>和训练小孩非常像</strong>。第一步预训练 &#x3D; 读所有阐述性材料，同时看所有教材、建知识库。第二步 SFT &#x3D; 看所有教材里的<strong>例题详解</strong>，得到能模仿专家的助手模型，但只是统计上模仿、盲目地猜。第三步 RL &#x3D; 只做<strong>练习题</strong>，在所有教材的练习题上做，得到 RL 模型。所以高层上，我们训 LLM 的方式和训小孩的过程是对应的。</p>
+<hr>
+<h2 id="六、RL-阶段较新、细节多；DeepSeek-论文与「思维」涌现"><a href="#六、RL-阶段较新、细节多；DeepSeek-论文与「思维」涌现" class="headerlink" title="六、RL 阶段较新、细节多；DeepSeek 论文与「思维」涌现"></a>六、RL 阶段较新、细节多；DeepSeek 论文与「思维」涌现</h2><p>The next point I would like to make is that actually these first two stages, pre training and supervised fine tuning, they’ve been around for years and they are very standard. It is this last stage, the RL training, there is a lot more early in its process of development and is not standard yet in the field. The reason for that is because I actually skipped over a ton of little details here. The high level idea is very simple. It’s trial and error learning. But there’s a ton of details—how you pick the solutions that are the best, how much you train on them, what is the prompt distribution, how to stop the training run such that this actually works. Getting the details right here is not trivial. And so a lot of companies have experimented internally with reinforcement learning fine tuning for LLMs for a while, but they’ve not talked about it publicly. And so that’s why the paper from DeepSeek that came out very recently was such a big deal. This paper really talked very publicly about reinforcement learning fine training for large language models, and how incredibly important it is, and how it brings out a lot of reasoning capabilities in the models. So this paper reinvigorated the public interest of using RL for LLMs and gave a lot of the details that are needed to reproduce their results. So let me take you briefly through this DeepSeek RL paper. And what happens when you actually correctly apply RL to language models? The first thing I’ll scroll to is this kind of figure two here, where we are looking at the improvement in how the models are solving mathematical problems. So this is the accuracy of solving mathematical problems. And you can see that in the beginning they’re not doing very well, but then as you update the model with many thousands of steps, their accuracy kind of continues to go up. So the models are discovering how to solve math problems. But even more incredible than the quantitative results is the qualitative means by which the model achieves these results. So when we scroll down, one of the figures here that is kind of interesting is that later on in the optimization, the model seems to be using more tokens—the average length per response goes up. So it’s learning to create very, very long solutions. Why are these solutions very long? So basically, what they discover is that the model solution gets very, very long, partially because the model starts to do stuff like this: “Wait. That’s not right. Let me reevaluate this step by step to identify the correct sum.” So what is the model doing here? The model is basically reevaluating steps. It has learned that it works better for accuracy to try out lots of ideas, try something from different perspectives, retrace, reframe, backtrack. It’s doing a lot of the things that you and I are doing in the process of problem solving for mathematical questions. But it’s rediscovering what happens in your head, not what you put down on the solution. And there is no human who can hard code this stuff in the ideal assistant response. This is only something that can be discovered in the process of reinforcement learning. So the model learns what we call these chains of thought. And it’s an emergent property of the optimization. And that’s what’s bloating up the response length, but that’s also what’s increasing the accuracy of the problem solving. So the model is discovering ways to think—it’s learning what I like to call cognitive strategies. And this is kind of discovered by the RL—extremely incredible to see this emerge in the optimization without having to hard code anywhere. The only thing we’ve given it are the correct answers. This comes out from trying to just solve them correctly, which is incredible.</p>
+<p>前两阶段（预训练、监督微调）已经存在多年、很标准；<strong>最后一阶段 RL 还比较早期</strong>，业内还不算标准。原因是我跳过了大量细节——高层想法很简单（试错学习），但「怎么选最好的解法、训多少、prompt 分布怎么设、何时停训」等细节非常多，把这些做对并不容易，所以很多公司内部试过 RL 微调但很少公开说。因此 <strong>DeepSeek 这篇 RL 论文</strong>才引起很大关注：它非常公开地讲了大语言模型的强化学习微调、有多重要、如何带出大量推理能力，并给出了不少复现所需的细节。简要过一下这篇论文：正确地对语言模型做 RL 会发生什么？图二里是模型解数学题准确率随训练步数的提升——一开始不好，几千步后准确率持续上升，模型在<strong>自己学会</strong>解数学题。比数值更厉害的是<strong>达成方式</strong>：优化到后面，模型每条回复的<strong>平均长度变长</strong>，学会写很长的解法。为什么？因为他们发现模型会开始做这种事：「等等，不对。让我一步步重新算一下正确的和。」也就是说模型在<strong>重新评估步骤</strong>，学会了「多试几种想法、换角度、回溯、重述」对准确率更好——很像人做题时脑内的过程，而且这是<strong>涌现</strong>出来的，没人能在理想助手回复里硬编码这些；只有在强化学习过程中才能被发现。所以模型学到的就是我们说的<strong>思维链</strong>，是优化的涌现性质；既拉长了回复，也提高了解题准确率——模型在<strong>发现思维方式</strong>、学到所谓的认知策略，而且完全由 RL 发现，没有在任何地方硬编码，我们只给了正确答案，它只是试图解对，结果就出来了。</p>
+<hr>
+<h2 id="七、推理模型实例：DeepSeek-R1、ChatGPT-o1、Gemini；何时用哪个"><a href="#七、推理模型实例：DeepSeek-R1、ChatGPT-o1、Gemini；何时用哪个" class="headerlink" title="七、推理模型实例：DeepSeek R1、ChatGPT o1、Gemini；何时用哪个"></a>七、推理模型实例：DeepSeek R1、ChatGPT o1、Gemini；何时用哪个</h2><p>Now, let’s take a look at what it would look like for this kind of a model—what we call a reasoning or thinking model—to solve that problem. So this model described in this paper, DeepSeek R1, is available on chat.deepseek.com. You have to make sure that the deep think button is turned on to get the R1 model. So this is previously what we get using basically an SFT approach—mimicking an expert solution. This is what we get from the RL model. So here, as you’re reading this, you can’t escape thinking that this model is thinking and is definitely pursuing the solution. It derives that it must cost $3, and then it says, wait a second. Let me check my math again to be sure. And then it tries it from a slightly different perspective. And then it says all that checks out. I think that’s the answer. Let me see if there’s another way to approach the problem, maybe setting up an equation. Same answer. Definitely, each apple is $3. And then what it does once it sort of did the thinking process, is it writes up the nice solution for the human. So this is more about the correctness aspect, and this is more about the presentation aspect. What’s incredible about this is we get this thinking process of the model. And this is what’s coming from the reinforcement learning process. DeepSeek R1 is an open weights model. It is available for anyone to download and use. Many companies are hosting it. One of those companies that I like to use is called together.ai. So when you go to the playground of together.ai you can select DeepSeek R1. So that’s DeepSeek. Now when I go back to ChatGPT, the model that you’re gonna see in the dropdown here, some of them like o1, o3 mini high, et cetera, they are talking about advanced reasoning. What this is referring to is that they were trained by reinforcement learning—techniques very similar to those of DeepSeek R1. So these are thinking models trained with RL. These models, GPT-4o or GPT-4o mini that you’re getting on the free tier, you should think of them as mostly SFT models. They don’t actually do this like thinking as you see in the RL models. So we can pick a thinking model like o3 mini high. And now what’s gonna happen here is it’s gonna say reasoning and it’s gonna start to do stuff like this. So even though under the hood the model produces these kinds of chains of thought, OpenAI chooses to not show the exact chains of thought in the web interface. It shows little summaries. I think partly because they are worried about the distillation risk—that someone could try to imitate those reasoning traces. So you’re not getting exactly what you would get in DeepSeek with respect to reasoning itself. But in terms of performance, these models and DeepSeek are currently roughly on par. So that’s thinking models. So what is the summary so far? We talked about reinforcement learning. And the fact that thinking emerges in the process of the optimization when we basically run RL on many math and code problems that have verifiable solutions. Now these thinking models you can access on DeepSeek or any inference provider like together.ai, and these thinking models are also in ChatGPT under any of the o1 or o3 models. But these GPT-4o models that you get on the free tier, you should think of them as mostly SFT models. Now if you have a prompt that requires advanced reasoning, you should probably use some of the thinking models or at least try them out. But empirically, for a lot of my use, when you’re asking a simpler question, like a knowledge based question, this might be overkill—there’s no need to think 30 seconds about some factual question. So for that, I will sometimes default to just GPT-4o. So empirically, about 80, 90% of my use is just GPT-4o. When I come across a very difficult problem, like in math and code, et cetera, I will reach for the thinking models. But then I have to wait a bit longer because they are thinking. So you can access these on ChatGPT, on DeepSeek. Also, ai studio.google.com—if you choose Gemini 2.0 flash thinking experimental or o1, that’s also a kind of early experimental thinking model by Google. So basically Gemini also offers a thinking model. Anthropic currently does not offer a thinking model. So that’s thinking models. And that’s the frontier development of pushing the performance in these very difficult problems using reasoning that is emergent in these optimization.</p>
+<p>看一下这类<strong>推理&#x2F;思考模型</strong>解同一道题会怎样。论文里的 <strong>DeepSeek R1</strong> 在 chat.deepseek.com，要打开 deep think 才是 R1。之前用 SFT 得到的是模仿专家解法的回复；RL 模型会先推导出每个苹果 3 美元，然后说「等等，我再验算一下」，换一种方式再算一遍，再说「都对，我觉得答案就是这个」，还会用方程再验证一遍，最后给人写一份整洁的解答。前半段是<strong>正确性</strong>（思考过程），后半段是<strong>呈现</strong>。了不起的是我们真的看到了模型的「思考过程」，这正是强化学习阶段带来的。DeepSeek R1 是<strong>开放权重</strong>，谁都可以下载使用；很多公司在托管，例如 <strong>together.ai</strong> 的 playground 里可以选 DeepSeek R1。回到 ChatGPT，下拉框里像 o1、o3 mini high 等写的是「advanced reasoning」，指的就是用类似 DeepSeek R1 的 RL 技术训出来的<strong>思考模型</strong>；而免费层的 GPT-4o &#x2F; GPT-4o mini 应主要视为 <strong>SFT 模型</strong>，不会像 RL 模型那样显式「思考」。选一个思考模型（如 o3 mini high）后，界面会显示「reasoning」并开始推理；OpenAI 不展示完整思维链，只给简短摘要，部分原因可能是担心<strong>蒸馏风险</strong>（别人模仿推理轨迹）。所以推理本身你看到的和 DeepSeek 不完全一样，但性能上目前和 DeepSeek 大致一档。小结：我们讲了强化学习，以及在对大量有可验证答案的数学&#x2F;代码题跑 RL 时，<strong>思维会涌现</strong>。思考模型可以在 DeepSeek、together.ai 等推理平台用，在 ChatGPT 里就是 o1、o3 等；免费层的 GPT-4o 主要是 SFT。需要强推理的 prompt 建议用思考模型试试；但很多简单、知识型问题用思考模型是杀鸡用牛刀，我大约 80–90% 的日常用法是 GPT-4o，只有遇到很难的数学&#x2F;代码题才用思考模型，但要等更久因为它在「想」。Google 的 ai studio 里选 Gemini 2.0 flash thinking experimental 或 o1 也是早期的思考模型；Anthropic 目前没有。以上就是思考模型，以及用这些优化中涌现的推理能力去推高难题表现的前沿发展。</p>
+<hr>
+<h2 id="上文总结（约-1-小时阅读量至此）"><a href="#上文总结（约-1-小时阅读量至此）" class="headerlink" title="上文总结（约 1 小时阅读量至此）"></a>上文总结（约 1 小时阅读量至此）</h2><p><strong>本段内容涵盖：</strong></p>
+<ol>
+<li><strong>三阶段回顾</strong>：预训练→基础模型（互联网文档模拟器）；SFT→助手（对话数据、人类+LLM 辅助）；幻觉与缓解、工具（搜索、代码解释器）。</li>
+<li><strong>第三阶段：强化学习</strong>：公司内独立团队、模型在阶段间交接；RL 仍属后训练，但训练方式不同。</li>
+<li><strong>上学类比</strong>：预训练&#x3D;读阐述建知识库；SFT&#x3D;读例题模仿专家；RL&#x3D;做练习题，只给题目和最终答案、自己试错发现解法。</li>
+<li><strong>为何需要 RL</strong>：人类标注员不知道对 LM 而言哪条解法「最优」（人脑和模型认知不同、单 token 计算有限），所以需要让模型<strong>自己发现</strong>能稳定得到答案的 token 序列。</li>
+<li><strong>RL 流程</strong>：同一 prompt 下采样大量解法→检查对错→在正确解法（或其中最优）上训练→在成千上万 prompt 上重复；本质是猜与检查、多做有效的。</li>
+<li><strong>SFT 与 RL 的角色</strong>：SFT 把模型初始化到正确解法附近；RL 才真正把解题路径「调准」、让模型越训越好；整体和训小孩类似。</li>
+<li><strong>RL 阶段较新</strong>：细节多、业内尚未统一；DeepSeek 论文公开讨论 RL 微调并给出细节，引起关注。</li>
+<li><strong>思维涌现</strong>：正确做 RL 后，模型回复变长、学会「重新评估、换角度、回溯」等思维链，是优化中的<strong>涌现</strong>，无人硬编码。</li>
+<li><strong>推理&#x2F;思考模型</strong>：DeepSeek R1（开放权重）、ChatGPT o1&#x2F;o3、Gemini thinking 等；免费层 GPT-4o 多为 SFT；复杂推理用思考模型，简单问答用普通模型即可。</li>
+</ol>
+<p><strong>初学者可记：</strong> 预训练+SFT+RL 对应读书+学例题+做练习；RL 让模型自己试错找解法；思维链是 RL 中涌现的；思考模型要选对场景用。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/vibe-coding/">vibe coding</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/03/08/1837658237.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Deep Dive into LLMs like ChatGPT - 6</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/03/08/2230048072.html">
+                        <span class="hidden-mobile">Deep Dive into LLMs like ChatGPT - 4</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "Deep Dive into LLMs like ChatGPT - 5"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>
