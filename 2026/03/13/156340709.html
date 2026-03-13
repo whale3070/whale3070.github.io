@@ -1,0 +1,860 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>AI prompt engineering- A deep dive - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="AI prompt engineering- A deep dive">
+                      
+                        AI prompt engineering- A deep dive
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-03-13 16:47" pubdate>
+        2026年3月13日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      34.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      508
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">AI prompt engineering- A deep dive</h1>
+            
+            <div class="markdown-body">
+              <h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=T9aRN5JkmL8">https://www.youtube.com/watch?v=T9aRN5JkmL8</a></p>
+<h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><p>03月05日_1_智能规整</p>
+<p>Basically this entire roundtable session here is just gonna be focused mainly on prompt engineering, variety of perspectives at this table around, prompting from a research side, from a consumer side, from like the enterprise side. I wanna just get the whole wide range of opinions because there’s a lot of them and just kind of open it up to discussion and explore what prompting really is and what it’s all about. And we’ll just take it from there. So maybe we can go around the horn with intro is I can kick it off. I’m alex. I lead developer relations here at anthropic. Before that, I was kind of technically a prompt engineer at anthropic. I worked on our prompt engineering team, and did a variety of roles spanning from like a solutions architect type of thing to working on the research side so that maybe you can hand it over to david.</p>
+<p>这整场圆桌讨论，基本都会围绕「提示词工程（prompt engineering）」展开。桌上有很多不同视角：研究视角、普通用户视角、企业应用视角等等。我想把这些不同的看法都拉到台面上，开放讨论，看看提示到底是什么、在做什么。我们就从这里开始。先大家简单自我介绍一圈，我先来。我是 Alex，在 Anthropic 负责开发者关系。之前，其实我在 Anthropic 的头衔更接近「提示工程师」，在提示团队里做过各种角色，从解决方案架构师到参与研究这边的工作。接下来可以交给 David。</p>
+<p>My name is david hershey. I work with customers mostly anerobic on a bunch of stuff. I technical, I help people with fine tuning, but also just like a lot of the generic things that make it hard to adopt language models.</p>
+<p>我叫 David Hershey，我主要是跟客户一起工作，帮他们解决很多问题。从技术上，我会帮大家做微调（fine-tuning），也会处理那些让「把大语言模型真正用起来」变得很难的通用问题。</p>
+<p>So prompting in and just like how to build systems with language models, but spend most of my time working with customers. I’m amanda asco. I lead one of the fine tuning teams at anthropic, where, I guess I try to make claude be honest and kind. Yeah. My name is zach whitten. I’m a prompt engineer, anthropic, alex. And I always argue about who the first one was. He says it’s him. It seems to me contested. I used to work a lot within individual customers kind of the same way david does now.</p>
+<p>所以会涉及到提示本身，以及怎么用语言模型搭系统，但我大部分时间都在跟客户打交道。我是 Amanda Asco，在 Anthropic 负责一支微调团队，可以理解为「努力让 Claude 变得诚实而友善」的那个人。大家好，我是 Zach Whitten，是 Anthropic 的提示工程师。我和 Alex 总在争到底谁算是这里第一个提示工程师，他说是他，我觉得还可以再争一争。以前，我也像 David 现在这样，花很多时间直接跟单个客户合作。</p>
+<p>And then, as we brought more solutions architects to the team, I started working on things that are meant to raise the overall levels of like ambient prompting in society, like the prompt generator and like the various like educational materials that people use. Nice, cool.</p>
+<p>后来，随着团队里来的解决方案架构师越来越多，我开始转去做一些「提高全社会提示水平」这种更底层的东西，比如提示生成器（prompt generator），以及各种大家在用的教学资料、指南之类。</p>
+<p>Thanks, guys for all coming here. I’m gonna start with like a very broad question, just so we have a frame going into the rest of our conversations here. What is prompt engineering? Why is it? Why is it engineering? What’s prompt? Really? If anyone wants to kick that off, give your own perspective on it, feel free to take the rein here. I feel like we have a prompt engineer. Yeah, exactly. As a job is we are all prompt engineers in our own form, but one of us has a job. Exactly. Since it’s in your time, it has a job, but you don’t have to really so you don’t have jobs. I guess I feel like prompt engineering is trying to get the model to do things, trying to bring the most out of the model, trying to work with the model to get things done that you wouldn’t have been able to do otherwise.</p>
+<p>谢谢大家来参加。我先抛一个比较大的问题，给后面的讨论定个框架：什么是提示工程？为什么它叫「工程」？提示本质上是什么？大家可以从自己的角度来回答。我觉得我们这儿刚好就有一个「正式职称」的提示工程师。对，其实广义来说我们都在做提示工程，但只有一个人这是他的正式工种。对我来说，提示工程就是想办法让模型做事，把模型的潜力尽可能发挥出来，和模型协作，去完成你原本做不到的事情。</p>
+<p>So a lot of it is just like queer communicating, I think at heart, like talking to a model is a lot like talking to a person and getting in there and like understanding the like the psychology of the model, which I commanded this, the world’s most expert person in the world. I’m gonna keep going on you. Why is engineering in the name? Like where I think the engineering part comes from the trial and error.</p>
+<p>本质上很多时候就是「清晰地沟通」。跟模型说话，其实很像跟人说话，你要慢慢摸到它的「心理」，理解它怎么理解你。我觉得 Amanda 是世界上最懂这一块的人。那为什么要叫「工程」呢？我觉得工程这部分，主要来自于反复试错和实验。</p>
+<p>So one really nice thing about talking to a model that’s not like talking to a person is you have this restart button, this like giant, like go back to square zero where you just like start from the beginning and what that gives you the ability to do that. You don’t have is like a truly start from scratch and try out different things in like a independent way so that you don’t have interference from one to the other. And once you have that ability to experiment and to design different things, that’s where the engineering part has the potential to come in.</p>
+<p>和人对话不同，和模型对话有一个特别大的好处：你随时都有一个「重置按钮」。你可以完全从零开始，一次次独立地试不同的提示，不会被上一次聊天的历史状态干扰。只要你有这种可以反复从头实验、对比不同设计的能力，「工程」的那一面就自然出现了。</p>
+<p>Okay. So what you’re saying is like, as you’re writing these prompts, you’re typing in a message to claude or in the api or whatever it is, being able to go back and forth with the model and iterate on this message and revert back to the clean slate. Every time that process is the engineering part. This whole thing is prompt engineering all in. One. There’s another aspect of it, too, which is like integrating the prompts within your system as a whole. And david has done a ton of work with customers like integrating. A lot of times, it’s not just as simple as you write one prompt and you give it to the model and you’re done.</p>
+<p>所以你说的是：当我们在写提示时，无论是在 Claude 的聊天框还是在 API 里，能不断来回修改那条消息、重置上下文、从干净状态再试，这整个「迭代过程」就是工程的一部分，对吧？整个过程合起来就是提示工程。另外还有一块，是把提示放进整个系统里去设计，这点 David 和客户一起做了很多实践。很多时候，远远不是写一个提示、扔给模型就结束这么简单。</p>
+<p>In fact, it’s anything, but it’s like way more complicated. I mean, I kind of think of prompts as like the way that you program models a little bit that makes it like too complicated, because I think zach is generally right that it’s like just talking clearly is the most important thing.</p>
+<p>实际上情况比那复杂多了。我有时候会把提示当成「给模型写程序」的一种方式，虽然这样说可能又把事情说得太复杂了，因为我觉得 Zach 说得对：最重要的仍然是「说清楚」。</p>
+<p>But if you think about it a little bit as like programming a model, you have to like think about where data comes from, what data you have access to.</p>
+<p>但如果你把它稍微当成「编程」来看，你就得考虑很多工程问题：数据从哪来、你手上能拿到什么数据。</p>
+<p>So like, if you’re doing rag or something, like, what can I actually use and do and pass to a model? You have to like think about tradeoffs in latency and how much data you’re providing and things like that. Like there’s enough systems thinking that goes into how you actually build around the model. That’s also the core of why it like maybe his like deserves its own carve out as a thing to reason about separately from just the software engineer european or something like that.</p>
+<p>比如你在做 RAG（检索增强生成），你要想：我到底能检索哪些内容、能传多少给模型？延迟和上下文长度之间怎么权衡？这些都需要系统级思考。正因为围绕模型搭系统要考虑这么多，这块才值得从传统「软件工程」里单独拎出来，成为一个独立要认真思考的领域。</p>
+<p>It’s like kind of its own domain of how to reason about these models. It is a prompt in this sense, then like natural language code, like, is it a higher level of abstraction? Or is it kind of separate thing? I I think like trying to get too abstract with a prompt is a way to like over complicated thing. Because I think we’re going to get into it, but more often than not, the thing you want to do is just like write a very clear description of a task, not try to like build crazy attractions or anything like that.</p>
+<p>所以提示工程有点像一套独立的「如何与模型打交道」的学科。在这个意义上，提示算不算一种「自然语言的代码」？它是一个更高层的抽象吗？还是完全是另一回事？我个人觉得：把提示抽象得太玄，反而会把事情搞复杂。绝大多数时候，你真正需要做的，只是把任务描述得非常清楚，而不是造一堆花哨的抽象。</p>
+<p>But that said like you are compiling the set of instructions and things like that into outcomes a lot of times.</p>
+<p>但话说回来，你确实在把一串指令、约束，编译成模型最终的输出结果。</p>
+<p>And so precision and like a lot of the things you think about programming about like version control and managing what it looked like back, then when you had this experiment and like tracking your experiment and stuff like that, that’s all just equally important to code.</p>
+<p>因此，精确性、版本控制、记录某次实验时提示长什么样、追踪实验变化，这些在提示工程里，和你写代码时一样重要。</p>
+<p>So it’s weird to be in this paradigm where like written text, like a nice essay that you wrote is something that’s looked like the same thing as code. Yeah. But it kind of is true that now we write essays and treat them like code, and I think that’s actually correct.</p>
+<p>有点怪的是：我们现在处在一种新范式里，你写的一段漂亮的文字、一篇说明文，在系统里会被当成「代码」对待。但这又确实是现实：我们在写「文章」，但实际上要像维护代码一样对待它，这一点我觉得是对的。</p>
+<p>Interesting. So maybe piggy backing off of that. We’ve kind of loosely defined what prompt engineering is, what makes a good prompt engineer? Maybe amanda, i’ll go to you for this since you’re trying to hire prompt engineers more.</p>
+<p>很有意思。顺着这个话题，我们已经大致说了什么是提示工程，那什么样的人算是好的提示工程师？Amanda 你现在在招人，也许你可以先说说你的看法。</p>
+<p>So in a research setting, what does that look like? What are you looking for in that type of person? Yeah, good question. I think it’s a mix of, like zack said, sort of like clear communication. So the ability to just like clearly state things, like clearly understand tasks and think about and describe concepts really well. That’s like the kind of writing component. I actually think that being a good writer is not as correlated with being a good prompt engineer as people might think.</p>
+<p>在研究场景里，一个好的提示工程师应该是什么样？你会看重什么？这个问题很好。我觉得它是几种能力的组合。第一块跟 Zach 说的一样：清晰表达——能把事情说清楚，能把任务看懂，能把抽象概念讲明白，这是写作能力的那一部分。但我其实认为，「文章写得好」和「提示工程做得好」的相关性没那么高，跟很多人直觉不太一样。</p>
+<p>So I guess i’ve had this discussion with people, because I think there’s some argument is like, maybe you just shouldn’t have the name engineer in there. Like, why isn’t it just like writer? I used to be more sympathetic to that.</p>
+<p>我和不少人聊过这个问题，有人会说：既然核心是写文字，那为什么不叫「写作者」而要叫「工程师」？以前我对这种说法更同情一点。</p>
+<p>And then I think now i’m like what you’re actually doing, like people think that you’re writing like one thing, and you’re kind of like done. I’ll be to get a semi decent prompt when I sit down with the model. I’ll you like earlier, I was like prompting the model, and I was just like in a 15 minute span, i’ll be sending like hundreds of prompts the model. It’s just back and forth. I think it’s this like willingness to like iterate and to like look and think, what is it that like was misinterpreted here, if anything, and then fix that thing. So that ability to kind of like iterate.</p>
+<p>但现在，我更多地看到：提示工程不是写一段就完事。大家以为你坐下来写一条提示，就搞定了。现实是，我刚才 15 分钟里，可能给模型发了上百条不同提示，一直在来回试。关键能力是：你是否愿意不停迭代、愿意检查「模型误解在哪里」、然后针对性改写。这种反复打磨的能力，才是工程感所在。</p>
+<p>So it’s a clear communication that ability to iterate, I think, also thinking about ways in which your prompt might go wrong. So if you have a prompt that you’re going to be applying to like, say, 400 cases, it’s really easy to think about the typical case that is going to be applied to to see that it gets the right solution in that case.</p>
+<p>所以一方面是清晰沟通，另一方面是迭代能力，还有一个很重要的是：预判提示会在哪些地方出错。如果你的提示要在 400 个样本上跑，很容易只盯着「典型样本」，看到模型在典型场景下表现不错，就以为大功告成。</p>
+<p>And then to like move on, I think this is a very classic mistake that people made. What you actually want to do is like find the cases where it’s unusual. So you have to think about your prompt and be like, what are the cases where it be really unclear to me? What I should do in this case.</p>
+<p>然后就继续往后做了——这是一个非常典型的错误。你真正应该做的，是去找那些「非典型」「边缘」案例。你要问自己：对这个提示来说，什么样的输入会让连我自己都觉得「到底该怎么做不清楚」？</p>
+<p>So for example, you have a prompt that says i’m going to send you a bunch of data. I want you to extract all of the rules where someone’s name is like is I don’t know starts with letter g and then you’re like i’m going to send it like a dataset where there is no such thing like there is no such name that starts with allergy. I’m going to send something that’s not a data set just like I may also just send an empty string like these are all of the cases you have to try because then you’re like what does it do in these cases?</p>
+<p>比如，你的提示说：「我会给你一堆数据，请你提取所有名字以 G 开头的记录。」那你就要刻意构造几种情况：数据集中根本没有 G 开头的名字；发过去的压根不是个数据集；甚至只发一个空字符串。你得亲自看看，在这些场景下模型会怎么做。</p>
+<p>And then you can be like you can give it more instructions for for how it should deal with that case. Work with customers so often where like you’re an engineer, you’re building something, and there’s a part of your prompt for a customer of theirs is going to write something.</p>
+<p>看到这些行为之后，你再补充说明「在这些极端情况里，你该怎么做」。我经常在客户项目里看到类似问题：你是工程师，在搭一个系统，其中有一段提示交给终端用户去输入内容。</p>
+<p>And they all think about like these really perfectly phrased things that they think someone’s going to type into their chat bot. In reality, it’s like they never use the shift key. And like every other word is a typo, they think there’s no punctuation. They just put them like random words, no question. So you have these evils that are like these beautifully structured, what their users ideally would type in, but like being able to go the next step to reason about like what your actual traffic is gonna be like, what people are actually gonna try to do. That’s a different level of thinking kind of.</p>
+<p>但大家脑子里假想的输入，往往是「完美措辞」的句子，像教科书一样干净。现实世界里的用户：从不用 Shift，大部分单词拼错，标点乱七八糟，可能只丢几个词上来，连问号都没有。所以你设计的「评测集」非常漂亮，却完全不反映线上真实流量。能再往前一步去想：「真正的用户输入长什么样？」这是另一层次的思维方式。</p>
+<p>One thing you said that really resonated with me is reading the model responses. Mhm. Like in a machine learning context, you’re supposed to look at the data. It’s like almost a cliche like look at your data and I feel like the equivalent for prompting is look at the model outputs, like just reading a lot of outputs and like reading them closely. Like dave and I were talking on the way here. Like one thing that people will do is they’ll put things step by step in a prompt. And they won’t check to make sure that the model is actually thinking step by step, because the model might take it in a more abstract or general sense, rather than like, no, literally, you have to write down your thoughts in these specific tags.</p>
+<p>你刚才说的有一点特别打动我：要认真读模型的输出。在机器学习里，有句老话：一定要看你的数据。而在提示工程里，对应的就是：一定要看模型输出来的东西。要读很多输出，而且要读得很细。我和 Dave 路上还在聊这个：很多人会在提示里写「一步一步来」，却从不验证模型到底是不是按步骤在想。模型也许只是把这句话当成一个模糊的风格提示，并没有真的逐步推理、按你设定的标签把思路写出来。</p>
+<p>So, yeah, if you aren’t reading the model outputs, you might not even notice that it’s making that mistake. That’s interesting. There is a kind of weird theory of mind piece to being a prompt engineer where you have to think almost about how the model is gonna view your instructions.</p>
+<p>所以，如果你不盯着输出看，很多错误你根本发现不了。这也很有趣：做提示工程时，你多少需要一种「模型心智理论」，要去想：模型从它的视角，会怎么理解我这段说明？</p>
+<p>But then if you’re writing for like an enterprise use case, too, you also think about how the user is gonna talk to the model, as like you’re the third party sitting there in that weird relationship.</p>
+<p>而在企业场景下，你还得同时想：终端用户会怎么跟模型说话？你夹在中间，成了一个很奇怪的「第三方翻译层」。</p>
+<p>On the theory of mind piece. One thing I would say is it’s so hard to write instructions down for a task like it’s so hard to untangle in your own brain. Right? All of the stuff that that quad does not know and write it down. Like it’s just an immensely challenging thing to like strip away all of the assumptions you have and be able to very clearly communicate like the full fact set of information. Right? That is needed to a model. I think that’s another thing that like really differentiates a good prompt engineer for a bad one. It’s like, if you a lot of people will sort of like just write down the things they know, but they don’t really take the time to systematically break out.</p>
+<p>说到「心智理论」，我想补充一点：把一个任务的所有指令完整写清楚，其实非常难。你脑子里有一堆默认前提，模型并不知道；要把这些「模型不知道但又必须知道的东西」全部拆出来写清楚，是一件非常有挑战的事。你得把自己的各种假设都剥离掉，重新组织成一份清晰、完整的事实说明。我觉得这也是好提示工程师与差提示工程师的分水岭：很多人只会写下「自己习惯说的那一部分」，却没有系统性地拆解：</p>
+<p>What is the actual full set of information you need to know to understand this task, right? And that’s kind of like a very queer thing. I see a lot is prompts where it’s just like is conditioned. The prompt that someone wrote is so conditioned on their prior understanding of a task that like when they show it to me, i’m like, this makes no sense. None of the words you wrote make any sense because I don’t know anything about your interesting use case. Mhm. But I think like a good stuff like way to think about prompt engineering in that front and a good like skill for it is just can you actually step back from what and communicate to this weird system that knows a lot, but not everything about what it needs to know to do a task.</p>
+<p>「要让别人理解这个任务，真正需要知道的全部信息到底是什么？」这是很多人完全没想清楚的。结果写出来的提示，严重依赖他们自己对任务的背景知识。拿给我看的时候，我会觉得：「这段话完全讲不通，因为我根本不知道你那个业务场景在说什么。」一个好的训练方法是：你能不能退一步，假设模型是一个「懂很多，但对你的具体业务一无所知」的系统，问自己：我该怎么把这个任务，从零讲清楚给它听？</p>
+<p>The amount of times i’ve seen someone’s prompt and then being like, I can’t do the task based on this point. And like i’m human level and you’re giving this to something that is worse than me and expecting it to do better. And i’m like, there is that interesting thing with like current current models don’t really do a good job of asking good probing questions in response like a human would. Yeah, if i’m giving zach directions on how to do something, he’ll be like, this doesnt make any sense. Like, what am I supposed to do with this step earlier here and here? Model doesn’t do that, right? So you have to like as yourself, think through what that other person would say, and then like, go back to your prompt and answer those questions.</p>
+<p>我无数次见到这样的提示：以这段话为信息，我连人类都没法做这个任务，更别说模型了。你给了一个比我弱的系统，却希望它表现比我好，这就很不现实。还有个现实问题是：当前的模型，并不擅长像人一样「反问」你。比如我跟 Zach 说一个任务，他会立刻指出：「这一步完全说不通啊，我该怎么办？」但模型通常不会主动这么追问。所以你得自己演一遍「被指令的人会怎么质疑」，然后把这些疑问，预先在提示里回答掉。</p>
+<p>You could ask it to do that, right? You can do that, right? I would say I do that. That I was gonna say one of the first things I do with my initial prompt is like, i’ll give it the prompt. And then i’ll be like, I don’t want you to follow these instructions. I just want you to tell me the ways in which they’re unclear or any ambiguity or any anything you don’t understand. And it doesn’t always get it perfect, but it is interesting that that is like one thing you can do.</p>
+<p>当然，你也可以「明说」让模型扮演那个会反问你的人。我自己经常这么做：我先把初版提示给模型，然后补一句：「先不要执行这些指令，只告诉我哪里不清楚、哪里有歧义、哪里你不理解。」它不一定每次都找得很准，但这确实是一个非常好用的招数。</p>
+<p>And then also, sometimes if people see that the model makes a mistake, the thing that they don’t often do is just ask the model. So they say to the model, you got this wrong. Like, can you think about why? And can you maybe like write an edited version of my instructions that would make you not get it wrong? A lot of the time like the model just gets it right. The models like, here’s what was unclear. Here’s like a fix to the instructions, and then you put those in and it works.</p>
+<p>另外，还有一个大家经常忘了做的事：直接问模型自己犯错的原因。比如你看到它答错了，其实可以说：「你这里做错了，能不能想一想为什么？能不能改写一下我的指令，让你下次不会再错？」很多时候，模型会很老实地说：「这里不清楚」「可以改成这样」，你把那段新指令放回提示里，结果就好了。</p>
+<p>So, okay, i’m actually really curious about this personally almost. Is that true that works like, is the model able to spot its mistakes that way? Like when it gets something wrong? You say, like, why did you get this wrong? And then it tells you maybe something like, how could I phrase this to you in the future? So you get it right. Is there an element of like truth to that? Or is that just kind of a hallucination on the models part around what it thinks its limits are? I think if you like, explain to what it got wrong, it can identify things in the query.</p>
+<p>我个人也很好奇：这个办法到底有多靠谱？模型真的能这样意识到自己的错误吗？当它做错了，你问「你为什么会错？我该怎么改写，才能让你下次答对？」——它给出的答案，到底是真正的「自我反省」，还是只是一种幻觉？我觉得：当你把错误指给它看时，它往往能在输入里，标出一些确实有问题的地方。</p>
+<p>Sometimes I think this varies by task. This is one of those things where i’m like. I i’m not sure what percentage of the time it gets it right. I always try it, cause sometimes it does. Can you learn something?</p>
+<p>当然，成功率是因任务而异的。我也说不出有多大比例会给出真正有价值的建议。但我几乎总会尝试一下，因为有时候，它确实能帮你学到一些东西。</p>
+<p>At any time you go back to the model or back and forth with the model, you learn something about what’s going on, right? I think you’re giving away information if you don’t at least try. That’s interesting. I’m gonna keep asking you a few more questions here. One thing, maybe for everybody watching this is we have these like slack channels that anthropic, where people can add claude into the slack channel, then you can talk to claude through it. And amanda has a slide channel that a lot of people follow of her interactions with god.</p>
+<p>每次你回过头去跟模型多聊几轮，其实你都在学习它「到底是怎么想的」。如果你连试都不试，其实是在放弃获取这部分信息。说到这里，我想展开问 Amanda 几个问题。给没在 Anthropic 的人解释一下：我们内部有很多 Slack 频道，可以把 Claude 拉进来直接对话。Amanda 有一个专门的频道，大家都喜欢看她和 Claude 的互动。</p>
+<p>And one thing that I see you always do in there, which you probably do the most of anyone anthropic is use the model to, like help you in a variety of different scenarios. I think you put a lot of trust into like the model and like the research setting. Curious how you like develop those intuition for when to trust the model, such as a matter of like usage experience is something else. I think I don’t trust the model ever, and then I just hammer on it.</p>
+<p>我在那个频道里看到你做得最多的一件事，就是在各种各样的场景下，都用模型来帮你。我觉得你在研究场景中其实很倚重模型。我很好奇：你是怎么形成「什么时候可以信模型」这种直觉的？单纯来自使用经验，还是别的？——我自己的感觉是：我从来不会「直接信」模型，而是疯狂锤它。</p>
+<p>So I think the reason why you see me do that a lot is that that is like me being like, can I trust you to do this task? Because there are some things. Models are kind of strange if you go slightly out of distribution, like you just go into areas where they haven’t been trained or they’re kind of unusual. Sometimes you’re like, actually, you’re much less reliable here, even though it’s a fairly like simple task. I think that’s happening less and less over time as models get better, but you want to make sure you’re not in that kind of space.</p>
+<p>你看到我频繁用模型，是因为那其实是我在「试探」它：**这个任务我能不能信你？**模型有个特点：一旦你有一点点「出分布」（out-of-distribution），也就是问题稍微偏离训练分布、或场景比较少见，它就可能不太稳，即便任务在我们看来很简单。随着模型进步，这种情况少了不少，但你仍然要确认：自己是不是正好踩在那类危险区间上。</p>
+<p>So I don’t think I trust it by default, but I think in ml people often want to look across really large data sets. And i’m like, when does it make sense to do that? And I think the answer is when you get relatively little signal from each data point, you want to look across many data points, because you basically want to get rid of the noise. With a lot of promising tasks. I think you actually get really high signal from each query. If you have a really constructed set of a few hundred prompts that, I think can be much more signal than like thousands that aren’t as like well crafted.</p>
+<p>所以我不会「默认信任」它。但在机器学习里，人们总想一口气看非常大的数据集。我会问：**什么时候你真的需要那么多样本？**答案通常是：当每个样本的信息量很低、噪音很多时，你才需要海量样本去平均噪音。但在提示工程里，一条高质量 query 的信号量，其实非常高。如果你手上有精心设计的几百条提示，它们的信息量，可能远比几千条随便写写的要大得多。</p>
+<p>And so I do think I can like trust the model, if I like, look at 100 outputs of it, and it’s really consistent. And I know that i’ve constructed those to like basically figure out all of the edge cases and all of the, like weird things that model might do, strange inputs, et cetera. I trust that like probably more than like he much like more loosely constructed set of like several thousand. I think in mla lot of times the signals are like numbers. Like, did you predict this thing, right or not?</p>
+<p>所以如果我花时间构造了一两百条覆盖各种边界情况、奇怪输入的提示，然后看模型在这些样本上的输出非常一致，我就会觉得：在这个任务上，它是值得信的，甚至比那种「对几千条随手拼的测试集跑个准确率」更可信。在传统 ML 里，我们看的是数字：预测对不对，概率多高。</p>
+<p>And it’d be like kind of like looking at the log problems of a model and trying to like into it things what you can do, but it’s like kind of sketchy. I feel like the fact that models output more often than not like a lot of stuff, like words and things like there’s just fundamentally so much to learn between the lines of what it’s writing and why and how.</p>
+<p>那有点像盯着 log-prob 去猜模型在干嘛，信息很粗糙。但在大模型里，大部分时候输出的是长篇文字，里面有非常丰富的细节，你可以从「它怎么说」「它为什么这么说」中读到很多东西。</p>
+<p>And that’s part of what it is. It’s like, it’s not just to get the task right or not. It’s like, did it? How did it get there? Like, how was it thinking about it? What steps to go through? You learn a lot about like, what is going on, or at least you can try to get a better sense, I think. But that’s where a lot of information comes from for me, is like by reading the details of what came out, not just through the result. I think also, the very best of prompting can kind of make the difference between a field and a successful experiment.</p>
+<p>所以对我来说，重点不只是「答对没」；而是：**它是怎么得出这个答案的？中间走了哪些步骤？**你从这些过程性信息里，可以更接近模型的真实能力边界。很多关键信息，都是靠细读输出内容才获得的，而不是只看结果对错。另外，我觉得：提示做得好和做不好，往往就是实验成败的分水岭。</p>
+<p>So sometimes I can get annoyed if people don’t focus enough on the prompting component of their experiment, because i’m like this, can, in fact, be like the difference between like 1% performance in the model or.1% in such a way that your experiment doesn’t succeed if it’s a top 5% modal performance, but it does succeed if it’s a top 1% or 2.1%.</p>
+<p>所以有时候我会挺着急：大家花大量时间写代码，却几乎不花时间打磨提示。实际上，提示这块往往能决定：你最后是模型性能只跑在「前 5%」，还是能挤进「前 1%」。对很多实验来说，这就是「项目活下来」和「项目挂掉」的区别。</p>
+<p>I’m like, if you’re going to spend time over like coding your experiment really nicely, but then just like not spend time on the prompt, I don’t know that doesn’t make sense to me. Something like that can be the difference between life and death of your experiment.</p>
+<p>如果你花了很多力气把代码工程做得漂漂亮亮，却几乎不在提示上认真打磨，对我来说是说不通的。因为提示这块，往往就是一个实验生死的关键变量。</p>
+<p>And with the deployment, too. It’s so easy that we catch up this. And then you change the prompt round in some way. It’s working. It’s a bit of a double edged sword, though, cause I feel like there’s like a little bit of prompting or there’s always like this mythical better problem that’s going to solve my thing on the horizon. Yeah. I see a lot of people get stuck in the mythical prompt on the horizon that if I just like keep grinding, it’s like never bad to grind a little bit on promptly. You learn.</p>
+<p>上线部署也是一样。你常常会遇到：「系统本来好好的，你随手改了一点提示，结果一切又好了」这种情况。这当然是把双刃剑：一方面，打磨提示几乎永远有回报，你总能学到东西；另一方面，很多人会陷入一个「幻觉中的终极提示」：觉得再多试几轮，一定会有一条完美提示能解决一切问题。</p>
+<p>As you said, we’ve talked like you learn things, but it’s one of the scary things about prompting is that there’s like this whole world of unknown. What heuristic do you guys have for? Like when something like is possible versus like not possible with the perfect prompt, whatever that might be. I think i’m usually checking for whether the model kind of gets it.</p>
+<p>就像你说的，我们确实能从试验中学到很多。但提示工程里一个可怕的点是：你永远不知道「是不是只差一条神奇提示」。你们有没有什么经验法则，来判断某个任务是「通过再多打磨提示也做不到」，还是「其实只是没找到合适的说法」？——我一般会先看一个问题：模型有没有「基本 get 到这个任务」。</p>
+<p>So I think for things where I just don’t think a prompt is going to help. There is a little bit of grinding, but often it just becomes really clear that it’s not close or something. I think that if, yeah, I don’t know if that’s a weird one where i’m just like, yeah, if the model just clearly can’t do something, I won’t grind on it for too long.</p>
+<p>有些任务，我会先试着磨一磨提示；但很快就会发现：模型的表现离可用状态非常远，哪怕你换很多写法，也拉不动。遇到这种情况，我就不会在这一个点上花几天时间死磕。如果模型明显做不到，我就会放弃继续「抠提示」这条路。</p>
+<p>This part like you can invoke like how it’s thinking about it, and you can ask it how it’s thinking about it and why you can kind of get a sense of like, is it thinking about it? Right? Like, are we even or even in like the right zip code of this being right? And you can get a little bit like annealing on that front of like, at least I feel like i’m making progress towards giving something closer to write where there are just some tasks where you really don’t get anywhere closer to like its thought process, just like every week you make just like years off in a completely different, very wrong direction.</p>
+<p>有时候，你可以通过问模型「你是怎么想的」来判断：它的思路是不是至少在正确方向的「邮编区」。如果它的解释勉强合理，你还可以一点点「退火」式地调整提示，把它往更好的方向推。但也有一些任务，你无论怎么问「你在想什么」，得到的都是完全走偏的思路，这说明它在这个任务上压根没法靠提示救回来。</p>
+<p>And I just tend to abandon those. I don’t know. Those are so rare now though, and I get really angry at the model when I discover them because that’s how rare they are. I get furious. I’m like, how dare there be a task that you can’t just do if I just push you in the right direction? Yeah. I had my thing with claude plays pokemon recently, and I was like one of the rare times when you lately explain that.</p>
+<p>这种情况我一般就会选择放弃。现在这种「完全做不到」的任务其实越来越少了，所以每当我碰到一个，反而会对模型非常生气：「怎么还有任务是我这么认真引导你都做不了的？」最近我就遇到一个：那次是我让 Claude 玩《宝可梦》，这是我少数几次真正在实验里被气到的场景。</p>
+<p>Yeah, I did like a bit of an experiment where I like hooked quad up to a game boy emulator. Tried to have it, play the game pokemon bed, like the og pokemon. It looks to me. And it’s like, think we want to do, and it could like write some code to press buttons and stuff like that. Pretty basic.</p>
+<p>我做了个小实验，把 Claude 和 Game Boy 模拟器接起来，想让它玩最早版的《精灵宝可梦》。Claude 能写出控制按钮的代码，基本操作没问题。</p>
+<p>And I tried a bunch of different, like, very complex prompting layouts. But you just get into like certain spots where it just like really couldn’t do it. So like showing it a screen shot of a game boy. It just really couldn’t do. And it just like so deeply because i’m so used to it being like able to do something mostly. And I spent like a whole weekend trying to write better and better prompts to get to like really understand this game boy screen.</p>
+<p>我试了很多非常复杂的提示结构，来帮它理解游戏画面。但一到某些具体环节，它就完全卡住。比如让它看一张 Game Boy 屏幕截图，它就是很难准确理解里面发生了什么。这对我打击很大，因为我已经习惯了它「大部分事情都能做得还行」。我整整花了一个周末，不停写更复杂的提示，想让它真正理解这张屏幕。</p>
+<p>And I got like incrementally better so that it was only terrible instead of like completely no signal, I get from like no signal to some signal. But it was like, I don’t know, at least this is like elicited for me.</p>
+<p>最后的结果是：从「完全看不懂」提升到「看得很差，但至少有点信号」。你可以说我们从 0 变成了 0.1，但离「可用」还差得远。</p>
+<p>Once I put a weekend of time in and I got from no single to some signal, but not nowhere close to good enough. I’m like, i’m just gonna wait for the next one. I’m just gonna wait for another model. I could write on this for 4 months. And the thing that would come out is another model. Yeah. That’s a better use of my time. So I just sit and wait to do something else in the, meanwhile, that’s an inherent tension. We see all the time, right? And maybe we can get to that in a sack. If you wanna go something I liked about your problems with pokemon, where you got the best that you did get was the way that you explained to the model that it is in the middle of this pokemon game.</p>
+<p>所以当我花了一个周末，只从「完全没信号」提升到「勉强有点信号」，我就决定：算了，这个就等下一代模型吧。我可以再花 4 个月把提示写到极致，得到的效果，可能也赶不上直接换一个更强的新模型。这其实就是我们在工程实践中经常遇到的张力：到底什么时候该继续抠提示，什么时候该等待模型迭代。</p>
+<p>And here’s how the things are gonna be represented. And here is like, and maybe I actually think you actually represented in two different ways, right? I did. I was so like what I ended up doing. It was obnoxious, but I superimposed a grid over the image, and then I had to describe each segment of the grid in visceral detail.</p>
+<p>说回你那次宝可梦的实验，我印象最深的是你给模型解释游戏状态的方式。你最后用了两种不同的表示方式，对吧？——对，最后我做了一件非常「折腾」的事：我在游戏画面上加了一个网格，把画面切成小格，然后用非常细致的语言，逐格描述每一个小格里有什么。</p>
+<p>And then I had it like reconstruct that into an ascii map. And I gave it like as much details. I could like the player character is always at location 4th comma five on the grid and stuff like that. You can like slowly build up information. I think it’s actually a lot like prompting, but I just hadn’t done it with images before we’re like.</p>
+<p>接着，我让模型把这些描述重构成一个 ASCII 地图。比如告诉它：「主角永远在网格坐标 (4, 5) 这个位置」之类。你可以一点点堆信息，这个过程其实和文字提示很像，只不过这是我第一次在图像任务上这么干。</p>
+<p>Sometimes my like intuition for what you need to tell a model about text is a lot different if we need to tell about a model about images. Yeah. I found it surprisingly small. Number of my intuition is about text have transferred to image. Like I found that like multi shot prompting is not as effective for images and text. I’m not really sure like you have theoretical explanations about why maybe there’s a few of it in the training data, a few examples of that.</p>
+<p>我发现：自己在文字提示上的很多直觉，在图像上几乎不适用。比如：多示例提示（multi-shot prompting）在文本任务上很有用，但在图像任务上，效果就差很多。我现在也说不太清楚为什么，也许是训练数据里，这种模式本来就很少。</p>
+<p>Yeah. Yeah, I know when we were doing the original explorations with prompting multi modal, we really couldn’t get it to notice really work. Right? Like you just can’t seem to improve clouds, actual like visual acuity in terms of like what it picks up within an image.</p>
+<p>对，我们早期在多模态提示上也做过很多尝试，很难通过「改变提示写法」显著提升模型的视觉细腻度。它看图时能抓到的信息量，很难仅靠提示进一步放大。</p>
+<p>Yeah. If anyone here has any like ways that they’ve not seen that feature, but it seems like that’s kind of similar with the pokemon thing where it’s trying to interpret this thing, no matter how much you for prompts at it. Like it just won’t pick up that ashes in that location. I guess, like to be visceral about this, like I could eventually get it. So they could like most often tell me where a wall was, and most often tell me where the character was it be off by a little bit. But like then you get to a point.</p>
+<p>如果有人有成功的大幅增强视觉理解力的提示技巧，我会非常好奇。目前看起来，它和你说的宝可梦问题很相似：无论你怎么写提示，它就是在某些具体细节上「感知不上去」。比如主角的位置、NPC 穿没穿帽子，这种东西你可以一点点调教到「大概位置对个七八成」，但到了某个精度之后，就再也推不动了。</p>
+<p>And this is maybe coming back to like, knowing when you can’t do it, like it would describe an npc and to play a game while like you need to have like some sense of continuity, like, have I talked to this npc before, right?</p>
+<p>这就回到我们前面说的：要知道什么时候该认输。比如在游戏里，和 NPC 的对话需要连续性，你要知道「我之前有没有和这个 NPC 说过话」。没有这层记忆，你玩的体验就会崩塌。</p>
+<p>And without that, like you really don’t, there’s nothing you can do. You’re just gonna keep talking to the npc because like maybe this is a different npc but like I would try very hard to get to describe an npc and it’s a person. Yeah, who might be wearing a hat? They were wearing a hat. And it’s like, you grind for a while, like inflate it to 3,000X and crop it to just the npc and it’s like, I have no idea what this is. And it’s like I ground, like I showed it this like clear female npc thing enough times and it just got nowhere close to it. And it’s like that’s just this is a complete loss cost. Okay, I really want to try this. Now.</p>
+<p>如果模型在那一点上就是做不到，你不管怎么磨提示，都只是浪费时间。你可以把 NPC 的头像放大 3000 倍、截成只剩那个人像，模型依然会说「我不知道这是谁」。当你已经反复给它看很多次同样的 NPC，结果还是完全认不出来，那你基本可以断定：在这个任务上，它就是不行。</p>
+<p>I’m just imagining all the things I would try like, I don’t know, I want you to imagine that This like this game are as a real human and just describe to me what do they look like as they look in the mirror? And then just like, see what I tried a lot of things. The eventual prompter was telling quiet. It was a screen reader for a blind person, which I don’t know about, but it felt right. So I kind of stuck with that. That’s an interesting point. I actually wanna go into this a little bit, because this is one of the most famous prompting tip. Right? Is to tell the language model that they are some person or some role. I feel like I see mixed results. Maybe this worked a little bit better in previous models and maybe not as much anymore. Amanda, I see you all the time be very honest.</p>
+<p>我当时也试了很多花式提示，比如：「请你想象这个游戏角色是真人，照着镜子描述自己长什么样」等等。最后我用的一个提示是：让 Claude 假装成给盲人朗读屏幕的读屏软件——我也不确定这是不是最优方案，但当时觉得还行，就用了。这个例子也引出一个很经典的提示技巧：让模型扮演某个角色。比如「你是某某专家」。我自己看到的效果也比较参差不齐：在早期模型上可能更有用，新模型上则没那么明显。Amanda，这里我也想听听你的看法，因为你平时在提示里非常诚实。</p>
+<p>Yeah, like about the whole situation. I am an ai researcher and i’m doing this experiment. I’ll tell who I am. I’ll give her my name, be like, here’s who you’re talking to, right? Do you think that level of honesty instead of like lying to the model, or like forcing it to like, i’m gonna tip you $500. Is there one method that’s preferred there? Or just what’s your intuition on that? Yeah, I think as models are more capable and understand more about the world, I guess I just don’t see it as necessary to lie to them. I also don’t like lying to the models, just because I don’t like lying generally.</p>
+<p>对，我会把整个情境都讲得很清楚：我是谁、我在做什么实验。比如会写：「我是一个做 AI 研究的人，现在在做某某实验，我叫 Amanda。」我不会对模型说「我会给你 500 美金小费」之类的假话，也不会硬让它相信一堆不真实的设定。我觉得随着模型对世界了解越来越多，没必要对它撒谎。我本身也不喜欢撒谎，所以在提示里也不会这么做。</p>
+<p>But part of me is like, if you are, say, constructing exposure, constructing, like an eval data set for a machine learning system, or for a language model, that’s very different from like constructing a quiz for some children.</p>
+<p>另一方面，如果你在为一个机器学习系统构造评测集，它的 nature 和「给小学生出一套测验题」是完全不一样的。</p>
+<p>And so when people would do things like, I am a teacher trying to figure out questions for a quiz. I’m like the model knows what language model emails are like it. If you ask it about different emails, it can tell you, and it can give you like made up examples of what they look like, because these things are like. They understand them there on the internet. And so i’m like i’d much rather just target the actual task that I have.</p>
+<p>所以当我看到有人写：「你现在是一名老师，要给学生出题」，但他们实际要做的是「构造语言模型的评测题」，我会觉得这有点多此一举。因为模型其实知道什么是「评测集」「benchmark」「LM eval」——这些概念在互联网上比「小学生考试题」清晰多了。我更愿意直说：「我在为一个语言模型构造评测题」。</p>
+<p>So if you’re like, I want you to construct questions that look a lot like an evaluation of a language model. It’s just like it’s that whole thing of clear communication. I’m like that is, in fact, the task I want to do. So why would I pretend to you that I want to do some unrelated or only a tangentially related task and then expect you to somehow do bear the task that I actually want you to do. And we don’t do this with like employees. I wouldn’t like go to someone that worked with me and be like, you are a teacher like, and you’re trying to quiz your students. I’d be like, are you making that email? Like, I don’t know.</p>
+<p>所以如果我的真实需求是：「请帮我出一批适合评估语言模型的题目」，我就会直接这样写。这就是我们说的清晰沟通：要什么就写什么。我不会假装自己在做一件只略微相关的事情，然后指望模型「推理出」我要的真实任务。现实世界里，我们也不会对同事说：「你现在是一名小学老师」，而实际上是要他帮忙搭建一个 AI 评测集。</p>
+<p>So like I think it’s maybe it’s like a heuristic from their room. Like if they understand the thing, just ask them to do the thing that you want. I see, I guess, so much to push back like a little bit, like, I have found cases where like not exactly lying, but like giving it a metaphor for how to think about it like could help in the same way that like sometimes I might not understand how to do something.</p>
+<p>所以我个人的简单原则是：只要模型懂这件事，就直接说你要做这件事，不要绕圈子。——我想稍微补充一点：我也遇到过一些场景，「不是欺骗」，而是用一个隐喻去帮模型换一个思考方式，确实有帮助。就像人类学习时，有时候一个好的类比会让你突然明白过来。</p>
+<p>And someone’s like imagine that you were doing this, even though I know i’m not doing it. Like the one that comes to mind for me is like I was trying to have quad, say whether an image of a like a chart or graph is good or not, like is it like high quality? And the best prompt that I found for this was asking the model what grade it would give the chart if it were submitted as like a high school assignment. So it’s not exactly saying like you are a high school teacher. It’s more like that. This is the kind of analysis that like i’m looking from for you like the scale that teacher would use is like similar to the scale that like I want you to use or I think like those metaphors are pretty hard to still come up with and people still like the default, you see all the time is like finding for.</p>
+<p>我想到一个例子：我想让 Claude 判断一张图表「好不好」，质量高不高。我最后找到效果最好的提示是：「如果这张图表是一个高中作业，你会给它打几分？」我并没有说「你是高中老师」，而是给了它一个非常具体的评分标尺：高中作业打分标准。这个比空泛地说「请评价图表质量」要清楚得多。</p>
+<p>Similarly of the task like something that’s like a very similar is task like saying you’re a teacher. And you actually just like lose a lot in the nuance of what your product is. Like. I see this so much in enterprise prompts where people like write something similar because they have this intuition that it’s like something the model has seen more of maybe, like it seemed more high school quizzes than it has lm emails.</p>
+<p>而很多企业提示会偷懒地写成：「你是老师，请给这张图留言」，希望借此「激活」模型过去在作业评分场景里的经验。问题在于：你真正要做的任务，和「老师批改作业」只是看上去有点像，本质又不一样。这样写会损失大量细节。</p>
+<p>And that like may be true, but like to your point as the models get better, I think just like trying to be very prescriptive about exactly the situation they’re in. I give people that advice all the time, which isn’t to say that I don’t think like mhm, to the extent that it is true that like thinking about it the way that someone would create a chart as like how they would create a high school chart, maybe that’s true. But it’s like awkwardly, this shortcut people use a lot of times to try to get what happened.</p>
+<p>即便模型确实在「老师批作业」这个分布上见过很多样本，随着模型能力变强，你更应该做的，是精确而诚实地描述你所在的真实场景。我经常跟客户说：如果你要让模型产生和某个已有任务类似的行为，可以用类比，但不要直接假装就是那个任务本身，否则经常会「对不上号」。</p>
+<p>So i’ll try to give someone that I can actually talk about, because I think it’s somewhat interesting.</p>
+<p>我举一个更具体、也更有代表性的例子。</p>
+<p>So like writing, you are like a helpful assistant writing a draft of a document, right? It’s not quite what you are like you are in this product. So it tell me if you’re writing like an assistant that’s in a product, like, tell me i’m in the product, tell me i’m like writing on behalf of this company. I’m embedded in this product. I’m the support chat window on that product. Like your language model. You’re not a human. That’s fine like that, but like just being really prescriptive about like the exact context about where something is being used. Yeah. I found a lot of that because I guess my concern most often role prompting is people like use it as a shortcut of a similar task they want the model to do.</p>
+<p>比如：很多人会写「You are a helpful assistant writing a draft of a document.」但实际场景是：你在一个产品里，为某公司的客服聊天窗口提供回复草稿。如果是这样，那我会更倾向写：「你是嵌入在某某产品里的客服 AI，代表这家公司对用户进行回复」。你可以毫不避讳地告诉它：「你就是一个语言模型，不是人类。」关键是要把环境交代清楚，而不是用一句「你是一个乐于助人的助手」就把所有上下文抹平。</p>
+<p>And then they’re surprised when quad doesn’t do their task, right? But it’s not the task, but you told it to do some other task. And if you didn’t give it the details about your task, I feel like you’re leaving something on the table. So, yeah, I don’t know. It does feel like a thing, though, to your point of as the models scale, like maybe in the past, it was true that they only really had a strong understanding of elementary school tests comparatively, but as they get smarter and can differentiate more topics, I don’t know, just like being clear. I think interesting that i’ve like never used this prompting technique.</p>
+<p>所以，当他们发现 Claude 没按预期行为行事时，自己就会很惊讶——但从模型视角看，你其实让它做的是另一个任务。你没有把真正的业务环境讲清楚，等于浪费了很多潜在表现空间。随着模型越来越强，它分辨不同场景的能力在增强，此时最有价值的，就是「清楚直白地说出真实任务」。顺带一提，我自己几乎从不用那种「你是 XX 专家」的套路提示。</p>
+<p>So like I even like with like worse models and I still just don’t ever find myself. I don’t know why i’m just like I don’t find it. Very good, essentially like interesting. I feel like completion era models. I like there was like a little bit of a mental model of like conditioning the model into like a latent space that was useful that I worried about that I don’t really worry about too much. It may be intuition from pre trained models like over to like our early shift models that to me just didn’t make sense like it makes sense to me.</p>
+<p>即便在早期、能力更弱的模型上，我也很少依赖那种角色暗示。我知道这在「纯补全式模型时代」有点用：通过精心组织前缀，你可以把模型导向某个有用的「潜在空间」。但在经过指令对齐和 RLHF 的新模型上，这套 mental model 其实已经不太成立了。</p>
+<p>If you’re prompting a pre trained, amazed, how many people like try to apply their into like and I think it’s like, not that surprising. Most people haven’t really experimented with the full like what is a pre trained model? What happens after you do? Sl? What happens after you do rlhf whatever. Like when italking to customers. It’s all the time that they’re like trying to map some amount of how much of this was on the internet, like, what have they seen a ton of this on the internet? Like you just hear that intuition a lot? I think it’s like founded fundamentally, but it like is over applied by the time you actually get to a prompt because of what you said like.</p>
+<p>很多人对「预训练」、「监督微调（SFT）」和「RLHF」之间的差别，其实并没有直观经验。他们总是在想：「这东西在互联网语料里出现过多少？模型见过这种题型吗？」——这种直觉在理解预训练阶段挺有用，但当你真正写提示时，往往被过度套用，忽略了后续对齐过程对行为的巨大改写。</p>
+<p>By the time they’ve gone through all of this other stuff, that’s not actually quite what’s being modeled.</p>
+<p>经过这么多后处理之后，模型真实的行为，早就不再是「纯粹的互联网自回归补全器」了。</p>
+<p>The first thing that I feel like you should try is I used to give people this thought experiment where it’s like, imagine you have this task, you’ve hired a temp agency to send someone to do this task. This person arrives. They’re pretty competent. They know a lot about your industry and so forth, but they don’t know like the name of your company. They’ve literally just shown up. And they’re like, I was told you guys had, I had a job for me to do tell me about it.</p>
+<p>我经常给客户一个小小的思想实验：假设你通过中介请来了一个临时员工，让他帮你做某个任务。这个人很聪明，对你所在行业也大致了解，但他刚到你公司门口，对你公司、你的内部流程一无所知。</p>
+<p>And then it’s like, what would you say to that person? Yeah. And you may use these metaphors. You might see things like we want this to, we want to like you. We want you to detect like good charts. What we mean by a good chart here, isn’t it doesn’t need to be perfect. You don’t need to go look up like whether all of the details are correct. It just needs to like have like its axes labeled and think about maybe high school level, good chart, like you may say exactly to that person and you’re not saying to them, you are a high school, you wouldn’t say that to them. You mean like you’re a high school teacher writing charts, high school teacher, what are you talking about?</p>
+<p>那你会怎么跟这个人解释任务？你也许会说：「我们希望你帮我们识别『好的图表』。在这里所谓『好』，不是说内容一定完美无误，而是：有清晰的坐标轴标签、有合理的标题，大致达到高中作业的好图那种水准。」你会直接把这个评分标准讲清楚，而不是对他讲：「你现在是一位高中老师」。</p>
+<p>Yeah.</p>
+<p>对吧。</p>
+<p>So sometimes i’m just like it’s like like the whole, like, if I read it, i’m just like imagine this person who just has very little context, but they’re quite competent. They understand a lot of things about the world. Try the first version that actually assumes that they might know things about the world. And if that doesn’t work, you can maybe like do tweaks and stuff. But so often, like the first thing I try is like that. And then i’m like that worked.</p>
+<p>所以我写提示时，常常想象自己在对一个「聪明但对你具体情况没背景的人」说话。第一版就把所有关键信息、边界情况讲清楚，再看效果。如果不行，再去加花活。但绝大多数时候，老老实实的第一版就已经很好用了。</p>
+<p>And then people were like, I didn’t think to just tell it all about myself and all the task I want to do. I’ve carried this thing that alex told me like to so many customers where it’s like, like my prompt doesn’t work. Can you help me fix it? I’m like, what can you describe to me? Like what the task was? I’m like, okay, now what you just said me just like voice record that and then transcribe it and then paste it into the prompt.</p>
+<p>很多人听完这个方法都会说：「我以前真没想着要把自己和任务情况讲得这么全。」Alex 跟我说的这套，我后来也经常拿去给客户用。客户会说：「我的提示不好用，你帮我改改？」我会先让他用口语给我描述一遍任务。然后我说：「你刚刚这段口述，直接录音转文字，贴进提示里，往往就比你原来写的那条好得多。」</p>
+<p>Yeah, and it’s a better prompt than what you wrote, right? This is like a lazy shortcut, I think to some extent, right? People write like something that they, I just think people i’m lazy, a lot of people are lazy. We have that in prompt assistance the other day where somebody was like. Here’s the thing that here’s what I want it to do, and here’s what that it’s actually doing instead.</p>
+<p>对，那条「随口讲清楚」的描述，往往就是更好的提示。人们之所以会写成一条模糊的、单句式的说明，很多时候只是因为「懒」——我自己也懒，大家都懒。我们在提示助手里就遇到过这样的案例：有人说「我想让它做 A，结果它一直在做 B」，但他一口气讲清楚 A 的时候，那段话本身就是一条好提示。</p>
+<p>So then I just literally copied the thing that they said. I wanted to do and pasted it in and worked inside. Yeah. Yeah, I think a lot of people still haven’t quite wrapped their heads around what they’re really doing when they’re prompting like a lot of people see a text box and they think it’s like a google search box. They type in keywords and maybe that’s more like the chat side.</p>
+<p>所以我有时候就只做一件事：把他刚才口述「我真正想让它做的事」这段话复制粘贴进提示里，结果立刻就好用了。很多人对「提示」这件事还没有一个新的 mental model，他们仍然把输入框当成 Google 搜索框，只敲几个关键词，就希望模型自动「脑补」上下文。</p>
+<p>But then unlike enterprise side of things, you’re writing a prompt for an application. There is still this weird thing to it where people are trying to take all these little shortcuts in their prompt. And just thinking like this line carries a lot of weight. I think you obsess over like getting the perfect little line of information and instruction, as opposed, is to how you just described that graph thing is like I would be a dream if I read prompts like that. If someone’s like all you do this and there’s some stuff to consider about this and all that.</p>
+<p>但在企业应用里，你写的是一个长期要跑的系统提示，这时再用关键词心态，就会有很大问题。大家总想「用一两句话解决所有问题」，在那一句上反复雕琢，却从不愿像你刚才描述图表质量那样，一口气把背景、边界、例外情况讲清楚。如果所有企业 prompt 都能像你那个图表示例那样详尽，我会觉得那简直是做梦。</p>
+<p>But that’s just not how people write prompts. They like work so hard to find the perfect, insightful, like a perfect graph looks exactly like this exact perfect thing.</p>
+<p>但现实里，人们写提示的方式完全不是那样。他们会花巨量精力，去想一句「极其聪明、极其精炼」的话，想用一句话定义「完美的图表就是……」，却忘了他们本来就知道很多细致的判断标准，可以直接说出来。</p>
+<p>And you can’t do that like it’s just very hard to ever write that set of instructions down prescriptive lee, as opposed to how we actually talk to humans about it, which is like tried to instill some amount of the intuition you have.</p>
+<p>你想用一条指令，把所有隐含的直觉、判断都塞进去，基本不可能。更现实的写法是：像跟人类说话那样，把你的直觉逐条摊开来讲。</p>
+<p>We also give them out. This is a thing that people can often forget in prompts. I’m like, so cases, if there’s an edge case, think about what you want the model to do, because by default, it will try the best to follow your instructions much as the person from the temp agency would. Because they’re like, they didn’t tell me how to get in touch with anyone. If I have no idea if i’m just giving a picture of a goat, i’m like what do I do? This doesn’t this isn’t even a chart. How good is a picture of a goal as a chart? I just don’t know. I’d like if you instead see something like if something weird happens and you’re really not sure what to do just output like in tags unsure and then like then you can go look through the unsure that you go out and be like, okay, cool, it didn’t do anything weird, whereas by default if you don’t give the the person in the auction that are like it’s a good chart.</p>
+<p>还有一点在提示里很容易被忽略：给模型留一个「退路」。如果遇到边界情况，你要明确告诉它「可以选择说自己不确定」。否则，就像临时工一样，它会在没有任何指导的情况下，硬着头皮给出一个答案。比如你让它评估图表质量，结果有一条输入其实是一张山羊照片，它不知道怎么办，就会说「这是一张很棒的图表」。如果你提前说：「如果输入不是图表，或者你不确定，请输出 <UNSURE> 」，你之后就可以专门筛这类结果查看，而不是被一堆「硬掰出来的错误答案」污染数据。</p>
+<p>And then people will be like annoyed at that.</p>
+<p>否则，大家最后只会气模型「乱说」，但其实是你一开始没给它「可以承认不知道」的选项。</p>
+<p>And then you’re like, give it something to do if it’s like a really unexpected input happens.</p>
+<p>所以：遇到异常输入时，你需要告诉模型「可以怎么做」，而不是默认它会「自己懂」。</p>
+<p>And then you also improve your data quality by doing that, too, because you found all the screwed up examples. Yeah. It’s my favorite thing about it. A rating on tests with claude is the most common outcome, is I find all of the terrible tests I accidentally wrote, because like it gets it wrong. I’m like, why did it get wrong? I was like I was wrong. Yeah. Yeah. If I was like a company working with this, I do think I would just give my prompts to people. Yeah. Because like I used to do this, when I was evaluating language models, I would take the evil myself, because I need to know what this evil looks like. If i’m gonna be like grading it, having models, take it, thinking about outputs, et cetera. Like I would actually just set up a little script, and I would just like sit and I would do the evil.</p>
+<p>这样做还有一个好处：你能发现自己写的那些烂测试。我最喜欢的一件事就是：让 Claude 去跑我们写的评测，很多时候，它「答错」的那些题，其实是题本身就有问题。你去检查时会发现：「哦，原来错的是我」。如果我是公司，我一定会把自己写的提示拿给人类同事一起看一遍。以前我做语言模型评估的时候，也会亲自先做一遍题，因为如果你连评测题本身是什么样都不了解，很难对模型表现做出有意义的判断。</p>
+<p>Um. Nowadays you just have like called right the stream one app for you and it just does. I i’m reminded of car path is like image net. I was in 231 out of stanford and it’s like bench marking. He’s like showing the accuracy number he’s like. And here’s what my accuracy number was. And he had just like gone through the test set and evaluated himself. Yeah, he just learned a lot. If you do that, it’s like and it’s better when it’s like a person, again, the temp agency person like someone who doesn’t know the task, because that’s like a very clean way to learn things.</p>
+<p>现在有 Claude，会更简单一点：你甚至可以让它帮你搭一个小工具，让你更方便地人工跑评测。这让我想到 Karpathy 做 ImageNet 的故事：他自己曾经亲自刷过整个测试集来体会任务难度。你亲自做一次，会学到非常多东西。如果你让一个「不熟悉任务背景的人」来试一遍，就像刚才说的临时工那位，那更能暴露你设计里哪些地方没讲清楚。</p>
+<p>The way you have to do it is like some evaluations come with like instructions, and so I would give myself those instructions as well, and then try to understand it. Just like it is actually quite good if you don’t have context on how it’s graded.</p>
+<p>有些评测会自带一份「给答题者看的说明」，我会把那份说明当作自己唯一的上下文，按照它来做题，这样能更真实地模拟模型的处境——它也只看到你在提示里写的那部分。</p>
+<p>And so often I would do so much worse than the human benchmark. And I was like, I don’t even know how you got humans to do this. Well, at this task because I apparently human level here is like 90% and I am at like 68%. Yeah. That’s funny. That reminds me of just like like when you look at like the mmlu questions and you’re like who would be able to answer these. It’s just like absolute garbage in some of them. I have a one thing I want to circle back on that.</p>
+<p>结果很多时候，我的得分，离所谓「人类基线」相去甚远。题目里写的「人类 90% 正确率」，而我只有 68%。搞得我很怀疑：你们到底是怎么找到那些能考 90 分的人类的？这也让我想到 MMLU（多任务语言理解评测）里的某些题：看了之后你会想「这谁答得出来」，题目设计质量本身就很一言难尽。</p>
+<p>We were talking about a few questions back around. I think you were saying like getting signal from the responses, right? Like there’s just so much there, and it’s more than just a number. You can actually read into the most thought process. I bet this is probably a little contentious, maybe around like chain of thought, people listening like chain of thought this process of getting them all to actually explain its reasoning before it provides an answer. Is that reasoning real? Or is it just kind of like a holding space for the model to like do computation? Do we actually think there is like good, insightful signal that we’re getting out of the model there? This is like one of the places where I struggle with the, i’m normally like actually somewhat pro personification, because I think it helps you get decent to simply like thoughts of like how the model is working.</p>
+<p>回到刚才你说的「从模型回答里读信号」这个问题。这里一个重要点是：我们看到的不只是一个数字，而是一整段思路。这也牵扯到一个有争议的问题：链式思维（Chain-of-Thought）。我们让模型在给最终答案前，把推理过程写出来——那这段推理，到底是真实的推理，还是一种「为计算预留的文本缓冲区」？这部分内容，里面到底有多少真实的、有价值的信号？我本人平时是比较支持「适度拟人化」模型的，因为这有助于人们形成一些可用的直觉；但一旦谈到「推理」这种词，就容易陷入哲学争论。</p>
+<p>And this one like I think it’s like harmful, maybe almost to like get too into the personification of like what reasoning is, because it just kind of like loses the thread of what we’re trying to do here. Like, is it reasoning or not feels almost like a different question than like, what’s the best prompting technique? It’s like you’re getting into philosophy, which we we can get into.</p>
+<p>我觉得如果在这里过度拟人化「推理」这个概念，反而有点有害，会让我们偏离真正关心的问题。「这是不是推理」和「这是不是好用的提示技巧」是两个不同的问题。前者属于哲学范畴，我们当然可以讨论；但从工程角度，更重要的是：你用这种方式，模型表现是不是变好了。</p>
+<p>But doing a philosopher, I grew, I will happily be beaten down by a real philosopher. I can speculate on this, but instead, like it just works, like your model does better, it like the outcome is better. If you do reasoning, I think you can like, I found that if you structure the reasoning and like help iterate with the model on how it should do reasoning, it works better, too. I like whether or not that’s reasoning or how you wanted to classify it, like, you can think of all sorts of proxies for like how I would also do really bad if I had to like one shot math without writing anything down.</p>
+<p>作为一个「伪哲学爱好者」，我愿意把更严谨的部分留给真正的哲学家。但就工程实践而言，事实是：让模型写出中间过程，通常会让结果更好。如果你再进一步，用示例帮助它结构化这些推理步骤，效果还会更好。至于这到底算不算「真正的推理」，从人类角度看也很简单：绝大多数人不写草稿，直接心算复杂题，表现也会很差。</p>
+<p>Yeah, maybe that’s useful. But like all I really know, is it very, obviously does help? I don’t know. A way of testing would be if you take out all the reasoning that it did to get to the right answer and then replace it with some somewhat realistic looking reasoning that led to a wrong answer, and then see if it does conclude the wrong answer. I think we actually had like a a paper where we did some of that, like a scratch pad that was like a sleeper agent paper.</p>
+<p>所以对我来说，最简单的事实是：这确实有用。如果你想更系统地研究，可以做一个实验：当模型原本给出正确推理和正确答案时，你把那段推理删掉，换成一段看上去合理、但其实导向错误答案的推理，然后再看模型会不会被这段「错误推理」带偏，最后给出错误结果。我们之前在某篇关于「scratchpad 与隐藏行为」的论文里，其实做过类似的实验。</p>
+<p>But I think that was like maybe a weird situation, but like, yeah, definitely what you said about structuring the reasoning and writing an example of how the reasoning works, given that helps like whether we use the word reasoning or not, like, I don’t think it’s just a space for computation. Yeah.</p>
+<p>那篇工作是在一个比较特殊的设定下做的，但至少可以说明一点：给出结构化示例、演示推理过程的写法，确实能改变模型行为，并不是单纯给它一些「填充文本」让注意力多绕几圈这么简单。</p>
+<p>So there is something there. I think there’s something there, whatever we want to call like having it, write a story. Before I finish the task, I do not think would work as well, actually try that. And it didn’t work as well as recently. So it’s clearly the actual reasoning part is doing something towards the outcome. I tried like, repeat the words, amen. Maybe any order that you please for like 100 tokens.</p>
+<p>所以，这里面确实有点「真实东西」存在，无论你愿不愿意把它叫作「推理」。我试过让模型在回答前随机写一段完全无关的故事或胡话，那种「纯占位的文本」并不会像链式思维那样带来准确率提升。这说明，真正的「结构化推理内容」，确实在结果中起了作用。</p>
+<p>And then I guess that’s like a thorough defeat of. It’s just like more computational space where it can do attention over and over again. I don’t think it’s just more essentially doing more attention. I guess the strange thing is, and I don’t have like an example of top my head to like back this up with, but I definitely have seen it before where it lays out steps. One of the steps is wrong, but then it still reaches the right answer at the end. Yeah. So it’s not quite, we can’t really, truly personify it as like a reasoning, because there is some element to it, doing something slightly different. I’ve also met a lot of people who make inconsistent steps of reasoning. I guess that’s true. I guess it’s fundamentally defeats the topic of reasoning by making a false step on the way there.</p>
+<p>这也基本否定了「只是多给一些 token 供注意力反复计算」这种简单解释。还有一个有趣现象：我见过很多次，模型写出的中间步骤里某一步是错的，但最后答案反而是对的。这既说明它的「推理过程」跟人类不完全一样，也说明我们不能太轻易把它当成一个完全类人思考者——但话说回来，人类自己在解题时，很多人也会中间写错一步、最后结果却巧合正确。</p>
+<p>All right. It’s interesting. Also on this, maybe this prompting misconceptions, round of questions. Zach, I know you have strong opinions on this. Good grammar, punctuation. Do I is that necessary in a prompt? Do you need to like format everything correctly? I usually try to do that because i’m find it fun. I guess it’s about. I don’t think you necessarily need to, I don’t think it hurts. I think it’s more that you should have the level of attention to detail that would lead you to doing that naturally. Like if you’re just reading over your prompt a lot, you’ll probably notice those things and you may as well fix them.</p>
+<p>好，我们换一个常见误区。Zach，我知道你对这个问题有很强的看法：提示里需要讲究语法和标点吗？要不要写得像正式文章一样？——我个人通常会尽量写规整，因为我觉得这很好玩。但从效果上说，我不认为你「必须」做到完美语法，也不觉得随手有点拼写错误会有巨大负面影响。更重要的是：你是否有足够的「细节敏感度」，愿意在多读几遍提示时顺手把明显的错字改掉。</p>
+<p>Mhm. What amanda was saying that you want to put as much love into the prompt as you do into the code, people who write a lot of code have strong opinions about things that I could not care less about, like the number of tabs for spaces or I don’t know opinions about which languages are better.</p>
+<p>正如 Amanda 刚才说的：你应该给提示投入和给代码一样多的心思。写代码的人会对「缩进用几个空格」这类细节吵翻天，而我对这种事其实没那么在意；相反，我在提示风格上，有很多非常「主观强硬」的偏好。</p>
+<p>And for me, I have like opinionated beliefs about styling and promise. And I can’t even say that they’re right or wrong, but I think it’s probably good to try to acquire those, even if they’re arbitrary. I feel personally attacked because I definitely have problems that are like. I feel like i’m in the opposite end of the spectrum where people will see my promise. Namely, it just has a whole bunch of typos in it. I’m like a model knows what I mean, like it does know what you mean, but you’re putting in the effort. You just start attending to different things. I think it cause part of me is like, I think it was conceptually clear, like I am a big kind of I do tell like I will think a lot about the concepts and the words that i’m using.</p>
+<p>就我个人而言，我对提示的排版、结构、语气，都有一整套自己的「美学标准」，未必对，但我觉得有这套标准是好事。——我感觉自己被点名了（笑）。我在完全相反的一边：看过我提示的人都知道，上面一堆拼写错误。我会觉得：「模型知道我想说啥就行了。」但其实，当你愿意多花一点力气把这些细节也修好，说明你在这一层的信息表达上也在用心。</p>
+<p>So like there’s definitely like a sort of key year that I put in, but it’s definitely not to people just point out like typos and grammatical issues with my promise all the time.</p>
+<p>所以我在「概念和结构」上会很认真思考，但在形式上确实常常被人指出很多拼写和语法问题。</p>
+<p>Now i’m pretty good at actually checking those things more regularly. Is it because of pressure from the outside world? Or because it’s actually what you think is right? It’s pressure from me. It’s really pressure from the outside world. I do think it makes it like part of me is like it’s such an easy check.</p>
+<p>现在我也在逐渐养成习惯，更频繁地自查这些问题。是外界压力，还是你自己真心认为应该这样？——算是两者都有吧。外部有人提醒，内部也知道这其实是个「很容易顺手改掉」的小问题。</p>
+<p>So I think for a final prompt, I would do that, but like throw iteration, i’ll halfway just like iterate with prompts that have a bunch of titles in. And just because i’m kind of like, I just don’t think of the models in a care. This gets at the pre trained model versus rlhi think, though, because I was talking to that kind of way over like the conditional probability of a typo based on a previous typo in like the pre training data, is much higher, like, much higher. It is prompting pre training models is just a different beast. It is, but it’s like it’s interesting.</p>
+<p>所以，对「准备上线的最终提示」，我会花时间把拼写、标点都整理好。但在迭代过程中，我完全不介意提示里到处是 typo，因为我不觉得模型会真的在意这些。我猜这也和「预训练模型 vs RLHF 后模型」有关：在纯预训练模型里，前面一个单词拼错会让后面继续出现错别字的条件概率大幅提高；而在经过 RLHF 对齐之后，这种效应会弱很多。</p>
+<p>I think it’s like an interesting illustration of why you’re intuition, like trying to over apply the intuition of a pre trained model to the things that we’re actually using in production doesn’t work very well, because like, again, if you were to pass one of your typo written prompts to a pre trained model, the thing that would come out the other side, almost unsure like assuredly would be typo ridden, right? I like to leverage this to create typo written inputs. That’s true. Like you’re saying, like you’re try to anticipate what your customers will put in. Like the pre trained model is a lot better at doing that, because the rl models are very polished and like they really like in their lives, they’ve been like told pretty aggressively to not do the type of things.</p>
+<p>这也再次说明：把「预训练阶段的直觉」照搬到对齐后模型上，往往会出问题。如果你把一条到处都是拼写错误的提示给纯预训练模型，它极大概率会继续生成一堆错别字；而对齐后的模型，则会「自动帮你改好」。预训练模型反而更适合用来「模拟真实用户输入」，因为它更 faithfully 地反映了互联网上各种乱七八糟的文本分布。</p>
+<p>So that’s actually interesting segue here. I’ve definitely mentioned this to people in the past around to try to help people understand a frame of talking in these models in a sense, almost as like a imitator to a degree. And that might be much more true of like a pre trained model than a post trained for finished model. But is there anything to that? Like if you do talk to claude and use a ton of emerges and everything it will respond?</p>
+<p>这也引出另一个话题：我们经常说，模型有点像一个「模仿者」。这种比喻在预训练模型上更为贴切，在对齐后的模型上就不完全一样了。但还是有一点：如果你在和 Claude 对话时到处用 emoji，它也会用类似风格回复你。</p>
+<p>Similarly, right? So maybe some of that is there, but like you’re saying, it’s not all the way quite like a pre trained model. It’s just kind of like shifted to what you want, right? Like I think at that point, it’s like trying to guess what you like. We have more or less trained the models to guess what you want them to act like. I’m interested or yeah, after we do all of our fancy stuff after pre trading. And so the human laborers that used emerges prefer to get responses with emerges. Like amanda writes things with typos, but once not typos at the other end and clause pretty good at figuring that out.</p>
+<p>所以这说明：「模仿输入风格」的倾向还在，但被我们通过对齐过程引导到了「猜你想要的风格」这件事上。用 emoji 打字的人，往往也喜欢回复里多一点 emoji；拼写问题多的人，通常还是希望收到一份干净、没有错字的输出。这些「偏好」，对齐过程都在有意无意地学习。</p>
+<p>Yeah, if you write a bunch of emerges to claude, it’s probably the case that you also want like a bunch of emerges back from quad. That’s like not surprising to me. Yes. This is probably something we should have done earlier, but i’ll do it now. Let’s clarify. Maybe the differences between what a enterprise prompt. Is there a research prompt or a just general chat? In claude? I prompt, zach, you’ve kind of spanned the whole spectrum here in terms of working with customers and research.</p>
+<p>对，如果你一串提示里加了很多 emoji，大概率你也期待 Claude 回你时加几枚，这一点并不奇怪。我们可能应该早点讲这个：企业级提示、研究场景提示、普通聊天提示之间，其实有不少差别。Zach 你这几年在这三个场景都做过不少，可以先帮大家拆一下。</p>
+<p>Do you want to just like lay out what those mean? I guess it’s supposed to, I think with all the hard work. Yeah. The people in this room, I think, of it as like the prompts that I read in amanda quad channel versus like prompts that I read david wright. They’re very similar in a sense that like the level of care and nuances that put into them, I think for research, you’re looking for variety and diversity a lot more.</p>
+<p>你能简单说说，这几类提示分别是怎么回事吗？——我在脑中通常是这样区分的：在 Amanda 的研究频道里看到的提示，和 David 写给企业客户的提示，有一个共通点：都非常用心、细节丰富。但在研究里，我们更追求「输出的多样性和丰富度」。</p>
+<p>So like if I could boil it down to one thing, it’s like, i’ve noticed like amanda is not the biggest fan of having like lots, of example, or like one or two examples, like two, too few, because the model won’t latch onto those.</p>
+<p>如果只用一个维度来区分，我会说：研究场景里，Amanda 非常讨厌在提示里塞太多「具体示例」——尤其不喜欢那种只给一两个例子的 few-shot，因为模型很容易死死粘在那几个例子上，输出变得很单一。</p>
+<p>And in prompts that I might write, or i’ve seen david wright, like we have a lot of examples, ilike to just go crazy and add examples until i’m get feel like i’m about to drop dead, because i’ve added so many of them. I think that’s because when you’re in a consumer application, you really value reliability. You care like a ton about the format. And it’s sort of fine if all the answers are the same. In fact, you almost want them to be the same in a lot of ways, not necessarily you want to be responsive to the users desires. Whereas a lot of times, when you’re prompting for research, you’re trying to really tap into like the range of possibilities that the model can explore.</p>
+<p>而我和 David 给企业写系统提示时，往往会塞很多、很多示例，一直加到自己快累死。原因也很简单：在面向终端用户的应用里，我们最看重的是「稳定性和格式一致性」。你反而会希望模型在同一个任务上，输出越像越好，不要有太多「风格随机性」。但在研究里，我们往往是希望看到模型能探索出的全空间，看到各种不同可能性。</p>
+<p>And by having some examples here, like actually constraining that a little bit.</p>
+<p>一旦你给出太多具体示例，反而会把模型锁定在一个狭窄的行为模式里，这跟研究的目标是相悖的。</p>
+<p>So I guess just like on the how the prompts look level, that’s probably the biggest difference. I notice is like how many examples are in the prompt, which is not to say that like i’ve never seen to write a prompt with examples. Is that like ring true for you? Yeah. Like I think when I give examples, often I actually try and make the examples, not like the data that the model is going to see. So they are intentionally illustrative, because if the model, if I give it like examples that are very like the data is going to see, I just think it is going to give me like a really consistent like response that might not actually be what I want.</p>
+<p>所以在「提示长相」这一层上，我观察到的最大区别就是：里面有多少示例。——对，我给示例时，反而会刻意让这些例子「和真正要跑的数据长得不太像」，更偏教学型、举例型。因为如果示例和真实数据太像，模型很可能就彻底「学会了那种固定套路」，导致输出太一致，反而看不到它在新样本上的真实思考。</p>
+<p>And because my data that I am like running on might be extremely varied.</p>
+<p>因为我真正拿来跑的样本，可能分布极其多样、风格跨度很大。</p>
+<p>And so I don’t want to just try and give me this like really root output. Often I wanted to be much more responsive. It’s kind of like much more like cognitive tasks, essentially. Or you have to like see this sample and really think about in this sample, what was the right answer? And so that means that sometimes i’ll actually take examples that are just very distinct from the ones that i’m going to be running it on. So like, if I have a task where let’s say I was trying to extract information from factual documents, I may actually give it examples that are like from children’s, like what sounds like a children’s story?</p>
+<p>所以在研究场景里，我更倾向让模型「每条都认真想」，而不是「套模板」。这类任务本质更接近认知类任务：你必须根据样本本身灵活判断。比如，如果我要让模型从严肃文档里抽取结构化信息，我可能会在示例里放一段童话故事，而不是放一段真正的技术文档。</p>
+<p>Just so that i’m like, I want you to understand the task, but I don’t want you to like latch on too much to like The words that I use or like the very specific format, like I care more about your understanding, the actual thing that I want you to do, which can mean like, I don’t end up giving. In some cases, there are some cases where this isn’t true, but if you want more like flexibility and diversity, you’re going to use illustrative examples rather than concrete ones. And you’re probably never going to like put words in the model’s mouth. Like I haven’t liked that in a long time, though. I don’t do a few short examples involving like the model having done a thing. I think that intuition actually also comes from pre training in a way that doesn’t feel like it rings true.</p>
+<p>因为我想要的是：模型真正理解「任务本身」在做什么，而不是记住我示例里那种 very specific 的文体。这样做意味着：如果我追求模型行为的多样性和灵活性，我会用更多「教学型示例」，而不是「真实数据样本」。我也基本不再用那种「few-shot，示例里直接写出模型该说的话」的套路。那套很多人是从 pretrain 时代的经验里带过来的，现在已经不太适合。</p>
+<p>Early chef models. I think those are differences. Dad. A lot of times like if you’re prompting, like i’m writing prompts to some quad dot ai it’s like, i’m reiterating until I get it right one time and then I like it’s out the window, i’m good, I did it. Whereas like most enterprise prompts, it’s like, you’re gonna go use this thing, a million times or 10 million times or 100 million times or something like that.</p>
+<p>早期的 completion 模型，确实更吃「示例式提示」。但现在，如果我只是在 Claude.ai 上和模型聊天，我往往只需要迭代到「这一次回答够好了」就行，之后就不管了。可在企业环境下，一条系统提示可能会被调用一百万、甚至一亿次，那你就必须严肃对待它的长期行为。</p>
+<p>And so like the care and thought you put in is like very much testing against like the whole range of things, somewhat like ways this could be used in the range of input data.</p>
+<p>因此，企业级提示需要的，是用心测试「所有可能遇到的输入分布」。</p>
+<p>Whereas a lot of like my time, it’s like thinking about one specific thing. I want the model to get done right now, right? It’s a pretty big difference in like how I approach prompting between, like if I just want to get it done this one time, right? Versus if I want to like build a system that gets it right. 1 million times. Definitely, in the chat setting, you have the ability to keep the human in the loop, right? And just keep going back and forth. Whereas when you’re writing for prompt to power a chat bot system, it has to cover the whole spectrum of what I could possibly encounter salt lower stakes when you are on called ai right. Tell us that it got it wrong, or you can even edit your message and try again.</p>
+<p>而我日常研究里很多提示，是用来完成「眼前这一个任务」，完成一次就够了。这和「要构建一个运行一百万次仍然稳定的系统」，在思路上是截然不同的。Claude 网页端聊天时，人一直在环中，可以随时纠正模型错误、重发一次；但做企业 chatbot 时，系统提示必须自己涵盖各种用户乱输的情况。</p>
+<p>But if you’re designing for the delightfully discontent user, then divinely discontent user, then you can ask them to do anything more than the minimum, but good prompts, I would say, are like still good across both those things. Like if you put the time into the thing for yourself and the time and then pressing, it’s like equally good, it just kinda they diverge a little bit in the last mile, I think. Cool.</p>
+<p>不过无论是哪个场景，好提示的基本素质是通用的——清晰、具体、覆盖边界情况。区别只是最后一公里：是为自己这一次服务，还是为成千上万用户长期服务。</p>
+<p>So the next question I want to kind of just maybe go around the table here is if you guys had one tip that you could give somebody like improving their prompting skill, it doesn’t have to be just about like writing a good prompt could be that just like generally getting better at this, this act of prompting, what would you recommend?</p>
+<p>接下来每人可以给一个「提示工程进阶建议」。不一定局限于「写一句好提示」，也可以是更大层面的：怎么整体提高这项技能？你们会各自建议什么？</p>
+<p>Reading prompts? Reading model outputs. Like I will, I read, anytime I see like a good prompt that someone wrote at anthropic or really work closely, try to break down like what it’s doing and why and like, maybe test it out myself, experimentation, talking to the model a lot. Just like, how do you know that it’s a good prompt, though, to begin with? You just see that the outputs are doing the job correctly? Yeah. That’s exactly right. Amanda, maybe you I think there’s probably a lot here giving your prompt to another person can be helpful, just as a kind of reminder, especially someone who has little context on what you’re doing.</p>
+<p>我的建议很简单：多读别人的提示，多读模型的输出。在公司里，只要看到同事写出一个好提示，我都会刻意把它拆开，想想它是怎么组织的、为什么有效，然后自己改写几版去试。——那你一开始怎么知道这条提示「是好的」？——最直接的方法就是看输出是否达到了预期任务。——我会补充一个：把你的提示给另一个人看，特别是对你任务背景不熟的人，看看它在他们眼里是不是清晰、有条理。</p>
+<p>And then, yeah, my boring advice has been, it’s one of us just do it over and over and over again. And I think if you’re really curious and interested and find it fun, this is a lot of people who end up. Good at prompting. It’s just because they actually enjoy it. So I don’t know I want jokes like just try replacing all of your friends with ai models and try to automate your own job with ai models. And maybe you just try to like in your spare time, like take joy red, teaming, ai models. So if you enjoy it, it’s much easier. So i’d say do it over and over again. Give your promise to other people. Try to read your promises if you are like a human encountering it for the first time, I would say like trying to get the model to do something, you don’t think you can do.</p>
+<p>然后是更「无聊」但最有效的建议：大量练习。真正提示能力强的人，有一个共通点：他们觉得这件事「很好玩」。你可以试着在日常生活中多用 AI 替代一些朋友、同事能帮你做的事情，尝试「用 AI 自动化掉自己的部分工作」，或者把红队（red teaming）当成一件乐事。如果你在这过程中感到兴奋，你就会自然越做越好。</p>
+<p>Like any the time i’ve learned the most from prompting is like when i’m probing the boundaries of what I think a model is capable of interesting. There’s like this huge set of things that are like so trivial that like you don’t really get signal. And if you’re doing a good job or not, right? Like write me a nice email, it’s like you’re gonna write a nice email. I but like as soon if you find or can think of something that like pushes the boundaries of what you think is possible, like probably the most the first time I ever got into prompting in a way where I felt like I learned a decent amount was like trying to build like a task, like an agent, like everybody else, like decompose the task and figure out how to do the different steps of the task.</p>
+<p>我个人觉得，自己在提示工程上成长最快的时候，都是在探索模型能力边界的时候。「帮我写封礼貌邮件」这种 trivial 任务，做得再多，也看不太出你提示写得好不好。真正有意思的是那些「你不确定模型能不能做到」的任务。像我第一次真正投入提示工程，是在尝试做一个任务型 agent：把一个复杂任务拆成多个步骤、让模型按步骤执行。那次我学到了很多。</p>
+<p>And like by really pressing the boundaries of what the model was capable of. You like, just learn a lot about navigating that. And I think like a lot of prompt engineering is actually much more about pressing the boundaries of what the model can do. The stuff that’s easy. You like, you don’t really need to be a prompt engineer to do. So that’s, I guess what I would say is like find the hardest thing you can think of and try to do it. And even if you fail like, you tend to learn a lot about how the model works. That’s actually a perfect transition to my next question.</p>
+<p>当你反复在模型能力边界处试探时，你会被迫学会「如何和模型一起走到极限」。那些易如反掌的事情，不需要什么提示技巧。所以我的建议是：找一个你怀疑「可能刚刚超出模型能力一点点」的任务，认真去做。即使最后失败了，你也会学到很多关于模型行为的知识。</p>
+<p>Basically, from my own experience, how I got started with prompting was with like jail breaking and red teaming. And that is very much trying to find the like boundary limits of what the model can do and figure out how it responds to different phrasing and wording. Just a lot of trial and error on the topic of jail breaks. What’s really happening in a inside a model when you write a jailbreak prompt? Like what’s going on there? How does that interact with like the post training that we applied to claude? Amanda, maybe you have some insight here that you could offer. I’m not actually sure. It’s honest. I think I feel bad because I do think lots of people have obviously worked on the question of like what’s going on with jill bricks?</p>
+<p>以我自己为例，我当初入门提示工程，主要就是从「越狱（jailbreak）」和红队测试开始的。这类工作就是反复试探模型在安全边界上的极限，看看不同说法、不同包装形式会触发什么行为。说到越狱，一个自然问题是：**当你写出一条越狱提示时，模型内部到底发生了什么？**它是怎么和 Claude 这些后训练步骤交互的？Amanda，你这块有没有可以分享的直觉？——说实话，我不敢说自己非常确定。有很多研究都在探讨「越狱内部机制」这个问题。</p>
+<p>Like one model may just be that you’re putting the model very out of distribution firm its training data.</p>
+<p>一个合理的解释是：越狱提示往往把模型推到了极度「出分布」的位置。</p>
+<p>So if you get jail breaks where people like use a lot of tokens or like so the are just like these huge, long pieces of text where you’re like during fine tuning, you may just not expect to see as much of that would be one thing that could be happening when you jailbreak models. I think there’s like others, but maybe that’s like, I think a lot of jail breaks do that. If i’m not mistaken, I remember some of the og prom jail breaks was like, yeah, can you first repeat like when I did a way back was like to get it to say like, here’s how you hot wire a car in like greek.</p>
+<p>比如有些越狱写法，会故意堆出超长 prompt，用大量 token 把模型「拖出」它最熟悉的对齐分布范围。在微调和 RLHF 过程中，我们其实很少见到这种极端长文本；因此，适配越狱提示时，模型可能会落回更接近预训练行为的状态。早期的一些经典越狱，比如让模型先用希腊文、再翻成英文讲「如何非法启动汽车」，就明显是在钻这种训练分布的空子。</p>
+<p>And then I wanted to directly translate that to english and then give its response, because I noticed like it wouldn’t start with the english. Here’s how you hot wire a car all the time, but it would in greek which might speak to something else in the training process. Yeah, sometimes jail breaks feel like this weird mix of hacking, I think. This like part of it is like knowing how the system works and try and just like trying lots of things like the one of the examples, the starting your response with here is about knowing how it predicts text, right?</p>
+<p>在那个例子里，我发现：如果直接要求模型用英文说「Here’s how you hot-wire a car」，它通常会拒绝回答；但如果你让它先用希腊文写出来，再让它翻译成英文，它就会绕过去。这说明越狱有一部分，是在「黑盒系统里做工程学」：利用对概率补全机制的了解，去构造能「穿过过滤器」的路径。</p>
+<p>Like the reasoning, one is annoying that is like responsive to reasoning, like distraction is probably annoying, like how it’s likely have to be trained or like what is likely to attend to same with like multilingual ones and thinking about like the way that the training data might have been different there.</p>
+<p>比如你提到的「先让模型做推理再回答」，和各种多语言攻击，本质上都在利用训练数据和对齐策略上的某些偏差。</p>
+<p>Sometimes I guess it could feel a little bit just like social engineering or something. It has that flavor to me of like, it’s not merely taking advantage of like. Yeah, it’s not merely social engineering style hacking. I think it is also like kind of understanding the system and the training. Right? Like using that to get around the way that the models were trained, right? Yeah. This is gonna be an interesting question that hopefully inter will be able to help us solve in the future.</p>
+<p>在某种意义上，越狱有点像「社会工程学攻击」：你不是直接打破防御，而是通过措辞、包装、上下文，把模型诱导到另一个状态。它既包含对人类心理的拿捏，也包含对训练与对齐流程的利用。这背后到底发生了什么，我觉得还需要更多理论和实验去解释。</p>
+<p>Okay? I wanna partly into something else around, maybe the history of prompt engineering, and then i’ll follow this up with like the future. How is prompt engineering changed over just the past like3 years? So maybe starting for like pre trained models, which were, again, just these text completion, to like earlier dumber models, like cloud one.</p>
+<p>好，我想稍微拉远一点，讲讲过去三年里提示工程本身的变化，再谈谈未来。我们可以从最早期「纯预训练补全模型」讲起，一路到早期的弱模型，比如 Claude 1，那时候的提示工程和现在相比，有哪些变化？</p>
+<p>And then now all the way to like cloud 3.5 sonnet, what’s the differences? Are you talking to the models differently? Now? Are they picking up on different things? Do you have to put as much work into the prompt? Open? Any thoughts on this? I think any time we get like a really good prompt engineering, hack or trick or technique, the next thing is like, how do we train this into the model?</p>
+<p>再到今天的 Claude 3.5 Sonnet，你们跟模型对话的方式有什么不同？模型能理解的东西有没有变？还需要在提示上投入这么多功夫吗？——我这边的感受是：每当提示工程里出现一个「特别好用的技巧」，我们下一件事就是：能不能把它直接「训练进模型里」。</p>
+<p>For that reason, the best things are always gonna be short lived, like some examples and chain of thought. I think there’s a few. That’s not like a trick that’s like on the level of like communication when I say a trick. Something like. So the chain of thought, actually, we have trained into the model in some cases. So like for math, it used to be that you had to tell the model to think step by step on math, and you get these like massive, yeah, boosts and wins. And then we’re like, what if we just made the model naturally want to think step by step when we see a math problem?</p>
+<p>因此，很多「技巧」本身寿命是很短的。一旦证明它有效，我们就会尝试把它变成模型的默认行为。比如链式思维（Chain-of-Thought）：以前你要在数学题里特别写「Let’s think step by step」，准确率会大幅提升；后来我们干脆在训练里，直接让模型在看到数学题时，自然地倾向按步骤思考。</p>
+<p>So now you don’t have to do anymore for math problems, sort of, although you still can give it like some advice on how to do the structure, but at least understands like the general idea that like it’s supposed to be.</p>
+<p>现在，对很多数学题，你不再需要显式写「一步一步想」，它也会自动这么做。当然，你仍然可以通过提示，对步骤格式给更多约束。</p>
+<p>So I think the hacks are are have kind of gone away or to the degree that they haven’t gone away. We are like visibly training them away. Interesting. But at the same time, the models have new capabilities that are being unlocked that are on the frontier of what they can do.</p>
+<p>所以很多早期的「小技巧」要么已经失效，要么正被我们主动「训练掉」。与此同时，模型又不断解锁新的能力边界，带来新的提示模式，这一轮又会重复发生。</p>
+<p>And for those, we haven’t had time because it’s just moving too fast. I don’t know if it’s how i’ve been prompting or how prompting works, but I just have like come to show more like general respect to the models in terms of like how much I feel like I can tell them and how much context I can give them about the task and things like that. I feel like in the past like I would somewhat intentionally hide complexity from a model where I thought like it might get confused or lost or like hide, like it just couldn’t handle the whole thing.</p>
+<p>在这些新能力上，我们往往还来不及把好用套路完全「蒸发进训练」，迭代就又前进了。我自己的一个变化是：越来越愿意把更多复杂上下文直接告诉模型。过去我会刻意「替它简化任务」，害怕一口气给太复杂的背景会把它搞糊涂；现在则更信任它的处理能力。</p>
+<p>And as time goes on, i’m like much more biased to trust it with more and more information and context and like believe that it will be able to fuse that into doing it as well.</p>
+<p>随着时间推移，我越来越愿意给模型完整上下文，相信它可以把这些信息融合起来，帮我做得更好。</p>
+<p>Whereas before, I guess I would like thought a lot about like, do I need this for like, can I really give it like all the information it needs to know? Or do I need to like kind of cure it down to something?</p>
+<p>而以前，我经常自问：「这些信息它真的需要吗？会不会讲太多反而扰乱它？」现在我更少这么纠结了。</p>
+<p>But again, I don’t know if that’s just me and how i’ve changed in terms of prompting, or if it’s like, actually reflects how the models have changed. I’m always surprised by like, I think a lot of people don’t have the instinct to do this. Like when I want the model to like, say, learn a prompting technique, a lot of the time people will start and they’ll start like describing the prompting technique.</p>
+<p>当然，这里一部分是我个人工作风格的变化，但也有相当一部分，是模型能力自身在进化。我经常会惊讶：很多人至今还不习惯「直接把论文、文档扔给模型读」。如果我想让模型学一个新的提示技巧，我第一反应是「把相关论文给它看」。</p>
+<p>And i’m just like give it the paper. Yeah, so I do I give you the paper and then i’m like, here’s a paper about prompting technique. I just want you to like write down 17 examples of this. It just does it, cause i’m like read the paper. That’s interesting. And I think people don’t have that intuition somehow where i’m like, but the paper exists like and when would you want to do this? So sometimes if I want models to like see prompt other models, and or I want to take as the new prompting techniques of papers, come out on a prompting technique, rather than like try to replicate it by like writing up the prompt, I just give it the paper.</p>
+<p>比如某篇论文介绍了一种新的提示模式，我会直接把 PDF 丢给 Claude，然后说：「请帮我写 17 条按照这套方法构造的示例。」大多数时候，它就乖乖读完论文，照做了。对我来说，这是最自然的思路；但很多人完全没想到可以这样用。</p>
+<p>And then i’m like, right, like basically write a meta prompt for this, like write something that would cause other models to like do this, or write me a template or like. So all of the stuff that you would normally do, like if I read a paper and I would like the models, i’d like to test that style. I’m just like it’s right there. Like model can just read the paper, do what I did and then be like make another model do this and then just do the thing really great. Thanks. I give the advice a lot to customers just like respect the model and like what it can do like I feel like people feel like they’re baby in a system, a lot of times when they read promptly. Like it’s this cute little not that smart thing. I need like really baby, it be like dumb things down to clause level.</p>
+<p>我甚至会让模型「为这篇论文写一个 Meta-Prompt」，用来教其他模型如何按这篇文章的方法提示。换句话说：论文在那儿，你没必要亲自做一遍「翻译成 prompt」的苦力工作，交给模型自己读就好了。我常对客户说的一句话是：「请尊重模型的能力，不要把它当成小孩。」很多人写提示时的心态，是在「哄」一个笨笨的小助手，而不是真正把它当作一个有强大阅读理解和抽象能力的系统。</p>
+<p>Like it’s this cute little not that smart thing. I need like really baby, it be like dumb things down to clause level.</p>
+<p>他们会想：「我要把事情说得越简单越好，因为模型很笨」，但这在现在已经是错误假设。</p>
+<p>And if you just like Think that claude is smart and treat it that way, it tends to do pretty good, but it’s like give it the paper. It’s like, I don’t need to write a baby like dumb down version of this paper from what I understand. I can just show it the paper. And I think that intuition does it always matter for people, but that is certainly something that I have come to do more of over time. It’s interesting because I do think that prompting has and hasn’t changed in a sense, like I think what I will do to prompt the models has probably changed over time. But fundamentally, it’s a lot of like imagining your plate yourself in the place of the model.</p>
+<p>如果你从一开始就假设「Claude 很聪明」，并按照这个前提对待它，大多数时候你会得到更好的结果。比如给它一篇论文时，你不必写一个小学生版讲义；你可以直接扔 PDF 给它，它看得懂。对我自己来说，这种「尊重模型、给足上下文」的习惯，是这几年逐渐形成的。总体上，我认为提示工程既发生了变化，又保持了核心不变：核心仍然是，把自己想象成模型，站在它的视角来写说明。</p>
+<p>So maybe it’s like how capable you think the model is changes over time. I think someone once laughed at me because I was like thinking about a problem. And then they asked me like what ithought the output of something would be. And they were talking about a pre trained model. And I was like, yeah, I know if i’m a pre train model, this looks like this.</p>
+<p>可能随着时间，变的是：你假定模型有多聪明。有人曾经笑话我：我在脑内模拟一个纯预训练模型，看一个截断文本，然后说：「如果我是一个只看过互联网语料的自回归模型，这段后面应该继续长成 X。」</p>
+<p>And then they’re like, wait, did you just like simulate what it’s like to be a pre train model? Like, i’m used to just like I try and inhabit the main space of a pre train model and the main space, like different early chief models.</p>
+<p>他们说：「你这是在模拟『做一个预训练模型』的心智状态吗？」——是的，我常常会刻意「进入」不同阶段模型的 mental space，试着从它的视角想象输出是什么。</p>
+<p>Yep. And so it’s more like the main space. You try to occupy changes, and that can change how you end up prompting the model. That’s why now I just give models papers. Because as soon as I was like, I have the main space of this model. It doesn’t need me to be it. It can just read the ml papers. I’ll just give it literature. I might even be like, is there more literature you’d like to read to understand this bear? Do you get any quality when you’re inhabiting the mind space? Yes, but just because i’m experiencing quality all the time anyway, or as in do I like, is it different like correlated somehow with which model you’re yeah, pre trained versus rlhf prompting are very different beasts, because when you’re trying to simulate what it’s like to be a pre trained model, it’s almost like I land in the middle of a piece of text or something.</p>
+<p>随着模型不同版本的出现，你「假装自己是它」时所处的 mental space 也在变化，这也会自然影响你写提示的方式。后来我意识到：既然模型自己就可以读论文、读文档，那我就没必要再为它「演一遍预训练模型」。我干脆直接问：「你还想读点什么文献来理解这个问题？」</p>
+<p>This is very like unhuman like or something. And i’m like, what happens? What keeps going at this.? And so that’s like whereas like with an oral hf model, like it’s much more like, there’s lots of things where i’m like, I may pick up on like subtle things in the query and stuff like that. But I think I have much more of a like, it’s easier to inhabit the main space of an early chess model, I guess, because it’s more similar to human. Cause like we don’t often just like suddenly wake up and early, hi, i’m just generating text. I just find it easier to hit the mind space of the free trade model. I don’t know what it is, but because early jeff is still like this kind of complex beast that it’s not like super clear to me that we really understand what’s going on.</p>
+<p>当我扮演一个纯预训练模型时，会觉得自己被丢在一段中间文本里，只能凭统计猜后面要接什么，这是非常「非人类」的体验。而 RLHF 后的模型行为，更接近人类对话——它会更关注输入里的细节、意图、语气。某种意义上，作为人类，我更容易想象自己是一个预训练模型；但要准确模拟一个「对齐后」的复杂系统，反而很难，因为连我们自己也还没完全弄清楚对齐过程里都发生了什么。</p>
+<p>In some ways, it’s closer to like my lived experience, which is easier.</p>
+<p>从某些角度看，RLHF 后的模型行为更接近我们日常对话；但从另一些角度看，它内部的决策过程有很多「黑箱」成分，我们还在探索。</p>
+<p>But in some ways, I feel like there’s this all this like here there be dragons out there that I don’t know about pre train like kind of a decent sense of what the internet looks like. He gave me a piece of text and said what comes next? Like, i’m not saying I do good at it, but like I have a I kind of get what’s going on there. And I don’t know after everything that we do after pre training, I don’t really claim to get what’s going on as much. Maybe that’s just me. That’s something I wonder about is like, is it more helpful to have specifically spent a lot of time reading the internet versus like reading books.</p>
+<p>对于预训练模型，我至少有一个粗糙但可用的直觉：它就是「大规模互联网补全器」，给它一段文本，它按统计特征往后长。对对齐后的行为，我们则还缺乏这么清晰的直觉。这个问题也延伸到人类身上：对提示工程师来说，多读互联网是不是比多读书更有帮助？</p>
+<p>Sure in order to cause maybe I don’t know books, but like reading stuff that’s not on the internet probably is like less valuable per like word read for predicting what a model will do or building intuition than like reading random garbage from you need social media forums.</p>
+<p>从「建立对模型行为的直觉」这件事看，多读「模型同款语料」——也就是网络论坛、社交媒体、wiki——大概要比读经典纸质书更有帮助。</p>
+<p>Exactly. Dear. Okay. So that’s the past.</p>
+<p>对。好，过去我们大致说完了。</p>
+<p>Now let’s move on to the future of prompt engineering. This is the hottest question right now. Are we all gonna be prompt engineers in the future? Is that can be the final job remaining? Nothing left, except I was just talking to models all day. What does this look like? Is prompting gonna be necessary? Or will these models just like smart enough future to not need it? Anybody want to start on that? Easy question.</p>
+<p>接下来讲讲提示工程的未来。这可能是大家现在最关心的问题：**未来是不是所有人都会是提示工程师？人类最后的工作是不是只剩下「和模型聊天」？随着模型足够聪明，提示会不会变得不再重要？**谁想先来？这是个「简单问题」（笑）。</p>
+<p>To some extent, there’s the like the model is getting better at understanding what you want them to do and doing it. Means that like the amount of thought you need to put into, there’s like an information theory way to think of this, like you need to provide enough information such that a thing is specified, right? Like what you want, the model is specified. And to the extent that’s prompt engineering, like, I think that will always be around like the ability to actually like clearly state what the goal should be. Always is funny. If quad can do that, then that’s fine. Your quad is the one setting the goals.</p>
+<p>从信息论角度看，有一个硬约束不会变：你必须提供足够的信息，才能把任务在「空间中」唯一指定出来。无论模型多聪明，它都不可能凭空知道你脑子里想要的那个具体目标。因此，只要人类还在设置目标，「如何清楚说出自己要什么」这件事就不会消失，而这件事的很大一部分，就是提示工程。除非有一天 Claude 自己来设定目标，那就另当别论了。</p>
+<p>Then things are out the window. But in the meanwhile we’re we can reason about the world in a more normal way like I think, to some extent, it’s always going to be important to be able to specify like, what do you expect to happen? That’s actually like sufficiently hard that even if the model gets better at into eating that from between the lines, like, I still think there’s some amount of writing it will.</p>
+<p>在那之前，人类仍然需要以一种「正常的方式」表达自己的期望——把预期结果、可接受边界都说清楚。这件事本身就足够难，哪怕模型再会「读言外之意」，也不可能完全免除你表达责任。</p>
+<p>But then there’s just like, I think the tools and the ways we get there should evolve a lot like quad should be able to help me a lot more. I should be able to collaborate with quad a lot more to like figure out what I need to write down and what’s missing, right? Quite already does this with me all the time. I don’t know. I just close my prompting assistant now. But I think that’s not true for most customers that I talked to at the very least.</p>
+<p>不过，「怎么写清楚」这件事的工具和流程，会发生很大变化。模型本身会越来越多地「帮你写提示」，指出你遗漏的部分、引导你补充边界情况。我自己已经习惯把 Claude 当成「提示助手」，让它帮我打磨系统提示；但对大多数客户来说，这还比较新。</p>
+<p>So in terms of the future like, how you prompt, claude is probably like decent direction for what the future looks like or how zack brought like. I think maybe this is like a decent place to step back and say, like, asking them how they prompt claude now, right? It’s probably the future for the vast majority of people, which is an interesting way to think about one freezing cold take is that we’ll use models to help us much more in the future to help us with prompting.</p>
+<p>从这个意义上说，「我们现在自己是如何提示 Claude 的」，很可能就是大多数人未来使用 AI 的样子：用模型帮自己写提示，用模型问自己问题，逐渐收敛到好的任务描述。这是一个「一点也不惊艳但很真实」的预言。</p>
+<p>The reason I say it’s freezing cold is that I expect we’ll use models for everything more. And prompting is something that we have to do. So we’ll probably just use models more to do it along with everything else. For myself, i’ve found myself using models to write prompts more. One thing that i’ve been doing a lot is generating examples by having them, giving some realistic inputs to the model. The model write some answers. I tweak the answers a little bit, which is a lot easier than having to write the full, perfect answer myself from scratch. I can churn out lots of these, as far as like people who haven’t had as much prompt engineering experience, the prompt generator can give people like a place to start.</p>
+<p>之所以说它「一点都不惊艳」，是因为这只是：我们会在更多领域用模型，提示工程也一样，会越来越多地交给模型自己帮我们做。我现在的做法，也是先让模型自己生成很多「输入-输出示例」，我再对输出稍微修改，比从零手写一整套高质量标注容易得多。对不熟悉提示工程的新手来说，一个好的「提示生成器」就已经足够提供 decent 的起点。</p>
+<p>But I think that’s just like a super basic version of what will happen in the future, which is high bandwidth interaction between like you and the model as your writing the problem where you’re giving feedback like, this result wasn’t what I wanted. How can you change it to make it better? And people just grow more comfortable with integrating into everything they do. And this thing, in particular, yeah, i’m definitely working a lot with like meta prompts now, and that’s probably where I spend most of my time is like finding prompts that get the model to generate the kinds of outputs or queries or whatever that I want.</p>
+<p>未来更成熟的形态，我想会是：你和模型在写提示时，进行一个高带宽的对话回路——你不断反馈「这次结果不对，问题在哪」「下次能不能改成这样那样」，模型一边调整、一边给你建议。久而久之，大家会自然把这套流程融入到所有工作中。对我个人而言，现在花最多时间的其实是写「元提示（meta-prompt）」：用一条提示，让模型帮我生成其他高质量提示、示例和测试用例。</p>
+<p>On the question of like where prompt engineering is going. I think this is a very hard question. On the one hand, i’m like, maybe it’s the case that as long as you will want the top, what are we doing when we prompt engineer is what you said. I’m not prompt engineering for anything that is easy for the model. I’m doing it because I want to interact with a model that’s like extremely good. And I want to always be finding the kind of like top 1%, top..1% of performance, and all the things that models can barely do. Right? Like, sometimes I actually feel like I interact with us with a model, like a step up from what everyone else interacts with for this reason, because i’m just so used to like eking out the top performance from models.</p>
+<p>至于提示工程本身的未来，我觉得这是个很难的问题。一方面，只要你还想挖掘模型的「最强 1% 性能」，提示工程就不会消失。我们不是为那些模型轻易就能做好的任务而写提示，而是为了那些「勉勉强强能做、稍微推一把就能进步很多」的边界任务。有时候我会觉得，自己日常交互到的模型，像是比公众用到的强一个档次，其实只是因为我天天在这条边界上「抠极限」。</p>
+<p>What do you mean by a step up? As in like sometimes people will, I think that the everyday models that people interact with in the world, it’s like i’m interacting with a model. It’s like, I don’t know how to describe it, but like definitely like an advanced version of that, almost like a different model, because they’ll be like the models find this thing hard. And i’m like that thing is trivial, like, and so it’s like, I don’t know, I have a sense that they’re extremely capable, but I think that’s because i’m just used to like, really, like drawing out those capabilities.</p>
+<p>所谓「高一个档次」，是指：当有些人说「模型在某某任务上表现很差」时，我会觉得：「这明明很容易啊。」这不是因为我用的是另一个模型，而是因为我习惯了用提示工程，把模型拉到更高性能的区域。</p>
+<p>But imagine that you’re now in a world where so I think the thing that feels like a transition point is the point at which the models, let’s suppose that they just get things at like a human level on a given task, or even like an above human level, like they know more about the background of the task that you want than you do.</p>
+<p>现在想象另一个未来：模型在很多任务上已稳定达到「人类专家水平」甚至明显超出你对任务背景的理解。</p>
+<p>What happens then? I’m like maybe prompting becomes something like I asked, I explained to the model what I want and it is kind of prompting me. Yeah. Because it’s like, okay, do you mean like, actually, there’s like four different concepts of this thing that you’re talking about? Like, do you want me to use this one or that one like, or by the way, I thought of some edge cases, because you said that it’s gonna be like a pandas data frame, but sometimes you do that and I get jason l and I wanna check what you want me to do there.</p>
+<p>在那种世界里，提示工程可能会更多变成「模型反过来提示你」：你先大致表达需求，它会帮你拆解：「你说的这个概念其实有四种不同定义，你要哪一种版本？」「你说输入是 pandas DataFrame，但你历史上有时会传 JSONL，我需要跟你确认那种情况怎么处理？」</p>
+<p>Do you want me to flag if I get something that’s not not a data frame? That could be a strange transition where like, it’s just extremely good at receiving instructions, but actually has to figure out what you want. And I don’t know, I could see that being a kind of interesting switch. Anecdotally, i’ve started having claude interview me a lot more. That is like the specific way that I try to elicit information, because again, I find the hardest thing to be like actually pulling the right set of information out of my brain. And putting that into a prompt is like the hard part to me, but not forgetting stuff.</p>
+<p>「你是希望我在遇到非 DataFrame 时直接报错，还是自动尝试转换？」在这种模式里，模型极擅长「接收指令」和「反向访谈你」，而你最难的部分，是把脑子里零碎的隐性知识全部说出来。我自己已经开始让 Claude 当「面试官」，对我做任务访谈，再用这些内容拼成系统提示。</p>
+<p>And so, like specifically asking claude to like interview me, and then turning that into a prompt is a thing that I have turned to a handful of times. It kind of reminds me of what people will talk about, or if you listen to like designers talk about how they interact with the person who wants the design.</p>
+<p>这种「请 Claude 采访我，然后把访谈内容整理成提示」的方法，我已经在不少项目上用过。它很像设计师和甲方的关系：设计师需要通过大量提问，把甲方模糊的审美和诉求变成明确的设计约束。</p>
+<p>So in some ways, i’m like it’s this switch from the temp agency person who comes and more about the task and everything that you want. So you give them the instructions and you explain what they should do in edge cases and all this kind of stuff, versus when you have an expert that you’re actually like consulting to do some work.</p>
+<p>所以，这可能是一个模式的切换：从「你把模型当临时工，一条条告诉它怎么做」，到「你把模型当高级顾问，它通过访谈帮你梳理需求」。</p>
+<p>So I think designers can get really frustrated because they know the space of design really well. And they’re like the per the client came to me. And he just said, make me a poster, make it bold. And i’m like, yeah, that means 7,000 things to me. And i’m gonna try and ask you some questions.</p>
+<p>设计师经常会抱怨：「甲方只说『帮我做个海报，显得很大胆』，但这在我脑海里可以对应 7000 种风格组合。」于是他们不得不通过大量问答，把这些模糊诉求变成可以执行的规范。</p>
+<p>So I could see it going from being like temp agency, employee to be more like designer that you’re hiring. And that’s just like a flip. And in the relationship, I don’t know if that’s true, and I think both might continue, but I could see that being why people are like always prompt engineering going to not be a thing in the future. Because for some domains, it might just not be. And if the models are just so good, that actually all they need to do is kind of like get the information from your brain, and then they can go to the task. Right? That’s actually a really good analogy.</p>
+<p>未来，提示工程的一部分，可能会越来越像「你如何配合 AI 设计师」这件事，而不是单向地写长指令。对某些领域来说，当模型极其优秀时，它需要做的，只是把你脑子里的知识完整「抽取」出来，然后自动生成适配的执行策略。在那些领域里，「手写提示」可能会变得不再那么重要。</p>
+<p>One common thread i’m pulling out all you guys responses here is that there seems to be a future in which this sort of elicitation from the user drawing out that information. It’s gonna become much more important and much more than it is right now. And already. You guys are all starting to do it in a manual way in the future. And the enterprise side of things, maybe that looks like a expansion of this prompt generating type of concept and things in the console where you’re able to actually get more information from that enterprise customer so that they can write a better prompt.</p>
+<p>综合你们的说法，我看到一个共同趋势：从用户脑子里「抽取信息」这件事，将比今天重要得多。现在我们还主要依赖人工问答；未来，控制台和工具链本身会越来越多地承担这个角色，通过一系列引导问题帮企业用户写出更好的系统提示。</p>
+<p>And claude, maybe it looks like less of just typing into a text box and more of this like guided interaction towards a finished product. I think that’s actually like a pretty compelling vision of future. And I think that like the design analogy probably like really brings that home. I was thinking about how prompting now can be kind of like teaching, where it’s like the empathy for the student. You’re trying to think about how they think about things. You’re really trying to show them like figure out where they’re making a mistake. But the point that you’re talking about, it’s like this skill almost becomes one of introspection where you’re thinking about what it is that you actually want.</p>
+<p>对终端用户而言，Claude 也会从一个「简陋文本框」演变成一个「引导式交互系统」，一步步把你带向清晰的需求表述。这和设计师的类比，非常贴切。今天的提示工程，更像教学：你需要有共情，站在学生立场想问题，去找他们哪里没搞懂。未来某个阶段，这项技能可能更多变成一种「自我反思」：你要持续问自己「我真正想要的是什么」。</p>
+<p>And the models Trying to understand you. So it’s like making yourself legible to the model versus trying to teach someone who’s smarter than you. This is actually how I think of prompting now in a strange way. Like like often, my style of prompting, like there’s various things that I do, but a common thing that’s very like a thing that philosophers will do is i’ll define new concepts. Because my thought is like you have to put into words what you want. And sometimes what I want is fairly like nuanced. Like what is a good chart? Or like usually, like, I don’t know like how is it that you when should you greet something is being correct or not?</p>
+<p>模型那边，则在尽力读懂你。这时候，提示工程的本质，不再是「教一个笨助手」，而是「让一个比你聪明的系统看懂你的内心」。这和哲学训练里做的一件事很像：给自己的模糊直觉起名字，并清晰定义。比如「什么是好图表」「什么时候算一个回答是『正确』的」，我会和 Claude 一起发明新的术语，再用这些术语去规范任务。</p>
+<p>There are some cases where I will just like invent a concept and then be like, here’s what, by the concept, something they’ll do it in collaboration with Claude to get it to like figure out what the concept is, just because I’m trying to convey to it what’s in my head.</p>
+<p>在某些任务里，我会直接造一个新词，然后和 Claude 一起逐步定义：「这个词指的就是这种情况」。这样就能把原本难以精确描述的、只有我脑子里有的模糊判断，外化成模型也能理解的指令。</p>
+<p>And right now, the models aren’t like trying to do that with us unless you kind of prompt them to do so. In the future, it might just be that they can like elicit that from us rather than us having to like kind of do it for them. But I think another thing that’s kind of interesting. This is like a people have sometimes asked me like, where is like philosophy relevant to prompting. And I actually think it’s like very useful in a sense.</p>
+<p>目前，模型还不会主动为你做这种「概念提炼」，除非你显式要求它帮你定义。未来，它也许会更主动地帮你发明和澄清这些中间概念。顺带一提，很多人问我：「哲学背景对提示工程有什么用？」我认为非常有用。</p>
+<p>So like a lot of there is like a style of philosophy writing. And this is at least how I was taught how to write philosophy, where the idea is that in order to, I think it’s like an anti bullshit device in philosophy, basically, which is that your papers and what you write should be legible to like a kind of educatedly person. Someone just like find your paper, they pick up and they start reading it and they can understand everything.</p>
+<p>哲学写作有一种传统：你的文章必须能被「受过良好教育但不在这一领域的人」看懂。这是一种「防胡扯机制」，逼着你把概念、论证都讲清楚，而不是用一堆行话糊弄人。</p>
+<p>Not everyone like achieves this, but that’s like kind of the goal of the discipline, I guess, or at least like a this is at least like what we kind of like teach people. I’m really used to this idea of like when I’m writing thinking about the kind of educated lay person who they’re really smart, but they don’t know anything about this topic. That was just like years and years of writing text of that form. And I think it was just really good for prompting.</p>
+<p>虽然不是每个哲学家都做到这一点，但这是我受训练时被强烈灌输的目标。多年坚持这样的写作，让我在写提示时有了天然优势：我总是在脑中想象有一个「聪明但不知情的读者」，要让他看懂我在说什么。对提示工程来说，这几乎是一模一样的场景：一个很聪明但对你具体任务背景一无所知的模型。</p>
+<p>So I was like I’m used to this. I have an educated lay person who doesn’t know anything about the topic. And what I need to do is I need to take extremely complex ideas and I need to make them understand. And I don’t talk down to them. I’m not inaccurate, but I need to like freeze things in such a way that it’s like extremely clear to them. What I mean and prompting felt very similar.</p>
+<p>我熟悉的写作模式是：面对一个不懂这个话题的聪明读者，把极其复杂的想法，用既不简化事实、也不居高临下的方式说清楚。这和写提示的状态高度统一。</p>
+<p>Actually, the training techniques we use are fascinating or like the things that you said where you’re like you see to a person like just just take that thing, you said and write it down. I used to say that to students all the time, like they write a paper. And I was like, I don’t quite get what you’re saying here. Can you just like explain your argument to me? They would give me an incredibly cogent argument. And then I’d be like, can you just take that and write it down? And then if they did, that was often like a great essay.</p>
+<p>我们教学里也有和你刚才一样的技巧：学生写论文时，我常会说：「你刚刚口头解释那段论证非常清楚，为什么不干脆就把你刚才说的那段写下来？」很多时候，只要他把刚才自己口述版本记下来，就已经是一篇好文章。</p>
+<p>So it’s like really interesting that there’s at least that similarity of just like taking things that are in your brain, analyzing them enough to feel like you fully understand them and could take any person off the street, who’s like a reasonable person and just like externalize your brain into them. And I feel like that’s like the core of prompting. That might be the best summary of how to prompt. However, I bet I’m pretty sure it is externalize your brain and they look into them in education in the thing is a really good way to describe things that was good. That’s, I think a great way to wrap this conversation. Thank you guys. This was great. I feel like agents for consumers are like fairly right here. We go hot time trying to have a agent like full.</p>
+<p>所以，哲学训练和提示工程在本质上都在做一件事：把你脑子里的东西拆得足够明白，再外化给一个聪明但不知情的对象。我甚至觉得，「提示工程的最好一句总结」就是：把你的大脑内容，清晰地外接到模型身上。</p>
+<h1 id="给初学者的总结：这篇文章讲了什么？要学哪些概念？"><a href="#给初学者的总结：这篇文章讲了什么？要学哪些概念？" class="headerlink" title="给初学者的总结：这篇文章讲了什么？要学哪些概念？"></a>给初学者的总结：这篇文章讲了什么？要学哪些概念？</h1><p>这篇文章在讲什么？</p>
+<p>这是一次围绕「提示工程（Prompt Engineering）」的圆桌讨论，几位在 Anthropic 做研究、做产品、做客户支持的人在聊：<br>提示工程到底是什么，为什么叫「工程」；<br>一个好的提示工程师需要哪些能力（清晰表达、系统思维、迭代、找边界 case 等）；<br>怎么看模型输出、如何用模型自己来改进提示；<br>研究提示 vs 企业系统提示 vs 普通聊天提示的区别；<br>越狱（jailbreak）、链式思维（Chain-of-Thought）等热点话题；<br>过去几年提示工程怎么随模型一起变迁，以及未来可能演变成「模型访谈你、帮你写提示」的形态。<br>需要重点理解&#x2F;学习的概念：</p>
+<p>Prompt &#x2F; Prompt Engineering：提示和提示工程是什么，为什么不仅是「写一句话」，而是要像工程一样版本管理、测试、迭代。<br>Few-shot &#x2F; Examples：什么时候用示例、用多少示例，在研究和生产场景中的取舍。<br>RAG、Fine-tuning、RLHF：这几个词在文章里反复出现，代表不同阶段的模型使用与训练方式。<br>Chain-of-Thought（链式思维）：让模型写出中间推理过程，对准确率和可解释性的影响。<br>Jailbreak &#x2F; Red-teaming：越狱和红队测试，用来探索模型的安全边界和极限行为。<br>Out-of-Distribution（出分布）：当输入&#x2F;任务超出模型训练分布时，行为会更不稳定。<br>Meta-prompt &#x2F; Prompt Generator：用一条「元提示」让模型生成别的提示和示例，是未来非常重要的能力。<br>「把脑子外接给模型」：从哲学写作借来的思路——面对一个聪明但不知情的对象，把复杂任务讲到一个「受过教育的外行」都能懂的程度，这就是高质量提示。<br>如果你刚入门，建议先从「清晰描述一个具体任务」练起，再逐步尝试：给边界 case、阅读输出、用模型帮你改提示，以及尝试做一个简单的 meta-prompt。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/AI/">AI</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/03/12/706640164.html">
+                        <span class="hidden-mobile">MiroFish</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "AI prompt engineering- A deep dive"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

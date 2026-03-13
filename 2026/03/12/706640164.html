@@ -1,0 +1,814 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>MiroFish - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="MiroFish">
+                      
+                        MiroFish
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-03-12 17:59" pubdate>
+        2026年3月12日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      6.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      67
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">MiroFish</h1>
+            
+            <div class="markdown-body">
+              <h1 id="MiroFish的作者"><a href="#MiroFish的作者" class="headerlink" title="MiroFish的作者"></a>MiroFish的作者</h1><p>MiroFish的作者<strong>是中国大学生</strong>，<strong>10天完成开发</strong>主要靠<strong>AI辅助编程+前作技术积累+高效开发模式</strong>。</p>
+<h3 id="一、作者信息"><a href="#一、作者信息" class="headerlink" title="一、作者信息"></a>一、作者信息</h3><ul>
+<li><strong>姓名</strong>：郭航江（网名 BaiFu）</li>
+<li><strong>身份</strong>：<strong>中国科学技术大学大四学生</strong>，20岁（00后）</li>
+<li><strong>国籍</strong>：<strong>中国</strong></li>
+<li><strong>前作</strong>：BettaFish（多智能体舆情分析工具，GitHub爆款）</li>
+</ul>
+<h3 id="二、为什么10天就能开发出来"><a href="#二、为什么10天就能开发出来" class="headerlink" title="二、为什么10天就能开发出来"></a>二、为什么10天就能开发出来</h3><ol>
+<li><p><strong>前作技术打底</strong><br>MiroFish是在BettaFish的基础上迭代，从“舆情分析”升级为“事件预测”，复用了多智能体、GraphRAG等核心技术，<strong>不用从零开始</strong>。</p>
+</li>
+<li><p><strong>AI辅助编程（Vibe Coding）</strong></p>
+<ul>
+<li>用<strong>Claude Code、Gemini</strong>等AI工具写代码、搭框架、做界面。</li>
+<li>开<strong>多个AI代理并行开发</strong>，快速生成方案并择优。</li>
+<li>作者<strong>亲自校验代码</strong>，保证逻辑正确。</li>
+</ul>
+</li>
+<li><p><strong>高效开发流程</strong></p>
+<ul>
+<li>60%时间做<strong>需求调研与技术选型</strong>，方向清晰。</li>
+<li>用Git、文档做<strong>模块化管理</strong>，避免返工。</li>
+<li>聚焦核心功能，<strong>快速迭代出可用原型</strong>。</li>
+</ul>
+</li>
+<li><p><strong>个人能力与资源</strong></p>
+<ul>
+<li>作者本身是<strong>中科大计算机相关专业</strong>，技术能力强。</li>
+<li>加入盛大后获得<strong>资金与资源支持</strong>，专注开发。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<p>需要我把MiroFish的<strong>核心技术与开发流程</strong>整理成一份简明清单，方便你快速理解吗？</p>
+<h1 id="MiroFish-可以用来写《权力的游戏》，这本小说赚了很多钱，而且烂尾了"><a href="#MiroFish-可以用来写《权力的游戏》，这本小说赚了很多钱，而且烂尾了" class="headerlink" title="MiroFish 可以用来写《权力的游戏》，这本小说赚了很多钱，而且烂尾了"></a>MiroFish 可以用来写《权力的游戏》，这本小说赚了很多钱，而且烂尾了</h1><p><strong>MiroFish简直是为《权力的游戏》续写&#x2F;重写量身打造的工具</strong>——既完美适配权游「多阵营博弈、多角色交织、强剧情反转」的核心特质，又能靠多智能体群体博弈解决原作烂尾的核心问题（人设崩塌、剧情逻辑断层、伏笔烂尾），甚至能推演N个符合权游世界观、逻辑自洽又充满反转的结局，比人工续写更贴合原著精髓，具体怎么用、核心优势和实操思路都特别清晰：</p>
+<h3 id="一、为什么MiroFish写《权力的游戏》，比人工续写-普通AI更合适？"><a href="#一、为什么MiroFish写《权力的游戏》，比人工续写-普通AI更合适？" class="headerlink" title="一、为什么MiroFish写《权力的游戏》，比人工续写&#x2F;普通AI更合适？"></a>一、为什么MiroFish写《权力的游戏》，比人工续写&#x2F;普通AI更合适？</h3><p>权游的核心难点不是“写剧情”，而是**「数十个核心角色的人设一致性+九大阵营的利益博弈逻辑+埋了上百个伏笔的闭环回收」**，这正是人工续写容易翻车、普通AI完全驾驭不了的点，而MiroFish的多智能体群体博弈，刚好把这三个难点变成了核心优势：</p>
+<ol>
+<li><strong>解决「人设崩塌」问题</strong>：权游烂尾的核心槽点是龙妈、小恶魔等核心角色性格突变，而MiroFish会为<strong>每个角色打造专属智能体</strong>，注入其从第一季到第七季的<strong>完整记忆、性格特质、利益立场</strong>（比如龙妈的“解放者”执念、小恶魔的“兰尼斯特家族+智斗”核心、雪诺的“守誓+身世”矛盾），智能体的所有决策都基于人设，绝不会出现“龙妈突然屠城、小恶魔智商下线”的OOC行为；</li>
+<li><strong>解决「阵营博弈逻辑断层」问题</strong>：权游的核心是九大家族+异鬼的<strong>利益制衡与博弈</strong>，而MiroFish能为每个阵营搭建<strong>利益关联知识图谱</strong>（比如兰尼斯特与提利尔的联姻矛盾、史塔克与坦格利安的身世纠葛、各方对铁王座的诉求差异），智能体会基于阵营利益自主交互、结盟&#x2F;反水&#x2F;开战，剧情发展是<strong>博弈的自然结果</strong>，而非人工强行凑结局；</li>
+<li><strong>解决「伏笔烂尾」问题</strong>：原作埋了“亚梭尔·亚亥转世”“三眼乌鸦的预言”“龙的数量寓意”等大量伏笔，MiroFish可将所有伏笔录入<strong>知识图谱并设置“触发条件”</strong>，多智能体博弈过程中，会基于剧情发展自动触发伏笔、完成闭环，比如雪诺的身世会成为其与龙妈关系的核心矛盾，三眼乌鸦的预言会成为对抗异鬼的关键线索，不会出现伏笔凭空消失的情况；</li>
+<li><strong>适配权游「多线叙事、蝴蝶效应」的特质</strong>：权游是典型的多线并行叙事，一个角色的小行为可能引发整个大陆的格局变化（比如奈德被斩引发五王之战），而MiroFish支持<strong>大规模智能体（数十个核心角色+数十个配角）同时博弈</strong>，并能精准模拟“蝴蝶效应”——比如你让“罗柏没打破婚约”这个微小变量注入，智能体会重新推演整个五王之战的走向，生成完全不同的剧情，这和权游的世界观高度契合。</li>
+</ol>
+<h3 id="二、用MiroFish写-续写《权力的游戏》的3种核心玩法（从简单到复杂，直接上手）"><a href="#二、用MiroFish写-续写《权力的游戏》的3种核心玩法（从简单到复杂，直接上手）" class="headerlink" title="二、用MiroFish写&#x2F;续写《权力的游戏》的3种核心玩法（从简单到复杂，直接上手）"></a>二、用MiroFish写&#x2F;续写《权力的游戏》的<strong>3种核心玩法</strong>（从简单到复杂，直接上手）</h3><p>结合MiroFish的核心能力，既可以<strong>续写第八季烂尾剧情</strong>，也可以<strong>重写关键节点的剧情走向</strong>，还能<strong>推演全新的平行世界结局</strong>，完全覆盖权游粉丝的核心诉求：</p>
+<h4 id="玩法1：精准续写第八季，还原“符合原著的真结局”"><a href="#玩法1：精准续写第八季，还原“符合原著的真结局”" class="headerlink" title="玩法1：精准续写第八季，还原“符合原著的真结局”"></a>玩法1：<strong>精准续写第八季，还原“符合原著的真结局”</strong></h4><p>这是最贴合粉丝需求的玩法，核心是<strong>基于前七季的完整设定，推翻第八季的烂尾剧情，让MiroFish推演从“异鬼攻破临冬城”开始的真实结局</strong>：</p>
+<ol>
+<li><strong>输入基础信息</strong>：把前七季的<strong>所有核心角色人设、阵营利益、伏笔线索、剧情节点</strong>整理成文本，上传至MiroFish；</li>
+<li><strong>设定博弈起点</strong>：以“异鬼攻破临冬城，各方势力联手抗敌，铁王座的争夺仍在继续”为博弈起点，明确当前的核心矛盾（「对抗异鬼」与「争夺铁王座」的优先级冲突、各角色的核心目标）；</li>
+<li><strong>配置智能体参数</strong>：为龙妈、雪诺、小恶魔、瑟曦、布兰、珊莎等核心角色配置<strong>专属行为边界</strong>（比如龙妈绝不可能无故屠城、小恶魔的决策必基于智斗、雪诺的行为必守誓），避免OOC；</li>
+<li><strong>启动群体博弈</strong>：MiroFish的智能体会基于人设和利益自主博弈，比如龙妈与雪诺的身世矛盾会在抗敌中逐渐爆发，瑟曦会借机坐收渔利，小恶魔会在中间斡旋，最终推演出具<strong>有反转、逻辑自洽、伏笔闭环</strong>的结局（比如雪诺为了抗异鬼放弃铁王座，龙妈成为七国女王但守住了“解放者”底线，瑟曦的阴谋最终败露）；</li>
+<li><strong>人工筛选优化</strong>：从MiroFish生成的<strong>多个结局版本</strong>中，筛选最贴合权游风格的版本，做少量文字润色（比如优化权游特有的“暗黑+史诗”文风），即可成为完整的续写内容。</li>
+</ol>
+<h4 id="玩法2：重写关键剧情节点，探索“如果XXX，权游会怎样”"><a href="#玩法2：重写关键剧情节点，探索“如果XXX，权游会怎样”" class="headerlink" title="玩法2：重写关键剧情节点，探索“如果XXX，权游会怎样”"></a>玩法2：<strong>重写关键剧情节点，探索“如果XXX，权游会怎样”</strong></h4><p>权游的粉丝一直有很多“意难平”的关键节点（比如奈德被斩、罗柏惨死红色婚礼、乔佛里被杀），用MiroFish可以<strong>修改任意关键节点的结果，推演全新的剧情走向</strong>，比如：</p>
+<ul>
+<li><strong>变量1</strong>：奈德在君临没被斩，成功带着珊莎和艾莉亚逃回北境；</li>
+<li><strong>变量2</strong>：罗柏没有打破与弗雷家族的婚约，红色婚礼没有发生；</li>
+<li><strong>变量3</strong>：龙妈在弥林没有放走卓耿，早早带着三条龙返回维斯特洛；<br>只需将这些<strong>变量注入MiroFish的虚拟环境</strong>，智能体会基于新的起点重新推演整个权游的剧情，生成完全不同的平行世界故事，比如“罗柏没死于红色婚礼，史塔克家族联手坦格利安，五王之战的结局彻底改写”，满足粉丝的所有脑洞。</li>
+</ul>
+<h4 id="玩法3：全新创作《权力的游戏》前传-后传，贴合原世界观"><a href="#玩法3：全新创作《权力的游戏》前传-后传，贴合原世界观" class="headerlink" title="玩法3：全新创作《权力的游戏》前传&#x2F;后传，贴合原世界观"></a>玩法3：<strong>全新创作《权力的游戏》前传&#x2F;后传，贴合原世界观</strong></h4><p>除了续写和重写，还能利用MiroFish创作<strong>权游前传（比如“坦格利安家族的龙家内战”）或后传（比如“铁王座和平后的七国格局”）</strong>：</p>
+<ol>
+<li><strong>输入世界观设定</strong>：把权游的<strong>核心世界观</strong>（比如维斯特洛大陆的地理、家族体系、魔法规则、龙的设定）上传至MiroFish，搭建基础的虚拟环境；</li>
+<li><strong>设定核心角色和阵营</strong>：比如创作龙家内战，就为韦赛里斯、雷妮拉、伊蒙德等核心角色打造智能体，注入其性格和利益诉求；</li>
+<li><strong>启动自由博弈</strong>：MiroFish的智能体会基于权游的世界观，自主展开阵营博弈、角色互动，生成<strong>符合权游风格的史诗剧情</strong>，包括战争、阴谋、联姻、反转等核心元素，你只需做剧情筛选和文风润色，就能快速完成前传&#x2F;后传的创作。</li>
+</ol>
+<h3 id="三、用MiroFish写权游的核心优势：比普通AI-人工续写多2个“致命亮点”"><a href="#三、用MiroFish写权游的核心优势：比普通AI-人工续写多2个“致命亮点”" class="headerlink" title="三、用MiroFish写权游的核心优势：比普通AI&#x2F;人工续写多2个“致命亮点”"></a>三、用MiroFish写权游的<strong>核心优势：比普通AI&#x2F;人工续写多2个“致命亮点”</strong></h3><h4 id="亮点1：剧情有「权游式的暗黑与反转」，而非“爽文式的平铺直叙”"><a href="#亮点1：剧情有「权游式的暗黑与反转」，而非“爽文式的平铺直叙”" class="headerlink" title="亮点1：剧情有「权游式的暗黑与反转」，而非“爽文式的平铺直叙”"></a>亮点1：<strong>剧情有「权游式的暗黑与反转」，而非“爽文式的平铺直叙”</strong></h4><p>普通AI写作会基于训练数据生成“皆大欢喜”的爽文结局，而MiroFish的多智能体博弈会<strong>基于“利益最大化”原则</strong>做决策，这和权游的“暗黑写实”风格高度契合——智能体为了阵营利益会不择手段，结盟、反水、背刺等剧情会自然发生，比如“珊莎为了北境的独立，与瑟曦短暂结盟对抗龙妈”，这种充满人性复杂的剧情，正是权游的核心魅力。</p>
+<h4 id="亮点2：支持「粉丝参与式创作」，打造千人千面的结局"><a href="#亮点2：支持「粉丝参与式创作」，打造千人千面的结局" class="headerlink" title="亮点2：支持「粉丝参与式创作」，打造千人千面的结局"></a>亮点2：<strong>支持「粉丝参与式创作」，打造千人千面的结局</strong></h4><p>MiroFish是开源的，粉丝可以<strong>自主注入不同的变量，推演属于自己的权游结局</strong>，比如有的粉丝希望“史塔克家族统一七国”，有的希望“龙妈和雪诺联手抗异鬼，共同登上铁王座”，有的希望“布兰成为三眼乌鸦后，守护维斯特洛大陆，铁王座被废除”，每个人都能通过MiroFish实现自己的脑洞，甚至可以形成一个“权游平行结局宇宙”，大幅提升创作的趣味性和传播性。</p>
+<h3 id="四、小实操建议：让MiroFish的输出更贴合「权游文风」"><a href="#四、小实操建议：让MiroFish的输出更贴合「权游文风」" class="headerlink" title="四、小实操建议：让MiroFish的输出更贴合「权游文风」"></a>四、小实操建议：让MiroFish的输出更贴合「权游文风」</h3><p>MiroFish的核心是<strong>剧情推演</strong>，生成的文本可能偏口语化，需要做少量<strong>文风优化</strong>，让内容更贴合权游的“史诗+暗黑+简洁”风格，只需注意3点：</p>
+<ol>
+<li><strong>保留权游的经典台词风格</strong>：比如角色对话要<strong>简洁、有力量</strong>，避免冗长的抒情，比如龙妈的对话要带有“解放者”的霸气，小恶魔的对话要带有“智斗”的幽默和犀利；</li>
+<li><strong>强化场景的史诗感</strong>：比如战争场景要突出“残酷与宏大”，临冬城、君临等经典场景的描写要贴合原著的设定；</li>
+<li><strong>保留人性的复杂</strong>：避免把角色塑造成“纯善”或“纯恶”，比如瑟曦虽阴险，但对子女的母爱要保留；龙妈虽正义，但对权力的执念也要体现，这正是权游的人物魅力。</li>
+</ol>
+<h3 id="最后：这个创作思路的商业价值，和权游原作一样大"><a href="#最后：这个创作思路的商业价值，和权游原作一样大" class="headerlink" title="最后：这个创作思路的商业价值，和权游原作一样大"></a>最后：这个创作思路的<strong>商业价值</strong>，和权游原作一样大</h3><p>权游作为全球顶级IP，粉丝对“烂尾结局”的不满持续至今，如果你用MiroFish推演并整理出**《权力的游戏：真结局》<strong>，无论是做成小说、漫画、短视频解说，还是在粉丝社群发布，都能快速引爆流量——既契合了粉丝的核心诉求，又有“AI多智能体推演”的科技感和新鲜感，商业变现的空间极大（比如出版、版权合作、粉丝付费解锁专属结局），这和你做阿乌拉的</strong>“刚需+痛点+价值挖掘”**逻辑完全一致，妥妥的“借顶级IP做爆款内容”的思路。</p>
+<p>其实你也可以把这个**“AI多智能体推演顶级IP烂尾内容”<strong>的思路，嫁接到阿乌拉的</strong>数据增值服务**里，比如为黑客松的文创类项目做“剧情推演+IP开发”的AI辅助，要不要我帮你梳理下这个商业延伸的落地路径？</p>
+<h1 id="如何学习MiroFish使用的技术"><a href="#如何学习MiroFish使用的技术" class="headerlink" title="如何学习MiroFish使用的技术"></a>如何学习MiroFish使用的技术</h1><p>MiroFish的核心技术栈是<strong>多智能体系统（MAS）+ GraphRAG + LLM + OASIS仿真引擎</strong>，学习路径清晰、可落地，按“先懂原理→再练工具→最后实战”三步走即可。</p>
+<hr>
+<h3 id="一、先搞懂：MiroFish用了哪些核心技术"><a href="#一、先搞懂：MiroFish用了哪些核心技术" class="headerlink" title="一、先搞懂：MiroFish用了哪些核心技术"></a>一、先搞懂：MiroFish用了哪些核心技术</h3><h4 id="1-多智能体系统（Multi-Agent-System-MAS）"><a href="#1-多智能体系统（Multi-Agent-System-MAS）" class="headerlink" title="1. 多智能体系统（Multi-Agent System, MAS）"></a>1. 多智能体系统（Multi-Agent System, MAS）</h4><ul>
+<li>核心：让每个角色&#x2F;实体成为独立<strong>智能体</strong>，有记忆、性格、目标、决策逻辑，群体交互自然演化</li>
+<li>MiroFish关键：<strong>时序GraphRAG记忆</strong>（动态记忆、关系演化）+ <strong>群体智能涌现</strong>（个体交互产生复杂社会行为）</li>
+<li>底层依赖：<strong>博弈论、分布式决策、强化学习（MARL）</strong></li>
+</ul>
+<h4 id="2-GraphRAG（知识图谱-检索增强生成）"><a href="#2-GraphRAG（知识图谱-检索增强生成）" class="headerlink" title="2. GraphRAG（知识图谱+检索增强生成）"></a>2. GraphRAG（知识图谱+检索增强生成）</h4><ul>
+<li>区别传统RAG：<strong>静态知识→动态时序图谱</strong>，支持多跳推理、全局关系理解</li>
+<li>MiroFish用途：<ul>
+<li>把《冰与火》文本转成<strong>实体-关系-属性</strong>知识图谱</li>
+<li>为每个智能体注入<strong>完整人设、记忆、行为逻辑</strong></li>
+<li>确保<strong>人设不崩、伏笔全收、逻辑闭环</strong></li>
+</ul>
+</li>
+</ul>
+<h4 id="3-OASIS仿真引擎（Camel-AI开源）"><a href="#3-OASIS仿真引擎（Camel-AI开源）" class="headerlink" title="3. OASIS仿真引擎（Camel-AI开源）"></a>3. OASIS仿真引擎（Camel-AI开源）</h4><ul>
+<li>架构：<strong>环境服务器+代理模块+时间引擎+可扩展推理器</strong></li>
+<li>MiroFish作用：<strong>大规模智能体并行仿真、剧情线同步收束、变量注入推演</strong></li>
+</ul>
+<h4 id="4-技术栈总览（直接对标学习）"><a href="#4-技术栈总览（直接对标学习）" class="headerlink" title="4. 技术栈总览（直接对标学习）"></a>4. 技术栈总览（直接对标学习）</h4><ul>
+<li>后端：Python + FastAPI + uv</li>
+<li>前端：Vue3 + Vite</li>
+<li>核心依赖：<strong>Zep Cloud（GraphRAG记忆）、OASIS、LLM（Qwen&#x2F;OpenAI兼容）</strong></li>
+</ul>
+<hr>
+<h3 id="二、分阶段学习路线（从入门到实战，6–12个月）"><a href="#二、分阶段学习路线（从入门到实战，6–12个月）" class="headerlink" title="二、分阶段学习路线（从入门到实战，6–12个月）"></a>二、分阶段学习路线（从入门到实战，6–12个月）</h3><h4 id="阶段1：基础打底（1–2个月）→-能看懂MiroFish代码"><a href="#阶段1：基础打底（1–2个月）→-能看懂MiroFish代码" class="headerlink" title="阶段1：基础打底（1–2个月）→ 能看懂MiroFish代码"></a>阶段1：基础打底（1–2个月）→ 能看懂MiroFish代码</h4><h5 id="1-编程与AI基础"><a href="#1-编程与AI基础" class="headerlink" title="1. 编程与AI基础"></a>1. 编程与AI基础</h5><ul>
+<li>Python（3.11–3.12）：异步、FastAPI、uv包管理</li>
+<li>大模型基础：LLM原理、提示词工程、RAG基础</li>
+<li>图数据基础：图结构、Neo4j&#x2F;NetworkX、图算法（最短路径、社区检测）</li>
+</ul>
+<h5 id="2-核心理论入门"><a href="#2-核心理论入门" class="headerlink" title="2. 核心理论入门"></a>2. 核心理论入门</h5><ul>
+<li>多智能体系统：BDI模型、智能体决策、群体协作</li>
+<li>知识图谱：RDF&#x2F;OWL、实体抽取、关系构建</li>
+<li>推荐资源：<ul>
+<li>课程：斯坦福CS234（多智能体）、CS224W（图机器学习）</li>
+<li>书籍：《多智能体系统：算法、博弈论与计算基础》、《知识图谱：方法、实践与应用》</li>
+</ul>
+</li>
+</ul>
+<h4 id="阶段2：核心技术攻坚（3–4个月）→-掌握MiroFish核心模块"><a href="#阶段2：核心技术攻坚（3–4个月）→-掌握MiroFish核心模块" class="headerlink" title="阶段2：核心技术攻坚（3–4个月）→ 掌握MiroFish核心模块"></a>阶段2：核心技术攻坚（3–4个月）→ 掌握MiroFish核心模块</h4><h5 id="1-GraphRAG（重中之重）"><a href="#1-GraphRAG（重中之重）" class="headerlink" title="1. GraphRAG（重中之重）"></a>1. GraphRAG（重中之重）</h5><ul>
+<li>学习路径：<ol>
+<li>吃透微软GraphRAG论文与开源实现</li>
+<li>用Zep Cloud搭建<strong>时序记忆图谱</strong>（MiroFish同款）</li>
+<li>实战：把小说&#x2F;剧本转成知识图谱，做智能体记忆注入</li>
+</ol>
+</li>
+<li>工具：Zep Cloud、Neo4j、LangChain、PyTorch Geometric</li>
+</ul>
+<h5 id="2-多智能体系统（MAS）"><a href="#2-多智能体系统（MAS）" class="headerlink" title="2. 多智能体系统（MAS）"></a>2. 多智能体系统（MAS）</h5><ul>
+<li>学习路径：<ol>
+<li>基础框架：AutoGen、MetaGPT、Camel-AI（OASIS）</li>
+<li>算法：MAPPO、QMIX、GAT-MARL（多智能体强化学习）</li>
+<li>实战：用OASIS搭建<strong>多智能体社会仿真</strong>（MiroFish底层）</li>
+</ol>
+</li>
+<li>工具：OASIS（Camel-AI）、PettingZoo、SMAC环境</li>
+</ul>
+<h5 id="3-仿真引擎与工程化"><a href="#3-仿真引擎与工程化" class="headerlink" title="3. 仿真引擎与工程化"></a>3. 仿真引擎与工程化</h5><ul>
+<li>掌握：异步架构、大规模并发、Docker部署、API设计</li>
+<li>实战：复现MiroFish的<strong>上帝视角、变量注入、剧情推演</strong>功能</li>
+</ul>
+<h4 id="阶段3：MiroFish实战（2–3个月）→-能二次开发-搭建同类系统"><a href="#阶段3：MiroFish实战（2–3个月）→-能二次开发-搭建同类系统" class="headerlink" title="阶段3：MiroFish实战（2–3个月）→ 能二次开发&#x2F;搭建同类系统"></a>阶段3：MiroFish实战（2–3个月）→ 能二次开发&#x2F;搭建同类系统</h4><h5 id="1-上手MiroFish开源项目"><a href="#1-上手MiroFish开源项目" class="headerlink" title="1. 上手MiroFish开源项目"></a>1. 上手MiroFish开源项目</h5><ul>
+<li>环境：Node.js 18+、Python 3.11–3.12、uv</li>
+<li>步骤：<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">git <span class="hljs-built_in">clone</span> https://github.com/666ghj/MiroFish.git<br><span class="hljs-built_in">cd</span> MiroFish &amp;&amp; npm run setup:all<br><span class="hljs-comment"># 配置.env：LLM_KEY、ZEP_KEY、OASIS参数</span><br>npm run dev<br></code></pre></div></td></tr></table></figure></li>
+<li>目标：跑通<strong>小说续写&#x2F;世界模拟</strong>（如《冰与火》智能体推演）</li>
+</ul>
+<h5 id="2-核心模块二次开发"><a href="#2-核心模块二次开发" class="headerlink" title="2. 核心模块二次开发"></a>2. 核心模块二次开发</h5><ul>
+<li>定制GraphRAG：优化<strong>人设注入、时序记忆、伏笔触发</strong>逻辑</li>
+<li>扩展OASIS：新增<strong>剧情分支、角色关系演化、多结局生成</strong></li>
+<li>工程优化：提升<strong>百万级智能体仿真</strong>性能、可视化交互</li>
+</ul>
+<h5 id="3-落地项目（对标MiroFish）"><a href="#3-落地项目（对标MiroFish）" class="headerlink" title="3. 落地项目（对标MiroFish）"></a>3. 落地项目（对标MiroFish）</h5><ul>
+<li>项目1：<strong>史诗级小说续写引擎</strong>（冰与火&#x2F;魔戒类）</li>
+<li>项目2：<strong>虚拟世界模拟器</strong>（社会&#x2F;商业&#x2F;历史推演）</li>
+<li>项目3：<strong>多智能体内容创作平台</strong>（剧本&#x2F;游戏剧情生成）</li>
+</ul>
+<hr>
+<h3 id="三、关键资源清单（直接用，少走弯路）"><a href="#三、关键资源清单（直接用，少走弯路）" class="headerlink" title="三、关键资源清单（直接用，少走弯路）"></a>三、关键资源清单（直接用，少走弯路）</h3><h4 id="1-核心框架与工具"><a href="#1-核心框架与工具" class="headerlink" title="1. 核心框架与工具"></a>1. 核心框架与工具</h4><ul>
+<li>MiroFish：<a target="_blank" rel="noopener" href="https://github.com/666ghj/MiroFish">https://github.com/666ghj/MiroFish</a></li>
+<li>OASIS（Camel-AI）：<a target="_blank" rel="noopener" href="https://github.com/camel-ai/oasis">https://github.com/camel-ai/oasis</a></li>
+<li>Zep Cloud（GraphRAG记忆）：<a target="_blank" rel="noopener" href="https://app.getzep.com/">https://app.getzep.com</a></li>
+<li>多智能体：AutoGen、MetaGPT、LangGraph</li>
+<li>图数据库：Neo4j、NetworkX、PyTorch Geometric</li>
+</ul>
+<h4 id="2-学习资料"><a href="#2-学习资料" class="headerlink" title="2. 学习资料"></a>2. 学习资料</h4><ul>
+<li>论文：GraphRAG（微软2024）、OASIS（Camel-AI）、MAPPO、时序知识图谱</li>
+<li>课程：斯坦福CS234、CS224W、UCAS多智能体课程</li>
+<li>书籍：《多智能体系统》、《知识图谱》、《强化学习：导论》</li>
+</ul>
+<h4 id="3-实战数据集"><a href="#3-实战数据集" class="headerlink" title="3. 实战数据集"></a>3. 实战数据集</h4><ul>
+<li>小说：《冰与火之歌》前5部+设定集</li>
+<li>剧本：权力的游戏、指环王等史诗剧本</li>
+<li>通用：维基百科、领域知识库（构建知识图谱）</li>
+</ul>
+<hr>
+<h3 id="四、学习重点与避坑"><a href="#四、学习重点与避坑" class="headerlink" title="四、学习重点与避坑"></a>四、学习重点与避坑</h3><ol>
+<li><strong>先抓GraphRAG+多智能体</strong>：这是MiroFish的核心，比纯LLM更关键</li>
+<li><strong>时序记忆是灵魂</strong>：普通RAG做不到，必须用<strong>时序GraphRAG</strong>（Zep）</li>
+<li><strong>OASIS是仿真底座</strong>：掌握它才能做<strong>大规模智能体并行、剧情收束</strong></li>
+<li><strong>别沉迷理论</strong>：先跑通MiroFish源码，再改模块、加功能</li>
+</ol>
+<hr>
+<h3 id="五、最终目标"><a href="#五、最终目标" class="headerlink" title="五、最终目标"></a>五、最终目标</h3><ul>
+<li>能<strong>独立搭建</strong>类MiroFish的多智能体仿真系统</li>
+<li>能<strong>完美复刻</strong>《冰与火》续写：人设不崩、逻辑闭环、伏笔全收、风格统一</li>
+<li>理解<strong>AI创作与人类创作的边界</strong>：AI做<strong>精准还原与推演</strong>，人类做<strong>灵魂与情感表达</strong></li>
+</ul>
+<p>需要我把上面的路线整理成一份可直接执行的<strong>6个月周计划</strong>，并附上每阶段的<strong>代码模板与配置文件</strong>吗？</p>
+<h1 id="如果我学会了这些技术，我能在香港找哪些类型的工作？"><a href="#如果我学会了这些技术，我能在香港找哪些类型的工作？" class="headerlink" title="如果我学会了这些技术，我能在香港找哪些类型的工作？"></a>如果我学会了这些技术，我能在香港找哪些类型的工作？</h1><p>你掌握的<strong>多智能体（MAS）+ GraphRAG + OASIS仿真 + LLM</strong>技术栈，在香港属于<strong>稀缺、高薪、跨赛道通用</strong>的硬核能力，能覆盖<strong>AI研发、金融科技、Web3&#x2F;游戏、内容&#x2F;IP、学术&#x2F;科研</strong>五大核心方向，下面按岗位类型、薪资、匹配度、代表公司给你讲透。</p>
+<hr>
+<h2 id="一、AI研发岗（最对口、薪资最高）"><a href="#一、AI研发岗（最对口、薪资最高）" class="headerlink" title="一、AI研发岗（最对口、薪资最高）"></a>一、AI研发岗（最对口、薪资最高）</h2><h3 id="1-AI智能体-多智能体系统工程师（Agent-Engineer）"><a href="#1-AI智能体-多智能体系统工程师（Agent-Engineer）" class="headerlink" title="1. AI智能体&#x2F;多智能体系统工程师（Agent Engineer）"></a>1. AI智能体&#x2F;多智能体系统工程师（Agent Engineer）</h3><ul>
+<li><strong>核心匹配</strong>：MAS、OASIS仿真、智能体决策、群体交互</li>
+<li><strong>岗位职责</strong>：设计多智能体架构、开发智能体记忆&#x2F;决策&#x2F;交互模块、搭建大规模仿真系统、实现人设&#x2F;剧情&#x2F;逻辑闭环</li>
+<li><strong>薪资</strong>：<ul>
+<li>初级（1–3年）：<strong>30–50K HKD&#x2F;月</strong></li>
+<li>中级（3–5年）：<strong>50–80K HKD&#x2F;月</strong></li>
+<li>高级（5–10年）：<strong>80–150K HKD&#x2F;月</strong>（16–24薪）</li>
+</ul>
+</li>
+<li><strong>代表公司</strong>：<ul>
+<li>大厂：腾讯AI Lab（香港）、字节跳动、百度研究院、TCL企业研究</li>
+<li>独角兽：Camel-AI、Zep Cloud、AutoGen团队、本地AI创业公司</li>
+<li>科研机构：港科大、港中文、中科院香港创新院</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-GraphRAG-知识图谱工程师"><a href="#2-GraphRAG-知识图谱工程师" class="headerlink" title="2. GraphRAG&#x2F;知识图谱工程师"></a>2. GraphRAG&#x2F;知识图谱工程师</h3><ul>
+<li><strong>核心匹配</strong>：GraphRAG、时序知识图谱、实体抽取、多跳推理、记忆注入</li>
+<li><strong>岗位职责</strong>：构建领域知识图谱、开发RAG检索增强系统、实现智能体长期记忆、确保人设&#x2F;逻辑&#x2F;伏笔一致性</li>
+<li><strong>薪资</strong>：<strong>40–90K HKD&#x2F;月</strong>（与智能体岗相当，略高）</li>
+<li><strong>代表公司</strong>：金融科技公司、内容AI公司、医疗AI、智慧城市项目</li>
+</ul>
+<h3 id="3-大模型应用-多智能体架构师"><a href="#3-大模型应用-多智能体架构师" class="headerlink" title="3. 大模型应用&#x2F;多智能体架构师"></a>3. 大模型应用&#x2F;多智能体架构师</h3><ul>
+<li><strong>核心匹配</strong>：LLM+MAS融合、LangGraph&#x2F;CrewAI&#x2F;AutoGen、OASIS仿真、系统工程化</li>
+<li><strong>岗位职责</strong>：设计端到端多智能体系统、优化LLM+Agent性能、部署大规模仿真集群、对接业务场景</li>
+<li><strong>薪资</strong>：<strong>70–150K HKD&#x2F;月</strong>（资深架构师可达200K+）</li>
+<li><strong>代表公司</strong>：金融科技、游戏AI、Web3、内容创作平台</li>
+</ul>
+<hr>
+<h2 id="二、金融科技-量化岗（香港最强赛道，高薪-稀缺）"><a href="#二、金融科技-量化岗（香港最强赛道，高薪-稀缺）" class="headerlink" title="二、金融科技&#x2F;量化岗（香港最强赛道，高薪+稀缺）"></a>二、金融科技&#x2F;量化岗（香港最强赛道，高薪+稀缺）</h2><h3 id="1-量化AI-多智能体交易研究员"><a href="#1-量化AI-多智能体交易研究员" class="headerlink" title="1. 量化AI&#x2F;多智能体交易研究员"></a>1. 量化AI&#x2F;多智能体交易研究员</h3><ul>
+<li><strong>核心匹配</strong>：MAS、博弈论、强化学习（MARL）、时序GraphRAG、市场仿真</li>
+<li><strong>岗位职责</strong>：用多智能体模拟市场参与者行为、构建交易策略、风险仿真、高频&#x2F;量化交易系统开发</li>
+<li><strong>薪资</strong>：<strong>50–150K HKD&#x2F;月</strong> + 高额分红（年薪可达数百万）</li>
+<li><strong>代表公司</strong>：弘量科技、Two Sigma、Jane Street、本地量化私募、投行AI部门</li>
+</ul>
+<h3 id="2-金融智能体-风控仿真工程师"><a href="#2-金融智能体-风控仿真工程师" class="headerlink" title="2. 金融智能体&#x2F;风控仿真工程师"></a>2. 金融智能体&#x2F;风控仿真工程师</h3><ul>
+<li><strong>核心匹配</strong>：智能体决策、GraphRAG风控图谱、OASIS风险仿真、多主体博弈</li>
+<li><strong>岗位职责</strong>：开发信贷&#x2F;反欺诈智能体、构建金融知识图谱、模拟市场风险、合规与监管仿真</li>
+<li><strong>薪资</strong>：<strong>40–80K HKD&#x2F;月</strong></li>
+<li><strong>代表公司</strong>：汇丰、渣打、中银香港、金融科技初创、金管局合作项目</li>
+</ul>
+<hr>
+<h2 id="三、Web3-区块链-虚拟世界（香港政策风口，人才缺口大）"><a href="#三、Web3-区块链-虚拟世界（香港政策风口，人才缺口大）" class="headerlink" title="三、Web3&#x2F;区块链&#x2F;虚拟世界（香港政策风口，人才缺口大）"></a>三、Web3&#x2F;区块链&#x2F;虚拟世界（香港政策风口，人才缺口大）</h2><h3 id="1-Web3多智能体-DAO仿真工程师"><a href="#1-Web3多智能体-DAO仿真工程师" class="headerlink" title="1. Web3多智能体&#x2F;DAO仿真工程师"></a>1. Web3多智能体&#x2F;DAO仿真工程师</h3><ul>
+<li><strong>核心匹配</strong>：MAS、智能合约交互、DAO治理仿真、链上Agent、GraphRAG链上数据图谱</li>
+<li><strong>岗位职责</strong>：开发链上智能体、模拟DAO治理、设计GameFi&#x2F;NFT智能体、构建Web3知识图谱</li>
+<li><strong>薪资</strong>：<strong>50–120K HKD&#x2F;月</strong>（资深可达200K+）</li>
+<li><strong>代表公司</strong>：本地Web3创业公司、公链项目、GameFi团队、NFT平台</li>
+</ul>
+<h3 id="2-虚拟世界-元宇宙AI工程师"><a href="#2-虚拟世界-元宇宙AI工程师" class="headerlink" title="2. 虚拟世界&#x2F;元宇宙AI工程师"></a>2. 虚拟世界&#x2F;元宇宙AI工程师</h3><ul>
+<li><strong>核心匹配</strong>：OASIS仿真、多智能体NPC、虚拟社会演化、GraphRAG虚拟世界知识图谱</li>
+<li><strong>岗位职责</strong>：开发虚拟世界智能体、实现NPC自主行为、搭建虚拟社会仿真、内容生成与剧情推演</li>
+<li><strong>薪资</strong>：<strong>40–90K HKD&#x2F;月</strong></li>
+<li><strong>代表公司</strong>：元宇宙创业公司、游戏公司、VR&#x2F;AR项目、Web3虚拟世界平台</li>
+</ul>
+<hr>
+<h2 id="四、游戏-内容-IP创作（你的MiroFish技术直接落地）"><a href="#四、游戏-内容-IP创作（你的MiroFish技术直接落地）" class="headerlink" title="四、游戏&#x2F;内容&#x2F;IP创作（你的MiroFish技术直接落地）"></a>四、游戏&#x2F;内容&#x2F;IP创作（你的MiroFish技术直接落地）</h2><h3 id="1-游戏AI-多智能体NPC工程师"><a href="#1-游戏AI-多智能体NPC工程师" class="headerlink" title="1. 游戏AI&#x2F;多智能体NPC工程师"></a>1. 游戏AI&#x2F;多智能体NPC工程师</h3><ul>
+<li><strong>核心匹配</strong>：MAS、OASIS仿真、NPC行为树、剧情推演、GraphRAG游戏知识图谱</li>
+<li><strong>岗位职责</strong>：开发自主决策NPC、实现多线剧情、游戏世界仿真、AI内容生成</li>
+<li><strong>薪资</strong>：<strong>35–70K HKD&#x2F;月</strong></li>
+<li><strong>代表公司</strong>：英飞科技、腾讯游戏（香港）、网易游戏、本地游戏工作室</li>
+</ul>
+<h3 id="2-内容AI-IP智能体工程师（MiroFish直接对口）"><a href="#2-内容AI-IP智能体工程师（MiroFish直接对口）" class="headerlink" title="2. 内容AI&#x2F;IP智能体工程师（MiroFish直接对口）"></a>2. 内容AI&#x2F;IP智能体工程师（MiroFish直接对口）</h3><ul>
+<li><strong>核心匹配</strong>：GraphRAG人设注入、多智能体剧情推演、OASIS世界仿真、风格统一&#x2F;人设不崩</li>
+<li><strong>岗位职责</strong>：开发小说&#x2F;影视&#x2F;IP续写引擎、构建IP知识图谱、智能体角色创作、多线剧情管理</li>
+<li><strong>薪资</strong>：<strong>40–80K HKD&#x2F;月</strong></li>
+<li><strong>代表公司</strong>：内容AI创业公司、影视公司、IP运营平台、MiroFish同类项目团队</li>
+</ul>
+<hr>
+<h2 id="五、学术-科研-高校（稳定、高起点、适合深造）"><a href="#五、学术-科研-高校（稳定、高起点、适合深造）" class="headerlink" title="五、学术&#x2F;科研&#x2F;高校（稳定、高起点、适合深造）"></a>五、学术&#x2F;科研&#x2F;高校（稳定、高起点、适合深造）</h2><h3 id="1-AI-多智能体研究员（Postdoc-Researcher）"><a href="#1-AI-多智能体研究员（Postdoc-Researcher）" class="headerlink" title="1. AI&#x2F;多智能体研究员（Postdoc&#x2F;Researcher）"></a>1. AI&#x2F;多智能体研究员（Postdoc&#x2F;Researcher）</h3><ul>
+<li><strong>核心匹配</strong>：MAS、GraphRAG、强化学习、仿真系统、学术论文</li>
+<li><strong>岗位职责</strong>：前沿算法研究、项目开发、论文发表、指导学生</li>
+<li><strong>薪资</strong>：<strong>40–80K HKD&#x2F;月</strong>（博士+项目奖金）</li>
+<li><strong>代表机构</strong>：港科大、港中文、城大、理工、中科院香港创新院、AI实验室</li>
+</ul>
+<h3 id="2-高校讲师-助理教授"><a href="#2-高校讲师-助理教授" class="headerlink" title="2. 高校讲师&#x2F;助理教授"></a>2. 高校讲师&#x2F;助理教授</h3><ul>
+<li><strong>核心匹配</strong>：学术成果+工程能力+教学经验</li>
+<li><strong>薪资</strong>：<strong>70–120K HKD&#x2F;月</strong> + 福利</li>
+<li><strong>代表院校</strong>：香港八大高校、大湾区联合研究院</li>
+</ul>
+<hr>
+<h2 id="六、技术栈与岗位匹配速览（一眼看懂）"><a href="#六、技术栈与岗位匹配速览（一眼看懂）" class="headerlink" title="六、技术栈与岗位匹配速览（一眼看懂）"></a>六、技术栈与岗位匹配速览（一眼看懂）</h2><table>
+<thead>
+<tr>
+<th>技术模块</th>
+<th>最匹配岗位</th>
+<th>核心价值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>多智能体（MAS）</strong></td>
+<td>智能体工程师、量化AI、Web3 Agent</td>
+<td>自主决策、群体交互、仿真演化</td>
+</tr>
+<tr>
+<td><strong>GraphRAG</strong></td>
+<td>知识图谱工程师、RAG专家、内容AI</td>
+<td>人设&#x2F;记忆&#x2F;逻辑&#x2F;伏笔闭环</td>
+</tr>
+<tr>
+<td><strong>OASIS仿真</strong></td>
+<td>仿真工程师、游戏AI、虚拟世界</td>
+<td>大规模智能体并行、剧情收束</td>
+</tr>
+<tr>
+<td><strong>LLM+Agent</strong></td>
+<td>大模型架构师、AI产品、金融科技</td>
+<td>端到端智能体系统落地</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="七、香港求职关键建议（针对你的技术）"><a href="#七、香港求职关键建议（针对你的技术）" class="headerlink" title="七、香港求职关键建议（针对你的技术）"></a>七、香港求职关键建议（针对你的技术）</h2><ol>
+<li><strong>优先投递AI研发+金融科技+Web3</strong>：这三个赛道最缺你的技术，薪资最高</li>
+<li><strong>突出MiroFish实战经验</strong>：把“搭建多智能体仿真、人设不崩、逻辑闭环、世界演化”写进简历，直接对标岗位需求</li>
+<li><strong>英语+粤语加分</strong>：香港职场英语必备，粤语加分</li>
+<li><strong>学历门槛</strong>：本科可投初级岗，硕士&#x2F;博士更易拿高薪岗（3–5年经验后学历影响减弱）</li>
+<li><strong>工作签证</strong>：香港高才通&#x2F;专才通计划对你这类技术人才非常友好，获批率高</li>
+</ol>
+<hr>
+<h2 id="八、最终结论"><a href="#八、最终结论" class="headerlink" title="八、最终结论"></a>八、最终结论</h2><p>你学会这套技术，在香港<strong>不是“找工作”，而是“选赛道”</strong>：</p>
+<ul>
+<li>想<strong>高薪+稳定</strong>：选<strong>AI研发&#x2F;金融科技</strong></li>
+<li>想<strong>风口+高成长</strong>：选<strong>Web3&#x2F;虚拟世界</strong></li>
+<li>想<strong>兴趣+落地</strong>：选<strong>游戏&#x2F;内容AI（MiroFish直接对口）</strong></li>
+<li>想<strong>学术+稳定</strong>：选<strong>高校&#x2F;科研</strong></li>
+</ul>
+<p>需要我把上面的岗位整理成一份<strong>香港求职简历模板（突出MiroFish技术）</strong>，并附上<strong>3个最对口岗位的JD拆解与投递关键词</strong>吗？</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/AI/">AI</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/03/13/156340709.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">AI prompt engineering- A deep dive</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/03/10/760598116.html">
+                        <span class="hidden-mobile">小腕、中腕、大腕</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "MiroFish"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>
