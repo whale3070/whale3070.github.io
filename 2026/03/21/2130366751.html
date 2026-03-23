@@ -1,0 +1,598 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>LLM 作业 - 第二周（二） - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="LLM 作业 - 第二周（二）">
+                      
+                        LLM 作业 - 第二周（二）
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-03-21 05:48" pubdate>
+        2026年3月21日 凌晨
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.5k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      16
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">LLM 作业 - 第二周（二）</h1>
+            
+            <div class="markdown-body">
+              <p>在上一篇文章中，我们使用conda，新建了一个叫做cs146s的python环境，并且成功开启了应用<br><img src="/2026/03/21/2130366751/1.png"></p>
+<p><img src="/2026/03/21/2130366751/2.png"></p>
+<p>以下是使用的命令</p>
+<figure class="highlight stylus"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs stylus">conda activate cs146s<br>poetry run uvicorn week2<span class="hljs-selector-class">.app</span><span class="hljs-selector-class">.main</span>:app <span class="hljs-attr">--reload</span> <span class="hljs-attr">--host</span> <span class="hljs-number">0.0</span>.<span class="hljs-number">0.0</span> <span class="hljs-attr">--port</span> <span class="hljs-number">8000</span><br></code></pre></div></td></tr></table></figure>
+
+<p>在这篇文章中，我们继续学习 </p>
+<p>待办项 1：搭建新功能框架</p>
+<h1 id="第一步，分析extract-py"><a href="#第一步，分析extract-py" class="headerlink" title="第一步，分析extract.py"></a>第一步，分析extract.py</h1><p><a target="_blank" rel="noopener" href="https://github.com/mihail911/modern-software-dev-assignments/blob/master/week2/app/services/extract.py">https://github.com/mihail911/modern-software-dev-assignments/blob/master/week2/app/services/extract.py</a></p>
+<h2 id="脚本功能完整分析"><a href="#脚本功能完整分析" class="headerlink" title="脚本功能完整分析"></a>脚本功能完整分析</h2><p>我来为你逐部分拆解这个 Python 脚本的<strong>核心作用、工作原理、设计逻辑</strong>，让你完全理解它的用途。</p>
+<h4 id="一、整体核心作用"><a href="#一、整体核心作用" class="headerlink" title="一、整体核心作用"></a>一、整体核心作用</h4><p>这是一个<strong>文本动作项提取工具</strong>，专门用于<strong>从任意文本中自动识别、清洗、去重并提取出待办事项、行动指令、任务项</strong>，最终返回一个干净、无重复的任务列表。</p>
+<p>简单说：<strong>把杂乱文本里的“要做的事”自动挑出来</strong>。</p>
+<hr>
+<h4 id="二、脚本依赖与环境"><a href="#二、脚本依赖与环境" class="headerlink" title="二、脚本依赖与环境"></a>二、脚本依赖与环境</h4><ol>
+<li><strong>基础库</strong>：<code>os</code>&#x2F;<code>re</code>&#x2F;<code>typing</code>（正则匹配、类型注解）</li>
+<li><strong>工具库</strong>：<code>json</code>&#x2F;<code>dotenv</code>（环境变量加载）</li>
+<li><strong>AI 相关</strong>：<code>ollama</code>（可调用本地大模型，本脚本未实际使用）</li>
+<li><strong>核心能力</strong>：纯文本规则匹配 + 启发式算法</li>
+</ol>
+<hr>
+<h4 id="三、逐模块功能拆解"><a href="#三、逐模块功能拆解" class="headerlink" title="三、逐模块功能拆解"></a>三、逐模块功能拆解</h4><h6 id="1-常量定义（匹配规则）"><a href="#1-常量定义（匹配规则）" class="headerlink" title="1. 常量定义（匹配规则）"></a>1. 常量定义（匹配规则）</h6><figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-comment">## 匹配项目符号：- * • 1. 2. 等</span><br>BULLET_PREFIX_PATTERN = re.<span class="hljs-built_in">compile</span>(<span class="hljs-string">r&quot;^\s*([-*•]|\d+\.)\s+&quot;</span>)<br><span class="hljs-comment">## 匹配任务关键词开头</span><br>KEYWORD_PREFIXES = (<span class="hljs-string">&quot;todo:&quot;</span>, <span class="hljs-string">&quot;action:&quot;</span>, <span class="hljs-string">&quot;next:&quot;</span>)<br></code></pre></div></td></tr></table></figure>
+<p>✅ 作用：定义识别<strong>任务行</strong>的基础规则。</p>
+<hr>
+<h6 id="2-核心判断函数：-is-action-line"><a href="#2-核心判断函数：-is-action-line" class="headerlink" title="2. 核心判断函数：_is_action_line()"></a>2. 核心判断函数：<code>_is_action_line()</code></h6><p>判断<strong>某一行文本是不是任务&#x2F;行动项</strong>，满足任一条件即为是：</p>
+<ol>
+<li>以项目符号（- * • 1.）开头</li>
+<li>以 <code>todo:</code>&#x2F;<code>action:</code>&#x2F;<code>next:</code> 开头</li>
+<li>包含复选框标记 <code>[ ]</code> &#x2F; <code>[todo]</code></li>
+</ol>
+<p>✅ 作用：精准识别标准格式的待办事项。</p>
+<hr>
+<h6 id="3-主函数：extract-action-items-（最重要）"><a href="#3-主函数：extract-action-items-（最重要）" class="headerlink" title="3. 主函数：extract_action_items()（最重要）"></a>3. 主函数：<code>extract_action_items()</code>（最重要）</h6><p>这是脚本的入口函数，完整处理流程：</p>
+<ol>
+<li><strong>按行拆分文本</strong></li>
+<li><strong>逐行判断是否为任务行</strong></li>
+<li><strong>清洗文本</strong>：删除项目符号、删除复选框标记，只保留纯任务文字</li>
+<li><strong>兜底策略</strong>：如果没有匹配到任何标准任务，自动拆分句子，识别<strong>祈使句</strong>（命令式语句）</li>
+<li><strong>去重</strong>：保留文本顺序，剔除重复任务（不区分大小写）</li>
+<li><strong>返回结果</strong>：干净的任务列表</li>
+</ol>
+<hr>
+<h6 id="4-兜底算法：-looks-imperative"><a href="#4-兜底算法：-looks-imperative" class="headerlink" title="4. 兜底算法：_looks_imperative()"></a>4. 兜底算法：<code>_looks_imperative()</code></h6><p>当文本<strong>没有标准任务格式</strong>时（比如纯段落文字），启动启发式匹配：</p>
+<ul>
+<li>识别句子开头的<strong>动词</strong>（add&#x2F;create&#x2F;fix&#x2F;implement&#x2F;write 等）</li>
+<li>判定为<strong>命令式祈使句</strong> → 视为待办任务</li>
+</ul>
+<p>✅ 作用：让脚本适配<strong>无格式纯文本</strong>，大幅提升适用场景。</p>
+<hr>
+<h4 id="四、完整工作流程"><a href="#四、完整工作流程" class="headerlink" title="四、完整工作流程"></a>四、完整工作流程</h4><figure class="highlight"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs">输入任意文本<br>   ↓<br>按行拆分 + 逐行检测（标准任务格式）<br>   ↓<br>清洗任务文本（去除符号/标记）<br>   ↓<br>无匹配结果 → 启动祈使句识别<br>   ↓<br>全量去重（保留顺序）<br>   ↓<br>输出：干净、无重复的任务列表<br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h4 id="五、典型使用场景"><a href="#五、典型使用场景" class="headerlink" title="五、典型使用场景"></a>五、典型使用场景</h4><p>这个脚本非常实用，常用于：</p>
+<ol>
+<li><strong>笔记软件</strong>：从笔记中提取待办事项</li>
+<li><strong>会议纪要</strong>：自动提取会议行动项</li>
+<li><strong>文档处理</strong>：从需求文档&#x2F;代码注释中提取任务</li>
+<li><strong>AI 输出后处理</strong>：清洗大模型返回的任务列表</li>
+<li><strong>个人效率工具</strong>：整理待办清单</li>
+</ol>
+<hr>
+<h4 id="六、关键亮点"><a href="#六、关键亮点" class="headerlink" title="六、关键亮点"></a>六、关键亮点</h4><ol>
+<li><strong>双模式识别</strong>：标准格式任务 + 无格式文本祈使句</li>
+<li><strong>全自动清洗</strong>：输出纯文字任务，无多余符号</li>
+<li><strong>智能去重</strong>：大小写不敏感，保留原始顺序</li>
+<li><strong>鲁棒性强</strong>：兼容各种常见的待办事项书写格式</li>
+<li><strong>纯本地运行</strong>：不依赖网络，速度极快</li>
+</ol>
+<hr>
+<h4 id="七、补充说明"><a href="#七、补充说明" class="headerlink" title="七、补充说明"></a>七、补充说明</h4><p>脚本中导入了 <code>ollama</code>（本地大模型），<strong>但本版本完全没有使用 AI</strong>，全程是<strong>规则+正则+启发式算法</strong>实现，属于轻量高效的文本处理工具。</p>
+<hr>
+<h6 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h6><ol>
+<li><strong>核心定位</strong>：通用型<strong>任务&#x2F;待办事项自动提取器</strong></li>
+<li><strong>输入</strong>：任意文本（笔记、纪要、文档、聊天记录）</li>
+<li><strong>输出</strong>：清洗完成、无重复的行动项列表</li>
+<li><strong>优势</strong>：轻量、高效、无依赖、适配绝大多数待办格式</li>
+</ol>
+<h1 id="第二步"><a href="#第二步" class="headerlink" title="第二步"></a>第二步</h1><p>你的任务是实现一个基于大语言模型（LLM）的替代函数 extract_action_items_llm()，该函数利用 Ollama 通过大语言模型完成行动项提取。</p>
+<h2 id="问题一"><a href="#问题一" class="headerlink" title="问题一"></a>问题一</h2><p>我想问一下 poetry run uvicorn week2.app.main:app –reload –host 0.0.0.0 –port 8000 这条命令运行后，如果我修改了extract.py，前端是否会去调用这个脚本呢？</p>
+<hr>
+<p>可以这么理解：</p>
+<h3 id="1-reload-会怎么用你改的-extract-py？"><a href="#1-reload-会怎么用你改的-extract-py？" class="headerlink" title="1. --reload 会怎么用你改的 extract.py？"></a>1. <code>--reload</code> 会怎么用你改的 <code>extract.py</code>？</h3><p><code>poetry run uvicorn ... --reload</code> 会<strong>监视代码文件</strong>，你一改 <code>extract.py</code>，Uvicorn 一般会<strong>重启后端进程</strong>。<br>重启之后，<strong>新请求</strong>都会走<strong>新加载的 Python 代码</strong>。</p>
+<p>所以：<strong>改 <code>extract.py</code> → 服务重载 → 后端已经用上新版逻辑。</strong></p>
+<h3 id="2-前端会不会“去调用这个脚本”？"><a href="#2-前端会不会“去调用这个脚本”？" class="headerlink" title="2. 前端会不会“去调用这个脚本”？"></a>2. 前端会不会“去调用这个脚本”？</h3><p><strong>不会直接调用 <code>extract.py</code>。</strong><br>前端只会发 <strong>HTTP 请求</strong>（例如 <code>POST /action-items/extract</code> 之类），请求打到 <strong>FastAPI 路由</strong>，路由里再 <code>import</code> 并调用 <code>extract.py</code> 里的函数。</p>
+<p>因此：</p>
+<ul>
+<li>前端<strong>不用改</strong>，只要还是点同一个按钮、请求同一个接口；</li>
+<li>你改的是<strong>服务端</strong>实现，重载后<strong>下一次</strong>从前端发起的请求就会用新代码。</li>
+</ul>
+<h3 id="3-注意：改的是“被路由用到的函数”才生效"><a href="#3-注意：改的是“被路由用到的函数”才生效" class="headerlink" title="3. 注意：改的是“被路由用到的函数”才生效"></a>3. 注意：改的是“被路由用到的函数”才生效</h3><p>当前默认接口大概率还是调 <strong><code>extract_action_items()</code></strong>（规则&#x2F;启发式）。<br>如果你只改了 <strong>&#96;extract_action_items_llm()&#96;&#96;</strong>，而路由<strong>没有</strong>改成调 LLM 版，那前端再怎么点，<strong>也不会自动用到 LLM</strong>，除非你：</p>
+<ul>
+<li>给 LLM 单独加了一个 endpoint 并在前端改按钮去调它，或  </li>
+<li>把现有 endpoint 改成调用 <code>extract_action_items_llm()</code>。</li>
+</ul>
+<p><strong>总结</strong>：<code>--reload</code> 保证你改 <code>extract.py</code> 后后端会更新；前端仍然是通过 API 间接用到这些代码；是否用到 LLM 取决于路由里实际调用的是哪个函数。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/AI/">AI</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/03/22/3612913532.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">aura</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/03/20/167633289.html">
+                        <span class="hidden-mobile">LLM 作业 - 第二周</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "LLM 作业 - 第二周（二）"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

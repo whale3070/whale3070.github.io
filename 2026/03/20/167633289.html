@@ -1,0 +1,892 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>LLM 作业 - 第二周 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="LLM 作业 - 第二周">
+                      
+                        LLM 作业 - 第二周
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-03-20 17:07" pubdate>
+        2026年3月20日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      4.9k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      58
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">LLM 作业 - 第二周</h1>
+            
+            <div class="markdown-body">
+              <h1 id="第二周-–-行动项提取器"><a href="#第二周-–-行动项提取器" class="headerlink" title="第二周 – 行动项提取器"></a>第二周 – 行动项提取器</h1><p>以下内容是 <a target="_blank" rel="noopener" href="https://github.com/mihail911/modern-software-dev-assignments/blob/master/week2/assignment.md">https://github.com/mihail911/modern-software-dev-assignments/blob/master/week2/assignment.md</a> 的中文翻译</p>
+<p>本周，我们将在一个简易的 FastAPI + SQLite 应用基础上进行扩展，<code>实现将自由格式的笔记转换为带编号的行动项。</code></p>
+<h2 id="问题一"><a href="#问题一" class="headerlink" title="问题一"></a>问题一</h2><p>This week, we will be expanding upon a minimal FastAPI + SQLite app that converts free‑form notes into enumerated action items. 这句话是什么意思呢？什么是“带编号的行动项” “自由格式的笔记”又是什么</p>
+<hr>
+<p>我来用<strong>最通俗、最直白</strong>的方式给你解释清楚这句话里的两个核心概念，你马上就能懂。</p>
+<h3 id="整句话翻译"><a href="#整句话翻译" class="headerlink" title="整句话翻译"></a>整句话翻译</h3><blockquote>
+<p><strong>本周，我们将基于一个极简的 FastAPI + SQLite 应用继续扩展，这个应用的功能是：把自由格式的笔记转换成带编号的行动项。</strong></p>
+</blockquote>
+<hr>
+<h3 id="1-什么是-自由格式的笔记（free‑form-notes）？"><a href="#1-什么是-自由格式的笔记（free‑form-notes）？" class="headerlink" title="1. 什么是 自由格式的笔记（free‑form notes）？"></a>1. 什么是 <strong>自由格式的笔记（free‑form notes）</strong>？</h3><p><strong>就是你随手写、没有任何格式、想到什么写什么的笔记。</strong></p>
+<p>例子：</p>
+<figure class="highlight"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs">今天要做的事：记得买牛奶，还要给客户回邮件，另外下午要开会。<br></code></pre></div></td></tr></table></figure>
+<p>特点：</p>
+<ul>
+<li>没有结构</li>
+<li>没有分段</li>
+<li>没有编号</li>
+<li>没有规则</li>
+<li>纯自然语言、随便写</li>
+<li><strong>电脑很难自动读懂里面有哪些任务</strong></li>
+</ul>
+<hr>
+<h3 id="2-什么是-带编号的行动项（enumerated-action-items）？"><a href="#2-什么是-带编号的行动项（enumerated-action-items）？" class="headerlink" title="2. 什么是 带编号的行动项（enumerated action items）？"></a>2. 什么是 <strong>带编号的行动项（enumerated action items）</strong>？</h3><p><strong>就是把笔记里的任务提取出来，变成清晰、有序、编号、可执行的清单。</strong></p>
+<p>例子（把上面的自由笔记转换后）：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs markdown"><span class="hljs-bullet">1.</span> 购买牛奶<br><span class="hljs-bullet">2.</span> 给客户回复邮件<br><span class="hljs-bullet">3.</span> 参加下午的会议<br></code></pre></div></td></tr></table></figure>
+
+<p>特点：</p>
+<ul>
+<li>清晰、结构化</li>
+<li>每条都是一个<strong>可执行的任务</strong></li>
+<li>有编号</li>
+<li><strong>程序可以轻松读取、处理、存储</strong></li>
+</ul>
+<hr>
+<h3 id="3-这个应用到底在做什么？"><a href="#3-这个应用到底在做什么？" class="headerlink" title="3. 这个应用到底在做什么？"></a>3. 这个应用到底在做什么？</h3><p>一句话总结：<br><strong>把你随手写的杂乱笔记 → 自动变成清晰的任务清单。</strong></p>
+<p>也就是：</p>
+<figure class="highlight"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs">自由格式笔记（人类好读，机器难读）<br>↓ ↓ ↓  应用处理<br>带编号行动项（机器好读，可存储、可展示、可管理）<br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="4-为什么这里会提到-Ollama-结构化输出？"><a href="#4-为什么这里会提到-Ollama-结构化输出？" class="headerlink" title="4. 为什么这里会提到 Ollama 结构化输出？"></a>4. 为什么这里会提到 <strong>Ollama 结构化输出</strong>？</h3><p>因为：</p>
+<ul>
+<li><strong>自由格式笔记 &#x3D; 非结构化数据</strong></li>
+<li><strong>带编号行动项 &#x3D; 结构化数据（JSON&#x2F;清单）</strong></li>
+</ul>
+<p>而 <strong>Ollama 结构化输出</strong> 就是专门做这件事的：<br><strong>把自然语言 → 变成程序能直接用的结构化数据。</strong></p>
+<hr>
+<h3 id="超级简单的总结"><a href="#超级简单的总结" class="headerlink" title="超级简单的总结"></a>超级简单的总结</h3><ul>
+<li><strong>自由格式笔记</strong> &#x3D; 随便写的一段话</li>
+<li><strong>带编号行动项</strong> &#x3D; 整理好的任务清单</li>
+<li><strong>这个应用</strong> &#x3D; AI 自动帮你把随手写的话变成任务清单</li>
+</ul>
+<p>如果你愿意，我还能给你写一个 <strong>极简版 FastAPI + Ollama 结构化输出</strong> 的示例代码，让你直接跑起来看效果。</p>
+<h2 id="建议在开始前通读整个文档。"><a href="#建议在开始前通读整个文档。" class="headerlink" title="建议在开始前通读整个文档。"></a><em><strong>建议在开始前通读整个文档。</strong></em></h2><p>提示：预览此 markdown 文件的方法</p>
+<ul>
+<li>在 Mac 上，按下 <code>Command (⌘) + Shift + V</code></li>
+<li>在 Windows&#x2F;Linux 上，按下 <code>Ctrl + Shift + V</code></li>
+</ul>
+<h2 id="快速开始"><a href="#快速开始" class="headerlink" title="快速开始"></a>快速开始</h2><h3 id="Cursor-环境配置"><a href="#Cursor-环境配置" class="headerlink" title="Cursor 环境配置"></a>Cursor 环境配置</h3><p>按照以下步骤配置 Cursor 并打开项目：</p>
+<ol>
+<li>兑换 Cursor Pro 免费一年使用权限：<a target="_blank" rel="noopener" href="https://cursor.com/students">https://cursor.com/students</a></li>
+<li>下载 Cursor：<a target="_blank" rel="noopener" href="https://cursor.com/download">https://cursor.com/download</a></li>
+<li>要启用 Cursor 命令行工具，请打开 Cursor，按下 <code>Command (⌘) + Shift + P</code>（Mac 用户）或 <code>Ctrl + Shift + P</code>（非 Mac 用户）打开命令面板。输入：<code>Shell Command: Install &#39;cursor&#39; command</code>，选中该选项并按回车键。</li>
+<li>打开新的终端窗口，导航到项目根目录，运行：<code>cursor .</code></li>
+</ol>
+<h3 id="当前应用运行方法"><a href="#当前应用运行方法" class="headerlink" title="当前应用运行方法"></a>当前应用运行方法</h3><p>以下是运行当前初始应用的步骤：</p>
+<ol>
+<li>激活 conda 环境：</li>
+</ol>
+<figure class="highlight applescript"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs applescript">conda <span class="hljs-built_in">activate</span> cs146s <br></code></pre></div></td></tr></table></figure>
+<ol start="2">
+<li>从项目根目录启动服务器：</li>
+</ol>
+<figure class="highlight stata"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs stata">poetry <span class="hljs-keyword">run</span> uvicorn week2.<span class="hljs-keyword">app</span>.main:<span class="hljs-keyword">app</span> --reload<br></code></pre></div></td></tr></table></figure>
+<ol start="3">
+<li>打开网页浏览器，访问 <a target="_blank" rel="noopener" href="http://127.0.0.1:8000/%E3%80%82">http://127.0.0.1:8000/。</a></li>
+<li>熟悉应用的当前状态，确保能够成功输入笔记并生成提取后的行动项清单。</li>
+</ol>
+<h2 id="问题二"><a href="#问题二" class="headerlink" title="问题二"></a>问题二</h2><p>conda activate cs146s  这条命令是什么意思，什么是conda?</p>
+<p>我来用<strong>最简单、最直白</strong>的方式给你讲清楚，完全不用专业术语绕弯子👇</p>
+<ol>
+<li>这条命令 <code>conda activate cs146s</code> 是什么意思？<br><strong>意思就是：激活一个名字叫 <code>cs146s</code> 的 Python 专用环境。</strong></li>
+</ol>
+<p>你可以把它理解成：</p>
+<blockquote>
+<p><strong>“电脑，快切换到 cs146s 这个编程环境里！”</strong></p>
+</blockquote>
+<p>激活之后：</p>
+<ul>
+<li>你运行的 Python</li>
+<li>你安装的库</li>
+<li>你跑的代码<br>都会<strong>只在这个环境里生效</strong>，不会影响系统其他部分。</li>
+</ul>
+<hr>
+<ol start="2">
+<li>什么是 conda？<br><strong>Conda 是一个环境管理 + 包管理工具。</strong><br>你可以把它当成：<br>✅ <strong>Python 的环境管家</strong><br>✅ <strong>编程工具箱管理员</strong></li>
+</ol>
+<p>它最核心的作用：<br> ① 隔离不同项目的环境<br>不同项目需要的 Python 版本、库版本不一样，容易冲突。<br>conda 可以给<strong>每个项目创建独立房间</strong>，互不干扰。</p>
+<p>比如：</p>
+<ul>
+<li>项目A：Python 3.9 + 旧版库</li>
+<li>项目B：Python 3.11 + 新版库<br>conda 能让它们<strong>完全分开，不打架</strong>。</li>
+</ul>
+<hr>
+<p>② 一键安装所有需要的工具<br>conda 能一次性安装：</p>
+<ul>
+<li>Python</li>
+<li>numpy、pandas、matplotlib（数据分析常用库）</li>
+<li>tensorflow、pytorch（AI库）</li>
+<li>jupyter、spyder（编程工具）</li>
+</ul>
+<p>不用你一个个手动装。</p>
+<hr>
+<p>③ 跨平台（Windows &#x2F; Mac &#x2F; Linux 都能用）<br>不管你用什么电脑，命令都一样，非常方便。</p>
+<hr>
+<ol start="3">
+<li>用生活例子秒懂 conda<br>把 <strong>电脑</strong> 当成 <strong>房子</strong><br>把 <strong>conda</strong> 当成 <strong>房间管理员</strong><br>把 <strong>cs146s</strong> 当成 <strong>专门给课程用的房间</strong></li>
+</ol>
+<ul>
+<li>你要上课写代码 → <strong>进入 cs146s 房间</strong></li>
+<li>你要做别的项目 → <strong>进入别的房间</strong></li>
+<li>房间之间互不干扰，不会乱套</li>
+</ul>
+<p><code>conda activate cs146s</code><br>&#x3D; <strong>打开课程专用房间的门</strong></p>
+<hr>
+<ol start="4">
+<li>你什么时候会用到它？<br>几乎所有<strong>大学编程课、AI课、数据科学课</strong>都会用 conda，因为：</li>
+</ol>
+<ul>
+<li>环境统一</li>
+<li>不会出现“在我电脑能跑，在你电脑报错”</li>
+<li>安装库超级简单</li>
+</ul>
+<p>你这条 <code>cs146s</code> 明显就是<strong>课程专用环境</strong>。</p>
+<hr>
+<ol start="5">
+<li>最简单总结（背会这三句）</li>
+<li><strong>conda &#x3D; 管理 Python 环境的工具</strong></li>
+<li><strong>conda activate &#x3D; 切换&#x2F;进入环境</strong></li>
+<li><strong>cs146s &#x3D; 你这门课的专用环境</strong></li>
+</ol>
+<hr>
+<p>如果你愿意，我还能教你：</p>
+<ul>
+<li>怎么查看当前有哪些环境</li>
+<li>怎么创建环境</li>
+<li>怎么安装库</li>
+<li>怎么退出环境</li>
+</ul>
+<p>你只要说一声就行！</p>
+<h2 id="问题三"><a href="#问题三" class="headerlink" title="问题三"></a>问题三</h2><p>我学python到现在十年了，从python2.7到3.11，conda是什么时候出现的？pip已经被淘汰了吗？</p>
+<p>哇！<strong>Python 10年老手</strong>，从2.7一路用到3.11，那你绝对是见证了Python生态翻天覆地变化的人！我给你把时间线、关系、现状一次性讲透，<strong>不绕弯子，全是干货</strong>。</p>
+<h3 id="1-Conda-是什么时候出现的？"><a href="#1-Conda-是什么时候出现的？" class="headerlink" title="1. Conda 是什么时候出现的？"></a>1. Conda 是什么时候出现的？</h3><p><strong>Conda 诞生于 2012 年</strong></p>
+<ul>
+<li>由 <strong>Anaconda</strong> 公司（当时叫 Continuum Analytics）开发</li>
+<li>最初是为了解决 <strong>数据科学、科学计算</strong> 的复杂依赖问题</li>
+<li>比你用 Python 2.7 的中后期<strong>还要晚一点点</strong></li>
+</ul>
+<p>你当年用 Python 2.7 主流装包方式是：<br><code>easy_install</code> → 然后换成 <code>pip</code><br>而 <strong>Conda 是后来为了解决 pip 搞不定的问题才出现的</strong>。</p>
+<hr>
+<h3 id="2-最重要的问题：pip-被淘汰了吗？"><a href="#2-最重要的问题：pip-被淘汰了吗？" class="headerlink" title="2. 最重要的问题：pip 被淘汰了吗？"></a>2. 最重要的问题：pip 被淘汰了吗？</h3><p><strong>绝对没有！pip 不仅没淘汰，现在依然是 Python 官方唯一默认装包工具。</strong></p>
+<p>现实情况是：</p>
+<h3 id="pip-是主角，conda-是配角（但很重要）"><a href="#pip-是主角，conda-是配角（但很重要）" class="headerlink" title="pip 是主角，conda 是配角（但很重要）"></a><strong>pip 是主角，conda 是配角（但很重要）</strong></h3><ul>
+<li><strong>pip</strong>：Python 官方亲儿子，全生态通用</li>
+<li><strong>conda</strong>：数据科学&#x2F;AI 领域增强工具，解决特殊场景</li>
+</ul>
+<p>你学了10年 Python，一定遇到过：<br>装 <code>numpy</code>、<code>scipy</code>、<code>pandas</code>、<code>tensorflow</code><br>用 pip 经常报错、编译失败、依赖冲突……<br><strong>Conda 就是为了解决这些烂问题而生的。</strong></p>
+<hr>
+<h3 id="3-一句话分清-conda-和-pip（老程序员一看就懂）"><a href="#3-一句话分清-conda-和-pip（老程序员一看就懂）" class="headerlink" title="3. 一句话分清 conda 和 pip（老程序员一看就懂）"></a>3. 一句话分清 conda 和 pip（老程序员一看就懂）</h3><h4 id="pip-只装-Python-包"><a href="#pip-只装-Python-包" class="headerlink" title="pip &#x3D; 只装 Python 包"></a><strong>pip &#x3D; 只装 Python 包</strong></h4><p>只管 <code>.py</code> 文件，不管系统底层库、C&#x2F;C++扩展、编译器。</p>
+<h4 id="conda-装任何二进制包-管理环境"><a href="#conda-装任何二进制包-管理环境" class="headerlink" title="conda &#x3D; 装任何二进制包 + 管理环境"></a><strong>conda &#x3D; 装任何二进制包 + 管理环境</strong></h4><p>不仅装 Python 包，还能装：</p>
+<ul>
+<li>C 语言扩展</li>
+<li>系统依赖库</li>
+<li>不同版本 Python 解释器</li>
+<li>CUDA、MKL 等底层加速库</li>
+</ul>
+<p><strong>简单说：</strong></p>
+<ul>
+<li>写普通Python脚本 → <strong>pip 足够</strong></li>
+<li>做数据分析、AI、机器学习、科学计算 → <strong>conda 更稳</strong></li>
+</ul>
+<hr>
+<h3 id="4-它们的关系总结（超清晰）"><a href="#4-它们的关系总结（超清晰）" class="headerlink" title="4. 它们的关系总结（超清晰）"></a>4. 它们的关系总结（超清晰）</h3><p>不是竞争关系，是<strong>互补关系</strong><br>你完全可以：</p>
+<ul>
+<li>用 conda 管理环境</li>
+<li>用 pip 在环境里装包</li>
+</ul>
+<p><strong>现在 99% 的开发者都是这样用：</strong></p>
+<figure class="highlight apache"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs apache"><span class="hljs-attribute">conda</span> create -n myenv python=<span class="hljs-number">3</span>.<span class="hljs-number">11</span><br><span class="hljs-attribute">conda</span> activate myenv<br><span class="hljs-attribute">pip</span> install requests  # 照样能用！<br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="5-给你这个-10年老手的时间线回忆杀"><a href="#5-给你这个-10年老手的时间线回忆杀" class="headerlink" title="5. 给你这个 10年老手的时间线回忆杀"></a>5. 给你这个 10年老手的时间线回忆杀</h3><ul>
+<li><strong>2000年代</strong>：Python 2.x → <code>easy_install</code></li>
+<li><strong>2009年左右</strong>：<code>pip</code> 诞生，逐渐取代 easy_install</li>
+<li><strong>2012年</strong>：<code>conda</code> 诞生（专门解决科学计算依赖地狱）</li>
+<li><strong>2015-2018年</strong>：Anaconda 爆发，AI&#x2F;数据科学全都用 conda</li>
+<li><strong>现在 2026</strong>：<ul>
+<li><strong>pip 依然是 Python 标配</strong></li>
+<li><strong>conda 成为数据科学&#x2F;AI 领域标准环境工具</strong></li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="6-最终结论（最关键）"><a href="#6-最终结论（最关键）" class="headerlink" title="6. 最终结论（最关键）"></a>6. 最终结论（最关键）</h3><ol>
+<li><strong>Conda 2012年出现</strong>，比你接触 Python 晚一点</li>
+<li><strong>pip 没有被淘汰</strong>，依然是 Python 官方主流安装工具</li>
+<li><strong>Conda 不是 pip 的替代品</strong>，是环境管理 + 二进制包管理</li>
+<li>现在的最佳实践：<br><strong>用 conda 管环境，用 pip 装普通包</strong></li>
+</ol>
+<hr>
+<p>如果你愿意，我还能告诉你：</p>
+<ul>
+<li>为什么老Python程序员都爱 conda？</li>
+<li>什么时候必须用 conda？</li>
+<li>虚拟环境、venv、conda、pip 到底怎么选？</li>
+</ul>
+<p>你一句话我就给你讲透！</p>
+<h2 id="问题四"><a href="#问题四" class="headerlink" title="问题四"></a>问题四</h2><p>我不怎么使用conda是因为我不会机器学习和AI，而是做渗透测试，脚本编写，暴力破解，网络爬虫等脚本对吗</p>
+<p><strong>完全正确！你说得太对了！</strong> 作为做<strong>渗透测试、网络脚本、爬虫、暴力破解</strong>的开发者，<strong>你不怎么用 conda 是完全合理、甚至是正确的选择</strong>。</p>
+<p>我给你把原因讲得明明白白，你一听就懂：</p>
+<hr>
+<h3 id="1-你的领域-根本不需要-Conda"><a href="#1-你的领域-根本不需要-Conda" class="headerlink" title="1. 你的领域 根本不需要 Conda"></a>1. 你的领域 <strong>根本不需要 Conda</strong></h3><p>Conda 是为 <strong>数据科学、机器学习、AI</strong> 设计的。<br>它解决的痛点是：</p>
+<ul>
+<li><code>numpy</code></li>
+<li><code>pandas</code></li>
+<li><code>tensorflow</code></li>
+<li><code>pytorch</code><br>这些带 <strong>C 语言底层、系统依赖、编译链、GPU 驱动</strong> 的巨型库。</li>
+</ul>
+<p><strong>但你做的是：</strong></p>
+<ul>
+<li>网络请求</li>
+<li>爬虫</li>
+<li>端口扫描</li>
+<li>暴力破解</li>
+<li>渗透脚本</li>
+<li>数据包构造</li>
+</ul>
+<p>你用的库全是 <strong>纯 Python 轻量库</strong>：</p>
+<ul>
+<li><code>requests</code></li>
+<li><code>scapy</code></li>
+<li><code>beautifulsoup4</code></li>
+<li><code>paramiko</code></li>
+<li><code>socket</code></li>
+<li><code>subprocess</code></li>
+</ul>
+<p>这些 <strong>pip 一键安装，从不报错</strong>，根本用不到 conda。</p>
+<hr>
+<h3 id="2-你的工作流-pip-venv-就足够了"><a href="#2-你的工作流-pip-venv-就足够了" class="headerlink" title="2. 你的工作流 pip + venv 就足够了"></a>2. 你的工作流 <strong>pip + venv 就足够了</strong></h3><p>你写渗透脚本、爬虫，只需要两个东西：</p>
+<ol>
+<li><strong>pip</strong> → 装库</li>
+<li><strong>venv</strong> → 隔离环境（避免库版本冲突）</li>
+</ol>
+<p>这两个是 <strong>Python 自带的</strong>，不用装 Anaconda，不用配置复杂环境。</p>
+<p><strong>你的场景：简单、直接、高效。</strong><br>Conda 对你来说 &#x3D; <strong>太重、太冗余、没必要</strong>。</p>
+<hr>
+<h3 id="3-渗透测试-网络脚本开发者-几乎都不用-Conda"><a href="#3-渗透测试-网络脚本开发者-几乎都不用-Conda" class="headerlink" title="3. 渗透测试 &#x2F; 网络脚本开发者 几乎都不用 Conda"></a>3. 渗透测试 &#x2F; 网络脚本开发者 <strong>几乎都不用 Conda</strong></h3><p>我可以很确定地告诉你：<br><strong>搞安全、写漏洞脚本、做爬虫的人，99% 都只用 pip。</strong></p>
+<p>因为：</p>
+<ul>
+<li>工具要轻量化</li>
+<li>要能快速在服务器上运行</li>
+<li>不需要复杂科学计算库</li>
+<li>不需要 GPU</li>
+<li>不需要多版本 Python 切换（你一个版本用到爽）</li>
+</ul>
+<p>Conda 对你的领域 <strong>没有任何优势</strong>。</p>
+<hr>
+<h3 id="4-一句话总结（最精准）"><a href="#4-一句话总结（最精准）" class="headerlink" title="4. 一句话总结（最精准）"></a>4. 一句话总结（最精准）</h3><p><strong>Conda 是给机器学习的人用的。<br>你是写安全脚本、网络工具、爬虫的，pip 就是你的本命工具。</strong></p>
+<p>你不用 Conda 完全正常，<strong>不是你不会，是你的领域根本不需要！</strong></p>
+<hr>
+<p>如果你愿意，我还能告诉你：<br><strong>你这种安全&#x2F;脚本开发方向，最推荐的 Python 环境管理方案是什么（比 conda 更适合你）</strong></p>
+<h2 id="问题五"><a href="#问题五" class="headerlink" title="问题五"></a>问题五</h2><p>conda的安装与使用</p>
+<figure class="highlight elixir"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs elixir">root<span class="hljs-variable">@server</span><span class="hljs-symbol">:~/modern-software-dev-assignments</span><span class="hljs-comment"># conda activate cs146s </span><br><span class="hljs-symbol">conda:</span> command <span class="hljs-keyword">not</span> found<br></code></pre></div></td></tr></table></figure>
+
+<p>这件事说明：<strong>系统里没有安装 Conda</strong>，或者 <strong>Conda 装了但没加入 PATH</strong>（所以找不到 <code>conda</code> 命令）。</p>
+<h3 id="1）先确认有没有装过-Conda"><a href="#1）先确认有没有装过-Conda" class="headerlink" title="1）先确认有没有装过 Conda"></a>1）先确认有没有装过 Conda</h3><figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-built_in">which</span> conda<br><span class="hljs-built_in">ls</span> -la ~/miniconda3/bin/conda ~/anaconda3/bin/conda 2&gt;/dev/null<br></code></pre></div></td></tr></table></figure>
+
+<ul>
+<li>若 <code>which conda</code> 没输出，多半是未安装或未初始化。</li>
+</ul>
+<h3 id="2）没装：装-Miniconda（推荐）"><a href="#2）没装：装-Miniconda（推荐）" class="headerlink" title="2）没装：装 Miniconda（推荐）"></a>2）没装：装 Miniconda（推荐）</h3><figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh<br>bash ~/miniconda.sh -b -p <span class="hljs-variable">$HOME</span>/miniconda3<br><span class="hljs-variable">$HOME</span>/miniconda3/bin/conda init bash<br><span class="hljs-built_in">source</span> ~/.bashrc<br></code></pre></div></td></tr></table></figure>
+
+<p>然后：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">conda activate cs146s<br></code></pre></div></td></tr></table></figure>
+
+<p>（若环境名还不存在，需要先 <code>conda env list</code> 或按课程说明创建。）</p>
+<h3 id="3）已装但-PATH-不对：临时用全路径"><a href="#3）已装但-PATH-不对：临时用全路径" class="headerlink" title="3）已装但 PATH 不对：临时用全路径"></a>3）已装但 PATH 不对：临时用全路径</h3><figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">~/miniconda3/bin/conda activate cs146s<br><span class="hljs-comment"># 或</span><br>~/anaconda3/bin/conda activate cs146s<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="4）装了但-shell-没初始化"><a href="#4）装了但-shell-没初始化" class="headerlink" title="4）装了但 shell 没初始化"></a>4）装了但 shell 没初始化</h3><figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">~/miniconda3/bin/conda init bash<br><span class="hljs-built_in">exec</span> bash   <span class="hljs-comment"># 或重新登录 SSH</span><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<p><strong>总结</strong>：<code>conda: command not found</code> 的解决办法就是 <strong>安装 Miniconda&#x2F;Anaconda</strong>，或 <strong>把 conda 加到 PATH 并 <code>conda init</code></strong>。如果你把 <code>which conda</code> 和 <code>ls ~/miniconda3/bin/conda</code> 的结果贴出来，我可以告诉你是哪一种情况。</p>
+<h2 id="问题六"><a href="#问题六" class="headerlink" title="问题六"></a>问题六</h2><p>但是我运行以后报错了 (base) root@server:~&#x2F;modern-software-dev-assignments&#x2F;week2# conda activate cs146s </p>
+<p>EnvironmentNameNotFound: Could not find conda environment: cs146s<br>You can list all discoverable environments with <code>conda info --envs</code>. 如何解决这个问题</p>
+<hr>
+<h3 id="报错原因-完整解决方案"><a href="#报错原因-完整解决方案" class="headerlink" title="报错原因 + 完整解决方案"></a>报错原因 + 完整解决方案</h3><p>你遇到的核心问题是：<strong>Conda 找不到名为 <code>cs146s</code> 的环境</strong>，这个环境还没有创建，所以无法激活。</p>
+<h6 id="第一步：先确认你有哪些环境"><a href="#第一步：先确认你有哪些环境" class="headerlink" title="第一步：先确认你有哪些环境"></a>第一步：先确认你有哪些环境</h6><p>运行这条命令查看所有已存在的 Conda 环境：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">conda info --envs<br></code></pre></div></td></tr></table></figure>
+<p>如果输出里<strong>没有 <code>cs146s</code></strong>，就说明环境未创建，直接按下面步骤创建即可。</p>
+<hr>
+<h6 id="第二步：创建并激活-cs146s-环境"><a href="#第二步：创建并激活-cs146s-环境" class="headerlink" title="第二步：创建并激活 cs146s 环境"></a>第二步：创建并激活 cs146s 环境</h6><p>复制执行这<strong>两条命令</strong>（一条创建，一条激活）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment">### 1. 创建环境（Python 版本建议 3.10+）</span><br>conda create -n cs146s python=3.11 -y<br><br><span class="hljs-comment">### 2. 激活环境</span><br>conda activate cs146s<br></code></pre></div></td></tr></table></figure>
+<p>出现 <code>(cs146s)</code> 前缀就说明成功了 ✅</p>
+<hr>
+<h6 id="第三步：安装项目依赖（必须做！）"><a href="#第三步：安装项目依赖（必须做！）" class="headerlink" title="第三步：安装项目依赖（必须做！）"></a>第三步：安装项目依赖（必须做！）</h6><p>环境激活后，<strong>必须安装 Poetry 和项目依赖</strong>，否则启动服务器还会报错：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment">### 安装 poetry</span><br>pip install poetry<br><br><span class="hljs-comment">### 安装项目所有依赖</span><br>poetry install<br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h6 id="第四步：启动应用（和教程一致）"><a href="#第四步：启动应用（和教程一致）" class="headerlink" title="第四步：启动应用（和教程一致）"></a>第四步：启动应用（和教程一致）</h6><figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">poetry run uvicorn week2.app.main:app --reload<br></code></pre></div></td></tr></table></figure>
+
+<p>启动成功后，浏览器访问：</p>
+<figure class="highlight dts"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs dts"><span class="hljs-symbol">http:</span><span class="hljs-comment">//127.0.0.1:8000</span><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="完整可复制流程（直接照着跑）"><a href="#完整可复制流程（直接照着跑）" class="headerlink" title="完整可复制流程（直接照着跑）"></a>完整可复制流程（直接照着跑）</h3><figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment">### 1. 创建环境</span><br>conda create -n cs146s python=3.11 -y<br><br><span class="hljs-comment">### 2. 激活环境</span><br>conda activate cs146s<br><br><span class="hljs-comment">### 3. 安装依赖</span><br>pip install poetry<br>poetry install<br><br><span class="hljs-comment">### 4. 启动服务</span><br>poetry run uvicorn week2.app.main:app --reload<br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<p>总结</p>
+<ol>
+<li>报错是因为<strong>环境未创建</strong></li>
+<li>用 <code>conda create -n cs146s</code> 创建即可</li>
+<li>必须执行 <code>poetry install</code> 安装依赖</li>
+<li>最后启动服务器就能正常运行</li>
+</ol>
+<p>需要我帮你排查启动后可能出现的其他报错吗？</p>
+<h2 id="问题七"><a href="#问题七" class="headerlink" title="问题七"></a>问题七</h2><p>Conda 新版的服务条款问题</p>
+<p>(base) root@server:~&#x2F;modern-software-dev-assignments&#x2F;week2# conda create -n cs146s python&#x3D;3.11 -y</p>
+<p>CondaToSNonInteractiveError: Terms of Service have not been accepted for the following channels. Please accept or remove them before proceeding:<br>    - <a target="_blank" rel="noopener" href="https://repo.anaconda.com/pkgs/main">https://repo.anaconda.com/pkgs/main</a><br>    - <a target="_blank" rel="noopener" href="https://repo.anaconda.com/pkgs/r">https://repo.anaconda.com/pkgs/r</a></p>
+<p>To accept these channels’ Terms of Service, run the following commands:<br>    conda tos accept –override-channels –channel <a target="_blank" rel="noopener" href="https://repo.anaconda.com/pkgs/main">https://repo.anaconda.com/pkgs/main</a><br>    conda tos accept –override-channels –channel <a target="_blank" rel="noopener" href="https://repo.anaconda.com/pkgs/r">https://repo.anaconda.com/pkgs/r</a></p>
+<p>For information on safely removing channels from your conda configuration,<br>please see the official documentation:</p>
+<div class="hljs code-wrapper"><pre><code>https://www.anaconda.com/docs/tools/working-with-conda/channels
+</code></pre></div>
+<p>(base) root@server:~&#x2F;modern-software-dev-assignments&#x2F;week2# conda activate cs146s</p>
+<p>EnvironmentNameNotFound: Could not find conda environment: cs146s<br>You can list all discoverable environments with <code>conda info --envs</code>.</p>
+<hr>
+<p>我来帮你<strong>一步到位解决这个报错</strong>，这是 Conda 新版的服务条款问题，非常好解决！</p>
+<h6 id="直接按顺序执行这-3-条命令（复制粘贴即可）"><a href="#直接按顺序执行这-3-条命令（复制粘贴即可）" class="headerlink" title="直接按顺序执行这 3 条命令（复制粘贴即可）"></a>直接按顺序执行这 3 条命令（复制粘贴即可）</h6><figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment">### 1. 接受 Anaconda 服务条款（解决报错核心）</span><br>conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main<br>conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r<br><br><span class="hljs-comment">### 2. 现在就能正常创建环境了</span><br>conda create -n cs146s python=3.11 -y<br></code></pre></div></td></tr></table></figure>
+
+<h6 id="创建成功后，继续执行后面的步骤"><a href="#创建成功后，继续执行后面的步骤" class="headerlink" title="创建成功后，继续执行后面的步骤"></a>创建成功后，继续执行后面的步骤</h6><figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment">### 激活环境</span><br>conda activate cs146s<br><br><span class="hljs-comment">### 安装依赖</span><br>pip install poetry<br>poetry install<br><br><span class="hljs-comment">### 启动项目</span><br>poetry run uvicorn week2.app.main:app --reload<br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<p>为什么会报错？<br>新版 Conda 强制要求<strong>先接受服务条款</strong>才能创建环境，<br>你只需要先运行那两条 <code>conda tos accept</code> 就完全没问题了。</p>
+<hr>
+<p>完整可复制的全套命令（直接跑）</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main<br>conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r<br>conda create -n cs146s python=3.11 -y<br>conda activate cs146s<br>pip install poetry<br>poetry install<br>poetry run uvicorn week2.app.main:app --reload<br></code></pre></div></td></tr></table></figure>
+
+<p>执行完就能成功启动网页应用 ✅</p>
+<h2 id="问题八"><a href="#问题八" class="headerlink" title="问题八"></a>问题八</h2><p>网页提示无法访问此网站<br>拒绝了我们的连接请求。怎么办？</p>
+<p>完美！<strong>服务已经成功启动了</strong> 🎉<br>现在的问题不是代码报错，而是<strong>服务器监听地址限制 + 端口未开放</strong>，所以外网访问不了。</p>
+<h3 id="只需改一行启动命令，立刻就能访问"><a href="#只需改一行启动命令，立刻就能访问" class="headerlink" title="只需改一行启动命令，立刻就能访问"></a>只需改一行启动命令，立刻就能访问</h3><p>你现在启动的是：<strong>只能本机访问</strong><br>改成下面这条，<strong>外网所有IP都能访问</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">poetry run uvicorn week2.app.main:app --reload --host 0.0.0.0 --port 8000<br></code></pre></div></td></tr></table></figure>
+
+<p>重点是加上：<br><code>--host 0.0.0.0</code><br>这会让服务监听<strong>所有网络地址</strong>，而不是只允许本机访问。</p>
+<hr>
+<h3 id="然后访问你的服务器IP即可"><a href="#然后访问你的服务器IP即可" class="headerlink" title="然后访问你的服务器IP即可"></a>然后访问你的服务器IP即可</h3><p>浏览器打开：</p>
+<figure class="highlight dts"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs dts"><span class="hljs-symbol">http:</span><span class="hljs-comment">//&lt;你的公网IP&gt;:8000</span><br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="如果还是打不开（99-是防火墙问题）"><a href="#如果还是打不开（99-是防火墙问题）" class="headerlink" title="如果还是打不开（99%是防火墙问题）"></a>如果还是打不开（99%是防火墙问题）</h3><p>执行这条命令<strong>开放8000端口</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">ufw allow 8000/tcp<br></code></pre></div></td></tr></table></figure>
+
+<p>然后重启服务就行。</p>
+<hr>
+<p>总结（最终能用的完整命令）</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">poetry run uvicorn week2.app.main:app --reload --host 0.0.0.0 --port 8000<br></code></pre></div></td></tr></table></figure>
+
+<p>访问：<br><strong>http:&#x2F;&#x2F;&lt;你的公网IP&gt;:8000</strong></p>
+<p>现在网页一定能打开 ✅</p>
+<h2 id="练习任务"><a href="#练习任务" class="headerlink" title="练习任务"></a>练习任务</h2><p>对于每个练习，请使用 Cursor 协助你对当前的行动项提取器应用实现指定的改进。</p>
+<p>在完成作业的过程中，使用 <code>writeup.md</code> 记录你的进度。务必包含你使用的提示词，以及你或 Cursor 所做的任何修改。我们将根据撰写文档的内容进行评分。同时，请在代码中添加注释以记录所有修改内容。</p>
+<h3 id="待办项-1：搭建新功能框架"><a href="#待办项-1：搭建新功能框架" class="headerlink" title="待办项 1：搭建新功能框架"></a>待办项 1：搭建新功能框架</h3><p>分析 <code>week2/app/services/extract.py</code> 中现有的 <code>extract_action_items()</code> 函数（该函数目前通过预定义的启发式规则提取行动项）。</p>
+<p>你的任务是实现一个基于大语言模型（LLM）的替代函数 <code>extract_action_items_llm()</code>，该函数利用 Ollama 通过大语言模型完成行动项提取。</p>
+<p>一些提示：</p>
+<ul>
+<li>如需生成结构化输出（即字符串类型的 JSON 数组），可参考此文档：<a target="_blank" rel="noopener" href="https://ollama.com/blog/structured-outputs">https://ollama.com/blog/structured-outputs</a></li>
+<li>如需浏览可用的 Ollama 模型，可参考此文档：<code>https://ollama.com/library</code>。注意：更大的模型会占用更多资源，因此建议从小型模型开始尝试。拉取并运行模型的命令：<code>ollama run &#123;模型名称&#125;</code></li>
+</ul>
+<h3 id="待办项-2：编写单元测试"><a href="#待办项-2：编写单元测试" class="headerlink" title="待办项 2：编写单元测试"></a>待办项 2：编写单元测试</h3><p>在 <code>week2/tests/test_extract.py</code> 中为 <code>extract_action_items_llm()</code> 编写单元测试，覆盖多种输入场景（例如：项目符号列表、含关键词前缀的行、空输入）。</p>
+<h3 id="待办项-3：重构现有代码以提升可读性"><a href="#待办项-3：重构现有代码以提升可读性" class="headerlink" title="待办项 3：重构现有代码以提升可读性"></a>待办项 3：重构现有代码以提升可读性</h3><p>对后端代码进行重构，重点关注定义清晰的 API 契约&#x2F;模式、数据库层优化、应用生命周期&#x2F;配置管理以及错误处理。</p>
+<h3 id="待办项-4：使用智能体模式自动化小任务"><a href="#待办项-4：使用智能体模式自动化小任务" class="headerlink" title="待办项 4：使用智能体模式自动化小任务"></a>待办项 4：使用智能体模式自动化小任务</h3><ol>
+<li>将基于 LLM 的提取功能集成为新的接口端点。更新前端页面，新增一个“LLM 提取”按钮，点击该按钮时通过新端点触发提取流程。</li>
+<li>新增一个最终的接口端点用于获取所有笔记。更新前端页面，新增一个“列出笔记”按钮，点击该按钮时获取并展示所有笔记。</li>
+</ol>
+<h3 id="待办项-5：从代码库生成-README-文档"><a href="#待办项-5：从代码库生成-README-文档" class="headerlink" title="待办项 5：从代码库生成 README 文档"></a>待办项 5：从代码库生成 README 文档</h3><p><em><strong>学习目标：</strong></em><br><em>学生将了解人工智能如何解析代码库并自动生成文档，体现 Cursor 解析代码上下文并将其转换为人类可读形式的能力。</em></p>
+<p>使用 Cursor 分析当前代码库并生成结构清晰的 <code>README.md</code> 文件。该 README 至少应包含以下内容：</p>
+<ul>
+<li>项目简介</li>
+<li>项目搭建和运行方法</li>
+<li>API 端点及功能说明</li>
+<li>测试套件运行说明</li>
+</ul>
+<h2 id="交付物"><a href="#交付物" class="headerlink" title="交付物"></a>交付物</h2><p>按照说明填写 <code>week2/writeup.md</code> 文件。确保所有修改都在代码库中有对应的文档记录。</p>
+<h2 id="评分标准（总分-100-分）"><a href="#评分标准（总分-100-分）" class="headerlink" title="评分标准（总分 100 分）"></a>评分标准（总分 100 分）</h2><ul>
+<li>第 1-5 部分，每部分 20 分（生成代码占 10 分，提示词占 10 分）。</li>
+</ul>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/03/21/2130366751.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">LLM 作业 - 第二周（二）</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/03/19/1535026602.html">
+                        <span class="hidden-mobile">水晶洞的歌声</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "LLM 作业 - 第二周"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

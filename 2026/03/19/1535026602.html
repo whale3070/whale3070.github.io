@@ -1,0 +1,643 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>水晶洞的歌声 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="水晶洞的歌声">
+                      
+                        水晶洞的歌声
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-03-19 04:13" pubdate>
+        2026年3月19日 凌晨
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.3k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      12
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">水晶洞的歌声</h1>
+            
+            <div class="markdown-body">
+              <p>gemini的图片生成技术比豆包要强。</p>
+<p><img src="/2026/03/19/1535026602/10.png"></p>
+<h1 id="漫画分镜"><a href="#漫画分镜" class="headerlink" title="漫画分镜"></a>漫画分镜</h1><p>你好！非常乐意为你把这个故事转为漫画分镜。以下是每一幅漫画的构想、画面描述以及相应的台词：</p>
+<h3 id="漫画名称：《水晶洞的歌声》"><a href="#漫画名称：《水晶洞的歌声》" class="headerlink" title="漫画名称：《水晶洞的歌声》"></a>漫画名称：《水晶洞的歌声》</h3><p><strong>第一幅：水晶龙的愿望</strong></p>
+<ul>
+<li><strong>画面描述：</strong><ul>
+<li>镜头对准一个闪闪发光的水晶洞。</li>
+<li>巨大的、彩虹色的水晶龙正卧在洞里的水晶座上。她手里拿着一块水晶，眼神充满期待。</li>
+<li>画面一角，可以看到她把一些水晶整齐地摆在洞口。</li>
+</ul>
+</li>
+<li><strong>台词：</strong><ul>
+<li><strong>水晶龙：</strong> （自言自语）“我要把这些水晶放在洞口……水妖们，快来吧，我最喜欢听你们唱歌了！”</li>
+<li><strong>旁白：</strong> 水晶龙最喜欢听水妖唱歌，那是全世界最动听的歌声。</li>
+</ul>
+</li>
+</ul>
+<p><strong>第二幅：水晶的诱惑</strong></p>
+<ul>
+<li><strong>画面描述：</strong><ul>
+<li>洞口出现了两个身影，一个看起来是美丽的水妖（其实是变形怪变的），正小心翼翼地拿起水晶。</li>
+<li>另一个（真正的水妖）在旁边，看起来有些犹豫，但眼神也被水晶吸引。</li>
+<li>水晶龙在洞里，只露出眼睛，紧张地观察。</li>
+</ul>
+</li>
+<li><strong>台词：</strong><ul>
+<li><strong>变形怪（假装水妖）：</strong> （心里想）“哼，这些水晶都是我的了！只要拿到它们，我就可以……”</li>
+<li><strong>水妖（真）：</strong> （轻轻地）“这些水晶……真的可以拿吗？”</li>
+<li><strong>水晶龙：</strong> （心里想）“她们长得都一样……我到底要把水晶给谁呢？”</li>
+</ul>
+</li>
+</ul>
+<p><strong>第三幅：真假难辨</strong></p>
+<ul>
+<li><strong>画面描述：</strong><ul>
+<li>水晶龙正对着两个看起来一模一样的“水妖”挠头，一脸困惑。</li>
+<li>一个（变形怪）正张开嘴，准备发出难听的歌声，但被水晶龙阻止。</li>
+<li>另一个（真水妖）静静地站着，一言不发。</li>
+</ul>
+</li>
+<li><strong>台词：</strong><ul>
+<li><strong>水晶龙：</strong> （苦恼）“我总是分不清！你们长得太像了。要是给错了，我就要听难听的歌声了……”</li>
+<li><strong>变形怪：</strong> （心里想）“只要我先开口，她一定会把水晶给我！”</li>
+</ul>
+</li>
+</ul>
+<p><strong>第四幅：难听的歌声</strong></p>
+<ul>
+<li><strong>画面描述：</strong><ul>
+<li>水晶龙捂着耳朵，表情痛苦。</li>
+<li>变形怪（假装水妖）正张着大嘴，发出嘶哑、难听的声音，就像鸭子叫。</li>
+<li>真正的水妖在一旁，皱着眉，看着变形怪。</li>
+</ul>
+</li>
+<li><strong>台词：</strong><ul>
+<li><strong>变形怪：</strong> “嘎嘎——嘎嘎——！我唱歌最好听了！”</li>
+<li><strong>水晶龙：</strong> （痛苦地）“啊！好难听！这绝对不是水妖的歌声！”</li>
+<li><strong>旁白：</strong> 水妖没拿到水晶之前，不会开口唱歌。</li>
+</ul>
+</li>
+</ul>
+<p><strong>第五幅：寻找方案</strong></p>
+<ul>
+<li><strong>画面描述：</strong><ul>
+<li>水晶龙垂头丧气地坐在水晶洞里，水晶散落在她周围。</li>
+<li>她盯着那颗闪亮的水晶，陷入沉思。</li>
+</ul>
+</li>
+<li><strong>台词：</strong><ul>
+<li><strong>水晶龙：</strong> （叹气）“到底该怎么办……我怎样才能分清她们，听到那动听的歌声呢？”</li>
+</ul>
+</li>
+</ul>
+<p><strong>第六幅：T台大挑战</strong></p>
+<ul>
+<li><strong>画面描述：</strong><ul>
+<li>水晶龙想到了一个主意，她兴奋地跳了起来。</li>
+<li>她在洞里的地面上铺了一条长长的水晶T台。</li>
+<li>两只“水妖”正站在T台的一头，准备接受考验。</li>
+</ul>
+</li>
+<li><strong>台词：</strong><ul>
+<li><strong>水晶龙：</strong> （大喊）“有了！既然外表一样，那就比比看谁走得更优雅！来，你们在T台上走一遍！”</li>
+</ul>
+</li>
+</ul>
+<p><strong>第七幅：优雅的水妖</strong></p>
+<ul>
+<li><strong>画面描述：</strong><ul>
+<li>真正的水妖正在T台上走。</li>
+<li>她步履轻快，姿态优雅，裙摆随着动作飘动，就像在跳舞。</li>
+<li>水晶龙看着，露出了赞许的表情。</li>
+</ul>
+</li>
+<li><strong>台词：</strong><ul>
+<li><strong>水妖：</strong> （轻快地走着）“……”（没有台词，只用动作表现优雅）</li>
+<li><strong>水晶龙：</strong> （心里想）“这姿态，太美了……这才是真正的水妖！”</li>
+</ul>
+</li>
+</ul>
+<p><strong>第八幅：歪扭的变形怪</strong></p>
+<ul>
+<li><strong>画面描述：</strong><ul>
+<li>变形怪在T台上走，但动作非常笨拙。</li>
+<li>她步履蹒跚，歪歪扭扭，每走一步都好像要摔倒。</li>
+<li>水晶龙看着，一脸疑惑。</li>
+</ul>
+</li>
+<li><strong>台词：</strong><ul>
+<li><strong>变形怪：</strong> （心里想）“该死！这个身体太重了……走起路来真费劲！”</li>
+<li><strong>旁白：</strong> 变形怪用的不是真身，行动不便。</li>
+</ul>
+</li>
+</ul>
+<p><strong>第九幅：真相大白</strong></p>
+<ul>
+<li><strong>画面描述：</strong><ul>
+<li>水晶龙已经做出了决定。她正要把一块巨大的、闪亮的水晶递给真正的水妖。</li>
+<li>变形怪在一旁，一脸失望和愤怒。</li>
+</ul>
+</li>
+<li><strong>台词：</strong><ul>
+<li><strong>水晶龙：</strong> （把水晶递给水妖）“真正的水妖，步履轻快，姿态优雅。这块水晶，属于你！”</li>
+<li><strong>变形怪：</strong> （咬牙切齿）“竟然……被发现了！”</li>
+</ul>
+</li>
+</ul>
+<p><strong>第十幅：动听的歌声</strong></p>
+<ul>
+<li><strong>画面描述：</strong><ul>
+<li>真正的水妖手里拿着水晶，露出幸福的微笑。</li>
+<li>她张开嘴，开始唱出美妙的歌声。</li>
+<li>水晶龙坐在水晶座上，闭着眼睛，一脸陶醉。</li>
+</ul>
+</li>
+<li><strong>台词：</strong><ul>
+<li><strong>水妖：</strong> （唱出优美的旋律）“🎵……（美妙的歌声）……”</li>
+<li><strong>水晶龙：</strong> （陶醉地）“啊，这才是全世界最动听的歌声……我终于听到了！”</li>
+<li><strong>旁白：</strong> 水妖拿到水晶后，唱出了最动听的歌声，水晶洞里充满了欢乐和幸福。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p>希望这个漫画分镜构想能给你带来灵感！</p>
+<h1 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h1><p><a target="_blank" rel="noopener" href="http://0gas.fun:3080/comic.html">http://0gas.fun:3080/comic.html</a></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/03/20/167633289.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">LLM 作业 - 第二周</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/03/18/628622563.html">
+                        <span class="hidden-mobile">CCMF - 人机识别验证项目</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "水晶洞的歌声"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>
