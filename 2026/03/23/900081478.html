@@ -1,0 +1,632 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>CCMF-Aura - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="CCMF-Aura">
+                      
+                        CCMF-Aura
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-03-23 15:00" pubdate>
+        2026年3月23日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      5.5k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      58
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">CCMF-Aura</h1>
+            
+            <div class="markdown-body">
+              <h1 id="數碼港創意微型基金-CCMF-香港計劃"><a href="#數碼港創意微型基金-CCMF-香港計劃" class="headerlink" title="數碼港創意微型基金(CCMF)-香港計劃"></a>數碼港創意微型基金(CCMF)-香港計劃</h1><h2 id="Aura-Judgement-System-項目申請書"><a href="#Aura-Judgement-System-項目申請書" class="headerlink" title="Aura Judgement System 項目申請書"></a>Aura Judgement System 項目申請書</h2><p><strong>申請主體</strong>：【□個人 □香港註冊有限公司】<br><strong>項目領域</strong>：數碼科技（AI智能評審基礎設施、區塊鏈生態工具開發）<br><strong>項目階段</strong>：早期開發階段（已完成核心架構開發，具備可運行演示版本）</p>
+<h3 id="一、項目概述"><a href="#一、項目概述" class="headerlink" title="一、項目概述"></a>一、項目概述</h3><p>Aura Judgement System（阿烏拉裁決系統）是一款基於<strong>Golang+分層多模型AI</strong>打造的全流程自動化智能評審引擎，專為黑客松、科技創新大賽及開發者項目審計設計，核心解決傳統人工初審效率低、主觀性強、易遺漏優質項目的行業痛點。系統以「AI承擔批量文檔審核與量化打分，釋放評委高價值決策時間」為核心定位，實現項目多維度量化評分、跨模型結果驗證、評分全流程可追溯，並深度適配TON區塊鏈生態，提供錢包感知的管理許可權、可復現的評分流水線及開發者友好型API，是智能體時代賽事評審與項目評估的核心基礎設施。</p>
+<p>目前項目已完成前端交互、後端核心邏輯及多模型AI評審模塊的開發，擁有可公開訪問的官方首頁、實時排名演示頁面及管理後台，具備完整的項目提交、自動倉庫解析、AI打分、報告生成、排名可視化能力，可快速實現商業化落地與場景擴展。</p>
+<p>Aura Judgement System is a full-process automated intelligent review engine built on Golang and a hierarchical multi-model AI architecture. It is specifically designed for hackathons, tech innovation competitions, and developer project audits. Its core purpose is to address industry pain points in traditional manual preliminary reviews, such as low efficiency, strong subjectivity, and the high risk of overlooking high-quality projects.<br>Positioned to “use AI for bulk document review and quantitative scoring to free up judges’ time for high-value decision-making”, the system supports multi-dimensional quantitative project evaluation, cross-model result verification, and full-process traceable scoring. It is deeply integrated with the TON blockchain ecosystem, providing wallet-aware access permissions, reproducible scoring pipelines, and developer-friendly APIs. It serves as core infrastructure for competition review and project evaluation in the intelligent era.<br>At present, the project has completed the development of front-end interaction, back-end core logic, and multi-model AI review modules. It has a publicly accessible official website, real-time ranking demo page, and management backend. The system supports complete functions including project submission, automatic repository parsing, AI scoring, report generation, and ranking visualization, enabling rapid commercialization and scenario expansion.</p>
+<h3 id="二、申請人資格聲明"><a href="#二、申請人資格聲明" class="headerlink" title="二、申請人資格聲明"></a>二、申請人資格聲明</h3><p>本申請人（個人&#x2F;公司）確認符合《數碼港創意微型基金(CCMF)-香港計劃申請指引及需知》全部申請資格要求，特此聲明：</p>
+<ol>
+<li>以個人申請的主要申請人持有香港居民身份證；以公司申請的主體為香港註冊（&#x2F;正在註冊）有限公司，申請人均已年滿18周歲。</li>
+<li>本申請人及項目核心成員未同時擔任香港設計中心、香港科技園公司營運的任何種子資金&#x2F;培育計劃的相同&#x2F;相似項目創辦人&#x2F;董事，亦未從上述計劃畢業。</li>
+<li>本項目未獲得CCMF系列計劃、數碼港培育計劃(CIP)任何形式資助，亦未同時申請CIP計劃。</li>
+<li>本項目目前未接受香港設計中心、香港科技園公司任何資助要約或支持，申請期及開發期將嚴格遵守相關規定。</li>
+<li>本申請人無其他公營&#x2F;私人資助計劃的未披露申請、錄取及資金獲取情況，如有後續變更將立即書面通知數碼港。</li>
+</ol>
+<h3 id="三、項目管理團隊介紹（30-評審準則對應）"><a href="#三、項目管理團隊介紹（30-評審準則對應）" class="headerlink" title="三、項目管理團隊介紹（30%評審準則對應）"></a>三、項目管理團隊介紹（30%評審準則對應）</h3><p>本項目團隊為跨領域複合型團隊，成員覆蓋<strong>AI演算法、後端架構、前端開發、區塊鏈生態運營</strong>四大核心模塊，具備豐富的技術開發、項目落地及賽事運營經驗，團隊分工明確、執行能力強，可確保項目按計劃推進並成功推向市場。</p>
+<ol>
+<li><strong>核心開發負責人</strong>：具備5年以上Golang&#x2F;後端架構開發經驗，曾參與多個區塊鏈生態工具開發，負責系統後端API、規則引擎、多模型AI調度核心邏輯開發，具備豐富的高並發系統設計與落地經驗。</li>
+<li><strong>AI演算法負責人</strong>：擁有3年以上大語言模型應用開發經驗，專注於自然語言理解、量化評分模型訓練，負責多模型交叉評審邏輯、項目文檔解析與維度打分演算法優化。</li>
+<li><strong>前端開發負責人</strong>：具備4年以上React&#x2F;TypeScript開發經驗，擅長數據可視化與用戶交互設計，負責系統首頁、排名頁、管理後台及評委面板的開發與優化，保障用戶體驗。</li>
+<li><strong>生態與運營負責人</strong>：深耕區塊鏈與AI創新賽事領域，熟悉TON生態及黑客松運營流程，負責項目市場推廣、賽事合作、用戶反饋收集及後續功能迭代規劃。</li>
+</ol>
+<p><strong>團隊分工原則</strong>：按「技術開發-演算法優化-產品設計-市場運營」模塊劃分，建立每日站會、每周迭代的項目管理機制，確保各環節高效溝通，核心功能開發與落地推進無縫銜接。</p>
+<h3 id="四、營運模式及投入市場時間（30-評審準則對應）"><a href="#四、營運模式及投入市場時間（30-評審準則對應）" class="headerlink" title="四、營運模式及投入市場時間（30%評審準則對應）"></a>四、營運模式及投入市場時間（30%評審準則對應）</h3><h4 id="（一）營運模式"><a href="#（一）營運模式" class="headerlink" title="（一）營運模式"></a>（一）營運模式</h4><p>本項目採用**「免費基礎版+付費企業版+生態合作分潤」**的商業營運模式，核心圍繞「賽事評審」核心場景，逐步輻射企業內部項目評估、創投機構項目初審等衍生場景，商業邏輯清晰、市場需求明確、盈利模式可持續。</p>
+<ol>
+<li><strong>免費基礎版</strong>：面向小型黑客松、校園創新賽事，開放基礎的項目提交、AI初審打分、簡易排名功能，積累用戶數量與市場口碑，培養用戶使用習慣。</li>
+<li><strong>付費企業版</strong>：面向大型科技賽事主辦方、創投機構、科技企業，提供定製化規則引擎、多模型深度評審、私有化部署、數據存證、專屬客服等增值服務，按賽事規模&#x2F;使用時長收取服務費。</li>
+<li><strong>生態合作分潤</strong>：與TON區塊鏈生態、各類創新賽事平台、創業孵化機構建立合作，作為其指定評審工具，獲取合作分成；同時開放系統API，為第三方開發者提供接入服務，收取API調用費。</li>
+<li><strong>長期增值服務</strong>：基於項目評審數據，為客戶提供行業分析報告、優質項目推薦等數據服務，實現數據資產的商業化變現。</li>
+</ol>
+<p><strong>市場定位</strong>：核心目標用戶為黑客松&#x2F;科技賽事主辦方、創投機構、科技企業孵化部門，輔助目標用戶為區塊鏈&#x2F;AI生態開發者與評委；核心市場為香港本地創新賽事與孵化機構，逐步輻射大灣區及全球TON生態賽事市場。</p>
+<p><strong>競爭優勢</strong>：不同於傳統人工評審與單一模型打分工具，本系統具備<strong>分層多模型AI、版本化規則引擎、區塊鏈錢包感知、全流程可追溯</strong>四大核心優勢，可有效解決行業主觀性強、效率低、無統一評判標準的痛點，且深度適配當下AI與區塊鏈融合的創新趨勢，市場差異化明顯。</p>
+<h4 id="（二）投入市場時間規劃"><a href="#（二）投入市場時間規劃" class="headerlink" title="（二）投入市場時間規劃"></a>（二）投入市場時間規劃</h4><p>本項目已完成核心功能開發，具備可運行演示版本，計劃在<strong>數碼港CCMF資助資金發放後3個月內正式推出市場</strong>，具體時間節點規劃如下：</p>
+<ol>
+<li><strong>第1個月：功能優化與測試階段</strong><ul>
+<li>基於數碼港及行業反饋，優化系統多模型評分邏輯、前端交互體驗及後台穩定性；</li>
+<li>與2-3家香港本地小型黑客松賽事主辦方合作，開展內部測試，收集用戶反饋並完成功能迭代。</li>
+</ul>
+</li>
+<li><strong>第2個月：合作對接與試運營階段</strong><ul>
+<li>完成與TON香港生態社區、香港本地創業孵化機構的合作對接，確定首批試運營合作賽事；</li>
+<li>上線系統付費企業版訂閱通道，完成私有化部署方案與價格體系制定；</li>
+<li>開展市場推廣，通過數碼港生態、賽事社群、行業媒體等渠道提升項目知名度。</li>
+</ul>
+</li>
+<li><strong>第3個月：正式上線與市場推廣階段</strong><ul>
+<li>正式推出Aura Judgement System基礎版與企業版，並在香港本地一場中型AI&#x2F;區塊鏈黑客松中全面落地使用；</li>
+<li>完成首批付費客戶的簽約與服務，實現項目商業化零的突破；</li>
+<li>發布系統開發者文檔，開放API接口，吸引第三方開發者接入生態。</li>
+</ul>
+</li>
+</ol>
+<p><strong>長期發展目標</strong>：</p>
+<ul>
+<li>短期（6-12個月）：成為香港本地黑客松&#x2F;科技賽事的主流智能評審工具，累計服務50+賽事，簽約20+付費企業客戶；</li>
+<li>中期（1-2年）：輻射大灣區創新賽事與創投市場，完成系統多語言優化，實現TON全球生態賽事的全面覆蓋；</li>
+<li>長期（2年以上）：成為全球AI與區塊鏈領域頂級的智能項目評估基礎設施，覆蓋賽事評審、創投初審、企業內部項目評估等多場景，打造行業標準化評判體系。</li>
+</ul>
+<h3 id="五、項目的創意及創新性（30-評審準則對應）"><a href="#五、項目的創意及創新性（30-評審準則對應）" class="headerlink" title="五、項目的創意及創新性（30%評審準則對應）"></a>五、項目的創意及創新性（30%評審準則對應）</h3><p>本項目屬於數碼科技領域的創新型基礎設施開發，核心創意與創新性體現在<strong>技術應用、產品設計、場景融合、模式創新</strong>四大方面，並基於新興的AI大模型與區塊鏈技術解決行業痛點，具備強烈的創新屬性與技術突破性。</p>
+<ol>
+<li><strong>技術應用創新：分層多模型AI評審架構</strong><br>首次將「低價模型初篩+高性能模型深度評審」的分層AI架構應用於賽事項目評審領域，既實現了批量項目的高效初審，又保證了評分的準確性與客觀性；同時通過多模型交叉打分、算術平均計算最終成績，有效避免單一模型的偏見與誤判，實現量化評分的科學性。</li>
+<li><strong>產品設計創新：版本化可追溯的規則引擎</strong><br>基於YAML打造版本化的評分規則引擎，所有評審標準均以代碼形式固化，支持規則上線、回滾、多版本對比，徹底解決傳統評審中「標準模糊、主觀隨意」的問題；同時評分結果以結構化JSON文件存證，支持後續審查、導出與爭議處理，實現評審全流程的可追溯、可審計。</li>
+<li><strong>場景融合創新：深度適配TON區塊鏈生態的錢包原生工作流</strong><br>作為TON生態AI智能體基礎設施，系統創新性地融入區塊鏈錢包感知的管理許可權驗證，通過X-Admin-Wallet請求頭實現管理後台的身份認證，完美適配區塊鏈開發者的使用習慣；同時針對TON生態黑客松與開發者工作流做定製化優化，打造首個專屬於區塊鏈AI生態的智能評審工具。</li>
+<li><strong>模式創新：重新定義黑客松項目評審的分工與效率</strong><br>創造性地提出「AI承擔批量重複工作，評委專注高價值決策」的評審新模式，將評委從繁瑣的項目材料初審、量化打分中解脫，專注於頂級項目評審、爭議項目裁決與優質項目挖掘，同時通過AI的文檔與代碼分析能力，有效識別「技術優秀但展示薄弱」的潛力項目，避免優質項目被遺漏，實現評審的公平性與全面性。</li>
+<li><strong>功能創新：多維度量化評分與可視化呈現</strong><br>基於「創新性、技術實現、商業價值、用戶體驗、落地可行性」五大核心維度打造量化評分體系，並通過5D雷達圖、S&#x2F;A&#x2F;B&#x2F;C&#x2F;D分級排名等形式實現評分結果的直觀可視化；同時支持項目的雙向對比、決賽圈對決機制，為賽事主辦方提供豐富的評審呈現形式。</li>
+</ol>
+<p>本項目的創新性不僅體現在技術與產品層面，更在於對傳統賽事評審模式的重构，通過AI與區塊鏈技術的融合，打造了一套更高效、更客觀、更公平的智能評審體系，符合數碼科技領域的創新發展趨勢，具備強大的技術推廣與模式復制價值。</p>
+<h3 id="六、社會責任（10-評審準則對應）"><a href="#六、社會責任（10-評審準則對應）" class="headerlink" title="六、社會責任（10%評審準則對應）"></a>六、社會責任（10%評審準則對應）</h3><p>本項目在商業化發展的同時，始終將社會責任作為核心發展目標之一，聚焦<strong>推動香港數碼科技創新、促進開源生態發展、提升創新賽事公平性、培養青年開發者能力</strong>四大方向，為香港數碼科技生態建設貢獻力量，具體體現如下：</p>
+<ol>
+<li><strong>推動香港AI與區塊鏈生態融合創新</strong><br>本項目作為AI大模型與區塊鏈技術融合的創新型工具，落地於香港數碼港生態，將進一步豐富香港數碼科技的產業生態，提升香港在AI與區塊鏈交叉領域的創新能力與產業影響力，助力香港建設國際創新科技中心。</li>
+<li><strong>促進開源生態與知識共享</strong><br>項目核心代碼與開發者文檔將部分開源，為香港青年開發者提供AI與區塊鏈融合開發的學習案例；同時系統將支持開源項目評審的定製化規則，鼓勵更多開源創新項目誕生，推動行業知識共享與技術交流。</li>
+<li><strong>提升創新賽事的公平性與包容性</strong><br>通過AI自動化評審，消除傳統人工評審中的主觀偏見、疲勞打分等不公平因素，讓每一個項目都能基於客觀的量化標準獲得評價；同時AI可深度分析項目代碼與技術文檔，讓「技術優秀但缺乏展示能力」的創業團隊與青年開發者獲得公平的競爭機會，提升創新賽事的包容性。</li>
+<li><strong>助力香港青年數碼科技人才培養</strong><br>與香港本地高校、青年創業孵化機構合作，免費為校園創新賽事、青年創業項目提供系統使用權，為香港青年開發者提供接觸前沿AI與區塊鏈技術的機會；同時通過線上講座、技術沙龍等形式，分享系統開發與應用經驗，培養香港青年的數碼科技開發能力與創新思維。</li>
+<li><strong>解決社會創新項目的評審效率問題</strong><br>為香港本地社會創新賽事、公益科技項目評審提供免費的基礎版服務，提升社會創新項目的評審效率，助力更多解決社會問題的數碼科技項目誕生，推動香港社會可持續發展。</li>
+</ol>
+<h3 id="七、項目實施計劃（6個月CCMF項目推行期對應）"><a href="#七、項目實施計劃（6個月CCMF項目推行期對應）" class="headerlink" title="七、項目實施計劃（6個月CCMF項目推行期對應）"></a>七、項目實施計劃（6個月CCMF項目推行期對應）</h3><p>本項目計劃在獲得CCMF資助後6個月內完成<strong>功能優化、市場落地、商業化啟動、生態合作</strong>四大核心目標，並按要求提交中期及終期工作報告，具體實施計劃如下：</p>
+<h4 id="第一階段（第1-2個月）：功能優化與內部測試（中期報告對應階段）"><a href="#第一階段（第1-2個月）：功能優化與內部測試（中期報告對應階段）" class="headerlink" title="第一階段（第1-2個月）：功能優化與內部測試（中期報告對應階段）"></a>第一階段（第1-2個月）：功能優化與內部測試（中期報告對應階段）</h4><ol>
+<li>利用資助資金完成服務器升級、多模型AI接口優化、系統容錯性提升，解決演示版本的潛在技術問題；</li>
+<li>與3-5家香港本地賽事主辦方、數碼港生態企業合作，開展系統內部測試，收集用戶反饋並完成至少2次功能迭代；</li>
+<li>完成系統中英文版本的優化，確保界面、文檔、報告的雙語準確性，適配香港國際化的市場需求；</li>
+<li>按要求提交<strong>中期工作報告</strong>，匯報項目進展、資金使用情況、測試反饋及後續調整計劃。</li>
+</ol>
+<h4 id="第二階段（第3-4個月）：正式上線與市場推廣"><a href="#第二階段（第3-4個月）：正式上線與市場推廣" class="headerlink" title="第二階段（第3-4個月）：正式上線與市場推廣"></a>第二階段（第3-4個月）：正式上線與市場推廣</h4><ol>
+<li>正式推出Aura Judgement System基礎版與企業版，並在香港本地中型黑客松賽事中落地使用，實現項目市場化零的突破；</li>
+<li>完成與數碼港、TON香港生態、香港設計中心等機構的合作對接，成為其推薦的賽事評審工具；</li>
+<li>開展多渠道市場推廣，包括行業媒體報道、賽事社群推廣、線下技術沙龍等，累計獲取100+註冊用戶、5+合作賽事；</li>
+<li>完成系統開發者文檔與API接口的正式上線，吸引首批第三方開發者接入。</li>
+</ol>
+<h4 id="第三階段（第5-6個月）：商業化啟動與生態擴展（終期報告對應階段）"><a href="#第三階段（第5-6個月）：商業化啟動與生態擴展（終期報告對應階段）" class="headerlink" title="第三階段（第5-6個月）：商業化啟動與生態擴展（終期報告對應階段）"></a>第三階段（第5-6個月）：商業化啟動與生態擴展（終期報告對應階段）</h4><ol>
+<li>簽約首批10+付費企業客戶，實現項目商業化盈利，驗證商業模式的可行性；</li>
+<li>完成系統私有化部署方案的優化，為大型企業與賽事主辦方提供定製化服務；</li>
+<li>將服務場景從黑客松延伸至創投機構項目初審，完成首個創投機構合作案例落地；</li>
+<li>按要求提交<strong>終期工作報告</strong>，匯報項目整體完成情況、資金使用明細、市場落地成果、商業化數據及長期發展規劃。</li>
+</ol>
+<h3 id="八、資助資金使用計劃（總額港幣100-000元）"><a href="#八、資助資金使用計劃（總額港幣100-000元）" class="headerlink" title="八、資助資金使用計劃（總額港幣100,000元）"></a>八、資助資金使用計劃（總額港幣100,000元）</h3><p>本項目將嚴格按照《CCMF申請指引及需知》要求，審慎、高效、專用於項目開發與市場落地，資助資金總額港幣100,000元的具體使用計劃如下，資金使用情況將在中期與終期報告中詳細披露：</p>
+<ol>
+<li><strong>技術開發與服務器成本（港幣50,000元）</strong><ul>
+<li>雲服務器升級、域名與SSL證書費用：港幣20,000元；</li>
+<li>AI模型接口調用費、開發工具訂閱費：港幣15,000元；</li>
+<li>核心功能迭代與技術優化的研發人力成本：港幣15,000元。</li>
+</ul>
+</li>
+<li><strong>市場推廣與合作成本（港幣30,000元）</strong><ul>
+<li>行業媒體報道、社群推廣費用：港幣10,000元；</li>
+<li>線下技術沙龍、賽事合作推廣費用：港幣12,000元；</li>
+<li>產品宣傳物料、演示版本優化費用：港幣8,000元。</li>
+</ul>
+</li>
+<li><strong>文檔與生態建設成本（港幣15,000元）</strong><ul>
+<li>中英文開發者文檔、產品使用手冊編寫費用：港幣7,000元；</li>
+<li>開源代碼維護、第三方開發者生態建設費用：港幣8,000元。</li>
+</ul>
+</li>
+<li><strong>項目管理與備用資金（港幣5,000元）</strong><br>用於項目日常管理、溝通協調及潛在的緊急需求，確保項目按計劃推進。</li>
+</ol>
+<h3 id="九、項目成果預期"><a href="#九、項目成果預期" class="headerlink" title="九、項目成果預期"></a>九、項目成果預期</h3><ol>
+<li><strong>技術成果</strong>：完成Aura Judgement System的正式商業版本開發，具備穩定的多模型AI評審、規則引擎、錢包感知管理等核心功能，系統穩定性達到商業化使用標準，並開放API接口與開發者生態。</li>
+<li><strong>市場成果</strong>：成為香港本地黑客松&#x2F;科技賽事的主流智能評審工具，累計服務10+賽事，簽約10+付費企業客戶，累計註冊用戶超200人，在香港AI與區塊鏈生態形成一定的品牌知名度。</li>
+<li><strong>商業成果</strong>：實現項目商業化零的突破，完成首批付費客戶簽約，驗證「免費基礎版+付費企業版」的商業模式可行性，為後續市場擴展與盈利增長奠定基礎。</li>
+<li><strong>社會成果</strong>：為香港本地數場校園創新賽事、社會創新賽事提供免費評審服務，助力香港青年數碼科技人才培養，推動香港AI與區塊鏈生態的融合創新。</li>
+</ol>
+<h3 id="十、承諾與聲明"><a href="#十、承諾與聲明" class="headerlink" title="十、承諾與聲明"></a>十、承諾與聲明</h3><ol>
+<li>本申請人確認所提交的全部信息真實、完整、準確，無任何虛假記載、誤導性陳述或重大遺漏；</li>
+<li>如獲得CCMF資助，將嚴格按照本申請書的項目實施計劃與資金使用計劃推進項目，並專款專用，不將資助資金用於任何違法或不符合規定的用途；</li>
+<li>嚴格遵守《CCMF申請指引及需知》的全部條款，按要求提交中期、終期工作報告，接受數碼港的監督與審核；</li>
+<li>保證本項目為原創作品，未侵犯任何第三方的知識產權，如發生知識產權糾紛，由本申請人承擔全部責任；</li>
+<li>嚴格遵守香港法例及相關司法管轄權法例，遵守《防止賄賂條例》，確保項目實施過程的公開、公平、正直。</li>
+</ol>
+<p><strong>申請人簽名&#x2F;蓋章</strong>：________________________<br><strong>日期</strong>：______年____月____日</p>
+<h3 id="附件清單"><a href="#附件清單" class="headerlink" title="附件清單"></a>附件清單</h3><ol>
+<li>申請人身份證明文件（個人）&#x2F;公司註冊文件（公司）；</li>
+<li>項目團隊成員簡歷及相關資歷證明；</li>
+<li>Aura Judgement System演示版本截圖、官方首頁&#x2F;排名頁鏈接；</li>
+<li>項目核心功能演示視頻；</li>
+<li>其他相關佐證文件。</li>
+</ol>
+<p>我可以帮你将这份申请書优化为<strong>數碼港官方格式的可编辑文档</strong>，同时补充附件所需的核心材料说明，需要吗？</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/03/28/2930818764.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">CCMF-郴郴文库</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/03/23/1665343098.html">
+                        <span class="hidden-mobile">琴棋书画修仙模拟器 — 产品需求文档（PRD）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "CCMF-Aura"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

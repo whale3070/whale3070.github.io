@@ -1,0 +1,865 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>CCMF-郴郴文库 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="CCMF-郴郴文库">
+                      
+                        CCMF-郴郴文库
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-03-28 06:49" pubdate>
+        2026年3月28日 早上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      8k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      113
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">CCMF-郴郴文库</h1>
+            
+            <div class="markdown-body">
+              <h1 id="郴郴文库-MVP-项目-·-CCMF-申报文档（中英双语）"><a href="#郴郴文库-MVP-项目-·-CCMF-申报文档（中英双语）" class="headerlink" title="郴郴文库 MVP 项目 · CCMF 申报文档（中英双语）"></a>郴郴文库 MVP 项目 · CCMF 申报文档（中英双语）</h1><h2 id="文档说明与版本信息"><a href="#文档说明与版本信息" class="headerlink" title="文档说明与版本信息"></a>文档说明与版本信息</h2><p>郴郴文库MVP项目（Web3创作者主权工作台）CCMF申报文档（中英文双语版）</p>
+<p><strong>文档参考：</strong> ENC.RF.035a（对应数码港CCMF-香港计划申请指引及需知）</p>
+<p><strong>修订版本：</strong> 4  <strong>生效日期：</strong> 2025年2月26日</p>
+<p><strong>申报单位&#x2F;申请人：</strong>（可填写个人或香港注册公司信息）  <strong>联系方式：</strong>（对应申报人电话及邮箱）</p>
+<blockquote>
+<p><strong>注：</strong> 本申报文档中英文版本如有歧异，概以英文版本为准（依据CCMF申请指引要求）；中文译本仅供参考，核心内容严格遵循《数码港创意微型基金(CCMF)-香港计划申请指引及需知》。</p>
+</blockquote>
+<hr>
+<h2 id="Section-1-Project-Overview-第一部分：项目概述"><a href="#Section-1-Project-Overview-第一部分：项目概述" class="headerlink" title="Section 1: Project Overview &#x2F; 第一部分：项目概述"></a>Section 1: Project Overview &#x2F; 第一部分：项目概述</h2><h3 id="1-1-Project-Name-项目名称"><a href="#1-1-Project-Name-项目名称" class="headerlink" title="1.1 Project Name &#x2F; 项目名称"></a>1.1 Project Name &#x2F; 项目名称</h3><p><strong>Chinese:</strong> 郴郴文库MVP项目——基于Web3与AI版权免疫协议的0抽成创作者合规工作台</p>
+<p><strong>English:</strong> Chenchen Document Library MVP Project - Zero Commission Creator Compliance Workbench Based on Web3 and AI Copyright Immunity Protocol</p>
+<h3 id="1-2-Project-Nature-项目性质"><a href="#1-2-Project-Nature-项目性质" class="headerlink" title="1.2 Project Nature &#x2F; 项目性质"></a>1.2 Project Nature &#x2F; 项目性质</h3><p><strong>Chinese:</strong> 本项目属于数码科技领域，目前处于构思及早期开发阶段，未接受香港设计中心或香港科技园公司运营的任何种子资金计划、前期培育计划及培育计划的资助要约或支持，完全符合CCMF-香港计划对项目性质的核心要求。</p>
+<p><strong>English:</strong> This project belongs to the digital technology field and is currently in the conception and early development stage. It has not received any funding offers or support from any seed funding programs, pre-incubation programs, or incubation programs operated by the Hong Kong Design Centre or Hong Kong Science and Technology Parks Corporation, fully complying with the core requirements of the CCMF-Hong Kong Program for project nature.</p>
+<h3 id="1-3-Core-Positioning-核心定位"><a href="#1-3-Core-Positioning-核心定位" class="headerlink" title="1.3 Core Positioning &#x2F; 核心定位"></a>1.3 Core Positioning &#x2F; 核心定位</h3><p><strong>Chinese:</strong> 全球首个基于Web3协议与AI版权免疫技术的“0抽成”创作者合规工作台，定位为「创作者主权基础设施」，践行“平台是容器，作者是恒星”的“恒星引力”逻辑，核心解决传统内容平台高额抽成、“融梗洗稿”监管真空、跨境变现困难、创作者迁移成本高四大行业顽疾，打造“创作-存证-防御-溯源-仲裁-结算-迁移”完整生态，助力香港建设国际知识产权贸易中心及国际创新科技中心。</p>
+<p><strong>English:</strong> The world’s first “zero commission” creator compliance workbench based on Web3 protocol and AI copyright immunity technology, positioned as “Creator Sovereignty Infrastructure”. It practices the “Stellar Gravity” logic that “the platform is a container, and the author is a star”, focusing on solving global industry “incurable diseases” such as plagiarism&#x2F;paraphrasing regulatory vacuums, high commission rates, difficult cross-border monetization, and high creator migration costs. It builds a complete ecosystem of “creation-deposit-defense-traceability-arbitration-settlement-migration” to help Hong Kong build an international intellectual property trade center and an international innovative technology center.</p>
+<h3 id="1-4-Project-Significance-项目意义"><a href="#1-4-Project-Significance-项目意义" class="headerlink" title="1.4 Project Significance &#x2F; 项目意义"></a>1.4 Project Significance &#x2F; 项目意义</h3><p><strong>Chinese:</strong> 1.  社会价值：打破传统平台对内容版权的垄断，0抽成模式让创作者拿回被抽走的收益，保护原创积极性；通过AI+区块链技术解决洗稿、融梗、盗版等行业顽疾，推动内容产业规范化发展，助力香港文创数字化转型。2.  产业价值：撬动500亿网文及原创内容市场，吸引全球数字游民及创作者入驻香港，完善香港Web3生态布局，契合香港“知识产权贸易中心”建设目标。3.  创新价值：将Web3、AI、区块链技术与版权保护深度融合，打造“版权免疫系统”，实现版权保护从“事后存证”到“实时防御”的升级，树立Web3技术在版权领域的合规应用标杆。</p>
+<p><strong>English:</strong> 1.  Social Value: Break the monopoly of traditional platforms on content copyright, and the zero-commission model allows creators to retrieve the income taken away, protecting the enthusiasm for original creation; solve industry pain points such as plagiarism, idea plagiarism, and piracy through AI + blockchain technology, promote the standardized development of the content industry, and assist Hong Kong’s cultural and creative digital transformation. 2.  Industrial Value: Leverage the 50 billion Hong Kong dollar online literature and original content market, attract global digital nomads and creators to settle in Hong Kong, improve Hong Kong’s Web3 ecological layout, and align with Hong Kong’s goal of building an “international intellectual property trade center”. 3.  Innovation Value: Integrate Web3, AI, and blockchain technologies with copyright protection in depth, build a “Copyright Immunity System”, realize the upgrade of copyright protection from “post-event deposit” to “real-time defense”, and set a benchmark for the compliant application of Web3 technology in the copyright field.</p>
+<hr>
+<h2 id="Section-2-Applicant-Eligibility-第二部分：申请人资质"><a href="#Section-2-Applicant-Eligibility-第二部分：申请人资质" class="headerlink" title="Section 2: Applicant Eligibility &#x2F; 第二部分：申请人资质"></a>Section 2: Applicant Eligibility &#x2F; 第二部分：申请人资质</h2><p><strong>Chinese:</strong> 本项目申请人（个人&#x2F;公司）完全符合《数码港创意微型基金(CCMF)-香港计划申请指引及需知》第1.1至1.5条的所有要求，具体说明如下：</p>
+<p><strong>English:</strong> The applicant (individual&#x2F;company) of this project fully complies with all the requirements of Articles 1.1 to 1.5 of the “Cyberport Creative Micro Fund (CCMF) - Hong Kong Program Application Guidelines and Notes”, and the specific explanation is as follows:</p>
+<h3 id="2-1-Applicant-Type-申请人类型"><a href="#2-1-Applicant-Type-申请人类型" class="headerlink" title="2.1 Applicant Type &#x2F; 申请人类型"></a>2.1 Applicant Type &#x2F; 申请人类型</h3><p><strong>Chinese:</strong> □ 个人申请人：持有香港居民身份证，年满18周岁及以上，无任何不符合CCMF申请要求的关联项目或任职经历。</p>
+<p>□ 公司申请人：于香港成立及注册（或正在注册成立）的有限公司，所有创始人&#x2F;共同创始人及董事年满18周岁及以上，无任何不符合CCMF申请要求的关联项目或任职经历。</p>
+<p><strong>English:</strong> □ Individual Applicant: Holds a Hong Kong Identity Card, is 18 years of age or above, and has no associated projects or employment experience that do not meet the CCMF application requirements.</p>
+<p>□ Company Applicant: A limited company established and registered (or in the process of registration) in Hong Kong. All founders&#x2F;co-founders and directors are 18 years of age or above, and have no associated projects or employment experience that do not meet the CCMF application requirements.</p>
+<h3 id="2-2-Eligibility-Confirmation-资质确认"><a href="#2-2-Eligibility-Confirmation-资质确认" class="headerlink" title="2.2 Eligibility Confirmation &#x2F; 资质确认"></a>2.2 Eligibility Confirmation &#x2F; 资质确认</h3><p><strong>Chinese:</strong> 1.  申请人（个人&#x2F;公司创始人&#x2F;董事）未同时担任香港设计中心或香港科技园公司运营的任何种子资金计划、前期培育计划或培育计划资助的相同或相似项目，或性质相同或相似公司的创始人&#x2F;共同创始人&#x2F;董事。</p>
+<ol start="2">
+<li><p>申请人未使用曾获得CCMF计划（包括CCMF-香港计划、数码港大湾区青年创业计划及「数码港‧大学伙伴合作计划」）或数码港培育计划（CIP）资助的相同或相似项目申请本次CCMF资助。</p>
+</li>
+<li><p>申请人未同时申请「数码港创意微型基金」（CCMF）及「数码港培育计划」（CIP），若有相关申请，将严格遵循数码港相关规定。</p>
+</li>
+</ol>
+<p><strong>English:</strong> 1.  The applicant (individual&#x2F;company founder&#x2F;director) does not simultaneously serve as the founder&#x2F;co-founder&#x2F;director of the same or similar projects funded by any seed funding programs, pre-incubation programs, or incubation programs operated by the Hong Kong Design Centre or Hong Kong Science and Technology Parks Corporation, or companies of the same or similar nature. 2.  The applicant has not used the same or similar projects that have received funding from the CCMF program (including CCMF-Hong Kong Program, Cyberport Greater Bay Area Youth Entrepreneurship Program, and “Cyberport · University Partnership Program”) or Cyberport Incubation Program (CIP) to apply for this CCMF funding. 3.  The applicant has not applied for both the “Cyberport Creative Micro Fund” (CCMF) and the “Cyberport Incubation Program” (CIP) at the same time; if there is a relevant application, it will strictly follow the relevant regulations of Cyberport.</p>
+<h3 id="2-3-Supporting-Documents-佐证材料"><a href="#2-3-Supporting-Documents-佐证材料" class="headerlink" title="2.3 Supporting Documents &#x2F; 佐证材料"></a>2.3 Supporting Documents &#x2F; 佐证材料</h3><p><strong>Chinese:</strong> 1.  个人申请人：香港居民身份证复印件、个人简历（含相关技术&#x2F;运营经验）。</p>
+<ol start="2">
+<li><p>公司申请人：香港公司注册证书、商业登记证、董事&#x2F;创始人身份证明、公司章程。</p>
+</li>
+<li><p>补充材料：项目核心技术说明、团队介绍、前期开发证明（如有）、合规承诺函（承诺符合CCMF所有申请要求）。</p>
+</li>
+</ol>
+<p><strong>English:</strong> 1.  Individual Applicant: Copy of Hong Kong Identity Card, personal resume (including relevant technical&#x2F;operational experience). 2.  Company Applicant: Hong Kong company registration certificate, business registration certificate, identity certificates of directors&#x2F;founders, company articles of association. 3.  Supplementary Materials: Project core technology description, team introduction, preliminary development proof (if any), compliance commitment letter (committing to meet all CCMF application requirements).</p>
+<hr>
+<h2 id="Section-3-Project-Core-Content-第三部分：项目核心内容"><a href="#Section-3-Project-Core-Content-第三部分：项目核心内容" class="headerlink" title="Section 3: Project Core Content &#x2F; 第三部分：项目核心内容"></a>Section 3: Project Core Content &#x2F; 第三部分：项目核心内容</h2><h3 id="3-1-Core-Pain-Points-Solved-解决的核心痛点"><a href="#3-1-Core-Pain-Points-Solved-解决的核心痛点" class="headerlink" title="3.1 Core Pain Points Solved &#x2F; 解决的核心痛点"></a>3.1 Core Pain Points Solved &#x2F; 解决的核心痛点</h3><p><strong>Chinese:</strong> 针对传统内容产业长期存在的四大顽疾，结合Web3、AI、区块链技术，提供精准解决方案，完全契合CCMF对项目“解决行业痛点、具备创新价值”的评审偏好：</p>
+<ol>
+<li><p>高额抽成痛点：传统平台抽成比例高达10%-50%，挤压创作者收益，本项目实行0抽成模式，仅收取1%左右的工具服务费，让创作者拿回全部核心收益。</p>
+</li>
+<li><p>版权保护痛点：传统版权存证流程繁琐、成本高，洗稿、融梗、盗版难以溯源，维权成本高（数万港币+半年时间），传统模式下人工审核（慢）+ 事后起诉（贵）&#x3D; 抄袭者稳赚，原创者饿死[cite: 3]；本项目打造“版权免疫系统”，实现AI实时指纹（快）+ 零成本定位（准）&#x3D; 让抄袭在经济上无利可图[cite: 3]，将维权成本降至0，效率提升100倍。</p>
+</li>
+<li><p>跨境变现痛点：创作者跨境结算汇率损耗大、到账慢、门槛高，本项目搭建法币&#x2F;加密货币双轨支付系统，实现全球秒级结算，契合香港Web3新政合规要求。</p>
+</li>
+<li><p>迁移成本痛点：传统平台创作者迁移难度大，粉丝资产无法私有化，本项目提供SEO顶级优化、社交迁移工具，让创作者“笔名就是关键词”，粉丝一键迁移，打破平台流量垄断。</p>
+</li>
+</ol>
+<p><strong>English:</strong> Aiming at the four major long-standing pain points in the traditional content industry, combined with Web3, AI, and blockchain technologies, we provide precise solutions, which fully align with CCMF’s review preference for projects that “solve industry pain points and have innovative value”:</p>
+<ol>
+<li>High Commission Pain Point: The commission rate of traditional platforms is as high as 10%-50%, squeezing creators’ income. This project implements a zero-commission model, only charging about 1% tool service fee, allowing creators to retrieve all core income. 2.  Copyright Protection Pain Point: The traditional copyright deposit process is cumbersome and costly, and it is difficult to trace plagiarism, idea plagiarism, and piracy. The cost of rights protection is high (tens of thousands of Hong Kong dollars + half a year). Under the traditional model, manual review (slow) + post-event litigation (expensive) &#x3D; plagiarists make steady profits while original creators starve[cite: 3]; this project builds a “Copyright Immunity System”, realizing AI real-time fingerprinting (fast) + zero-cost positioning (accurate) &#x3D; making plagiarism economically unprofitable[cite: 3], reducing the cost of rights protection to zero and increasing efficiency by 100 times. 3.  Cross-border Monetization Pain Point: Creators face high exchange rate losses, slow arrival, and high thresholds in cross-border settlement. This project builds a dual-track payment system for fiat currency&#x2F;cryptocurrency to realize global second-level settlement, complying with the requirements of Hong Kong’s Web3 new policy. 4.  Migration Cost Pain Point: It is difficult for creators on traditional platforms to migrate, and fan assets cannot be privatized. This project provides top-level SEO optimization and social migration tools, making creators’ “pen names keywords” and fans migrate with one click, breaking the platform traffic monopoly.</li>
+</ol>
+<h3 id="3-2-Core-Innovation-Points-核心创新点（契合CCMF评审维度）"><a href="#3-2-Core-Innovation-Points-核心创新点（契合CCMF评审维度）" class="headerlink" title="3.2 Core Innovation Points &#x2F; 核心创新点（契合CCMF评审维度）"></a>3.2 Core Innovation Points &#x2F; 核心创新点（契合CCMF评审维度）</h3><p><strong>Chinese:</strong> 本项目核心创新聚焦“技术创新、模式创新、生态创新”，精准匹配CCMF评审四大维度（团队、模式、创新、社会责任），具体如下：</p>
+<p><strong>English:</strong> The core innovation of this project focuses on “technological innovation, model innovation, and ecological innovation”, which accurately matches the four CCMF review dimensions (team, model, innovation, social responsibility). The details are as follows:</p>
+<h4 id="3-2-1-Technological-Innovation-Copyright-Immunity-System-技术创新：版权免疫系统"><a href="#3-2-1-Technological-Innovation-Copyright-Immunity-System-技术创新：版权免疫系统" class="headerlink" title="3.2.1 Technological Innovation: Copyright Immunity System &#x2F; 技术创新：版权免疫系统"></a>3.2.1 Technological Innovation: Copyright Immunity System &#x2F; 技术创新：版权免疫系统</h4><p><strong>Chinese:</strong> 全球首创“打疫苗”式版权保护模式，区别于传统平台“事后存证、事后维权”的被动模式，核心依托两大AI技术，构建行业难以复制的技术壁垒：本项目旨在利用 AI 彻底解决晋江、起点等头部平台数十年无法根治的‘换皮&#x2F;洗稿’抄袭问题，是目前行业内真正能规模化落地的版权免疫路径。[cite: 3]</p>
+<ol>
+<li><p>AI动态分发溯源（AI-Driven Dynamic Forensic Watermarking）：这不是简单的水印，而是“内容级微分处理 (Differential Content Generation)”。通过 LLM 在保持文学原意的基础上，对每个读者的阅读版本进行语序、近义词的微观调整，实现“文出有源，盗可追踪”。一旦作品被截图、抓取或二次发布，系统可直接定位至泄露者的唯一 ID[cite: 3]。</p>
+</li>
+<li><p>语义级冲突检测（Semantic-Level Plagiarism Analysis）：解决晋江、起点等巨头无法处理的“洗稿、换皮、融梗”问题，超越传统字符串比对，提取作品“叙事结构与人物关系矩阵”，精准识别洗稿、融梗等隐性抄袭，准确率≥95%，比对速度≤5秒&#x2F;篇，从源头杜绝抄袭行为[cite: 3]。</p>
+</li>
+</ol>
+<p>同时，对接香港合规区块链节点（Polygon&#x2F;Arweave），实现作品发文即存证，生成具备法律效力的存证凭证，符合香港《电子交易条例》，可直接用于版权维权。</p>
+<p><strong>English:</strong> The world’s first “vaccination-style” copyright protection model, different from the passive model of “post-event deposit and post-event rights protection” of traditional platforms. It relies on two core AI technologies to build an industry-unreplicable technical barrier: This project aims to use AI to completely solve the long-standing “plagiarism&#x2F;paraphrasing” problem that leading platforms such as Jinjiang and Qidian have been unable to cure for decades, and it is the only truly scalable copyright immunity path in the industry currently.[cite: 3]</p>
+<ol>
+<li>AI-Driven Dynamic Forensic Watermarking: This is not a simple watermark, but “Differential Content Generation”. Through LLM, on the basis of maintaining the original literary meaning, micro-adjustments of word order and synonyms are made to each reader’s reading version, realizing “every work has a source, and piracy can be traced”. Once the work is screenshot, crawled or re-published, the system can directly locate the unique ID of the leaker[cite: 3]. 2.  Semantic-Level Plagiarism Analysis: Solving the “plagiarism, rebranding, and idea plagiarism” problems that giants such as Jinjiang and Qidian cannot handle. Beyond traditional string comparison, it extracts the “narrative structure and character relationship matrix” of the work, accurately identifies hidden plagiarism such as plagiarism and idea plagiarism, with an accuracy rate of ≥95% and a comparison speed of ≤5 seconds&#x2F;article, eliminating plagiarism from the source[cite: 3]. At the same time, it connects to Hong Kong compliant blockchain nodes (Polygon&#x2F;Arweave) to realize automatic deposit of works upon publication, generating legally effective deposit certificates that comply with Hong Kong’s Electronic Transactions Ordinance and can be directly used for Zero-Friction Enforcement of copyright protection.</li>
+</ol>
+<h4 id="3-2-2-Model-Innovation-Zero-Commission-Dual-Track-Settlement-模式创新：0抽成-双轨结算"><a href="#3-2-2-Model-Innovation-Zero-Commission-Dual-Track-Settlement-模式创新：0抽成-双轨结算" class="headerlink" title="3.2.2 Model Innovation: Zero Commission + Dual-Track Settlement &#x2F; 模式创新：0抽成+双轨结算"></a>3.2.2 Model Innovation: Zero Commission + Dual-Track Settlement &#x2F; 模式创新：0抽成+双轨结算</h4><p><strong>Chinese:</strong> 1.  0抽成模式：打破传统平台分成垄断，用户打赏&#x2F;订阅收入（除1%工具服务费外）全部直达创作者账户，无延迟、无隐性扣费，助力创作者拿回被传统平台抽走的收益，契合“赋能创作者”的社会价值导向。</p>
+<ol start="2">
+<li><p>双轨支付结算：整合Stripe&#x2F;PayPal（法币）与USDT&#x2F;DOT（加密货币），搭建“统一创作者结算中心”，实现全球秒级结算，降低汇率损耗，解决跨境变现痛点，严格遵循香港金融监管及Web3合规要求。</p>
+</li>
+<li><p>商业闭环：通过AI增值工具费、存证服务费、技术网关费实现盈利，不与创作者争利，既保证项目可持续运营，又凸显“平台服务创作者”的核心定位。</p>
+</li>
+</ol>
+<p><strong>English:</strong> 1.  Zero Commission Model: Break the profit-sharing monopoly of traditional platforms. All user rewards&#x2F;subscription income (except for 1% tool service fee) directly reaches the creator’s account without delay or hidden deductions, helping creators retrieve the income taken away by traditional platforms, which aligns with the social value orientation of “empowering creators”. 2.  Dual-Track Payment and Settlement: Integrate Stripe&#x2F;PayPal (fiat currency) and USDT&#x2F;DOT (cryptocurrency) to build a “Unified Creator Clearing House”, realizing global second-level settlement, reducing exchange rate losses, solving cross-border monetization pain points, and strictly following Hong Kong’s financial supervision and Web3 compliance requirements. 3.  Business Closed Loop: Profit through AI value-added tool fees, deposit service fees, and technical gateway fees, without competing with creators for profits, ensuring the sustainable operation of the project and highlighting the core positioning of “the platform serves creators”.</p>
+<h4 id="3-2-3-Ecological-Innovation-Full-Industry-Chain-Ecosystem-生态创新：全产业链生态"><a href="#3-2-3-Ecological-Innovation-Full-Industry-Chain-Ecosystem-生态创新：全产业链生态" class="headerlink" title="3.2.3 Ecological Innovation: Full Industry Chain Ecosystem &#x2F; 生态创新：全产业链生态"></a>3.2.3 Ecological Innovation: Full Industry Chain Ecosystem &#x2F; 生态创新：全产业链生态</h4><p><strong>Chinese:</strong> 联动Aura裁决系统、FireflyQR等自有项目，构建“创作-存证-防御-溯源-仲裁-结算-迁移”完整生态，形成闭环优势：</p>
+<ol>
+<li><p>前端：创作者工作台（发文、存证、版权管理、收益查看）、用户阅读端（免费阅读、版权查验）；</p>
+</li>
+<li><p>中端：版权免疫系统（实时防御、AI溯源、自动化维权）、双轨支付结算系统、SEO优化及社交迁移工具；</p>
+</li>
+<li><p>后端：区块链存证、Aura线上仲裁、合规保障体系，实现全流程自动化、轻量化，无需人工干预。</p>
+</li>
+</ol>
+<p>同时，预留B端入口，为出版社、影视公司提供“净版权”内容库服务，拓展商业边界，助力香港知识产权贸易发展。</p>
+<p><strong>English:</strong> Linking with its own projects such as Aura Arbitration System and FireflyQR, it builds a complete ecosystem of “creation-deposit-defense-traceability-arbitration-settlement-migration” to form a closed-loop advantage:</p>
+<ol>
+<li>Frontend: Creator workbench (publishing, deposit, copyright management, income viewing), user reading terminal (free reading, copyright inspection); 2.  Mid-end: Copyright Immunity System (real-time defense, AI traceability, automated rights protection), dual-track payment and settlement system, SEO optimization and social migration tools; 3.  Backend: Blockchain deposit, Aura online arbitration, compliance guarantee system, realizing full-process automation and lightweight operation without manual intervention. At the same time, a B-end entrance is reserved to provide “clean copyright” content library services for publishing houses and film and television companies, expand business boundaries, and assist the development of Hong Kong’s intellectual property trade.</li>
+</ol>
+<h3 id="3-3-Project-Development-Plan-项目开发计划（3个月MVP上线，契合CCMF落地要求）"><a href="#3-3-Project-Development-Plan-项目开发计划（3个月MVP上线，契合CCMF落地要求）" class="headerlink" title="3.3 Project Development Plan &#x2F; 项目开发计划（3个月MVP上线，契合CCMF落地要求）"></a>3.3 Project Development Plan &#x2F; 项目开发计划（3个月MVP上线，契合CCMF落地要求）</h3><h4 id="里程碑时间表（12-周）"><a href="#里程碑时间表（12-周）" class="headerlink" title="里程碑时间表（12 周）"></a>里程碑时间表（12 周）</h4><table>
+<thead>
+<tr>
+<th>Stage &#x2F; 阶段</th>
+<th>Time &#x2F; 时间</th>
+<th>Core Tasks &#x2F; 核心任务</th>
+<th>Deliverables &#x2F; 交付物</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Requirement Confirmation &amp; Design &#x2F; 需求确认与设计</td>
+<td>Weeks 1-2 &#x2F; 第1-2周</td>
+<td>Confirm core function requirements, complete UI&#x2F;UX design, formulate technical plans, connect payment SDK and blockchain nodes, and debug AI models. &#x2F; 确认核心功能需求，完成UI&#x2F;UX设计，制定技术方案，对接支付SDK及区块链节点，调试AI模型。</td>
+<td>Design drawings, technical plans, AI model test reports. &#x2F; 设计图、技术方案、AI模型测试报告。</td>
+</tr>
+<tr>
+<td>Core Function Development &#x2F; 核心功能开发</td>
+<td>Weeks 3-10 &#x2F; 第3-10周</td>
+<td>Develop core functions including blockchain deposit, copyright immunity system, dual-track payment, SEO optimization, and creator migration tools; complete the development of creator terminal and user terminal. &#x2F; 开发区块链存证、版权免疫系统、双轨支付、SEO优化、创作者迁移工具等核心功能；完成创作者端、用户端开发。</td>
+<td>Functional prototype, core code, test version. &#x2F; 功能原型、核心代码、测试版本。</td>
+</tr>
+<tr>
+<td>Testing &amp; Optimization &#x2F; 测试与优化</td>
+<td>Week 11 &#x2F; 第11周</td>
+<td>Conduct functional, performance and compliance testing; fix bugs; optimize user experience; prepare CCMF application materials (demo video, project introduction). &#x2F; 进行功能、性能、合规测试；修复Bug；优化用户体验；准备CCMF申报材料（演示视频、项目介绍）。</td>
+<td>Test report, optimized version, CCMF application materials. &#x2F; 测试报告、优化版本、CCMF申报材料。</td>
+</tr>
+<tr>
+<td>Launch &amp; Debugging &#x2F; 上线与调试</td>
+<td>Week 12 &#x2F; 第12周</td>
+<td>Official launch, online debugging, collect user feedback, optimize product experience, and ensure compliance with CCMF review requirements. &#x2F; 正式上线、线上调试，收集用户反馈，优化产品体验，确保符合CCMF评审要求。</td>
+<td>Officially launched product, operation report, user feedback summary. &#x2F; 正式上线产品、运营报告、用户反馈总结。</td>
+</tr>
+</tbody></table>
+<h3 id="3-4-Post-MVP-Iteration-Plan-MVP上线后迭代计划"><a href="#3-4-Post-MVP-Iteration-Plan-MVP上线后迭代计划" class="headerlink" title="3.4 Post-MVP Iteration Plan &#x2F; MVP上线后迭代计划"></a>3.4 Post-MVP Iteration Plan &#x2F; MVP上线后迭代计划</h3><p><strong>Chinese:</strong> 1.  V1.1版本（上线后1个月）：优化AI比对、溯源功能，提升识别准确率；丰富海报模板，优化SEO排名稳定性；增加粉丝互动功能。</p>
+<ol start="2">
+<li><p>V1.2版本（上线后3个月）：推出付费阅读功能，完善AI增值工具包；拓展插画、学术论文等细分品类。</p>
+</li>
+<li><p>V2.0版本（上线后6个月）：完善B端授权体系，搭建创作者孵化体系；升级版权免疫系统，实现跨平台溯源。</p>
+</li>
+</ol>
+<p>长期目标：打造Web3版权保护合规标杆，吸引全球创作者入驻，助力香港建设国际知识产权贸易中心，冲击数码港培育计划（CIP）。</p>
+<p><strong>English:</strong> 1.  Version V1.1 (1 month after launch): Optimize AI comparison and traceability functions to improve recognition accuracy; enrich poster templates and optimize SEO ranking stability; add fan interaction functions. 2.  Version V1.2 (3 months after launch): Launch paid reading function and improve AI value-added tool package; expand segmented categories such as illustrations and academic papers. 3.  Version V2.0 (6 months after launch): Improve the B-end authorization system and build a creator incubation system; upgrade the Copyright Immunity System to realize cross-platform traceability. Long-term goal: Build a benchmark for compliant Web3 copyright protection, attract global creators to settle in, help Hong Kong build an international intellectual property trade center, and strive for the Cyberport Incubation Program (CIP).</p>
+<hr>
+<h2 id="Section-4-Compliance-and-Risk-Control-第四部分：合规与风险控制"><a href="#Section-4-Compliance-and-Risk-Control-第四部分：合规与风险控制" class="headerlink" title="Section 4: Compliance and Risk Control &#x2F; 第四部分：合规与风险控制"></a>Section 4: Compliance and Risk Control &#x2F; 第四部分：合规与风险控制</h2><h3 id="4-1-Compliance-Commitment-合规承诺"><a href="#4-1-Compliance-Commitment-合规承诺" class="headerlink" title="4.1 Compliance Commitment &#x2F; 合规承诺"></a>4.1 Compliance Commitment &#x2F; 合规承诺</h3><p><strong>Chinese:</strong> 本项目严格遵循《数码港创意微型基金(CCMF)-香港计划申请指引及需知》及香港相关法律法规，具体合规要点如下：</p>
+<ol>
+<li><p>版权合规：所有作品由创作者声明原创，平台仅提供存证、展示等服务，不拥有版权；对侵权作品及时下架，配合维权；差异化版本生成不改变作品核心原意，不侵犯创作者版权。</p>
+</li>
+<li><p>数据合规：用户数据（实名认证、作品、资金信息）加密存储，符合香港个人数据保护条例（PDPO），不泄露、不滥用。</p>
+</li>
+<li><p>支付合规：整合合规支付服务商，严格遵循香港金融监管要求，杜绝洗钱等风险，契合香港Web3新政。</p>
+</li>
+<li><p>存证合规：对接香港合规区块链节点，存证凭证具备法律效力，符合香港《电子交易条例》。</p>
+</li>
+<li><p>其他合规：遵循搜索引擎优化规则，不采用恶意优化手段；AI模型应用符合香港AI伦理要求；广告投放仅为公益广告，符合香港广告法。</p>
+</li>
+</ol>
+<p><strong>English:</strong> This project strictly follows the “Cyberport Creative Micro Fund (CCMF) - Hong Kong Program Application Guidelines and Notes” and relevant Hong Kong laws and regulations. The specific compliance points are as follows:</p>
+<ol>
+<li>Copyright Compliance: All works are declared original by creators, and the platform only provides services such as deposit and display, and does not own the copyright; infringing works are removed in a timely manner to cooperate with rights protection; the generation of differentiated versions does not change the core original meaning of the works and does not infringe on the creators’ copyright. 2.  Data Compliance: User data (real-name authentication, works, fund information) is encrypted and stored, complying with Hong Kong’s Personal Data (Privacy) Ordinance (PDPO), and will not be leaked or misused. 3.  Payment Compliance: Integrate compliant payment service providers, strictly follow Hong Kong’s financial supervision requirements, eliminate risks such as money laundering, and comply with Hong Kong’s Web3 new policy. 4.  Deposit Compliance: Connect to Hong Kong compliant blockchain nodes, and the deposit certificates have legal effect, complying with Hong Kong’s Electronic Transactions Ordinance. 5.  Other Compliance: Follow search engine optimization rules and do not adopt malicious optimization methods; AI model application complies with Hong Kong’s AI ethics requirements; advertising is only public welfare advertising, complying with Hong Kong’s Advertising Ordinance.</li>
+</ol>
+<h3 id="4-2-Risk-Control-Measures-风险控制措施"><a href="#4-2-Risk-Control-Measures-风险控制措施" class="headerlink" title="4.2 Risk Control Measures &#x2F; 风险控制措施"></a>4.2 Risk Control Measures &#x2F; 风险控制措施</h3><p><strong>Chinese:</strong> 针对项目可能面临的风险，制定以下控制措施，确保项目顺利推进，符合CCMF评审对项目“落地性、稳定性”的要求：</p>
+<ol>
+<li><p>技术风险：定期备份数据，搭建系统监控机制，及时处理故障；对接成熟区块链节点、支付SDK及AI模型，降低技术落地风险。</p>
+</li>
+<li><p>版权风险：持续优化AI语义比对、溯源模型，降低漏判、误判概率；建立人工审核机制，处理申诉案例；完善维权闭环，提升维权效率。</p>
+</li>
+<li><p>运营风险：明确创作者入驻规则，杜绝搬运、低质内容；建立用户反馈渠道，及时优化产品体验；监测SEO排名，应对排名波动。</p>
+</li>
+<li><p>评审风险：突出项目核心创新点及社会价值，提前准备评审应答话术，应对核心疑问；完善申报材料，确保与产品开发同步。</p>
+</li>
+<li><p>支付风险：严格筛选合规支付服务商，建立资金监控机制，确保资金安全、结算透明。6.  对抗性攻击风险：针对恶意爬虫及批量采集，引入“真人验证 Gate”（过马路小游戏），在内容入口侧切断机器抓取的可能性，保护原创内容不被恶意大规模爬取[cite: 3]。</p>
+</li>
+</ol>
+<p><strong>English:</strong> In view of the possible risks of the project, the following control measures are formulated to ensure the smooth progress of the project and meet the CCMF review requirements for “implementability and stability” of the project:</p>
+<ol>
+<li>Technical Risk: Regularly back up data, build a system monitoring mechanism to handle faults in a timely manner; connect to mature blockchain nodes, payment SDKs and AI models to reduce technical implementation risks. 2.  Copyright Risk: Continuously optimize AI semantic comparison and traceability models to reduce the probability of missed and wrong judgments; establish a manual review mechanism to handle appeal cases; improve the rights protection closed loop and enhance the efficiency of rights protection. 3.  Operational Risk: Clarify the creator entry rules to eliminate plagiarism and low-quality content; establish user feedback channels to optimize product experience in a timely manner; monitor SEO rankings and respond to ranking fluctuations. 4.  Review Risk: Highlight the core innovation points and social value of the project, prepare review response scripts in advance to respond to core questions; improve application materials to ensure synchronization with product development. 5.  Payment Risk: Strictly screen compliant payment service providers and establish a fund monitoring mechanism to ensure fund security and transparent settlement. 6.  Adversarial Attack Risk: For malicious crawlers and batch collection, a “Human Verification Gate (crossing the road mini-game)” is introduced to cut off the possibility of machine crawling at the content entrance and protect original content from malicious large-scale crawling[cite: 3].</li>
+</ol>
+<hr>
+<h2 id="Section-5-CCMF-Funding-Usage-Plan-第五部分：CCMF资金使用计划"><a href="#Section-5-CCMF-Funding-Usage-Plan-第五部分：CCMF资金使用计划" class="headerlink" title="Section 5: CCMF Funding Usage Plan &#x2F; 第五部分：CCMF资金使用计划"></a>Section 5: CCMF Funding Usage Plan &#x2F; 第五部分：CCMF资金使用计划</h2><p><strong>Chinese:</strong> 若成功获得CCMF资助（总额港币100,000元），资金将严格按照CCMF要求使用，全部用于项目开发及运营，具体使用计划如下，确保资金使用透明、合规，契合CCMF资助用途要求：</p>
+<p><strong>English:</strong> If successfully awarded CCMF funding (total HK$100,000), the funds will be strictly used in accordance with CCMF requirements, all for project development and operation. The specific usage plan is as follows to ensure transparent and compliant use of funds, which aligns with the requirements of CCMF funding purposes:</p>
+<h3 id="资金使用分项表"><a href="#资金使用分项表" class="headerlink" title="资金使用分项表"></a>资金使用分项表</h3><table>
+<thead>
+<tr>
+<th>Fund Usage Category &#x2F; 资金使用类别</th>
+<th>Amount (HK$) &#x2F; 金额（港币）</th>
+<th>Usage Description &#x2F; 使用说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Technical Development &#x2F; 技术开发</td>
+<td>50,000</td>
+<td>Used for core function development, AI model optimization, blockchain node docking, payment system integration, SEO technology development, and large model semantic comparison computing power deployment, reflecting the practical implementability of the technical solution[cite: 3]. &#x2F; 用于核心功能开发、AI模型优化、区块链节点对接、支付系统集成、SEO技术开发，以及大模型语义比对算力部署，体现技术方案的实际落地性[cite: 3]。</td>
+</tr>
+<tr>
+<td>Compliance &amp; Security &#x2F; 合规与安全</td>
+<td>20,000</td>
+<td>Used for compliance review, data security protection, copyright consulting, and legal services to ensure the project complies with Hong Kong relevant laws and CCMF requirements. &#x2F; 用于合规审核、数据安全防护、版权咨询、法律服务，确保项目符合香港相关法律及CCMF要求。</td>
+</tr>
+<tr>
+<td>Operational Promotion &#x2F; 运营推广</td>
+<td>20,000</td>
+<td>Used for creator recruitment, product promotion, SEO optimization, and user feedback collection to attract initial creators and users to settle in. &#x2F; 用于创作者招募、产品推广、SEO优化、用户反馈收集，吸引初始创作者及用户入驻。</td>
+</tr>
+<tr>
+<td>Contingency Reserve &#x2F; 应急储备</td>
+<td>10,000</td>
+<td>Used to deal with unexpected situations such as technical failures, emergency compliance adjustments, and ensure the smooth progress of the project. &#x2F; 用于应对技术故障、应急合规调整等突发情况，确保项目顺利推进。</td>
+</tr>
+<tr>
+<td><strong>Total &#x2F; 合计</strong></td>
+<td><strong>100,000</strong></td>
+<td>All funds are used for the project, and regular reports will be submitted to Cyberport in accordance with requirements. &#x2F; 资金全部用于本项目，将按照要求定期向数码港提交使用报告。</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="Section-6-Supporting-Materials-List-第六部分：佐证材料清单"><a href="#Section-6-Supporting-Materials-List-第六部分：佐证材料清单" class="headerlink" title="Section 6: Supporting Materials List &#x2F; 第六部分：佐证材料清单"></a>Section 6: Supporting Materials List &#x2F; 第六部分：佐证材料清单</h2><h3 id="需提交材料列表"><a href="#需提交材料列表" class="headerlink" title="需提交材料列表"></a>需提交材料列表</h3><p><strong>Chinese:</strong> 1.  申请人资质证明（个人身份证&#x2F;公司注册相关文件）；</p>
+<ol start="2">
+<li><p>团队介绍及核心成员简历（含技术、运营相关经验）；</p>
+</li>
+<li><p>项目技术方案及核心功能说明；</p>
+</li>
+<li><p>项目开发计划及进度证明（如有）；</p>
+</li>
+<li><p>合规承诺函；</p>
+</li>
+<li><p>产品演示视频（MVP测试版本）；</p>
+</li>
+<li><p>其他相关补充材料。</p>
+</li>
+</ol>
+<p><strong>English:</strong> 1.  Applicant qualification certificate (personal ID card&#x2F;company registration related documents); 2.  Team introduction and core member resumes (including technical and operational experience); 3.  Project technical plan and core function description; 4.  Project development plan and progress proof (if any); 5.  Compliance commitment letter; 6.  Product demonstration video (MVP test version); 7.  Other relevant supplementary materials.</p>
+<hr>
+<h2 id="Section-7-Declaration-and-Commitment-第七部分：申报声明与承诺"><a href="#Section-7-Declaration-and-Commitment-第七部分：申报声明与承诺" class="headerlink" title="Section 7: Declaration and Commitment &#x2F; 第七部分：申报声明与承诺"></a>Section 7: Declaration and Commitment &#x2F; 第七部分：申报声明与承诺</h2><h3 id="声明条款"><a href="#声明条款" class="headerlink" title="声明条款"></a>声明条款</h3><p><strong>Chinese:</strong> 本人&#x2F;本公司郑重声明：</p>
+<ol>
+<li><p>本次申报材料真实、完整、准确，无任何虚假信息；</p>
+</li>
+<li><p>本人&#x2F;本公司完全符合CCMF-香港计划的所有申请要求，若存在不符合要求的情况，自愿放弃资助资格，并承担相应责任；</p>
+</li>
+<li><p>若成功获得资助，将严格按照本申报文档中的资金使用计划及CCMF相关要求使用资金，定期向数码港提交项目进度及资金使用报告，接受数码港的监督；</p>
+</li>
+<li><p>在项目实施期间，若发生任何与申报内容相关的变更，将及时通知数码港；</p>
+</li>
+<li><p>严格遵守香港相关法律法规及CCMF-香港计划的所有条款，若有违反，自愿退出计划，并退还已获得的全部资助。</p>
+</li>
+</ol>
+<p><strong>English:</strong> I&#x2F;we solemnly declare that:</p>
+<ol>
+<li>The application materials submitted this time are true, complete and accurate, without any false information; 2.  I&#x2F;we fully meet all the application requirements of the CCMF-Hong Kong Program. If there are any non-compliant situations, I&#x2F;we voluntarily give up the funding qualification and bear corresponding responsibilities; 3.  If successfully awarded funding, I&#x2F;we will strictly use the funds in accordance with the fund usage plan in this application document and relevant CCMF requirements, regularly submit project progress and fund usage reports to Cyberport, and accept Cyberport’s supervision; 4.  During the project implementation, if any changes related to the application content occur, I&#x2F;we will promptly notify Cyberport; 5.  Strictly abide by relevant Hong Kong laws and regulations and all terms of the CCMF-Hong Kong Program. If any violation occurs, I&#x2F;we voluntarily withdraw from the program and return all the funding received.</li>
+</ol>
+<h3 id="签署栏"><a href="#签署栏" class="headerlink" title="签署栏"></a>签署栏</h3><p>Applicant’s Signature &#x2F; 申请人签字：____________________</p>
+<p>Date &#x2F; 日期：____________________</p>
+<p>Company Seal (if applicable) &#x2F; 公司盖章（如有）：____________________</p>
+<h1 id="我怎么冷启动？"><a href="#我怎么冷启动？" class="headerlink" title="我怎么冷启动？"></a>我怎么冷启动？</h1><p>下面给你一套<strong>海外网文平台冷启动方案</strong>，完全适配你：<br><strong>AI防抄袭 + 零抽成 + 动态防盗版 + 私域Bot + 工具收费</strong><br>不烧钱、不搞虚的，<strong>7天就能开始跑</strong>。</p>
+<hr>
+<h1 id="一、冷启动核心逻辑（先记死）"><a href="#一、冷启动核心逻辑（先记死）" class="headerlink" title="一、冷启动核心逻辑（先记死）"></a>一、冷启动核心逻辑（先记死）</h1><p><strong>不要先做平台，先做“作者工具站”。</strong><br>先用 AI防抄袭 + 私域Bot 抓作者，作者来了，读者自然来。</p>
+<p>你的冷启动路径只有三步：</p>
+<ol>
+<li>抓一批<strong>愿意试新平台的作者</strong></li>
+<li>给他们<strong>立刻能用上的工具</strong>（防抄袭+私域）</li>
+<li>用他们的书，拉第一批读者</li>
+</ol>
+<hr>
+<h1 id="二、第一步：找作者（冷启动最关键）"><a href="#二、第一步：找作者（冷启动最关键）" class="headerlink" title="二、第一步：找作者（冷启动最关键）"></a>二、第一步：找作者（冷启动最关键）</h1><h2 id="目标作者画像（精准到能直接搜）"><a href="#目标作者画像（精准到能直接搜）" class="headerlink" title="目标作者画像（精准到能直接搜）"></a>目标作者画像（精准到能直接搜）</h2><ul>
+<li>海外写网文&#x2F;原创小说的小作者</li>
+<li>在 Wattpad、RoyalRoad、Webnovel、TapRead、Instagram&#x2F;TikTok 写文</li>
+<li>被抄袭、被盗版、被平台抽成狠、没私域</li>
+<li>英语&#x2F;西语&#x2F;东南亚小语种都行，先抓<strong>英语圈</strong>最容易</li>
+</ul>
+<h2 id="3个免费渠道，直接抄作业"><a href="#3个免费渠道，直接抄作业" class="headerlink" title="3个免费渠道，直接抄作业"></a>3个免费渠道，直接抄作业</h2><h3 id="1）Reddit（最猛）"><a href="#1）Reddit（最猛）" class="headerlink" title="1）Reddit（最猛）"></a>1）Reddit（最猛）</h3><p>去这些 sub 发：</p>
+<ul>
+<li>r&#x2F;WriteStreakEN</li>
+<li>r&#x2F;fantasywriters</li>
+<li>r&#x2F;romancewriters</li>
+<li>r&#x2F;selfpublish</li>
+<li>r&#x2F;Wattpad</li>
+<li>r&#x2F;webnovel</li>
+</ul>
+<p>发帖模板（直接用）：</p>
+<blockquote>
+<p>I’m building a <strong>0% commission novel platform</strong> for writers.</p>
+<ul>
+<li>AI anti-plagiarism check</li>
+<li>Dynamic content (unique per reader, no piracy)</li>
+<li>All tips go directly to you</li>
+<li>Fan management bot + writing tools</li>
+</ul>
+<p>Looking for 50 beta writers to test for free.<br>DM if you’re tired of plagiarism &amp; high fees.</p>
+</blockquote>
+<p><strong>每天发 2～3 个，一周能拉 50～100 作者。</strong></p>
+<h3 id="2）Discord-作者群"><a href="#2）Discord-作者群" class="headerlink" title="2）Discord 作者群"></a>2）Discord 作者群</h3><p>搜关键词：</p>
+<ul>
+<li>writing community</li>
+<li>webnovel author</li>
+<li>wattpad author</li>
+<li>fantasy author<br>进群后，<strong>先聊天，再软广</strong>，别一进去就扔链接。</li>
+</ul>
+<h3 id="3）TikTok-Instagram-YouTube-Shorts"><a href="#3）TikTok-Instagram-YouTube-Shorts" class="headerlink" title="3）TikTok &#x2F; Instagram &#x2F; YouTube Shorts"></a>3）TikTok &#x2F; Instagram &#x2F; YouTube Shorts</h3><p>发 15 秒内容：</p>
+<ul>
+<li>展示 AI 查抄袭</li>
+<li>展示动态内容防盗版</li>
+<li>展示 0 抽成打赏到账<br>标签：#webnovel #author #writingcommunity #antiplagiarism</li>
+</ul>
+<p><strong>不用露脸，用文字+录屏就行。</strong></p>
+<hr>
+<h1 id="三、第二步：给作者一个“马上用”的理由"><a href="#三、第二步：给作者一个“马上用”的理由" class="headerlink" title="三、第二步：给作者一个“马上用”的理由"></a>三、第二步：给作者一个“马上用”的理由</h1><p>不要等平台全做完再拉人，<strong>先给工具</strong>。</p>
+<p>冷启动阶段你只需要做 3 个最小功能：</p>
+<ol>
+<li><strong>AI 查重&#x2F;原创度检测</strong>（免费）</li>
+<li><strong>简单发文页面</strong></li>
+<li><strong>打赏按钮（Stripe&#x2F;PayPal 直接进作者口袋）</strong></li>
+</ol>
+<p>作者来了就能：</p>
+<ul>
+<li>发文</li>
+<li>防抄袭</li>
+<li>收钱</li>
+<li>不被抽成<br>这就足够让他们留下来。</li>
+</ul>
+<hr>
+<h1 id="四、第三步：第一批读者怎么来？（不用买量）"><a href="#四、第三步：第一批读者怎么来？（不用买量）" class="headerlink" title="四、第三步：第一批读者怎么来？（不用买量）"></a>四、第三步：第一批读者怎么来？（不用买量）</h1><h2 id="1）作者自带读者"><a href="#1）作者自带读者" class="headerlink" title="1）作者自带读者"></a>1）作者自带读者</h2><p>每个作者至少带 50～200 粉丝<br>50 个作者 &#x3D; 2500～10000 初始读者<br>足够冷启动跑通闭环。</p>
+<h2 id="2）平台做“原创保护榜单”"><a href="#2）平台做“原创保护榜单”" class="headerlink" title="2）平台做“原创保护榜单”"></a>2）平台做“原创保护榜单”</h2><p>主打：<br><strong>Only on this platform — 100% unique, no piracy</strong><br>读者为了<strong>看正版、看独家</strong>会来。</p>
+<h2 id="3）Reddit-小范围推书"><a href="#3）Reddit-小范围推书" class="headerlink" title="3）Reddit 小范围推书"></a>3）Reddit 小范围推书</h2><p>让作者自己去 sub 发：</p>
+<blockquote>
+<p>My novel is now on a 0% commission platform with AI anti-plagiarism.<br>Link in bio.</p>
+</blockquote>
+<p>比你自己推广有效 10 倍。</p>
+<hr>
+<h1 id="五、冷启动节奏（7天可执行）"><a href="#五、冷启动节奏（7天可执行）" class="headerlink" title="五、冷启动节奏（7天可执行）"></a>五、冷启动节奏（7天可执行）</h1><h2 id="Day1～2"><a href="#Day1～2" class="headerlink" title="Day1～2"></a>Day1～2</h2><ul>
+<li>搭极简页面：发文 + 阅读 + 打赏</li>
+<li>接入 AI 查重接口</li>
+<li>做好 Stripe&#x2F;PayPal 支付</li>
+</ul>
+<h2 id="Day3～4"><a href="#Day3～4" class="headerlink" title="Day3～4"></a>Day3～4</h2><ul>
+<li>Reddit&#x2F;Discord 发帖</li>
+<li>收集 30～50 作者内测</li>
+</ul>
+<h2 id="Day5～6"><a href="#Day5～6" class="headerlink" title="Day5～6"></a>Day5～6</h2><ul>
+<li>作者开始发文</li>
+<li>开放读者阅读</li>
+</ul>
+<h2 id="Day7"><a href="#Day7" class="headerlink" title="Day7"></a>Day7</h2><ul>
+<li>上线私域Bot基础版</li>
+<li>开始做<strong>工具付费</strong>（防抄袭高级版）</li>
+</ul>
+<p><strong>2 周内就能跑通：作者→内容→读者→打赏→工具付费</strong></p>
+<hr>
+<h1 id="六、你这个模式冷启动的天然优势"><a href="#六、你这个模式冷启动的天然优势" class="headerlink" title="六、你这个模式冷启动的天然优势"></a>六、你这个模式冷启动的天然优势</h1><p>别人冷启动难，是因为：</p>
+<ul>
+<li>作者要被抽成</li>
+<li>盗版满天飞</li>
+<li>没工具留住作者</li>
+</ul>
+<p>你：</p>
+<ul>
+<li>0 抽成 → 作者愿意来</li>
+<li>AI防抄袭 + 动态内容 → 作者愿意留</li>
+<li>私域Bot + 工具收费 → 你能赚钱<br><strong>这是作者端自带裂变的模式。</strong></li>
+</ul>
+<hr>
+<h1 id="七、我可以直接给你成品"><a href="#七、我可以直接给你成品" class="headerlink" title="七、我可以直接给你成品"></a>七、我可以直接给你成品</h1><p>你只要说一句，我马上给你：</p>
+<ol>
+<li>海外冷启动<strong>全套发帖文案</strong>（Reddit&#x2F;Discord&#x2F;Instagram）</li>
+<li>极简平台<strong>功能清单（MVP版）</strong></li>
+<li>作者内测<strong>招募文案 + 邀请页话术</strong></li>
+</ol>
+<p>你现在更想要：<strong>文案</strong>，还是 <strong>MVP功能清单</strong>？</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/AI/">AI</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%88%9B%E4%B8%9A/">创业</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/03/30/878805134.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">chenchen-plan</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/03/23/900081478.html">
+                        <span class="hidden-mobile">CCMF-Aura</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "CCMF-郴郴文库"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

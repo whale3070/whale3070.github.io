@@ -1,0 +1,894 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>chenchen-plan3 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="chenchen-plan3">
+                      
+                        chenchen-plan3
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-04-02 17:29" pubdate>
+        2026年4月2日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      5.7k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      65
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">chenchen-plan3</h1>
+            
+            <div class="markdown-body">
+              <h1 id="第五天开发进度"><a href="#第五天开发进度" class="headerlink" title="第五天开发进度"></a>第五天开发进度</h1><h2 id="1-工单系统-新建页面"><a href="#1-工单系统-新建页面" class="headerlink" title="1. 工单系统-新建页面"></a>1. 工单系统-新建页面</h2><h2 id="2-“AI-生成后人工微调”"><a href="#2-“AI-生成后人工微调”" class="headerlink" title="2. “AI 生成后人工微调”"></a>2. “AI 生成后人工微调”</h2><p>你这个需求我已经改了，发布配置现在支持“AI 生成后人工微调”。</p>
+<h3 id="已实现效果"><a href="#已实现效果" class="headerlink" title="已实现效果"></a>已实现效果</h3><p>在发布弹窗 <code>发布配置</code> 里：</p>
+<ul>
+<li>简介从只读展示改为可编辑 <code>textarea</code><ul>
+<li>AI 生成后会填进去</li>
+<li>你可以继续手动改内容</li>
+</ul>
+</li>
+<li>标签支持手动管理<ul>
+<li>输入框可添加标签（回车&#x2F;点击“添加”）</li>
+<li>支持逗号分隔批量添加</li>
+<li>点击标签可移除（<code>#标签 ×</code>）</li>
+</ul>
+</li>
+<li>文案也改了，明确是“AI 自动生成，可手动微调”，不再像写死内容</li>
+</ul>
+<h3 id="修改文件"><a href="#修改文件" class="headerlink" title="修改文件"></a>修改文件</h3><ul>
+<li><code>apps/web/src/components/publish-novel-modal.tsx</code></li>
+</ul>
+<p>并且已检查 lint，无报错。</p>
+<p>如果你愿意，我下一步还可以给标签加“智能推荐 + 手动锁定”，避免你手动改过后点“重新生成”把你自定义标签覆盖。</p>
+<h2 id="3-发布后过长内容撑破页面"><a href="#3-发布后过长内容撑破页面" class="headerlink" title="3. 发布后过长内容撑破页面"></a>3. 发布后过长内容撑破页面</h2><p>已修复“发布后过长内容撑破页面”的问题，主要是给读者页和书库列表补了强制换行策略。</p>
+<h3 id="本次修复点"><a href="#本次修复点" class="headerlink" title="本次修复点"></a>本次修复点</h3><ul>
+<li><p><code>apps/web/src/app/library/[articleId]/page.tsx</code></p>
+<ul>
+<li>标题、简介支持超长自动换行（<code>break-words</code> + <code>overflow-wrap:anywhere</code>）</li>
+<li>作者地址改为 <code>break-all</code>，避免长钱包地址撑宽</li>
+<li>正文渲染区域增强：<ul>
+<li>整体强制断词</li>
+<li>链接、代码可断行</li>
+<li><code>pre</code> 保留横向滚动，避免布局炸裂</li>
+<li>表格单元格支持换行，不会把页面顶开</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><code>apps/web/src/app/library/page.tsx</code></p>
+<ul>
+<li>列表卡片标题、简介支持超长自动换行</li>
+<li>文章 ID 使用 <code>break-all</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h3><p>长文本（尤其无空格长串、长 URL、长英文、连续符号）不会再撑破卡片或正文容器，视觉上会稳定很多。</p>
+<p>并且我已经跑了 lint，两个文件都无报错。</p>
+<h2 id="4-英文（或其他翻译语言）阅读时会保留原文图片位置，不再整章丢图。"><a href="#4-英文（或其他翻译语言）阅读时会保留原文图片位置，不再整章丢图。" class="headerlink" title="4. 英文（或其他翻译语言）阅读时会保留原文图片位置，不再整章丢图。"></a>4. 英文（或其他翻译语言）阅读时会保留原文图片位置，不再整章丢图。</h2><p>已修复：英文（或其他翻译语言）阅读时会保留原文图片位置，不再整章丢图。</p>
+<h3 id="我做了什么"><a href="#我做了什么" class="headerlink" title="我做了什么"></a>我做了什么</h3><p>文件：<code>apps/web/src/app/api/v1/library/articles/route.ts</code></p>
+<p>之前逻辑是：</p>
+<ul>
+<li>译文存在时直接 <code>plainTextToHtml(translated)</code></li>
+<li>这一步会把原章节的 <code>&lt;img&gt;</code> 全部丢掉</li>
+</ul>
+<p>现在改成：</p>
+<ul>
+<li>从原章节 <code>contentHtml</code> 先提取图片占位符（按顺序记录）</li>
+<li>按原文段落位置比例把图片 token 回填到译文段落里</li>
+<li>再渲染为 HTML，并把 token 还原成原始 <code>&lt;img&gt;</code> 标签</li>
+</ul>
+<p>也就是说：<strong>译文换成目标语言，但图片仍保留在对应阅读位置附近</strong>。</p>
+<h3 id="结果-1"><a href="#结果-1" class="headerlink" title="结果"></a>结果</h3><ul>
+<li><code>?lang=en</code> 等翻译语言页面，图片不会再消失</li>
+<li>未翻译章节仍保持原行为</li>
+</ul>
+<p>并且我已做 lint 检查，无报错。</p>
+<h2 id="5-英文语言下仍有中文残留"><a href="#5-英文语言下仍有中文残留" class="headerlink" title="5. 英文语言下仍有中文残留"></a>5. 英文语言下仍有中文残留</h2><p>已修复你说的“英文语言下仍有中文残留”的两个关键点（读者详情页）：</p>
+<ul>
+<li><code>Language</code> 显示不再出现“英文区”这类中文标签  <ul>
+<li>英文界面会强制显示 <code>English / Japanese / ...</code> 等英文语言名（基于 <code>article.language</code>）</li>
+</ul>
+</li>
+<li>章节目录和章节标题在英文界面下不再显示中文章名  <ul>
+<li>若章节标题是中文（如“第六章 …”），会自动显示为 <code>Chapter N</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="修改文件-1"><a href="#修改文件-1" class="headerlink" title="修改文件"></a>修改文件</h3><ul>
+<li><code>apps/web/src/app/library/[articleId]/page.tsx</code></li>
+</ul>
+<h3 id="具体做法"><a href="#具体做法" class="headerlink" title="具体做法"></a>具体做法</h3><ul>
+<li>新增 <code>localizedLanguageLabel(...)</code>：英文 UI 下优先用语言代码映射英文名</li>
+<li>新增 <code>displayChapterTitle(...)</code>：英文 UI 下遇到中文章节名时兜底为 <code>Chapter &#123;index+1&#125;</code></li>
+<li>替换了 4 处显示：<ul>
+<li>语言分区文案</li>
+<li>TOC 按钮标题</li>
+<li>当前章节标题</li>
+<li>TOC 折叠时“当前章节”文案</li>
+</ul>
+</li>
+</ul>
+<p>并且已经过 lint 检查，无报错。</p>
+<h2 id="6-删不掉卷、节"><a href="#6-删不掉卷、节" class="headerlink" title="6. 删不掉卷、节"></a>6. 删不掉卷、节</h2><p>你的感受和当前实现是对得上的：大纲数据模型里虽然有 <code>volume</code> &#x2F; <code>chapter</code> &#x2F; <code>section</code>，但侧边栏只把「章节」当成一等公民来删、来加；排序逻辑也故意锁在「同一父节点」里。</p>
+<hr>
+<h3 id="1-为什么「删除章节」删不掉卷、节？"><a href="#1-为什么「删除章节」删不掉卷、节？" class="headerlink" title="1. 为什么「删除章节」删不掉卷、节？"></a>1. 为什么「删除章节」删不掉卷、节？</h3><p>「删除章节」按钮只有在<strong>当前选中节点是 <code>chapter</code></strong> 时才可用：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs 599:608:apps/web/src/components/outline-sidebar.tsx">&lt;button<br>  type=&quot;button&quot;<br>  disabled=&#123;<br>    !onDeleteChapter ||<br>    !activeOutlineId ||<br>    !nodes.some((n) =&gt; n.id === activeOutlineId &amp;&amp; n.kind === &quot;chapter&quot;)<br>  &#125;<br>  onClick=&#123;() =&gt; &#123;<br>    if (!onDeleteChapter || !activeOutlineId) return;<br>    onDeleteChapter(activeOutlineId);<br></code></pre></div></td></tr></table></figure>
+
+<p>也就是说：<strong>卷、节根本没有走这条删除路径</strong>，不是「配置删不掉」，而是 UI 根本没提供对它们的删除。</p>
+<hr>
+<h3 id="2-为什么感觉「没法新建卷、节」？"><a href="#2-为什么感觉「没法新建卷、节」？" class="headerlink" title="2. 为什么感觉「没法新建卷、节」？"></a>2. 为什么感觉「没法新建卷、节」？</h3><p>侧栏里只有 <strong>「+ 新增章节」</strong>，逻辑是：若没有卷，就<strong>自动塞一个空卷</strong>，再把新章挂到这个卷下面：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs 521:540:apps/web/src/components/outline-sidebar.tsx">const next = [...nodes];<br>let parentVolumeId = next.find((n) =&gt; n.kind === &quot;volume&quot;)?.id;<br>if (!parentVolumeId) &#123;<br>  const vId = makeNodeId(&quot;plot-volume&quot;);<br>  next.push(&#123;<br>    id: vId,<br>    kind: &quot;volume&quot;,<br>    title: &quot;&quot;,<br>    summary: &quot;&quot;,<br>  &#125;);<br>  parentVolumeId = vId;<br>&#125;<br><br>next.push(&#123;<br>  id: makeNodeId(&quot;plot-chapter&quot;),<br>  kind: &quot;chapter&quot;,<br>  title: targetTitle,<br>  summary: &quot;&quot;,<br>  parentId: parentVolumeId,<br>&#125;);<br></code></pre></div></td></tr></table></figure>
+
+<p>所以没有「显式新建卷 &#x2F; 新建节」的入口；节要靠数据里自己带 <code>section</code> 节点或别处写入，侧栏没有对应按钮。</p>
+<hr>
+<h3 id="3-为什么不能把章节挪到别的卷-节？"><a href="#3-为什么不能把章节挪到别的卷-节？" class="headerlink" title="3. 为什么不能把章节挪到别的卷 &#x2F; 节？"></a>3. 为什么不能把章节挪到别的卷 &#x2F; 节？</h3><p>拖拽结束后用的是 <code>reorderOutlineFlat</code>，里面写死了：<strong>两个节点的父节点必须相同</strong>，否则直接放弃重排：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs 104:115:apps/web/src/lib/plot-outline.ts">export function reorderOutlineFlat(<br>  flat: PlotNode[],<br>  activeId: string,<br>  overId: string,<br>): PlotNode[] | null &#123;<br>  if (activeId === overId) return flat;<br>  const roots = flatToOutlineTree(flat);<br>  const pA = parentOfInTree(roots, activeId);<br>  const pB = parentOfInTree(roots, overId);<br>  if (pA === undefined || pB === undefined) return null;<br>  if (pA !== pB) return null;<br></code></pre></div></td></tr></table></figure>
+
+<p>因此：<strong>跨卷、跨节（换父节点）在代码层面就是不允许的</strong>，不是 dnd-kit 单独的问题，而是这层业务函数的限制。</p>
+<hr>
+<h3 id="4-和「只要章节、不要卷节」的关系"><a href="#4-和「只要章节、不要卷节」的关系" class="headerlink" title="4. 和「只要章节、不要卷节」的关系"></a>4. 和「只要章节、不要卷节」的关系</h3><ul>
+<li>若你<strong>不需要卷</strong>：现在仍会在「第一次加章」时自动加一个 <code>volume</code>，且没有侧栏删除卷，就会留下一个<strong>删不掉的空壳卷</strong>（除非改数据或以后做「删卷并提升子节点」等功能）。</li>
+<li><strong>纯扁平章节</strong>在类型上是可行的（例如章的 <code>parentId</code> 为空、全部在根上），但当前「新增章节」总是挂到第一个 <code>volume</code> 上，没有「扁平模式」开关。</li>
+</ul>
+<hr>
+<h3 id="若要改进，一般会动这几块（供你或-Agent-模式实现时参考）"><a href="#若要改进，一般会动这几块（供你或-Agent-模式实现时参考）" class="headerlink" title="若要改进，一般会动这几块（供你或 Agent 模式实现时参考）"></a>若要改进，一般会动这几块（供你或 Agent 模式实现时参考）</h3><table>
+<thead>
+<tr>
+<th>需求</th>
+<th>方向</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>删卷&#x2F;删节</td>
+<td>增加删除非章节点；删卷时决定是否把子章节<strong>提升</strong>到上一级或合并到另一卷</td>
+</tr>
+<tr>
+<td>只要章节</td>
+<td>「扁平大纲」模式：新章 <code>parentId</code> 不设，或允许删除唯一卷时把子节点提升</td>
+</tr>
+<tr>
+<td>新建卷&#x2F;节</td>
+<td>侧栏增加按钮，往 <code>nodes</code> 里 push 对应 <code>kind</code> 并设好 <code>parentId</code></td>
+</tr>
+<tr>
+<td>跨卷调整</td>
+<td>扩展 <code>reorderOutlineFlat</code>（或单独 <code>reparentOutlineNode</code>）：在拖到另一父节点上时改 <code>parentId</code> 并插入顺序；dnd-kit 可能要配合「拖到容器上」的命中逻辑</td>
+</tr>
+</tbody></table>
+<p>我这边是 <strong>Ask 模式</strong>，不能直接改仓库。如果你希望把这些行为做进项目，可以切到 <strong>Agent 模式</strong> 说明优先级（例如：先支持删卷+提升子章节，还是先支持跨卷拖拽）。</p>
+<h2 id="7-假设我有六万本小说，那么这个构架带的动吗？"><a href="#7-假设我有六万本小说，那么这个构架带的动吗？" class="headerlink" title="7. 假设我有六万本小说，那么这个构架带的动吗？"></a>7. 假设我有六万本小说，那么这个构架带的动吗？</h2><p><strong>按你现在这套实现，六万本小说不能指望「架构自然带得动」</strong>，它更适合少量作品、单机或小规模部署。不是 Next.js 不行，而是<strong>数据层几乎全是本地 JSON 文件</strong>，没有按「六万本」做的检索、分片与缓存。</p>
+<h3 id="现在大致在干什么"><a href="#现在大致在干什么" class="headerlink" title="现在大致在干什么"></a>现在大致在干什么</h3><ul>
+<li>作品结构、草稿、发布记录等落在项目下的 <strong><code>.data/</code></strong> 里，基本是 <strong>「一书一文件」或「一事一文件」</strong>（例如 <code>structure</code> 下按 <code>authorId_novelId.json</code>）。</li>
+<li>读者端书库等逻辑里，会出现 <strong><code>readdir</code> 整个 <code>publish</code> 目录再逐个 <code>readFile</code></strong> 这类 <strong>全量扫盘</strong>（见 <code>library/articles/route.ts</code> 一带的模式）。</li>
+</ul>
+<h3 id="六万本会卡在哪里"><a href="#六万本会卡在哪里" class="headerlink" title="六万本会卡在哪里"></a>六万本会卡在哪里</h3><ol>
+<li><strong>列表 &#x2F; 聚合 &#x2F; 搜索</strong>：没有数据库索引时，任何「遍历全部发布记录」都会随本数线性变慢；六万次读文件在常规磁盘上会很吃力。  </li>
+<li><strong>单目录海量文件</strong>：六万个文件在同一目录，部分文件系统与备份工具会变慢；运维也不方便。  </li>
+<li><strong>并发与一致性</strong>：多实例部署时，多进程写同一批 JSON <strong>没有事务</strong>，容易冲突或丢更新。  </li>
+<li><strong>体量与备份</strong>：六万本 × 每本正文体积，全在应用机磁盘上，备份、迁移、容灾都要单独设计。  </li>
+<li><strong>图片等资源</strong>：若仍走本机或单服务，带宽和存储也要和「本数、章节数」一起算。</li>
+</ol>
+<h3 id="什么情况下「能跑」但不算架构达标"><a href="#什么情况下「能跑」但不算架构达标" class="headerlink" title="什么情况下「能跑」但不算架构达标"></a>什么情况下「能跑」但不算架构达标</h3><p>单机、内存够、SSD、请求量不大、且列表接口<strong>不做全量扫盘</strong>，有可能<strong>勉强撑一段时间</strong>，但那是<strong>堆机器和运气</strong>，不是可预期的产品设计；一旦要做推荐、搜索、分页、多机房，就会立刻撞上瓶颈。</p>
+<h3 id="若真要六万本量级，通常要补什么（方向）"><a href="#若真要六万本量级，通常要补什么（方向）" class="headerlink" title="若真要六万本量级，通常要补什么（方向）"></a>若真要六万本量级，通常要补什么（方向）</h3><ul>
+<li><strong>元数据与列表</strong>：PostgreSQL &#x2F; MySQL &#x2F; 托管 DB，分页、索引、按作者&#x2F;标签&#x2F;时间查询。  </li>
+<li><strong>正文</strong>：大字段或对象存储（S3&#x2F;OSS），或至少与元数据分离。  </li>
+<li><strong>缓存</strong>：热门书、书库首页 Redis 等。  </li>
+<li><strong>图片</strong>：独立对象存储 + CDN。  </li>
+<li><strong>应用层</strong>：多实例时避免多写同一文件，或上队列&#x2F;锁。</li>
+</ul>
+<p><strong>结论</strong>：当前「文件 + 扫目录」的构架，<strong>不是为六万本准备的</strong>；六万本要当成正经内容平台，需要把<strong>存储和读路径</strong>换成可索引、可分页、可扩展的后端（数据库 + 对象存储是常见组合）。若你只想自用或几百本以内，现有方式可以理解；到「万」级就该规划迁移。</p>
+<h2 id="8-迁移方案"><a href="#8-迁移方案" class="headerlink" title="8. 迁移方案"></a>8. 迁移方案</h2><p>下面是一套<strong>可落地、可分阶段</strong>的迁移方案，目标是把「扫盘 JSON」换成<strong>可索引、可分页、可扩展</strong>的后端。不绑定某一云厂商，用 <strong>PostgreSQL（或兼容库）+ 对象存储</strong> 作为默认组合即可。</p>
+<hr>
+<h3 id="阶段-0：定边界与目标（1–3-天）"><a href="#阶段-0：定边界与目标（1–3-天）" class="headerlink" title="阶段 0：定边界与目标（1–3 天）"></a>阶段 0：定边界与目标（1–3 天）</h3><ul>
+<li><strong>列清单</strong>：现有 <code>.data</code> 里都有哪些实体（发布记录、作品结构、草稿、人物、翻译、解锁记录、收款码等），各自读写 API 路径。</li>
+<li><strong>定 SLA</strong>：并发、列表页响应时间、是否要多实例、备份 RPO&#x2F;RTO。</li>
+<li><strong>选栈</strong>  <ul>
+<li><strong>元数据 + 可检索列表</strong>：PostgreSQL（JSONB 可存半结构化大纲，后期再范式化）。  </li>
+<li><strong>大文本 &#x2F; 图片</strong>：对象存储（S3 兼容）+ CDN；库里只存 <code>key</code> &#x2F; <code>url</code> &#x2F; <code>etag</code>。</li>
+</ul>
+</li>
+<li><strong>定 ID 策略</strong>：沿用现有 <code>novelId</code>、<code>articleId</code>、<code>chapterId</code>，避免读者链接全断。</li>
+</ul>
+<hr>
+<h3 id="阶段-1：引入-DB-与仓储抽象（不改行为）（约-1–2-周）"><a href="#阶段-1：引入-DB-与仓储抽象（不改行为）（约-1–2-周）" class="headerlink" title="阶段 1：引入 DB 与仓储抽象（不改行为）（约 1–2 周）"></a>阶段 1：引入 DB 与仓储抽象（不改行为）（约 1–2 周）</h3><ul>
+<li><strong>搭库</strong>：建库、迁移工具（Prisma &#x2F; Drizzle &#x2F; Kysely 等任选），<strong>仅新增表，不接业务</strong>。</li>
+<li><strong>定义 <code>Storage</code> 接口</strong>：例如 <code>getPublishRecord</code>、<code>listPublicArticles(&#123; cursor, limit &#125;)</code>、<code>getStructure</code>、<code>saveStructure</code>……实现两个 adapter：  <ul>
+<li><code>FileStorageAdapter</code>（当前 <code>.data</code> 逻辑搬进去）；  </li>
+<li><code>DbStorageAdapter</code>（空实现或只写单元测试）。</li>
+</ul>
+</li>
+<li><strong>API 路由只调接口</strong>：<code>route.ts</code> 里不写 <code>readFile</code>，只调 <code>storage.*</code>，便于切换。</li>
+</ul>
+<p>验收：功能与现在一致，部署仍用文件。</p>
+<hr>
+<h3 id="阶段-2：双写-后台回填（约-2–4-周）"><a href="#阶段-2：双写-后台回填（约-2–4-周）" class="headerlink" title="阶段 2：双写 + 后台回填（约 2–4 周）"></a>阶段 2：双写 + 后台回填（约 2–4 周）</h3><ul>
+<li><strong>建核心表（第一版可粗）</strong>  <ul>
+<li><code>novels</code>（author_id, novel_id, title, updated_at, …）  </li>
+<li><code>publish_records</code>（article_id, author_id, novel_id, visibility, synopsis, tags, layout_mode, published_at, …）  </li>
+<li><code>novel_structures</code>（novel_id, author_id, nodes JSONB, updated_at）— 或先整段存 JSONB，以后再拆 <code>chapters</code> 表。  </li>
+<li><code>drafts</code>（可选：与结构合并或单独 blob 引用）</li>
+</ul>
+</li>
+<li><strong>双写</strong>：每次现有 <code>POST</code> 成功写盘的同时 <strong>写 DB</strong>（失败策略要明确：记日志、重试队列，或「DB 失败则整请求失败」——建议至少 <strong>异步重试</strong>）。  </li>
+<li><strong>回填脚本</strong>：一次性把 <code>.data</code> 导入 DB（可反复跑、幂等，按 <code>updated_at</code> 或文件 mtime 比对）。  </li>
+<li><strong>校验</strong>：抽样对比文件 vs DB 记录数、关键字段 hash。</li>
+</ul>
+<p>验收：DB 里有全量镜像，线上仍以<strong>读文件</strong>为准（或读 DB 做 shadow 对比）。</p>
+<hr>
+<h3 id="阶段-3：读路径切换（分页与索引生效）（约-2–3-周）"><a href="#阶段-3：读路径切换（分页与索引生效）（约-2–3-周）" class="headerlink" title="阶段 3：读路径切换（分页与索引生效）（约 2–3 周）"></a>阶段 3：读路径切换（分页与索引生效）（约 2–3 周）</h3><ul>
+<li><strong>书库列表 &#x2F; 搜索</strong>：实现 <code>listPublicArticles</code> 用 SQL <code>WHERE visibility = &#39;public&#39; ORDER BY published_at DESC LIMIT ?</code>，<strong>cursor 分页</strong>（<code>published_at, article_id</code>）。  </li>
+<li><strong>单书详情 &#x2F; 读者章</strong>：按 <code>article_id</code> &#x2F; <code>novel_id</code> 主键或唯一索引读 DB；大正文若已迁对象存储则 <strong>读 URL 或拉 blob</strong>。  </li>
+<li><strong>开关</strong>：环境变量 <code>READ_FROM_DB=true</code> 灰度；可先只切「列表」，再切「详情」。  </li>
+<li><strong>监控</strong>：慢查询、错误率、对比 shadow 读差异。</li>
+</ul>
+<p>验收：核心读路径不再 <code>readdir</code> 全表；列表接口稳定分页。</p>
+<hr>
+<h3 id="阶段-4：停写文件、清技术债（约-1–2-周）"><a href="#阶段-4：停写文件、清技术债（约-1–2-周）" class="headerlink" title="阶段 4：停写文件、清技术债（约 1–2 周）"></a>阶段 4：停写文件、清技术债（约 1–2 周）</h3><ul>
+<li><strong>关闭双写中的文件写入</strong>（或只保留导出备份）。  </li>
+<li><strong>删除或归档</strong> <code>.data</code> 热路径依赖；保留只读导出任务亦可。  </li>
+<li><strong>大纲&#x2F;章节</strong>：若仍用 JSONB，补 <strong>GIN 索引</strong>（按标签、作者查询）；若章节级运营多，再拆 <code>chapters</code> 表。  </li>
+<li><strong>图片</strong>：上传接口改为直传对象存储，库里存元数据；读者端用 CDN URL。</li>
+</ul>
+<p>验收：部署不依赖本地 <code>.data</code> 目录即可跑通主流程。</p>
+<hr>
+<h3 id="阶段-5：扩展能力（持续）"><a href="#阶段-5：扩展能力（持续）" class="headerlink" title="阶段 5：扩展能力（持续）"></a>阶段 5：扩展能力（持续）</h3><ul>
+<li><strong>搜索</strong>：PostgreSQL <code>tsvector</code> &#x2F; Meilisearch &#x2F; OpenSearch（按产品需求）。  </li>
+<li><strong>缓存</strong>：Redis 缓存热门书、首页列表（短 TTL + 失效策略）。  </li>
+<li><strong>多实例</strong>：应用无状态；会话&#x2F;限流用 Redis；DB 用托管高可用。  </li>
+<li><strong>合规与备份</strong>：自动快照、跨区域复制、密钥轮换。</li>
+</ul>
+<hr>
+<h3 id="风险与顺序建议"><a href="#风险与顺序建议" class="headerlink" title="风险与顺序建议"></a>风险与顺序建议</h3><table>
+<thead>
+<tr>
+<th>风险</th>
+<th>缓解</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>双写不一致</td>
+<td>幂等 key、回填脚本、对账任务</td>
+</tr>
+<tr>
+<td>大 JSON 性能</td>
+<td>列表只查元数据表；正文&#x2F;structure 可拆表或走对象存储</td>
+</tr>
+<tr>
+<td>迁移窗口停机</td>
+<td>先双写再切读，最后停写文件</td>
+</tr>
+</tbody></table>
+<p><strong>不要</strong>第一步就改读者 URL 或删文件；<strong>要</strong>先抽象存储、双写、回填、再切读。</p>
+<hr>
+<h3 id="工作量量级（粗估，视团队与数据量）"><a href="#工作量量级（粗估，视团队与数据量）" class="headerlink" title="工作量量级（粗估，视团队与数据量）"></a>工作量量级（粗估，视团队与数据量）</h3><ul>
+<li>阶段 1–2：中小团队 <strong>3–6 周</strong>  </li>
+<li>阶段 3–4：再 <strong>3–5 周</strong>  </li>
+<li>阶段 5：按产品迭代持续做</li>
+</ul>
+<p>若你希望下一步落到「你们仓库里具体要先动哪几个 <code>route.ts</code>、表字段怎么画」，可以切换到 <strong>Agent 模式</strong>，我可以按你当前 <code>apps/web</code> 的 API 列表拆一版更贴代码的迁移 checklist（仍不直接改生产配置，除非你明确要求）。</p>
+<h2 id="9-我要服务一万个作者，每个作者假设有100个读者。这个网站的构架撑得住吗？然后我还要存六万本免费书籍。"><a href="#9-我要服务一万个作者，每个作者假设有100个读者。这个网站的构架撑得住吗？然后我还要存六万本免费书籍。" class="headerlink" title="9. 我要服务一万个作者，每个作者假设有100个读者。这个网站的构架撑得住吗？然后我还要存六万本免费书籍。"></a>9. 我要服务一万个作者，每个作者假设有100个读者。这个网站的构架撑得住吗？然后我还要存六万本免费书籍。</h2><p>分三块说：<strong>能不能撑住</strong>取决于你怎么定义「撑住」，以及当前仓库这种<strong>以本地文件为主</strong>的做法。</p>
+<hr>
+<h3 id="1-规模到底是多少（先对齐数字）"><a href="#1-规模到底是多少（先对齐数字）" class="headerlink" title="1. 规模到底是多少（先对齐数字）"></a>1. 规模到底是多少（先对齐数字）</h3><ul>
+<li><strong>1 万作者</strong>  </li>
+<li><strong>每位作者 100 个读者</strong>：若指 <strong>100 个不同的人&#x2F;钱包</strong>，全站约 <strong>100 万读者身份</strong>（不是「100 次访问」）。  </li>
+<li><strong>6 万本免费书</strong>：和「书」相关的存储与检索规模。</li>
+</ul>
+<p>读者端还有：<strong>打开书、书库列表、解锁&#x2F;付费记录、统计</strong> 等，都会放大读写量。</p>
+<hr>
+<h3 id="2-和当前架构的关系（坦诚结论）"><a href="#2-和当前架构的关系（坦诚结论）" class="headerlink" title="2. 和当前架构的关系（坦诚结论）"></a>2. 和当前架构的关系（坦诚结论）</h3><p><strong>把「能存下」和「能稳定服务」分开看：</strong></p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>粗判断</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>6 万本书「占磁盘」</strong></td>
+<td>纯 JSON 文件往往<strong>装得下</strong>，但单目录几万文件、备份、迁移会难受。</td>
+</tr>
+<tr>
+<td><strong>6 万本书「被读者用」</strong></td>
+<td>若书库&#x2F;搜索仍靠 <strong>扫目录 + 逐文件读</strong>，请求一多就会 <strong>慢、抖、难扩容</strong>。</td>
+</tr>
+<tr>
+<td><strong>1 万作者写稿&#x2F;发布</strong></td>
+<td>并发写同一套文件、多机部署时，<strong>没有 DB&#x2F;队列</strong> 很容易出一致性和锁的问题。</td>
+</tr>
+<tr>
+<td><strong>约 100 万读者</strong></td>
+<td>只要有 <strong>登录&#x2F;钱包、书架、解锁记录、访问日志</strong>，文件里按 <code>article_wallet</code> 一类存，<strong>文件数会爆炸</strong>，也不适合查询与分页。</td>
+</tr>
+</tbody></table>
+<p>所以：<strong>「六万本书当冷数据堆在盘上」也许勉强；「一万作者 + 百万读者 + 六万本书当线上产品跑」——以你现在这种架构，不能算撑得住</strong>，需要 <strong>数据库 +（可选）对象存储 + 缓存&#x2F;CDN</strong>，并改掉「全量扫盘」的读路径。</p>
+<hr>
+<h3 id="3-还要关心的不是「本数」而是「请求量」"><a href="#3-还要关心的不是「本数」而是「请求量」" class="headerlink" title="3. 还要关心的不是「本数」而是「请求量」"></a>3. 还要关心的不是「本数」而是「请求量」</h3><p>同样 6 万本书：</p>
+<ul>
+<li>若平均每天每本书 <strong>10 次阅读</strong>，已是 <strong>60 万次&#x2F;天</strong> 量级的业务读（还要乘章节、图片）。  </li>
+<li>若再带搜索、推荐、排行榜，没有索引和缓存，单机 API 会很快顶满。</li>
+</ul>
+<p>所以评估时要补两句：<strong>峰值 QPS、是否多机房、是否必须 99.9% 可用</strong>。没有这些数字，只能说<strong>量级上必须按「平台级」做后端</strong>，而不是「单机 JSON」。</p>
+<hr>
+<h3 id="4-一句话建议"><a href="#4-一句话建议" class="headerlink" title="4. 一句话建议"></a>4. 一句话建议</h3><ul>
+<li><strong>目标</strong>：1 万作者、约 100 万读者、6 万本免费书 → 按 <strong>小型内容平台</strong> 规划。  </li>
+<li><strong>最低配</strong>：PostgreSQL（元数据 + 索引 + 分页）+ 大正文&#x2F;图片走 <strong>对象存储 + CDN</strong>；读者相关关系、解锁、统计进表，不要一人一文件无限长。  </li>
+<li><strong>当前仓库形态</strong>：更适合 <strong>演示 &#x2F; 内测 &#x2F; 小规模</strong>；直接扛上述规模 <strong>风险大</strong>，应执行前面说的<strong>分阶段迁库</strong>（双写 → 切读 → 停文件）。</li>
+</ul>
+<p>如果你愿意，可以补充三句话：<strong>是否多实例部署、预期日活&#x2F;峰值并发、书是否全站公开列表</strong>，我可以把「必须上的组件」缩成更短的一张 checklist（仍可在 Ask 模式下给方案，不写代码）。</p>
+<h2 id="10-给工单系统加图片"><a href="#10-给工单系统加图片" class="headerlink" title="10. 给工单系统加图片"></a>10. 给工单系统加图片</h2><h1 id="第六天开发进度"><a href="#第六天开发进度" class="headerlink" title="第六天开发进度"></a>第六天开发进度</h1><ol>
+<li>有声书上传</li>
+<li>有声书编辑标题&#x2F;详情</li>
+<li>有声书读者播放</li>
+</ol>
+<h1 id="第七天开发进度"><a href="#第七天开发进度" class="headerlink" title="第七天开发进度"></a>第七天开发进度</h1><ol>
+<li><p>批量txt上传<br><a target="_blank" rel="noopener" href="https://github.com/whale3070/freeA2B">https://github.com/whale3070/freeA2B</a></p>
+</li>
+<li><p>Aura SDK</p>
+</li>
+</ol>
+<p>根据对 <code>/root/Aura-judgement-system</code> 的阅读，可以这样理解现状和「做成 SDK」的可行路径。</p>
+<h2 id="系统实际分工"><a href="#系统实际分工" class="headerlink" title="系统实际分工"></a>系统实际分工</h2><ul>
+<li><strong>评审与规则解析的核心在 Go</strong>：路由和业务集中在 <code>backend/rebuild_backend.go</code>（例如 <code>POST /api/audit</code>、规则读写、调用多模型、算分、写结果 JSON）。</li>
+<li><strong>前端（React&#x2F;Vite）</strong> 主要是管理台与展示；类型与调用方式可参考 <code>src/lib/api.ts</code> 里的 <code>submitAudit</code> 等。</li>
+</ul>
+<p>也就是说，「Aura」对外可复用的能力，本质是 <strong>跑起来的 Go HTTP 服务 + 一套约定好的请求&#x2F;响应</strong>，而不是前端本身。</p>
+<h2 id="当前-API-与「文档-YAML」的错位"><a href="#当前-API-与「文档-YAML」的错位" class="headerlink" title="当前 API 与「文档 + YAML」的错位"></a>当前 API 与「文档 + YAML」的错位</h2><p>你希望：<strong>传入 txt&#x2F;md 正文 + YAML 规则 → 得到评估结果</strong>。</p>
+<p>而现有 <code>POST /api/audit</code> 的行为是（见 <code>postAudit</code>）：</p>
+<ul>
+<li>读 <strong><code>target_file</code></strong>，且该文件必须已经存在于对应 <strong><code>round_id</code> 的 word 目录</strong>里（服务端本地路径），不是请求体里直接带全文。</li>
+<li><strong>YAML 规则</strong>来自服务端 <code>rules/</code> 目录里<strong>当前激活</strong>的规则版本（<code>loadEffectiveRuleYAMLForRound</code>）；请求里<strong>没有</strong> <code>rules_yaml</code> 字段。另：该函数里 <code>roundID</code> 被忽略，规则实质上是<strong>全实例共享的一份 active 规则</strong>，不是按轮次隔离（见 <code>loadEffectiveRuleYAMLForRound</code> 中 <code>_ = roundID</code>）。</li>
+</ul>
+<p>规则可通过 <strong><code>POST /api/rules/upload</code></strong>（body: <code>&#123; &quot;rawYAML&quot;: &quot;...&quot; &#125;</code>）上传；实现里会写入 <code>rules/</code> 并<strong>自动设为 active</strong>（见 <code>postRulesUpload</code>）。</p>
+<p>因此：<strong>「只调 HTTP、不传文件到磁盘」</strong> 在现状下缺一环——<strong>没有</strong>「把任意 md&#x2F;txt 写进 word 目录」的通用上传接口（文档主要来自提交&#x2F;GitHub  ingest 等路径）。</p>
+<h2 id="做成-SDK-的三种常见做法"><a href="#做成-SDK-的三种常见做法" class="headerlink" title="做成 SDK 的三种常见做法"></a>做成 SDK 的三种常见做法</h2><h3 id="1-薄封装：各语言-HTTP-Client-SDK（最少改-Aura）"><a href="#1-薄封装：各语言-HTTP-Client-SDK（最少改-Aura）" class="headerlink" title="1. 薄封装：各语言 HTTP Client SDK（最少改 Aura）"></a>1. 薄封装：各语言 HTTP Client SDK（最少改 Aura）</h3><p>封装现有端点，例如：</p>
+<ul>
+<li><code>uploadRules(yaml)</code> → <code>POST /api/rules/upload</code></li>
+<li>（可选）<code>activateRules(versionId)</code> → <code>POST /api/rules/activate</code></li>
+<li><code>audit(targetFile, models, outputLang, roundId)</code> → <code>POST /api/audit</code></li>
+</ul>
+<p><strong>前提</strong>：调用方能让 <code>target_file</code> 出现在服务端的 word 目录——例如：</p>
+<ul>
+<li>与 Aura <strong>同机</strong>或共享卷，由集成方写文件；或  </li>
+<li><strong>在后端增加</strong>一个例如 <code>POST /api/word/upload</code> &#x2F; <code>POST /api/audit-inline</code> 的接口，接受 <code>document</code> + <code>filename</code>（以及理想情况下 <strong>per-request 的 <code>rules_yaml</code></strong>），这样 SDK 才符合「给 txt&#x2F;md + yaml 就得结果」的产品形态。</li>
+</ul>
+<h3 id="2-推荐的产品形态：新增「内联评审」API（后端小扩展-SDK）"><a href="#2-推荐的产品形态：新增「内联评审」API（后端小扩展-SDK）" class="headerlink" title="2. 推荐的产品形态：新增「内联评审」API（后端小扩展 + SDK）"></a>2. 推荐的产品形态：新增「内联评审」API（后端小扩展 + SDK）</h3><p>增加例如：</p>
+<p><code>POST /api/evaluate</code>（命名随意），body 包含：</p>
+<ul>
+<li><code>document</code>（string 或 base64）、<code>filename</code>（用于落盘或仅审计日志）</li>
+<li><code>rules_yaml</code>（或 <code>rule_version_id</code>）</li>
+<li><code>selected_models</code>、<code>output_lang</code>、<code>custom_prompt</code>（可选）</li>
+</ul>
+<p>服务端内部复用现有逻辑：<code>buildAuditInstructionBlock</code>、<code>runSingleModelAudit</code>、聚合与 <code>SavedResult</code> 结构（与 <code>postAudit</code> 类似）。</p>
+<p>这样 <strong>Python&#x2F;Node&#x2F;Go SDK</strong> 都只是一层 HTTP + 类型定义，<strong>不依赖</strong>调用方碰服务器文件系统；若需要 <strong>per-request 规则</strong>，应避免只靠全局 <code>rules/index.json</code>，而是在该请求内解析传入的 YAML（或临时版本 id）。</p>
+<h3 id="3-Go-内嵌库（供其它-Go-程序-import）"><a href="#3-Go-内嵌库（供其它-Go-程序-import）" class="headerlink" title="3. Go 内嵌库（供其它 Go 程序 import）"></a>3. Go 内嵌库（供其它 Go 程序 <code>import</code>）</h3><p>把 <code>rebuild_backend.go</code> 里与评审相关的部分抽成可导入的包（例如 <code>internal/audit</code> 或公开模块 <code>github.com/yourorg/aura/sdk</code>），对外暴露：</p>
+<p><code>Evaluate(ctx, document []byte, rulesYAML string, modelIDs []string) (*Result, error)</code></p>
+<p>非 Go 语言则仍可通过 <strong>cgo&#x2F;子进程调用 CLI</strong> 或 <strong>本地起 HTTP</strong> 使用，但维护成本通常高于「HTTP + 内联 API」。</p>
+<h2 id="规则与输出格式（SDK-文档里应写清）"><a href="#规则与输出格式（SDK-文档里应写清）" class="headerlink" title="规则与输出格式（SDK 文档里应写清）"></a>规则与输出格式（SDK 文档里应写清）</h2><p>后端会用 YAML 里的 <code>dimensions</code> 等拼出提示词，并要求模型输出 <strong><code>RUBRIC_SCORES_BLOCK</code> … <code>END_RUBRIC_SCORES_BLOCK</code></strong> 以及结尾 <strong><code>AI_SCORE:</code></strong>（见 <code>buildAuditInstructionBlock</code>）。SDK 应把 <strong>响应里的 <code>reports[].content</code></strong> 和 <strong><code>avg_score</code> &#x2F; <code>rubric_raw_max</code> &#x2F; 字母档</strong> 等字段当作稳定契约（与前端 <code>AuditResponse</code> &#x2F; <code>SavedResult</code> 对齐）。</p>
+<p>可参考示例规则：<code>examples/aura-five-dim-ladder-rules.yaml</code>。</p>
+<hr>
+<p><strong>简要结论</strong>：  </p>
+<ul>
+<li>今天要接 Aura，最贴近代码现状的是 <strong>「HTTP SDK + 能写入 word 目录或扩展上传 API」</strong>。  </li>
+<li>若目标严格是 <strong>「任意程序传入 md&#x2F;txt + YAML 就得结果」</strong>，建议在 Go 后端增加 <strong>内联文档 +（建议）内联规则</strong> 的接口，再为各语言生成薄 SDK。</li>
+</ul>
+<p>我当前是 <strong>Ask 模式</strong>，无法直接改仓库或加接口；若你切换到 <strong>Agent 模式</strong>，可以指定优先语言（Python &#x2F; TypeScript &#x2F; Go）和是否要 <strong>per-request 规则</strong>，我可以按上述方向具体设计接口字段与调用流程。</p>
+<h1 id="Aura上传接口"><a href="#Aura上传接口" class="headerlink" title="Aura上传接口"></a>Aura上传接口</h1><p>已接入 <code>POST /api/word/upload</code>，并通过 <code>go build</code> 验证通过。变更摘要如下。</p>
+<h2 id="新接口：POST-api-word-upload"><a href="#新接口：POST-api-word-upload" class="headerlink" title="新接口：POST /api/word/upload"></a>新接口：<code>POST /api/word/upload</code></h2><p><strong>请求体（JSON）</strong></p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>file_name</code></td>
+<td>必填，仅 basename；扩展名只能是 <code>.md</code>、<code>.markdown</code>、<code>.txt</code>；主名需匹配 <code>^[a-zA-Z0-9][a-zA-Z0-9._-]*$</code></td>
+</tr>
+<tr>
+<td><code>content</code></td>
+<td>必填，文件正文</td>
+</tr>
+<tr>
+<td><code>round_id</code></td>
+<td>可选，缺省用环境变量 <code>AURA_DEFAULT_ROUND_ID</code>（默认 <code>default</code>）</td>
+</tr>
+<tr>
+<td><code>encoding</code></td>
+<td>可选；空 &#x2F; <code>utf8</code> &#x2F; <code>plain</code> &#x2F; <code>text</code> 表示 UTF-8 明文；<code>base64</code> 表示标准 base64 解码后写入</td>
+</tr>
+</tbody></table>
+<p><strong>约束</strong></p>
+<ul>
+<li>解码后长度 <strong>1～20 MiB</strong>（常量 <code>maxWordUploadBytes</code>）</li>
+<li>文件写入 <strong><code>word/&lt;round_id&gt;/&lt;file_name&gt;</code></strong>，并会 <code>ensureRoundDirs(roundID)</code>（含该轮次的 word &#x2F; judge-result &#x2F; submissions 目录）</li>
+</ul>
+<p><strong>成功响应示例</strong></p>
+<figure class="highlight json"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span> <span class="hljs-attr">&quot;file_name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;sdk-doc.md&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;round_id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;default&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;bytes&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1234</span> <span class="hljs-punctuation">&#125;</span><br></code></pre></div></td></tr></table></figure>
+
+<p>之后可直接调用现有 <code>POST /api/audit</code>，<code>target_file</code> 填同一 <code>file_name</code>，<code>round_id</code> 一致即可。</p>
+<h2 id="代码位置"><a href="#代码位置" class="headerlink" title="代码位置"></a>代码位置</h2><ul>
+<li>文件名校验：<code>round_paths.go</code> 中的 <code>sanitizeWordUploadFileName</code></li>
+<li>处理器：<code>rebuild_backend.go</code> 中的 <code>postWordDocumentUpload</code></li>
+<li>路由：<code>r.POST(&quot;/api/word/upload&quot;, postWordDocumentUpload)</code>（在 <code>/api/audit</code> 之前注册）</li>
+</ul>
+<h2 id="附带调整"><a href="#附带调整" class="headerlink" title="附带调整"></a>附带调整</h2><p><code>GET /api/files</code> 现在会列出该轮次 word 目录下的 <strong><code>.md</code> &#x2F; <code>.markdown</code> &#x2F; <code>.txt</code></strong>，与上传类型一致，便于前端&#x2F;管理台看到通过本接口上传的 <code>.txt</code> 文件。</p>
+<hr>
+<p><strong>说明</strong>：与 <code>POST /api/rules/upload</code> 一样，本接口未加管理员鉴权；若部署在公网，建议用反向代理或后续加 Token &#x2F; 钱包头等保护。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/04/09/2434085832.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【4月20日】Meta Earth DevConnect HK</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/04/02/857954464.html">
+                        <span class="hidden-mobile">chenchen-竞品分析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "chenchen-plan3"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

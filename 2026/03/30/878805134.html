@@ -1,0 +1,1241 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>chenchen-plan - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="chenchen-plan">
+                      
+                        chenchen-plan
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-03-30 06:27" pubdate>
+        2026年3月30日 早上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      9.8k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      110
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">chenchen-plan</h1>
+            
+            <div class="markdown-body">
+              <h1 id="第一天-已实现的功能"><a href="#第一天-已实现的功能" class="headerlink" title="第一天-已实现的功能"></a>第一天-已实现的功能</h1><h2 id="1-前端框架搭建"><a href="#1-前端框架搭建" class="headerlink" title="1. 前端框架搭建"></a>1. 前端框架搭建</h2><p><a target="_blank" rel="noopener" href="http://whale3070.com:3000/">http://whale3070.com:3000/</a></p>
+<h2 id="2-后端miroFish搭建"><a href="#2-后端miroFish搭建" class="headerlink" title="2. 后端miroFish搭建"></a>2. 后端miroFish搭建</h2><p>cd &#x2F;root&#x2F;chenchen-lib&#x2F;services&#x2F;ai &amp;&amp; .venv&#x2F;bin&#x2F;uvicorn main:app –host 0.0.0.0 –port 8787</p>
+<h2 id="3-钱包连接自动识别身份"><a href="#3-钱包连接自动识别身份" class="headerlink" title="3. 钱包连接自动识别身份"></a>3. 钱包连接自动识别身份</h2><h2 id="4-角色管理"><a href="#4-角色管理" class="headerlink" title="4. 角色管理"></a>4. 角色管理</h2><p>新增角色<br>删除角色<br>编辑角色</p>
+<p>已实现：角色新增 &#x2F; 删除 + 按钱包持久化</p>
+<h3 id="行为说明"><a href="#行为说明" class="headerlink" title="行为说明"></a>行为说明</h3><ul>
+<li><strong>未连接钱包</strong>：侧栏仍显示演示角色，但 <strong>「新增角色」与删除</strong> 为禁用状态，并提示需连接钱包才会写入服务端。</li>
+<li><strong>已连接钱包</strong>：从 <strong><code>GET /api/v1/personas?authorId=</code></strong> 加载该地址的存档；若尚无存档，则先用演示数据（仅内存），<strong>第一次点「新增」或「删除」</strong> 会把当前列表 <strong>POST</strong> 保存。</li>
+<li><strong>AI 推演</strong> 更新 <code>dramas</code> 时也会 <strong>自动 POST</strong> 整份角色列表，与手动增删共用同一存储。</li>
+</ul>
+<h3 id="后端（Next-Route）"><a href="#后端（Next-Route）" class="headerlink" title="后端（Next Route）"></a>后端（Next Route）</h3><ul>
+<li>新路由：<a href="apps/web/src/app/api/v1/personas/route.ts"><code>apps/web/src/app/api/v1/personas/route.ts</code></a>  <ul>
+<li><strong>GET</strong>：按 <code>authorId</code>（合法以太坊地址）读取  </li>
+<li><strong>POST</strong>：<code>&#123; authorId, personas &#125;</code> 整表覆盖写入</li>
+</ul>
+</li>
+<li>存储位置：与草稿一致，使用 <strong><code>apps/web/.data/personas/&#123;address小写&#125;.json</code></strong>（按钱包隔离的持久化文件；根目录 <code>.gitignore</code> 已忽略 <code>.data/</code>）。<br>若你后续要换成 PostgreSQL &#x2F; SQLite，只需在本路由内改读写实现，前端契约可保持不变。</li>
+</ul>
+<h3 id="前端"><a href="#前端" class="headerlink" title="前端"></a>前端</h3><ul>
+<li><a href="apps/web/src/components/persona-sidebar.tsx"><code>persona-sidebar.tsx</code></a>：「新增角色」按钮、每条右侧 <strong>删除</strong>（带 <code>stopPropagation</code>，避免误触选中）。</li>
+<li><a href="apps/web/src/lib/persona-factory.ts"><code>persona-factory.ts</code></a>：<code>createEmptyPersona()</code> 生成符合类型的空白卡片。</li>
+<li><a href="apps/web/src/components/novel-editor.tsx"><code>novel-editor.tsx</code></a>：钱包变更时拉取&#x2F;回落演示数据；<code>persistPersonas</code>；AI 更新走 <code>handlePersonasUpdateFromAi</code>。</li>
+</ul>
+<h3 id="部署提示（http-whale3070-com-3000-）"><a href="#部署提示（http-whale3070-com-3000-）" class="headerlink" title="部署提示（http://whale3070.com:3000/）"></a>部署提示（<code>http://whale3070.com:3000/</code>）</h3><p>确保运行 <strong><code>next start</code></strong> 的进程对项目目录下的 <strong><code>.data/</code></strong> 有写权限，且若用容器&#x2F;无盘实例，需挂 <strong>volume</strong>，否则重启后 JSON 会丢。</p>
+<p>本地已通过 <code>npm run build</code> 与 <code>npm run lint</code>。若你希望改成真实关系型数据库，可以说下技术栈（例如 Prisma + Postgres），我可以再改一版 API 实现。</p>
+<hr>
+<p>已实现：右侧角色卡片可编辑</p>
+<h3 id="persona-detail-tsx"><a href="#persona-detail-tsx" class="headerlink" title="persona-detail.tsx"></a><a href="apps/web/src/components/persona-detail.tsx"><code>persona-detail.tsx</code></a></h3><ul>
+<li>增加可选属性 <strong><code>onPersonaChange?: (persona: Persona) =&gt; void</code></strong>；传入后即进入编辑模式。</li>
+<li><strong>基本信息</strong>：姓名、职能标签、人设摘要。</li>
+<li><strong>立场</strong>：摘要、可见性、<code>toward</code> 列表（对象 &#x2F; 态度下拉 &#x2F; 强度 0–1、增删行）。</li>
+<li><strong>动机</strong>：目标、为何此刻、内在需求、stakes、误念。</li>
+<li><strong>当前冲突</strong>：类型、描述、对立面、升级钩子。</li>
+<li>无 <code>onPersonaChange</code> 时仍为只读（兼容旧用法）。</li>
+</ul>
+<h3 id="novel-editor-tsx"><a href="#novel-editor-tsx" class="headerlink" title="novel-editor.tsx"></a><a href="apps/web/src/components/novel-editor.tsx"><code>novel-editor.tsx</code></a></h3><ul>
+<li><strong><code>handlePersonaDetailChange</code></strong>：按 <code>id</code> 写回 <code>personas</code>。</li>
+<li><strong>500ms 防抖</strong> 后调用现有 <strong><code>persistPersonas</code></strong>（与增删一致：仅在有 <strong><code>authorId</code></strong> 时 POST）。</li>
+</ul>
+<p>左侧列表中的姓名等会随编辑即时更新；联网且已连接钱包时，编辑会自动同步到 <code>/api/v1/personas</code>。</p>
+<h2 id="5-断点记忆恢复"><a href="#5-断点记忆恢复" class="headerlink" title="5. 断点记忆恢复"></a>5. 断点记忆恢复</h2><p>Context<br>项目使用 Next.js + Tiptap 编辑器。我们需要实现“断点记忆恢复”功能，帮助作者克服开机焦虑。</p>
+<p>Task: Persistence of Writing Context<br>请修改 <code>apps/web</code> 中的编辑器逻辑，实现以下功能：</p>
+<ol>
+<li><p><strong>多维度状态采集</strong>:</p>
+<ul>
+<li>在自动保存 (Auto-save) 时，除了 <code>content</code>，必须捕获：<ul>
+<li><code>selection</code>: 当前光标的 JSON 位置。</li>
+<li><code>last_action_timestamp</code>: 最后一次编辑的时间。</li>
+<li><code>viewport_scroll</code>: 当前页面的滚动高度。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>后端&#x2F;本地联动存储</strong>:</p>
+<ul>
+<li>优先存入浏览器的 <code>localStorage</code>（瞬时恢复）。</li>
+<li>同时防抖 (Debounce 2000ms) 异步同步到后端数据库，关联用户的 MetaMask 钱包地址。</li>
+</ul>
+</li>
+<li><p><strong>视觉唤醒 (The “Wake-up” UI)</strong>:</p>
+<ul>
+<li>当用户重新打开文档且 <code>last_action_timestamp</code> 超过 1 小时，在编辑器顶部显示一个极其克制的浮动条：<ul>
+<li>文案：“欢迎回来，[作者名]。上次你写到了 [提取当前段落前5个词]…”</li>
+<li>按钮：“一键入戏” -&gt; 点击后：<code>editor.commands.focus(selection)</code> 并平滑滚动到对应位置。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="6-卡片式大纲组件"><a href="#6-卡片式大纲组件" class="headerlink" title="6. 卡片式大纲组件"></a>6. 卡片式大纲组件</h2><p>在 apps&#x2F;web 中创建一个 OutlineSidebar 组件。</p>
+<ol>
+<li>数据结构参考 shared&#x2F;types&#x2F;plot-node.ts，支持卷、章、节的树状展示。</li>
+<li>每个节点是一个可编辑的卡片，包含标题、简述、标签（如：#高潮 #伏笔）。</li>
+<li>实现拖拽排序功能，当排序改变时，触发后端 update_structure 接口。</li>
+<li>点击节点，编辑器自动滚动并定位到正文对应位置。</li>
+</ol>
+<hr>
+<p>已交付：<code>OutlineSidebar</code> + 大纲持久化 + 稿面定位</p>
+<h3 id="1-类型（shared-types-plot-node-ts）"><a href="#1-类型（shared-types-plot-node-ts）" class="headerlink" title="1. 类型（shared/types/plot-node.ts）"></a>1. 类型（<code>shared/types/plot-node.ts</code>）</h3><ul>
+<li><strong><code>PlotNodeKind</code></strong> 增加：<code>volume</code>（卷）、<code>chapter</code>（章）、<code>section</code>（节）。</li>
+<li><strong><code>PlotNode</code></strong> 增加可选字段 <strong><code>tags?: string[]</code></strong>，用于 <code>#高潮</code> &#x2F; <code>#伏笔</code> 这类标签（存字符串，界面展示自动加 <code>#</code>）。</li>
+</ul>
+<h3 id="2-工具与演示数据"><a href="#2-工具与演示数据" class="headerlink" title="2. 工具与演示数据"></a>2. 工具与演示数据</h3><ul>
+<li><a href="apps/web/src/lib/plot-outline.ts"><code>apps/web/src/lib/plot-outline.ts</code></a>：扁平列表 ⇄ 树、<code>reorderOutlineFlat</code>（仅允许<strong>同一父节点下</strong>拖拽排序）、<code>plotKindLabel</code> 文案。</li>
+<li><a href="apps/web/src/lib/demo-outline.ts"><code>apps/web/src/lib/demo-outline.ts</code></a>：示例 卷→章→节，并带 <strong><code>range</code></strong>（与 ProseMirror <code>from</code> 对齐，便于跳转）。</li>
+</ul>
+<h3 id="3-后端-update-structure"><a href="#3-后端-update-structure" class="headerlink" title="3. 后端 update-structure"></a>3. 后端 <code>update-structure</code></h3><ul>
+<li><a href="apps/web/src/app/api/v1/update-structure/route.ts"><code>apps/web/src/app/api/v1/update-structure/route.ts</code></a>  <ul>
+<li><strong>GET</strong> <code>?authorId=&amp;docId=</code> → <code>&#123; nodes, updatedAt &#125;</code>  </li>
+<li><strong>POST</strong> <code>&#123; authorId, docId, nodes &#125;</code> → 写入 <strong><code>.data/structure/&#123;address&#125;_&#123;docId&#125;.json</code></strong></li>
+</ul>
+</li>
+</ul>
+<h3 id="4-组件-apps-web-src-components-outline-sidebar-tsx"><a href="#4-组件-apps-web-src-components-outline-sidebar-tsx" class="headerlink" title="4. 组件 apps/web/src/components/outline-sidebar.tsx"></a>4. 组件 <a href="apps/web/src/components/outline-sidebar.tsx"><code>apps/web/src/components/outline-sidebar.tsx</code></a></h3><ul>
+<li>树状展示卷 &#x2F; 章 &#x2F; 节（缩进 + 每层独立 <strong><code>SortableContext</code></strong>，<code>@dnd-kit</code>）。</li>
+<li>卡片可编辑：<strong>标题</strong>、<strong>简述</strong>、<strong>标签</strong>（回车添加、芯片可删）。</li>
+<li><strong>拖拽</strong>：同级排序成功后立刻 <strong><code>POST /api/v1/update-structure</code></strong>；文案修改 <strong>650ms 防抖</strong> 再 POST。</li>
+<li><strong>定位</strong>：每卡片 <strong>「定位」</strong> 按钮 → 调用 <code>onNodeSeek</code>，在稿面中 <code>focus</code> + <code>setTextSelection</code> + <code>scrollIntoView()</code>（依赖节点上的 <strong><code>range.from</code></strong>）。</li>
+</ul>
+<h3 id="5-集成（novel-editor-tsx）"><a href="#5-集成（novel-editor-tsx）" class="headerlink" title="5. 集成（novel-editor.tsx）"></a>5. 集成（<a href="apps/web/src/components/novel-editor.tsx"><code>novel-editor.tsx</code></a>）</h3><ul>
+<li>状态 <strong><code>outlineNodes</code></strong>；已连接钱包则 <strong>GET</strong> 恢复，否则用演示大纲。</li>
+<li><strong><code>postOutlineStructure</code></strong>：仅在有 <strong><code>authorId</code></strong> 时 POST（未连接仍可本地改大纲，但不会落库）。</li>
+<li>布局：<strong>角色侧栏 | 大纲侧栏 | 主编辑区</strong>，外层 <strong><code>overflow-x-auto</code></strong> 避免窄屏撑爆。</li>
+</ul>
+<h3 id="依赖"><a href="#依赖" class="headerlink" title="依赖"></a>依赖</h3><ul>
+<li>已安装 <strong><code>@dnd-kit/core</code></strong>、<strong><code>@dnd-kit/sortable</code></strong>、<strong><code>@dnd-kit/utilities</code></strong>。</li>
+</ul>
+<hr>
+<p><strong>说明</strong>：正文与大纲的 <strong><code>range</code></strong> 目前需自行维护或由后续「标题锚点 &#x2F; 插件」写入；演示里 <code>from: 1</code> 等仅为占位，精确定位可在编辑器里插入对应位置后把 <strong><code>range</code></strong> 写回节点再保存。若需要跨层级拖拽（例如把「节」拖到另一「章」下），可在现有 <code>reorderOutlineFlat</code> 上再扩展一层「改 <code>parentId</code>」逻辑。</p>
+<h2 id="7-身份分区"><a href="#7-身份分区" class="headerlink" title="7. 身份分区"></a>7. 身份分区</h2><p>修改根路由 page.tsx，创建一个极简且具有科技感的进入页面：</p>
+<ol>
+<li>背景采用深色渐变，中心放置两个并列的大卡片：‘我是作者 (Creator)’ 和 ‘我是读者 (Reader)’。</li>
+<li>使用 Framer Motion 实现悬停缩放效果。</li>
+<li>点击‘我是作者’跳转到 &#x2F;workspace；点击‘我是读者’跳转到 &#x2F;library（目前先预留）。</li>
+<li>底部增加‘连接钱包以继续’的 MetaMask 按钮，如果已连接，直接显示钱包地址。</li>
+</ol>
+<h2 id="8-作者管理后台"><a href="#8-作者管理后台" class="headerlink" title="8. 作者管理后台"></a>8. 作者管理后台</h2><p>修改根路由 page.tsx，创建一个极简且具有科技感的进入页面：</p>
+<ol>
+<li>背景采用深色渐变，中心放置两个并列的大卡片：‘我是作者 (Creator)’ 和 ‘我是读者 (Reader)’。</li>
+<li>使用 Framer Motion 实现悬停缩放效果。</li>
+<li>点击‘我是作者’跳转到 &#x2F;workspace；点击‘我是读者’跳转到 &#x2F;library（目前先预留）。</li>
+<li>底部增加‘连接钱包以继续’的 MetaMask 按钮，如果已连接，直接显示钱包地址。</li>
+</ol>
+<hr>
+<p>在 &#x2F;workspace 路径下创建一个作者管理后台。</p>
+<ol>
+<li>顶部导航：显示‘我的小说’和‘账户设置’。</li>
+<li>核心操作区：显眼位置放置一个 + 新建小说 的按钮卡片。</li>
+<li>交互逻辑：点击按钮后，弹出一个 Modal（对话框），要求输入：<br>• 小说标题 (Title)<br>• 内容简介 (Description&#x2F;Preface)</li>
+<li>点击‘确认创建’后，调用后端接口保存数据，并自动跳转到该小说的编辑页面（例如 &#x2F;editor&#x2F;[id]）。</li>
+</ol>
+<hr>
+<p>完善 &#x2F;workspace 的身份验证逻辑：</p>
+<p>检查 useWeb3Auth 状态。如果用户未连接钱包，自动重定向回首页或弹出连接请求。</p>
+<p>在‘新建小说’的保存请求中，Header 必须包含 x-wallet-address。</p>
+<p>后端识别到地址后，如果该地址名下已有小说，在工作台下方以列表形式展示出来，显示书名、字数和最后修改时间。</p>
+<h2 id="发布功能"><a href="#发布功能" class="headerlink" title="发布功能"></a>发布功能</h2><p>基于我当前的郴郴文库AI写作编辑器（现有结构：左侧角色设定、中间卷&#x2F;章&#x2F;节大纲、右侧角色详情、顶部AI推演），做以下完整升级：</p>
+<ol>
+<li><p>【新增发布按钮】</p>
+<ul>
+<li>在页面右上角（现有「导出小说」按钮右侧），新增一个高对比度的「发布小说」主按钮</li>
+<li>按钮样式：深蓝色(#2196f3)背景、白色文字、圆角、hover有放大+加深效果，点击弹出发布配置弹窗</li>
+<li>按钮文案：「发布小说」，尺寸与「导出小说」一致，视觉层级突出</li>
+</ul>
+</li>
+<li><p>【发布配置弹窗（核心功能）】<br>弹窗为居中模态框，深色科技风，包含以下模块：</p>
+<ul>
+<li>🔹 基础信息区（自动填充，可编辑）：<ul>
+<li>小说标题：自动读取大纲的卷标题（如「第一卷·匿名信」）</li>
+<li>小说简介：自动读取卷的简述（如「台谏与枢密院角力下的夜里对谈」）</li>
+<li>小说标签：自动读取卷的标签（如#政治 #伏笔），支持增删</li>
+</ul>
+</li>
+<li>🔹 发布设置区：<ul>
+<li>可见范围选择：「仅自己可见（草稿）」&#x2F;「公开可见（读者可看）」</li>
+<li>付费模式选择：「免费阅读」&#x2F;「付费阅读（0抽成，收益直达作者）」</li>
+<li>付费金额输入框（仅付费模式显示）：支持港币&#x2F;美元&#x2F;人民币切换，默认港币</li>
+<li>更新承诺设置：「无承诺」&#x2F;「每周X更」（下拉选择1-7更），勾选后自动绑定烂尾退款规则</li>
+</ul>
+</li>
+<li>🔹 版权声明区（固定不可修改）：<ul>
+<li>「本作品版权100%归作者所有，郴郴文库仅提供技术服务，不抽成、不买断、不干涉创作」</li>
+</ul>
+</li>
+<li>🔹 操作按钮：<ul>
+<li>左下角：「取消」（关闭弹窗，不保存）</li>
+<li>右下角：「确认发布」（点击后执行发布逻辑，关闭弹窗，按钮状态变为「已发布」）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>【发布后状态同步】</p>
+<ul>
+<li>发布成功后，「发布小说」按钮变为「已发布」（灰色背景，点击可查看发布状态&#x2F;修改设置）</li>
+<li>新增「发布状态」标签，在大纲区顶部显示：「草稿」&#x2F;「已公开」&#x2F;「付费中」</li>
+<li>支持「撤回发布」功能（仅草稿&#x2F;已发布状态可操作，撤回后恢复为草稿）</li>
+</ul>
+</li>
+<li><p>【交互与样式要求】</p>
+<ul>
+<li>弹窗有遮罩层，点击遮罩可关闭，动画平滑淡入淡出</li>
+<li>所有输入框&#x2F;选择框有hover、聚焦高亮效果，符合现有UI风格</li>
+<li>完全兼容现有代码结构，不破坏角色设定、大纲、AI推演等原有功能</li>
+<li>样式统一：主色#0a0e17，高光#4fc3f7，卡片#121a29，与现有设计100%匹配</li>
+<li>代码添加清晰注释，标注发布模块，便于后续对接后端支付、读者端同步</li>
+</ul>
+</li>
+<li><p>【额外优化】</p>
+<ul>
+<li>在作者工作台（新建小说页面）同步新增「发布管理」入口，显示所有小说的发布状态</li>
+<li>发布按钮在未完成大纲&#x2F;内容时，可置灰提示「请完成小说内容后再发布」</li>
+</ul>
+</li>
+</ol>
+<h1 id="第二天功能开发"><a href="#第二天功能开发" class="headerlink" title="第二天功能开发"></a>第二天功能开发</h1><p><code>cd ~/chenchen-lib/apps/web &amp;&amp; npm install &amp;&amp; npm run build &amp;&amp; npm run start</code></p>
+<h2 id="1-连接失败帮助弹窗"><a href="#1-连接失败帮助弹窗" class="headerlink" title="1. 连接失败帮助弹窗"></a>1. 连接失败帮助弹窗</h2><h2 id="2-修改前端页面排版"><a href="#2-修改前端页面排版" class="headerlink" title="2. 修改前端页面排版"></a>2. 修改前端页面排版</h2><h2 id="3-下一章tab"><a href="#3-下一章tab" class="headerlink" title="3. 下一章tab"></a>3. 下一章tab</h2><p>已在作者编辑页底部加好了“上一章 &#x2F; 下一章”章节导航，行为符合你的要求：</p>
+<ul>
+<li><strong>第一章时</strong>：只显示“下一章”</li>
+<li><strong>中间章节</strong>：显示“上一章 + 下一章”</li>
+<li><strong>最后一章点击下一章</strong>：<ul>
+<li>自动新增下一章（按现有最大章号 +1 命名）</li>
+<li>自动跳转到新章，并在稿面末尾插入空白段落，作为“空白页面”开始写</li>
+</ul>
+</li>
+</ul>
+<p>实现文件：</p>
+<ul>
+<li><code>apps/web/src/components/novel-editor.tsx</code></li>
+</ul>
+<p>并且已通过 lint 检查。</p>
+<h2 id="4-财务管理"><a href="#4-财务管理" class="headerlink" title="4. 财务管理"></a>4. 财务管理</h2><p>已完成你要的两端改造：</p>
+<h3 id="1-作者编辑页新增「财务管理」Tab"><a href="#1-作者编辑页新增「财务管理」Tab" class="headerlink" title="1) 作者编辑页新增「财务管理」Tab"></a>1) 作者编辑页新增「财务管理」Tab</h3><p>在 <code>http://whale3070.com:3000/editor/...</code> 里现在有第三个管理 Tab：</p>
+<ul>
+<li><code>角色设定管理</code></li>
+<li><code>剧情大纲管理</code></li>
+<li><code>财务管理</code> ✅</li>
+</ul>
+<p>点击 <code>财务管理</code> 后会显示“收款码上传”区域：</p>
+<ul>
+<li>仅允许上传图片文件（<code>accept=&quot;image/*&quot;</code> + 后端二次校验）</li>
+<li>支持 png&#x2F;jpg&#x2F;webp&#x2F;gif</li>
+<li>上传成功后即时预览当前收款码</li>
+</ul>
+<p>实现文件：</p>
+<ul>
+<li><code>apps/web/src/components/novel-editor.tsx</code></li>
+<li>新增 API：<code>apps/web/src/app/api/v1/author-payment-qr/route.ts</code></li>
+</ul>
+<hr>
+<h3 id="2-读者阅读页新增「打赏作者」"><a href="#2-读者阅读页新增「打赏作者」" class="headerlink" title="2) 读者阅读页新增「打赏作者」"></a>2) 读者阅读页新增「打赏作者」</h3><p>在读者章节页 <code>http://whale3070.com:3000/library/art_xxx</code>：</p>
+<ul>
+<li>原有 <code>上一章</code> &#x2F; <code>下一章</code></li>
+<li>中间新增 <code>打赏作者</code> ✅</li>
+<li>点击后会直接显示作者上传的收款码图片</li>
+<li>若作者未上传，会显示“作者暂未上传收款码”</li>
+</ul>
+<p>实现文件：</p>
+<ul>
+<li><code>apps/web/src/app/library/[articleId]/page.tsx</code></li>
+<li><code>apps/web/src/app/api/v1/library/articles/route.ts</code>（返回 <code>paymentQrImageDataUrl</code>）</li>
+</ul>
+<hr>
+<h3 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h3><p>代码已通过 lint（有两条 Next 关于 <code>&lt;img&gt;</code> 的性能 warning，不影响功能）。<br>如果你要，我下一步可以把这两处 <code>&lt;img&gt;</code> 改为 <code>next/image</code>，顺便加最大尺寸和懒加载。</p>
+<h2 id="5-删除收款码"><a href="#5-删除收款码" class="headerlink" title="5. 删除收款码"></a>5. 删除收款码</h2><p>已加好“删除收款码”功能。</p>
+<h3 id="作者侧（财务管理）"><a href="#作者侧（财务管理）" class="headerlink" title="作者侧（财务管理）"></a>作者侧（财务管理）</h3><p>在编辑页 <code>财务管理</code> 里现在有：</p>
+<ul>
+<li><code>选择收款码图片</code></li>
+<li><code>删除收款码</code> ✅</li>
+</ul>
+<p>点击 <code>删除收款码</code> 后会：</p>
+<ul>
+<li>弹出确认</li>
+<li>删除服务端存档</li>
+<li>前端预览立即清空</li>
+</ul>
+<h3 id="后端接口"><a href="#后端接口" class="headerlink" title="后端接口"></a>后端接口</h3><p>我给收款码 API 增加了 <code>DELETE</code>：</p>
+<ul>
+<li><code>DELETE /api/v1/author-payment-qr?authorId=...&amp;novelId=...</code></li>
+<li>仍校验 <code>x-wallet-address</code> 必须与 <code>authorId</code> 一致</li>
+<li>即使文件不存在也会返回成功（幂等删除）</li>
+</ul>
+<h3 id="修改文件"><a href="#修改文件" class="headerlink" title="修改文件"></a>修改文件</h3><ul>
+<li><code>apps/web/src/app/api/v1/author-payment-qr/route.ts</code></li>
+<li><code>apps/web/src/components/novel-editor.tsx</code></li>
+</ul>
+<p>已通过 lint（仅保留一个 <code>&lt;img&gt;</code> 的性能 warning，不影响功能）。</p>
+<h2 id="6-小说分享功能"><a href="#6-小说分享功能" class="headerlink" title="6. 小说分享功能"></a>6. 小说分享功能</h2><p>已在 <code>http://whale3070.com:3000/workspace</code> 的“发布管理”里加好你要的分享功能。</p>
+<h3 id="新增内容"><a href="#新增内容" class="headerlink" title="新增内容"></a>新增内容</h3><ul>
+<li>每个已公开且有文章 ID 的作品，右侧新增按钮：<code>社交媒体小说分享</code></li>
+<li>点击后弹出分享卡片，包含：<ul>
+<li><code>《xx》小说</code></li>
+<li><code>xx读者入口</code></li>
+<li>小说简介</li>
+<li>二维码（扫码直达读者阅读页）</li>
+<li>可见原始链接（<code>/library/&#123;articleId&#125;</code>）</li>
+</ul>
+</li>
+</ul>
+<p>二维码链接格式就是你指定的这种：</p>
+<ul>
+<li><code>http://whale3070.com:3000/library/art_xxx</code></li>
+</ul>
+<h3 id="实现文件"><a href="#实现文件" class="headerlink" title="实现文件"></a>实现文件</h3><ul>
+<li><code>apps/web/src/components/author-dashboard.tsx</code></li>
+</ul>
+<h3 id="说明-1"><a href="#说明-1" class="headerlink" title="说明"></a>说明</h3><ul>
+<li>仅“已公开”作品可分享；未公开或无文章 ID 按钮会禁用。</li>
+<li>目前二维码图片使用在线生成服务（稳定、无需额外依赖），适合你当前快速上线诉求。</li>
+</ul>
+<p>如果你想离线可用（不依赖外部二维码服务），我可以下一步改成本地生成二维码（引入 <code>qrcode</code> 包）。</p>
+<hr>
+<p>已改成本地生成二维码（不再调用外部二维码服务）。</p>
+<h3 id="已完成"><a href="#已完成" class="headerlink" title="已完成"></a>已完成</h3><ul>
+<li>安装依赖：<code>qrcode</code></li>
+<li>修改文件：<code>apps/web/src/components/author-dashboard.tsx</code></li>
+<li>现在打开“社交媒体小说分享”弹窗时，会在前端本地生成二维码 Data URL 并显示</li>
+</ul>
+<h3 id="行为变化"><a href="#行为变化" class="headerlink" title="行为变化"></a>行为变化</h3><ul>
+<li>旧逻辑：<code>img src=https://api.qrserver.com/...</code></li>
+<li>新逻辑：<code>QRCode.toDataURL(targetUrl)</code> 本地生成</li>
+</ul>
+<p>所以即使外部二维码服务不可用，分享卡也能正常出码。<br>（当前仅有 Next 对 <code>&lt;img&gt;</code> 的性能 warning，不影响功能）</p>
+<h2 id="7-读者阅读权限"><a href="#7-读者阅读权限" class="headerlink" title="7. 读者阅读权限"></a>7. 读者阅读权限</h2><p>已按你的规则完成读者阅读权限改造：</p>
+<h3 id="规则已实现"><a href="#规则已实现" class="headerlink" title="规则已实现"></a>规则已实现</h3><ul>
+<li><strong>作者设置免费公开（<code>paymentMode=free</code>）</strong><ul>
+<li>读者<strong>无需连接 MetaMask</strong>，可直接阅读全部章节。</li>
+</ul>
+</li>
+<li><strong>作者设置付费阅读（<code>paymentMode=paid</code>）</strong><ul>
+<li>读者可免费阅读前 <strong>5 章</strong>。</li>
+<li>第 6 章及以后会提示：连接 MetaMask 并付费解锁。</li>
+<li>解锁后可继续阅读全部章节。</li>
+</ul>
+</li>
+</ul>
+<h3 id="我改了哪些地方"><a href="#我改了哪些地方" class="headerlink" title="我改了哪些地方"></a>我改了哪些地方</h3><ul>
+<li><code>apps/web/src/app/api/v1/library/articles/route.ts</code><ul>
+<li><code>GET</code>：<ul>
+<li>返回 <code>paymentMode</code>、<code>freePreviewChapters</code>、<code>unlocked</code>、<code>totalChapters</code></li>
+<li>按规则返回可读章节（免费全量 &#x2F; 付费前5章 &#x2F; 已解锁全量）</li>
+</ul>
+</li>
+<li><code>POST</code>：<ul>
+<li>新增“付费解锁”接口（当前是解锁记录持久化）</li>
+<li>需 <code>x-wallet-address</code> 才能解锁</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>apps/web/src/app/library/[articleId]/page.tsx</code><ul>
+<li>阅读页按上述字段控制阅读与解锁 UI</li>
+<li>增加“付费解锁后续章节”按钮</li>
+</ul>
+</li>
+<li><code>apps/web/src/app/library/page.tsx</code><ul>
+<li>列表页不再强制先连钱包，允许先进入阅读页</li>
+</ul>
+</li>
+</ul>
+<h3 id="注意（当前版本）"><a href="#注意（当前版本）" class="headerlink" title="注意（当前版本）"></a>注意（当前版本）</h3><p>“付费”目前是你业务流程里的解锁动作（服务端记录解锁），还没有接真实链上扣款&#x2F;支付网关。<br>如果你要，我下一步可以把“付费解锁”接到你现有钱包交易流程（比如先发起链上支付，再回写解锁）。</p>
+<h2 id="8-影响阅读的bug"><a href="#8-影响阅读的bug" class="headerlink" title="8. 影响阅读的bug"></a>8. 影响阅读的bug</h2><p><a target="_blank" rel="noopener" href="http://whale3070.com:3000/library/art_ea6f43913d">http://whale3070.com:3000/library/art_ea6f43913d</a> 在读者侧，有一个影响阅读的bug，就是点击下一章的时候，不能自动跳转到页面开头，而是在页面结尾，需要读者手动翻到页面开头才能阅读。请修改这个bug</p>
+<p>这个 bug 已修复。</p>
+<h3 id="修复内容"><a href="#修复内容" class="headerlink" title="修复内容"></a>修复内容</h3><p>在读者页 <code>apps/web/src/app/library/[articleId]/page.tsx</code> 中：</p>
+<ul>
+<li>给章节容器加了锚点 <code>ref</code></li>
+<li>监听 <code>chapterIndex</code> 变化</li>
+<li>每次点击“上一章&#x2F;下一章”后，自动执行 <code>scrollIntoView</code> 跳到章节顶部</li>
+</ul>
+<p>这样翻页后会直接回到新章节开头，不会停留在页面底部。</p>
+<h1 id="第三天功能开发"><a href="#第三天功能开发" class="headerlink" title="第三天功能开发"></a>第三天功能开发</h1><h2 id="1-图库功能"><a href="#1-图库功能" class="headerlink" title="1. 图库功能"></a>1. 图库功能</h2><h2 id="2-章节目录功能"><a href="#2-章节目录功能" class="headerlink" title="2. 章节目录功能"></a>2. 章节目录功能</h2><p>已在读者页加上“章节目录”功能。</p>
+<h3 id="新效果（-library-articleId-）"><a href="#新效果（-library-articleId-）" class="headerlink" title="新效果（/library/[articleId]）"></a>新效果（<code>/library/[articleId]</code>）</h3><ul>
+<li>文章正文上方新增 <code>章节目录</code> 区块</li>
+<li>展示：<ul>
+<li>当前可读章节数 &#x2F; 总章节数（例如：<code>可读 5 / 共 12 章</code>）</li>
+<li>每章按钮列表（<code>第 N 章 · 章节名</code>）</li>
+</ul>
+</li>
+<li>点击目录项可直接跳转到对应章节</li>
+<li>当前章节会高亮显示</li>
+<li>若有付费锁章节，会提示“后续章节已上锁，解锁后目录会自动扩展”</li>
+</ul>
+<h3 id="修改文件-1"><a href="#修改文件-1" class="headerlink" title="修改文件"></a>修改文件</h3><ul>
+<li><code>apps/web/src/app/library/[articleId]/page.tsx</code></li>
+</ul>
+<h3 id="校验"><a href="#校验" class="headerlink" title="校验"></a>校验</h3><ul>
+<li>ESLint 已通过（仅现有 <code>img</code> 优化 warning，无 error）</li>
+</ul>
+<p>此外，你这页目前“加载中…”长期不消失的情况，通常是线上还没重启到最新构建。你如果愿意，我下一步可以帮你做一版“加载超时自动重试 + 错误详情提示”，避免用户卡在加载态。</p>
+<h2 id="3-DeepSeek-自动阅读-排版-切章导入"><a href="#3-DeepSeek-自动阅读-排版-切章导入" class="headerlink" title="3. DeepSeek 自动阅读 + 排版 + 切章导入"></a>3. DeepSeek 自动阅读 + 排版 + 切章导入</h2><p>已加好你要的功能：在作者编辑页新增 <strong>DeepSeek 自动阅读 + 排版 + 切章导入</strong>。</p>
+<p>你现在在这个页面可用：<a target="_blank" rel="noopener" href="http://whale3070.com:3000/editor/nvl-mne8lsji-f63dd8c107">编辑页</a></p>
+<h3 id="新增内容-1"><a href="#新增内容-1" class="headerlink" title="新增内容"></a>新增内容</h3><ul>
+<li>新按钮：<code>AI智能切章导入</code></li>
+<li>选择 <code>.txt</code> 后会：<ul>
+<li>调用 DeepSeek 分析全文</li>
+<li>自动排版并切分为“第一章、第二章…”</li>
+<li>自动重建大纲章节结构</li>
+<li>自动把第一章写入当前稿面并切到第一章</li>
+</ul>
+</li>
+<li>如果 DeepSeek 返回异常，会自动走本地兜底切章规则，保证可用。</li>
+</ul>
+<h3 id="技术实现"><a href="#技术实现" class="headerlink" title="技术实现"></a>技术实现</h3><ul>
+<li>新增后端接口：<code>/api/v1/ai/chapterize</code><ul>
+<li>文件：<code>apps/web/src/app/api/v1/ai/chapterize/route.ts</code></li>
+<li>调用 DeepSeek chat completions</li>
+<li>强制 JSON 结构输出 <code>chapters[]</code></li>
+<li>提供健壮 JSON 提取和失败 fallback</li>
+</ul>
+</li>
+<li>编辑器接入：<ul>
+<li>文件：<code>apps/web/src/components/novel-editor.tsx</code></li>
+<li>新增按钮、文件选择、调用接口、写入章节与稿面逻辑</li>
+</ul>
+</li>
+</ul>
+<h3 id="DeepSeek-Key-读取"><a href="#DeepSeek-Key-读取" class="headerlink" title="DeepSeek Key 读取"></a>DeepSeek Key 读取</h3><p>后端已支持从以下位置读取 key：</p>
+<ul>
+<li><code>process.env.DEEPSEEK_API_KEY</code> &#x2F; <code>process.env.OPENAI_API_KEY</code></li>
+<li>以及你指定的 <code>/root/chenchen-lib/.env.production</code>（fallback 读取）</li>
+</ul>
+<hr>
+<p>已通过 lint 和 build。<br>你重启当前线上服务后（<code>next start</code> 进程）即可在页面直接使用这个新按钮。</p>
+<h2 id="4-作品真实标题bug修复"><a href="#4-作品真实标题bug修复" class="headerlink" title="4. 作品真实标题bug修复"></a>4. 作品真实标题bug修复</h2><h2 id="5-一键发布所有章节"><a href="#5-一键发布所有章节" class="headerlink" title="5. 一键发布所有章节"></a>5. 一键发布所有章节</h2><p>已加好：在大纲侧边栏“发布状态”右侧新增了 <strong><code>一键发布全部章节</code></strong> 按钮。</p>
+<h3 id="现在行为"><a href="#现在行为" class="headerlink" title="现在行为"></a>现在行为</h3><ul>
+<li>位置：<code>剧情大纲</code> 顶部，<code>发布状态 · 已发布</code> 右边</li>
+<li>点击后会把当前作品所有章节一次性标记为已发布</li>
+<li>成功后章节发布状态会同步刷新（目录和读者端可见）</li>
+<li>在以下情况会禁用按钮：<ul>
+<li>作品仍是草稿（未公开）</li>
+<li>没有章节</li>
+<li>正在提交中</li>
+</ul>
+</li>
+</ul>
+<h3 id="技术实现-1"><a href="#技术实现-1" class="headerlink" title="技术实现"></a>技术实现</h3><ul>
+<li><p>后端新增 action：<code>publish_all_chapters</code></p>
+<ul>
+<li>文件：<code>apps/web/src/app/api/v1/novel-publish/route.ts</code></li>
+<li>一次写入 <code>publishedChapterIds = allChapterIds</code></li>
+</ul>
+</li>
+<li><p>大纲 UI 新增按钮和 props</p>
+<ul>
+<li>文件：<code>apps/web/src/components/outline-sidebar.tsx</code></li>
+</ul>
+</li>
+<li><p>编辑器接入调用</p>
+<ul>
+<li>文件：<code>apps/web/src/components/novel-editor.tsx</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="校验-1"><a href="#校验-1" class="headerlink" title="校验"></a>校验</h3><ul>
+<li>已 lint + build 通过（仅既有 <code>img</code> warning，无错误）</li>
+</ul>
+<p>你重启线上服务后，在该页面就能看到按钮：<br><a target="_blank" rel="noopener" href="http://whale3070.com:3000/editor/nvl-mne8lsji-f63dd8c107">http://whale3070.com:3000/editor/nvl-mne8lsji-f63dd8c107</a></p>
+<h2 id="6-章节目录隐藏功能"><a href="#6-章节目录隐藏功能" class="headerlink" title="6. 章节目录隐藏功能"></a>6. 章节目录隐藏功能</h2><p>已改好，你要的目录现在是“点击展开&#x2F;收起”模式。</p>
+<h3 id="新行为（读者页）"><a href="#新行为（读者页）" class="headerlink" title="新行为（读者页）"></a>新行为（读者页）</h3><ul>
+<li>章节目录默认<strong>收起</strong></li>
+<li>点击 <code>章节目录 ▸</code> 才展开全部章节</li>
+<li>再点变成 <code>章节目录 ▾</code> 可收起</li>
+<li>收起时会显示一行当前章节：<code>当前：第 N 章 · 标题</code></li>
+</ul>
+<p>已修改文件：</p>
+<ul>
+<li><code>apps/web/src/app/library/[articleId]/page.tsx</code></li>
+</ul>
+<p>页面地址：<a target="_blank" rel="noopener" href="http://whale3070.com:3000/library/art_ea6f43913d">http://whale3070.com:3000/library/art_ea6f43913d</a></p>
+<p>如果你要，我还可以再加一个“记住用户上次展开状态”（本地缓存），下次打开同一本书保持你的习惯。</p>
+<h2 id="7-用户点击变色功能"><a href="#7-用户点击变色功能" class="headerlink" title="7. 用户点击变色功能"></a>7. 用户点击变色功能</h2><p>已加上“点击后变色”功能。</p>
+<h3 id="现在目录颜色规则"><a href="#现在目录颜色规则" class="headerlink" title="现在目录颜色规则"></a>现在目录颜色规则</h3><ul>
+<li><strong>当前章节</strong>：蓝色高亮（原有）</li>
+<li><strong>点击&#x2F;阅读过章节</strong>：绿色标记</li>
+<li><strong>未点击章节</strong>：默认灰色</li>
+</ul>
+<p>并且不只是点目录才算，点“上一章&#x2F;下一章”进入的章节也会自动标记为已读。</p>
+<p>修改文件：</p>
+<ul>
+<li><code>apps/web/src/app/library/[articleId]/page.tsx</code></li>
+</ul>
+<p>如果你愿意，我可以再加一个“刷新后也记住已读颜色”（按 <code>articleId</code> 存本地缓存）。</p>
+<h2 id="8-刷新后记住已读颜色"><a href="#8-刷新后记住已读颜色" class="headerlink" title="8. 刷新后记住已读颜色"></a>8. 刷新后记住已读颜色</h2><p>已加好“刷新后记住已读颜色”。</p>
+<h3 id="现在行为-1"><a href="#现在行为-1" class="headerlink" title="现在行为"></a>现在行为</h3><ul>
+<li>已读章节索引会按 <code>articleId</code> 存到本地缓存（<code>localStorage</code>）</li>
+<li>页面刷新后会恢复已读颜色</li>
+<li>切换到其他文章不会串（因为 key 含 <code>articleId</code>）</li>
+<li>当章节数量变化时，会自动清理越界索引，避免脏数据</li>
+</ul>
+<p>修改文件：</p>
+<ul>
+<li><code>apps/web/src/app/library/[articleId]/page.tsx</code></li>
+</ul>
+<p>已通过 lint（仅保留原有 <code>img</code> warning）。</p>
+<h2 id="9-添加一个markdown编辑器"><a href="#9-添加一个markdown编辑器" class="headerlink" title="9. 添加一个markdown编辑器"></a>9. 添加一个markdown编辑器</h2><h2 id="10-发布章节只读功能"><a href="#10-发布章节只读功能" class="headerlink" title="10. 发布章节只读功能"></a>10. 发布章节只读功能</h2><p>已加上“已发布章节默认锁定只读，点击编辑 tab 才能修改”的机制，改动在 <code>apps/web/src/components/novel-editor.tsx</code>。</p>
+<ul>
+<li>新增章节编辑模式状态：<code>chapterEditTab</code>（<code>read | edit</code>）。</li>
+<li>新增锁定判断：当当前章节已发布且 tab 不是 <code>edit</code> 时，进入只读。</li>
+<li>章节切换&#x2F;发布状态变化时自动切换模式：<ul>
+<li>已发布章节：默认 <code>read</code></li>
+<li>未发布章节：默认 <code>edit</code></li>
+</ul>
+</li>
+<li>通过 <code>editorInstance.setEditable(...)</code> 真正控制编辑器可写性。</li>
+<li>在“阅读&#x2F;编辑”tab 区增加提示文案：已发布章节默认只读，点击“编辑”可修改。</li>
+<li>只读时禁用会写入内容的操作：<ul>
+<li>导入小说</li>
+<li>AI 智能切章导入</li>
+<li>Markdown 编辑器入口</li>
+<li>上传图片</li>
+<li>上传图片压缩包</li>
+<li>编辑器内粘贴图片自动上传</li>
+</ul>
+</li>
+</ul>
+<p>这样现在行为就是：<strong>章节一旦发布，作者默认看到只读稿面；只有显式点“编辑”tab，才会解锁编辑。</strong></p>
+<h2 id="11-读者端排版"><a href="#11-读者端排版" class="headerlink" title="11. 读者端排版"></a>11. 读者端排版</h2><p><a target="_blank" rel="noopener" href="http://whale3070.com:3000/library/art_176aefb2a7">http://whale3070.com:3000/library/art_176aefb2a7</a>  读者端看到的不是deepseek排版完的版本。请你生成两个版本。一个适合电脑阅读，一个适合手机阅读。并且当用户扫码阅读的时候，自动判断是手机还是电脑。适配阅读格式。</p>
+<p>已完成你要的能力，且是“自动设备适配”：</p>
+<ul>
+<li>发布时生成 <strong>两套章节排版</strong>  <ul>
+<li><code>chapterHtmlDesktop</code>（电脑阅读版：段落更完整）  </li>
+<li><code>chapterHtmlMobile</code>（手机阅读版：段落更短、更易扫读）</li>
+</ul>
+</li>
+<li>读者端接口按扫码设备 <strong>自动判断</strong>（User-Agent）并返回对应版本  <ul>
+<li>手机扫码打开：返回 <code>mobile</code> 版  </li>
+<li>电脑打开：返回 <code>desktop</code> 版</li>
+</ul>
+</li>
+<li>还加了调试覆盖参数：<code>?device=mobile</code> 或 <code>?device=desktop</code> 可强制查看某一版</li>
+</ul>
+<h3 id="具体改动"><a href="#具体改动" class="headerlink" title="具体改动"></a>具体改动</h3><ul>
+<li><code>apps/web/src/lib/server/deepseek-publish-format.ts</code><ul>
+<li>发布排版后不再只产出一个 <code>chapterHtml</code>，而是同时产出：<ul>
+<li><code>chapterHtmlDesktop</code></li>
+<li><code>chapterHtmlMobile</code></li>
+</ul>
+</li>
+<li><code>chapterHtml</code> 继续保留并指向 desktop 版（兼容老逻辑）</li>
+</ul>
+</li>
+<li><code>apps/web/src/app/api/v1/library/articles/route.ts</code><ul>
+<li>新增设备判断逻辑（UA + 可选 query override）</li>
+<li>读取章节时优先返回对应设备版本，若缺失则回退到旧 <code>chapterHtml</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="你现在看到“不是-DeepSeek-排版”的原因"><a href="#你现在看到“不是-DeepSeek-排版”的原因" class="headerlink" title="你现在看到“不是 DeepSeek 排版”的原因"></a>你现在看到“不是 DeepSeek 排版”的原因</h3><p>如果这本书是在改造前发布的，结构里还没有双版本字段。<br>需要触发一次新的发布流程（<code>发布小说</code> &#x2F; <code>发布本章</code> &#x2F; <code>一键发布全部章节</code>），才会把新版本内容写入并生效。</p>
+<p>你可以直接在这个页面验证（手机和电脑各开一次，或加 <code>device</code> 参数对比）：<a target="_blank" rel="noopener" href="http://whale3070.com:3000/library/art_176aefb2a7">Chenchen-Lib · AI 编辑平台</a></p>
+<h2 id="12-读者作者展示不同步的bug"><a href="#12-读者作者展示不同步的bug" class="headerlink" title="12. 读者作者展示不同步的bug"></a>12. 读者作者展示不同步的bug</h2><p>已修复这个发布状态不同步的 bug，根因是<strong>章节发布时存在结构持久化竞态</strong>：</p>
+<ul>
+<li>作者端“发布本章&#x2F;发布小说”用的是前端最新 <code>outlineNodes</code>（含最新 chapterId）</li>
+<li>读者端读取的是服务端 <code>.data/structure</code> 里的章节结构</li>
+<li>在某些时机（比如刚改章节后马上发布），结构还没先写入服务端，就会出现“作者端显示已发布，但读者端按旧结构过滤不到该章节”的情况</li>
+</ul>
+<h3 id="我做的修复"><a href="#我做的修复" class="headerlink" title="我做的修复"></a>我做的修复</h3><p>文件：<code>/root/chenchen-lib/apps/web/src/components/novel-editor.tsx</code></p>
+<p>在以下发布动作前，统一先执行一次 <code>await postOutlineStructure(outlineNodes)</code>，确保服务端章节结构先落盘，再发发布请求：</p>
+<ul>
+<li><code>handlePublishConfirm</code>（发布小说）</li>
+<li><code>toggleCurrentChapterPublish</code>（底部“发布本章”）</li>
+<li><code>OutlineSidebar</code> 里的 <code>onToggleChapterPublish</code>（大纲中的发布本章）</li>
+<li><code>onPublishAllChapters</code>（一键发布全部章节）</li>
+</ul>
+<p>这样发布记录里的 <code>publishedChapterIds</code> 和读者端读取到的章节结构就不会错位。</p>
+<h3 id="当前状态"><a href="#当前状态" class="headerlink" title="当前状态"></a>当前状态</h3><ul>
+<li>已完成代码修复</li>
+<li>已检查该文件 lint，无报错</li>
+</ul>
+<p>你现在可以在作者页再点一次“发布本章”后去读者端刷新验证。<br>页面参考：<a target="_blank" rel="noopener" href="http://whale3070.com:3000/editor/nvl-mng5hlto-c4375bd3b9">Chenchen-Lib · AI 编辑平台</a></p>
+<h2 id="13-读者社交媒体小说分享"><a href="#13-读者社交媒体小说分享" class="headerlink" title="13. 读者社交媒体小说分享"></a>13. 读者社交媒体小说分享</h2><p><a target="_blank" rel="noopener" href="http://whale3070.com:3000/workspace">http://whale3070.com:3000/workspace</a>  这里有一个社交媒体小说分享功能，我想在读者端也加入一个社交媒体小说分享功能，并且带上分享的读者的钱包地址。<br>后期加上，当其他读者通过这个地方分享小说，有人付费的话，读者也能赚一部分的钱。<br>引导读者主动为作者分享小说</p>
+<p>已加上读者端“社交媒体小说分享”功能，并把<strong>分享读者的钱包地址</strong>带进分享链接。</p>
+<h3 id="已完成改动"><a href="#已完成改动" class="headerlink" title="已完成改动"></a>已完成改动</h3><p>文件：<code>/root/chenchen-lib/apps/web/src/app/library/[articleId]/page.tsx</code></p>
+<ul>
+<li>新增读者端按钮：<code>社交媒体分享</code></li>
+<li>新增分享弹窗（二维码 + 链接 + 下载分享图）</li>
+<li>分享链接现在是：<ul>
+<li>已连接钱包：<code>/library/&#123;articleId&#125;?readerWallet=&#123;钱包地址&#125;</code></li>
+<li>未连接钱包：先引导连接钱包，再打开分享</li>
+</ul>
+</li>
+<li>分享图里也显示了“分享读者钱包”信息，便于社媒传播时识别来源读者</li>
+<li>已通过该文件 lint 检查（无报错）</li>
+</ul>
+<h3 id="说明-2"><a href="#说明-2" class="headerlink" title="说明"></a>说明</h3><p>你现在在读者页点击“社交媒体分享”后，生成的二维码和链接都包含当前读者钱包地址参数。<br>你给的场景页参考是这个：<a target="_blank" rel="noopener" href="http://whale3070.com:3000/workspace">Chenchen-Lib · AI 编辑平台</a>。</p>
+<p>如果你希望参数名从 <code>readerWallet</code> 改成 <code>referrer</code> &#x2F; <code>inviter</code>，我可以再帮你统一改成你后台统计更方便的命名。</p>
+<h2 id="14-读者阅读版本"><a href="#14-读者阅读版本" class="headerlink" title="14. 读者阅读版本"></a>14. 读者阅读版本</h2><p><a target="_blank" rel="noopener" href="http://whale3070.com:3000/library/art_176aefb2a7">http://whale3070.com:3000/library/art_176aefb2a7</a>  读者端看到的不是deepseek排版完的版本。请你生成两个版本。一个适合电脑阅读，一个适合手机阅读。并且当用户扫码阅读的时候，自动判断是手机还是电脑。适配阅读格式。</p>
+<p>已完成你要的能力，且是“自动设备适配”：</p>
+<ul>
+<li>发布时生成 <strong>两套章节排版</strong>  <ul>
+<li><code>chapterHtmlDesktop</code>（电脑阅读版：段落更完整）  </li>
+<li><code>chapterHtmlMobile</code>（手机阅读版：段落更短、更易扫读）</li>
+</ul>
+</li>
+<li>读者端接口按扫码设备 <strong>自动判断</strong>（User-Agent）并返回对应版本  <ul>
+<li>手机扫码打开：返回 <code>mobile</code> 版  </li>
+<li>电脑打开：返回 <code>desktop</code> 版</li>
+</ul>
+</li>
+<li>还加了调试覆盖参数：<code>?device=mobile</code> 或 <code>?device=desktop</code> 可强制查看某一版</li>
+</ul>
+<h3 id="具体改动-1"><a href="#具体改动-1" class="headerlink" title="具体改动"></a>具体改动</h3><ul>
+<li><code>apps/web/src/lib/server/deepseek-publish-format.ts</code><ul>
+<li>发布排版后不再只产出一个 <code>chapterHtml</code>，而是同时产出：<ul>
+<li><code>chapterHtmlDesktop</code></li>
+<li><code>chapterHtmlMobile</code></li>
+</ul>
+</li>
+<li><code>chapterHtml</code> 继续保留并指向 desktop 版（兼容老逻辑）</li>
+</ul>
+</li>
+<li><code>apps/web/src/app/api/v1/library/articles/route.ts</code><ul>
+<li>新增设备判断逻辑（UA + 可选 query override）</li>
+<li>读取章节时优先返回对应设备版本，若缺失则回退到旧 <code>chapterHtml</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="你现在看到“不是-DeepSeek-排版”的原因-1"><a href="#你现在看到“不是-DeepSeek-排版”的原因-1" class="headerlink" title="你现在看到“不是 DeepSeek 排版”的原因"></a>你现在看到“不是 DeepSeek 排版”的原因</h3><p>如果这本书是在改造前发布的，结构里还没有双版本字段。<br>需要触发一次新的发布流程（<code>发布小说</code> &#x2F; <code>发布本章</code> &#x2F; <code>一键发布全部章节</code>），才会把新版本内容写入并生效。</p>
+<p>你可以直接在这个页面验证（手机和电脑各开一次，或加 <code>device</code> 参数对比）：<a target="_blank" rel="noopener" href="http://whale3070.com:3000/library/art_176aefb2a7">Chenchen-Lib · AI 编辑平台</a></p>
+<h2 id="14-AI排版功能"><a href="#14-AI排版功能" class="headerlink" title="14. AI排版功能"></a>14. AI排版功能</h2><p><a target="_blank" rel="noopener" href="http://whale3070.com:3000/editor/nvl-mnfz7ois-cc9d2970a7">http://whale3070.com:3000/editor/nvl-mnfz7ois-cc9d2970a7</a>  当作者发布小说的时候，deepseek自动排版，比如说首行缩进。太长的段落拆分为多个段落等等。请你给deepseek合适的prompt</p>
+<p>可以，给你一版可直接用于发布前“自动排版”的 DeepSeek Prompt（偏工程可用、约束清晰）。</p>
+<figure class="highlight text"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs text">你是“中文长篇小说出版排版编辑”。请对输入稿件做“仅排版与微润色”，目标是提升可读性与出版观感。<br><br>【核心原则】<br>1) 严禁改剧情：不得新增/删除关键情节、人物、设定、时间线、世界观。<br>2) 严禁改人名地名术语：专有名词保持原样。<br>3) 仅做排版与轻微语言整理：断句、分段、标点、重复赘词清理。<br><br>【排版规则（必须执行）】<br>1) 每个自然段首行缩进两个全角空格（即“　　”）。<br>2) 过长段落必须拆分：  <br>   - 单段超过 140 个汉字时，按语义拆成 2-4 段；  <br>   - 目标段长 40-110 字，叙事高密段可适当放宽到 130 字。<br>3) 对话独立成段：  <br>   - 不同角色发言必须分段；  <br>   - 同一角色长段台词可按语气停顿拆段；  <br>   - 对话与动作描写混合时，优先“台词段/动作段”分开。<br>4) 场景切换（时间/地点/视角明显变化）前后空一行，不额外加标题。<br>5) 标点规范化：统一中文全角标点，修正常见误用（逗号、句号、冒号、引号、省略号等）。<br>6) 删除明显口水句、重复连接词、机械重复表达，但不得改变语义。<br>7) 保留原文段落顺序，不重排章节结构。<br><br>【输出要求（必须遵守）】<br>1) 只输出排版后的正文，不要解释、不要备注、不要Markdown标记。<br>2) 不要添加“以下是排版结果”等引导语。<br>3) 不要输出JSON，不要代码块。<br>4) 若输入为空，输出：内容为空。<br><br>现在开始处理下面的小说正文：<br>&#123;&#123;NOVEL_TEXT&#125;&#125;<br></code></pre></div></td></tr></table></figure>
+
+<p>如果你想要“更激进”的版本（比如自动把大段拆得更碎、偏网文节奏），我也可以再给你一版“强节奏型 prompt”。</p>
+<p>参考页面：<a target="_blank" rel="noopener" href="http://whale3070.com:3000/editor/nvl-mnfz7ois-cc9d2970a7">Chenchen-Lib · AI 编辑平台</a></p>
+<p>你把以上的prompt写入源码，让作者<a target="_blank" rel="noopener" href="http://whale3070.com:3000/editor/nvl-mnfz7ois-cc9d2970a7">http://whale3070.com:3000/editor/nvl-mnfz7ois-cc9d2970a7</a>  当作者点击“发布小说”，“发布本章” tab的时候，deepseek自动排版</p>
+<hr>
+<p>已写入源码并接好了，你要的行为现在是：</p>
+<ul>
+<li>作者点击 <strong>“发布小说”</strong>（发布配置确认，且可见性为公开）时，会先对章节内容做 DeepSeek 自动排版，再完成发布。</li>
+<li>作者点击 <strong>“发布本章”</strong> 时，会先对该章节做 DeepSeek 自动排版，再完成本章发布。</li>
+<li>作者点击 <strong>“一键发布全部章节”</strong> 时，也会先批量自动排版再发布。</li>
+</ul>
+<h3 id="改动文件"><a href="#改动文件" class="headerlink" title="改动文件"></a>改动文件</h3><ul>
+<li><code>apps/web/src/lib/server/deepseek-publish-format.ts</code><ul>
+<li>新增服务端排版模块（DeepSeek prompt + 调用 + 本地兜底排版）。</li>
+<li>内置你要求的规则：首行全角缩进、长段拆分、对话分段、标点规范、只做排版微润色不改剧情。</li>
+</ul>
+</li>
+<li><code>apps/web/src/app/api/v1/novel-publish/route.ts</code><ul>
+<li>在 <code>toggle_chapter</code>（发布本章）时接入自动排版。</li>
+<li>在 <code>publish_all_chapters</code>（一键发布）时接入自动排版。</li>
+<li>在整本发布（公开）时接入自动排版。</li>
+</ul>
+</li>
+</ul>
+<h3 id="说明-3"><a href="#说明-3" class="headerlink" title="说明"></a>说明</h3><ul>
+<li>若 DeepSeek 临时不可用，代码会自动走本地兜底排版，保证发布流程不中断。</li>
+<li>已检查本次修改文件，当前无 lints 报错。</li>
+</ul>
+<h2 id="15-定位的bug修复"><a href="#15-定位的bug修复" class="headerlink" title="15. 定位的bug修复"></a>15. 定位的bug修复</h2><p><a target="_blank" rel="noopener" href="http://whale3070.com:3000/editor/nvl-mne8lsji-f63dd8c107">http://whale3070.com:3000/editor/nvl-mne8lsji-f63dd8c107</a> 这个页面“剧情大纲管理”点定位这个tab，应该跳转到对应的章节。并且只有新增章节，没有删除章节的功能。应该选中章节，点删除就可以删除此章节。</p>
+<p>已按你说的两个点改完，代码在 <code>/root/chenchen-lib</code>：</p>
+<ul>
+<li><code>剧情大纲管理</code>里的 <strong>“定位”</strong>（章节节点）现在会切换到对应章节，不再只是移动当前章节内光标。</li>
+<li>新增了 <strong>“删除章节”</strong> 按钮：先选中某个章节，再点删除即可删除该章节（带二次确认）。</li>
+</ul>
+<p>具体实现：</p>
+<ul>
+<li><p>在 <code>apps/web/src/components/outline-sidebar.tsx</code>：</p>
+<ul>
+<li>新增 <code>onChapterSelect</code>、<code>activeChapterId</code>、<code>onDeleteChapter</code> 属性；</li>
+<li>章节节点点击“定位”时，调用 <code>onChapterSelect(chapterId)</code>；</li>
+<li>新增“删除章节”按钮，仅在选中的是章节时可用；</li>
+<li>根据 <code>activeChapterId</code> 自动高亮并滚动到对应章节卡片，避免切到“剧情大纲管理”后找不到当前章。</li>
+</ul>
+</li>
+<li><p>在 <code>apps/web/src/components/novel-editor.tsx</code>：</p>
+<ul>
+<li>传入 <code>onChapterSelect</code> 给 <code>OutlineSidebar</code>，并用已有 <code>jumpToChapter</code> 切章；</li>
+<li>新增 <code>handleDeleteChapter</code>：<ul>
+<li>删除前确认；</li>
+<li>删除后自动选择相邻章节并载入内容；</li>
+<li>若删到没有章节，清空稿面并置空当前章节；</li>
+<li>同步剔除 <code>publishRecord.publishedChapterIds</code> 里被删章节 id（避免前端状态残留）。</li>
+</ul>
+</li>
+<li>点击顶部“剧情大纲管理”tab 时，会同步定位当前活动章节。</li>
+</ul>
+</li>
+</ul>
+<p>我也跑过这两个文件的 lints，当前没有报错。<br>参考页面：<a target="_blank" rel="noopener" href="http://whale3070.com:3000/editor/nvl-mne8lsji-f63dd8c107">Chenchen-Lib · AI 编辑平台</a>。</p>
+<p>如果你希望“删除章节”支持快捷键（例如 <code>Delete</code>）或批量删除，我可以继续补上。</p>
+<h2 id="16-Markdown-编辑器"><a href="#16-Markdown-编辑器" class="headerlink" title="16. Markdown 编辑器"></a>16. Markdown 编辑器</h2><p>已按你的需求改好了：<code>Markdown 编辑器（支持表格）</code> 现在点击后会<strong>新开浏览器窗口</strong>，不再使用页面内浮窗。</p>
+<p>改动在 <code>/root/chenchen-lib/apps/web/src/components/novel-editor.tsx</code>，核心行为是：</p>
+<ul>
+<li>点击 <code>Markdown编辑器</code> 按钮时，使用 <code>window.open(...)</code> 打开独立窗口</li>
+<li>新窗口里仍然保留「Markdown 输入 + 实时预览 + 应用到当前章节」功能</li>
+<li>初始内容会从当前章节 HTML 转成 Markdown 后带过去</li>
+<li>在新窗口点「应用到当前章节」后，会通过 <code>postMessage</code> 回传主页面并更新编辑器内容</li>
+<li>主页面卸载时会自动清理消息监听，并关闭仍打开的 Markdown 子窗口</li>
+</ul>
+<p>另外我也做了本文件 lint 检查，当前无报错。</p>
+<p>如果你希望把这个独立窗口改成固定 URL（比如你给的 <code>http://whale3070.com:3000/editor/...</code> 这种路由）而不是动态写入的弹窗页面，我也可以继续帮你改成“独立路由页面”版本。</p>
+<h1 id="未实现的功能"><a href="#未实现的功能" class="headerlink" title="未实现的功能"></a>未实现的功能</h1><p>作为一个深耕文字、每天在逻辑与灵感之间博弈的作者，我眼中的“终极AI写作编辑器”绝不仅仅是一个打字工具，它应该是一个**“数字分身”<strong>和</strong>“剧情沙盘”**。</p>
+<p>除了你提到的基础稳健性（自动保存）和版本控制（分支剧情），站在一个职业创作者的角度，我还极度渴求以下这些能解决“灵魂痛点”的功能：</p>
+<hr>
+<h3 id="1-动态语义搜寻（不再翻找“那个配角叫什么”）"><a href="#1-动态语义搜寻（不再翻找“那个配角叫什么”）" class="headerlink" title="1. 动态语义搜寻（不再翻找“那个配角叫什么”）"></a>1. 动态语义搜寻（不再翻找“那个配角叫什么”）</h3><p>作者最痛苦的不是写不出，而是写到第 50 万字时，忘了第 3 章埋下的伏笔。</p>
+<ul>
+<li><strong>功能：</strong> AI 自动索引全文。</li>
+<li><strong>体验：</strong> 我输入 <code>@王二</code>，右侧侧边栏立即弹出王二的所有出场片段、性格褶皱、以及他上次出现时穿的衣服颜色。它不是简单的关键词搜索，而是<strong>语义识别</strong>。</li>
+</ul>
+<h3 id="2-沉浸式“感官实验室”（环境描写辅助）"><a href="#2-沉浸式“感官实验室”（环境描写辅助）" class="headerlink" title="2. 沉浸式“感官实验室”（环境描写辅助）"></a>2. 沉浸式“感官实验室”（环境描写辅助）</h3><p>写到森林，我希望能听到风声；写到战场，我希望能看到硝烟。</p>
+<ul>
+<li><strong>功能：</strong> <strong>环境声效 + 词库联想</strong>。</li>
+<li><strong>体验：</strong> 当我写下“深夜的破庙”，编辑器自动切换背景音为雨声和偶尔的雷鸣，并浮动显示一组关于“破败、腐朽、阴冷”的高级形容词，甚至直接调取 MiroFish 推演此时角色的生理反应（如：瞳孔收缩、指尖冰冷）。</li>
+</ul>
+<h3 id="3-“逻辑测谎仪”（防止降智与吃设定）"><a href="#3-“逻辑测谎仪”（防止降智与吃设定）" class="headerlink" title="3. “逻辑测谎仪”（防止降智与吃设定）"></a>3. “逻辑测谎仪”（防止降智与吃设定）</h3><p>这是老作者最怕的“晚节不保”。</p>
+<ul>
+<li><strong>功能：</strong> <strong>人设实时冲突检测</strong>。</li>
+<li><strong>体验：</strong> 当我写主角“慷慨地施舍了路人”时，编辑器标红并提醒：“警告：主角在第 12 章已确立‘极度自私’的性格褶皱，且目前正处于负债状态，此举违背行为逻辑。”</li>
+</ul>
+<h3 id="4-自动化“钩子”分析（节奏大师）"><a href="#4-自动化“钩子”分析（节奏大师）" class="headerlink" title="4. 自动化“钩子”分析（节奏大师）"></a>4. 自动化“钩子”分析（节奏大师）</h3><p>网文和商业小说极其讲究节奏。</p>
+<ul>
+<li><strong>功能：</strong> <strong>波形图进度条</strong>。</li>
+<li><strong>体验：</strong> AI 分析我这一章的对话密度、冲突强度和信息量，生成一条曲线。如果曲线太直（平铺直叙超过 3000 字），它会建议：“此处缺乏情绪波动，建议插入一个 MiroFish 角色冲突推演。”</li>
+</ul>
+<h3 id="5-跨时空的“废稿回收站”"><a href="#5-跨时空的“废稿回收站”" class="headerlink" title="5. 跨时空的“废稿回收站”"></a>5. 跨时空的“废稿回收站”</h3><p>你提到的“自动隐藏草稿”很好，但我想要更进化的：</p>
+<ul>
+<li><strong>功能：</strong> <strong>灵感碎片自动关联</strong>。</li>
+<li><strong>体验：</strong> 我三年前随手写的一个段落，如果跟现在的剧情契合，AI 会在侧边栏弱提示：“检测到你 2023 年有一段关于‘赛博晚霞’的描写，是否引用？”让废稿不再是垃圾，而是<strong>资产储备库</strong>。</li>
+</ul>
+<hr>
+<h3 id="关于你提到的-Mermaid-管理，我建议更进一步："><a href="#关于你提到的-Mermaid-管理，我建议更进一步：" class="headerlink" title="关于你提到的 Mermaid 管理，我建议更进一步："></a>关于你提到的 Mermaid 管理，我建议更进一步：</h3><h4 id="角色关系动态图谱-Mermaid-Flow"><a href="#角色关系动态图谱-Mermaid-Flow" class="headerlink" title="角色关系动态图谱 (Mermaid Flow)"></a>角色关系动态图谱 (Mermaid Flow)</h4><p>不仅是静态的树状图，而是随剧情变化的<strong>热力图</strong>。</p>
+<pre><code class=" mermaid">graph TD
+    A[主角: 林零] -- 信任度: 85% --&gt; B(女主: 昭)
+    B -- 怀疑: 40% --&gt; A
+    A -- 杀意: 90% --&gt; C&#123;反派: 某种意志&#125;
+    style A fill:#f96,stroke:#333,stroke-width:4px
+</code></pre>
+
+<ul>
+<li><strong>联动：</strong> 当我在正文里写“林零开始怀疑昭的动机”，Mermaid 图谱里的那条线自动变色（由绿转红）。</li>
+</ul>
+<hr>
+<h3 id="总结：我的梦想清单"><a href="#总结：我的梦想清单" class="headerlink" title="总结：我的梦想清单"></a>总结：我的梦想清单</h3><table>
+<thead>
+<tr>
+<th align="left">功能模块</th>
+<th align="left">解决的作者痛点</th>
+<th align="left">商业价值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>断点记忆恢复</strong></td>
+<td align="left">克服“开机焦虑”，秒入状态</td>
+<td align="left">提高产出效率</td>
+</tr>
+<tr>
+<td align="left"><strong>平行时空分支</strong></td>
+<td align="left">解决“万一这么写烂尾了怎么办”的恐惧</td>
+<td align="left">提升作品质量</td>
+</tr>
+<tr>
+<td align="left"><strong>角色行为校验</strong></td>
+<td align="left">杜绝“人设崩塌”</td>
+<td align="left">保住核心粉丝</td>
+</tr>
+<tr>
+<td align="left"><strong>全球多语言一键推演</strong></td>
+<td align="left">解决出海翻译的“神韵丢失”</td>
+<td align="left">赚全球读者的钱</td>
+</tr>
+</tbody></table>
+<p><strong>如果你能把 MetaMask 登录和这些功能结合，我不仅是在写书，我是在经营一个“永不宕机、逻辑自洽”的个人元宇宙。</strong></p>
+<p>下一步，你想先让 Cursor 实现“分支剧情管理（Git for Writers）”，还是先搞定那个“基于 Mermaid 的动态图谱”？</p>
+<p>你是一个作者，你最想要的AI写作编辑器应该有哪些功能，比如说 1. 自动保存防止断电文档失踪 2. 版本功能，当这个走向不满意，基于这个节点新开一个分支。3. 自动隐藏草稿（或者淘汰的版本）4. 大纲管理功能。画mermaid管理小说人物和大纲。还有吗</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/03/30/1471631907.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">bilibili-analyse</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/03/28/2930818764.html">
+                        <span class="hidden-mobile">CCMF-郴郴文库</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "chenchen-plan"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

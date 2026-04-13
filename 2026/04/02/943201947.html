@@ -1,0 +1,735 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>polkadot-第20期学习培训 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="polkadot-第20期学习培训">
+                      
+                        polkadot-第20期学习培训
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-04-02 06:05" pubdate>
+        2026年4月2日 早上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.4k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      43
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">polkadot-第20期学习培训</h1>
+            
+            <div class="markdown-body">
+              <h1 id="下面哪个不是波卡网络的特点"><a href="#下面哪个不是波卡网络的特点" class="headerlink" title="下面哪个不是波卡网络的特点"></a>下面哪个不是波卡网络的特点</h1><p>A 它是一个多链的网络<br>B 它支持不同网络间的通信<br>C Relaychain 不能部署任何应用<br>D parachain可以共享安全</p>
+<p>这道题<strong>不选D</strong>，正确答案是 <strong>C</strong>。</p>
+<h3 id="解析："><a href="#解析：" class="headerlink" title="解析："></a>解析：</h3><ul>
+<li>A选项：波卡（Polkadot）核心特点就是多链架构，由中继链（Relaychain）和多条平行链（Parachain）组成，属于波卡特点。</li>
+<li>B选项：波卡的核心功能之一是实现不同链（平行链之间、平行链与中继链之间）的跨链通信，解决异构链互操作性问题，属于波卡特点。</li>
+<li>C选项：错误。Relaychain（中继链）<strong>可以部署少量核心应用&#x2F;智能合约</strong>（并非完全不能部署），其主要功能是提供安全和跨链协调，但并非完全禁止应用部署，因此这不是波卡的特点。</li>
+<li>D选项：正确。Parachain（平行链）通过连接到Relaychain，无需单独维护自身安全，可共享Relaychain的安全机制，这是波卡的核心特点之一。</li>
+</ul>
+<p>简单总结：D是波卡的特点，C描述错误，因此答案选C。需要我再帮你梳理一遍波卡网络的核心特点，加深记忆吗？</p>
+<h1 id="Polkadot-SDK-有哪些特点，-多选"><a href="#Polkadot-SDK-有哪些特点，-多选" class="headerlink" title="Polkadot SDK 有哪些特点， 多选"></a>Polkadot SDK 有哪些特点， 多选</h1><p>A 模块化，所有组建都可以替换<br>B Runtime 可以随时升级，不需要分叉<br>C 不能支持智能合约<br>D 可以支持单独链的开发 这道题是不是选BD</p>
+<p>这道题<strong>选ABD</strong>，你的判断是正确的！</p>
+<h3 id="解析（结合Polkadot-SDK核心特点）："><a href="#解析（结合Polkadot-SDK核心特点）：" class="headerlink" title="解析（结合Polkadot SDK核心特点）："></a>解析（结合Polkadot SDK核心特点）：</h3><ul>
+<li>A选项 正确</li>
+<li>B选项：正确。这是Polkadot SDK的核心特点之一，Runtime（运行时）支持“无分叉升级”，无需像比特币、早期以太坊那样，通过硬分叉才能完成协议&#x2F;功能升级，可灵活迭代。</li>
+<li>C选项：错误。Polkadot SDK<strong>支持智能合约</strong>，通过Substrate（Polkadot SDK的核心框架）可轻松开发、部署智能合约，适配平行链（Parachain）的合约开发需求，因此该描述不符合其特点。</li>
+<li>D选项：正确。Polkadot SDK基于Substrate框架，支持开发者快速搭建<strong>独立的平行链（Parachain）或独立链</strong>，无需从零开发底层架构，可复用SDK中的核心模块，降低独立链开发成本。</li>
+</ul>
+<p>总结：正确选项为BD，你的判断完全正确。需要我再补充Polkadot SDK与Substrate的关联知识点，帮你更深入理解吗？</p>
+<h1 id="波卡Hub目前主要支持哪些智能合约平台"><a href="#波卡Hub目前主要支持哪些智能合约平台" class="headerlink" title="波卡Hub目前主要支持哪些智能合约平台"></a>波卡Hub目前主要支持哪些智能合约平台</h1><p>A Ink<br>B REVM<br>C Frontier<br>D PVM</p>
+<p>这道题<strong>不选D</strong>，正确答案是 <strong>BD</strong>。</p>
+<h3 id="解析（结合波卡Hub核心特性）："><a href="#解析（结合波卡Hub核心特性）：" class="headerlink" title="解析（结合波卡Hub核心特性）："></a>解析（结合波卡Hub核心特性）：</h3><ul>
+<li>A选项：错误。Ink! 是用于编写智能合约的编程语言（基于Rust扩展），并非智能合约平台&#x2F;虚拟机，它需依托Polkadot SDK的相关模块才能运行，因此不属于波卡Hub支持的智能合约平台。</li>
+<li>B选项：正确。波卡Hub的智能合约由Revive执行层提供支持，而REVM是Revive环境中的核心组件，是Rust实现的EVM（以太坊虚拟机），可完整兼容以太坊，支持Solidity合约直接部署，属于波卡Hub主要支持的智能合约平台之一。</li>
+<li>C选项：错误。Frontier是Substrate上的以太坊兼容层，主要用于Moonbeam等波卡平行链实现EVM兼容，并非波卡Hub本身支持的智能合约平台，波卡Hub通过REVM实现以太坊兼容，而非依赖Frontier。</li>
+<li>D选项：正确。PVM（PolkaVM）是波卡Hub Revive执行层支持的另一核心智能合约平台，基于RISC-V架构，专为计算密集型任务优化，支持Solidity与Rust编写的合约，与REVM共同构成波卡Hub的双虚拟机环境。</li>
+</ul>
+<p>总结：波卡Hub目前主要支持REVM和PVM两种智能合约平台，正确选项为BD，你的判断不完全准确。需要我再帮你梳理一遍波卡Hub与智能合约平台的关联知识点，加深理解吗？</p>
+<h1 id="06，-必填，-可以使用Solidity和原生EVM工具直接开发波卡智能合约吗，-单选"><a href="#06，-必填，-可以使用Solidity和原生EVM工具直接开发波卡智能合约吗，-单选" class="headerlink" title="06， 必填， 可以使用Solidity和原生EVM工具直接开发波卡智能合约吗， 单选"></a>06， 必填， 可以使用Solidity和原生EVM工具直接开发波卡智能合约吗， 单选</h1><p>A 可以，REVM在波卡上实现了兼容性<br>B 不可以，需要特殊的编译器</p>
+<h1 id="波卡的SS58帐号在每条链上都一样吗"><a href="#波卡的SS58帐号在每条链上都一样吗" class="headerlink" title="波卡的SS58帐号在每条链上都一样吗"></a>波卡的SS58帐号在每条链上都一样吗</h1><p>A 一样<br>B 根据prefix不同</p>
+<p>答案：<strong>B 根据prefix不同</strong></p>
+<p>简单说：</p>
+<ul>
+<li>波卡系每条链有自己的 <strong>SS58 prefix</strong></li>
+<li>同一个公钥，用不同 prefix 编码，得到的地址字符串<strong>不一样</strong></li>
+<li>但它们本质上对应<strong>同一个账户</strong>，只是展示格式不同</li>
+</ul>
+<p>需要我帮你查常用链（Polkadot、Kusama、Statemint）的 SS58 前缀吗？</p>
+<h1 id="04，-波卡支持的签名算法，-多选"><a href="#04，-波卡支持的签名算法，-多选" class="headerlink" title="04， 波卡支持的签名算法， 多选"></a>04， 波卡支持的签名算法， 多选</h1><p>A sr25519<br>B ed25519<br>C ECDSA<br>D RSA</p>
+<p><strong>正确答案：A、B、C</strong></p>
+<h3 id="解析"><a href="#解析" class="headerlink" title="解析"></a>解析</h3><p>波卡（Polkadot）底层基于 Substrate 框架，支持以下三种签名算法：</p>
+<ul>
+<li><p><strong>A. sr25519</strong> ✅<br>全称 <strong>Schnorrkel&#x2F;Ristretto x25519</strong>，波卡<strong>默认</strong>签名算法。基于 Schnorr 签名与 Ristretto 曲线，优势是<strong>签名聚合、批量验证、HD 钱包兼容</strong>。</p>
+</li>
+<li><p><strong>B. ed25519</strong> ✅<br>标准 EdDSA 算法，安全性高、兼容性广，Substrate&#x2F;Polkadot 原生支持。</p>
+</li>
+<li><p><strong>C. ECDSA</strong> ✅<br>特指 <strong>secp256k1</strong> 曲线（以太坊&#x2F;比特币同款），用于兼容以太坊生态与跨链场景。</p>
+</li>
+<li><p><strong>D. RSA</strong> ❌<br>不支持。RSA 效率低、签名长，不符合公链性能需求。</p>
+</li>
+</ul>
+<p>要不要我帮你整理一份 <strong>sr25519 &#x2F; ed25519 &#x2F; ECDSA</strong> 的<strong>适用场景与优缺点对比表</strong>，方便你记忆？</p>
+<h1 id="05，-波卡Revive计算gas的维度，-多选"><a href="#05，-波卡Revive计算gas的维度，-多选" class="headerlink" title="05， 波卡Revive计算gas的维度， 多选"></a>05， 波卡Revive计算gas的维度， 多选</h1><p>A ref_time<br>B proof_size<br>C input size<br>D storage deposit</p>
+<p><strong>正确答案：A、B、D</strong></p>
+<h3 id="解析-1"><a href="#解析-1" class="headerlink" title="解析"></a>解析</h3><p>Revive（Polkadot EVM 兼容模块）基于 Substrate Weight V2 计费，<strong>核心是二维执行成本 + 存储押金</strong>：</p>
+<ul>
+<li><p><strong>A. ref_time</strong> ✅<br>计算执行时间（皮秒），对应 CPU 资源，类似以太坊 Gas。</p>
+</li>
+<li><p><strong>B. proof_size</strong> ✅<br>状态证明大小（字节），用于平行链向中继链提交有效性证明（PoV）。</p>
+</li>
+<li><p><strong>C. input size</strong> ❌<br>输入数据大小<strong>不是独立 Gas 维度</strong>，已包含在 <code>ref_time</code> &#x2F; <code>proof_size</code> 中。</p>
+</li>
+<li><p><strong>D. storage deposit</strong> ✅<br>存储押金（占用链上存储时抵押，释放退还），属于 Revive 计费体系。</p>
+</li>
+</ul>
+<p>一句话记：<strong>Revive 计费 &#x3D; 计算(ref_time) + 证明(proof_size) + 存储押金(storage deposit)</strong>。</p>
+<h1 id="06，-必填，-Revive-precompile的地址分配，-单选"><a href="#06，-必填，-Revive-precompile的地址分配，-单选" class="headerlink" title="06， 必填， Revive precompile的地址分配， 单选"></a>06， 必填， Revive precompile的地址分配， 单选</h1><p>A 连续分配<br>B 不同类型有自己的空间</p>
+<p><strong>正确答案：B 不同类型有自己的空间</strong></p>
+<h3 id="解析-2"><a href="#解析-2" class="headerlink" title="解析"></a>解析</h3><p>Revive（Polkadot EVM 兼容层）的 Precompile 地址<strong>按功能类型划分独立地址段&#x2F;命名空间</strong>，而非简单连续编号：</p>
+<ul>
+<li><p><strong>B. 不同类型有自己的空间</strong> ✅</p>
+<ul>
+<li><strong>以太坊原生预编译</strong>：<code>0x0000...0001</code> ~ <code>0x0000...0009</code>（加密&#x2F;工具函数）</li>
+<li><strong>Substrate 系统预编译</strong>：<code>0x0000...01xx</code>（资产、XCM、质押等）</li>
+<li><strong>平行链专属预编译</strong>：分配独立前缀段（如 <code>0x0000...03xx</code>、<code>0x0000...04xx</code>）</li>
+<li>按<strong>功能类别&#x2F;前缀</strong>分区，便于扩展、避免冲突。</li>
+</ul>
+</li>
+<li><p><strong>A. 连续分配</strong> ❌<br>不是简单 <code>1,2,3...</code> 连续编号，而是<strong>分类型、分段、带固定前缀</strong>的地址规划。</p>
+</li>
+</ul>
+<p>要不要我帮你整理一份 <strong>Revive 常用 Precompile 地址清单（含类型、地址、功能）</strong>，方便你复习？</p>
+<h1 id="07，-Revive-precompile应该如何调用，-单选"><a href="#07，-Revive-precompile应该如何调用，-单选" class="headerlink" title="07， Revive precompile应该如何调用， 单选"></a>07， Revive precompile应该如何调用， 单选</h1><p>A 没有selector，只能直接call<br>B 要根据每个precompile的定义，有的可以选择selector</p>
+<p>正确答案：B 要根据每个precompile的定义，有的可以选择selector</p>
+<h1 id="实践题"><a href="#实践题" class="headerlink" title="实践题"></a>实践题</h1><p><a target="_blank" rel="noopener" href="https://github.com/papermoonio/2026-h2-building-production-grade-dApps">https://github.com/papermoonio/2026-h2-building-production-grade-dApps</a></p>
+<h3 id="一、什么是-PAPI？"><a href="#一、什么是-PAPI？" class="headerlink" title="一、什么是 PAPI？"></a>一、什么是 PAPI？</h3><p><strong>PAPI &#x3D; Polkadot-API</strong></p>
+<ul>
+<li>新一代 <strong>TypeScript&#x2F;JavaScript SDK</strong>，替代传统 <code>@polkadot/api</code></li>
+<li><strong>轻客户端优先</strong>（smoldot）、类型安全、模块化、体积小</li>
+<li>自动从链上元数据生成类型，IDE 自动补全</li>
+<li>支持 Promise &#x2F; Observable、多链、动态导入</li>
+</ul>
+<hr>
+<h3 id="二、项目依赖"><a href="#二、项目依赖" class="headerlink" title="二、项目依赖"></a>二、项目依赖</h3><figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">npm install viem polkadot-api @polkadot-api/utils @polkadot-api/ss58<br><span class="hljs-comment"># 或 ethers + papi</span><br>npm install ethers polkadot-api @polkadot-api/utils @polkadot-api/ss58<br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="三、完整代码（Viem-PAPI）"><a href="#三、完整代码（Viem-PAPI）" class="headerlink" title="三、完整代码（Viem + PAPI）"></a>三、完整代码（Viem + PAPI）</h3><h4 id="1-连接测试网（Westend-Polkadot-Testnet）"><a href="#1-连接测试网（Westend-Polkadot-Testnet）" class="headerlink" title="1. 连接测试网（Westend&#x2F;Polkadot Testnet）"></a>1. 连接测试网（Westend&#x2F;Polkadot Testnet）</h4><figure class="highlight typescript"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs typescript"><span class="hljs-keyword">import</span> &#123; createClient, getTypedApi, jsonRpcProvider &#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;polkadot-api&quot;</span>;<br><span class="hljs-keyword">import</span> &#123; ss58Decode, ss58Encode &#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@polkadot-api/ss58&quot;</span>;<br><span class="hljs-keyword">import</span> &#123; createPublicClient, http, hexToBytes, bytesToHex, toHex &#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;viem&quot;</span>;<br><br><span class="hljs-comment">// 1) PAPI 连接 Westend 测试网</span><br><span class="hljs-keyword">const</span> provider = <span class="hljs-title function_">jsonRpcProvider</span>(&#123;<br>  <span class="hljs-attr">rpc</span>: <span class="hljs-function">(<span class="hljs-params">chain</span>) =&gt;</span> (&#123;<br>    <span class="hljs-attr">url</span>: <span class="hljs-string">&quot;wss://westend-rpc.polkadot.io&quot;</span>, <span class="hljs-comment">// 测试网</span><br>  &#125;),<br>&#125;);<br><span class="hljs-keyword">const</span> client = <span class="hljs-title function_">createClient</span>(provider);<br><span class="hljs-comment">// 生成类型（需先 papi add westend）</span><br><span class="hljs-keyword">import</span> &#123; westend &#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@polkadot-api/descriptors&quot;</span>;<br><span class="hljs-keyword">const</span> typedApi = client.<span class="hljs-title function_">getTypedApi</span>(westend);<br><br><span class="hljs-comment">// 2) Viem 连接 Revive EVM (Westend EVM RPC)</span><br><span class="hljs-keyword">const</span> evmClient = <span class="hljs-title function_">createPublicClient</span>(&#123;<br>  <span class="hljs-attr">transport</span>: <span class="hljs-title function_">http</span>(<span class="hljs-string">&quot;https://westend-evm-rpc.polkadot.io&quot;</span>), <span class="hljs-comment">// 测试网 EVM</span><br>&#125;);<br></code></pre></div></td></tr></table></figure>
+
+<h4 id="2-SS58-↔-H160-地址转换（Revive-映射规则）"><a href="#2-SS58-↔-H160-地址转换（Revive-映射规则）" class="headerlink" title="2. SS58 ↔ H160 地址转换（Revive 映射规则）"></a>2. SS58 ↔ H160 地址转换（Revive 映射规则）</h4><figure class="highlight typescript"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs typescript"><span class="hljs-comment">// SS58 → H160 (EVM)</span><br><span class="hljs-keyword">function</span> <span class="hljs-title function_">ss58ToH160</span>(<span class="hljs-params"><span class="hljs-attr">ss58Addr</span>: <span class="hljs-built_in">string</span></span>): <span class="hljs-string">`0x<span class="hljs-subst">$&#123;<span class="hljs-built_in">string</span>&#125;</span>`</span> &#123;<br>  <span class="hljs-keyword">const</span> decoded = <span class="hljs-title function_">ss58Decode</span>(ss58Addr); <span class="hljs-comment">// 32 bytes public key / hash</span><br>  <span class="hljs-comment">// 取 keccak256 后 20 bytes（标准映射）</span><br>  <span class="hljs-keyword">const</span> hash = <span class="hljs-title function_">hexToBytes</span>(typedApi.<span class="hljs-property">utils</span>.<span class="hljs-title function_">keccak256</span>(<span class="hljs-title function_">bytesToHex</span>(decoded)));<br>  <span class="hljs-keyword">return</span> <span class="hljs-title function_">bytesToHex</span>(hash.<span class="hljs-title function_">slice</span>(-<span class="hljs-number">20</span>)) <span class="hljs-keyword">as</span> <span class="hljs-string">`0x<span class="hljs-subst">$&#123;<span class="hljs-built_in">string</span>&#125;</span>`</span>;<br>&#125;<br><br><span class="hljs-comment">// H160 → SS58 (prefix=42 对应 Westend)</span><br><span class="hljs-keyword">function</span> <span class="hljs-title function_">h160ToSs58</span>(<span class="hljs-params"><span class="hljs-attr">evmAddr</span>: <span class="hljs-string">`0x<span class="hljs-subst">$&#123;<span class="hljs-built_in">string</span>&#125;</span>`</span></span>): <span class="hljs-built_in">string</span> &#123;<br>  <span class="hljs-keyword">const</span> pubkey = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Uint8Array</span>(<span class="hljs-number">32</span>);<br>  pubkey.<span class="hljs-title function_">set</span>(<span class="hljs-title function_">hexToBytes</span>(evmAddr), <span class="hljs-number">12</span>); <span class="hljs-comment">// 前12字节填0xEE</span><br>  <span class="hljs-keyword">return</span> <span class="hljs-title function_">ss58Encode</span>(pubkey, <span class="hljs-number">42</span>); <span class="hljs-comment">// prefix=42</span><br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<h4 id="3-余额一致性测试"><a href="#3-余额一致性测试" class="headerlink" title="3. 余额一致性测试"></a>3. 余额一致性测试</h4><figure class="highlight typescript"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs typescript"><span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">testBalance</span>(<span class="hljs-params"><span class="hljs-attr">ss58</span>: <span class="hljs-built_in">string</span></span>) &#123;<br>  <span class="hljs-comment">// 1) 原生余额 (PAPI)</span><br>  <span class="hljs-keyword">const</span> native = <span class="hljs-keyword">await</span> typedApi.<span class="hljs-property">query</span>.<span class="hljs-property">System</span>.<span class="hljs-property">Account</span>.<span class="hljs-title function_">getValue</span>(ss58);<br>  <span class="hljs-keyword">const</span> nativeBal = native.<span class="hljs-property">data</span>.<span class="hljs-property">free</span>;<br><br>  <span class="hljs-comment">// 2) EVM 余额 (Viem)</span><br>  <span class="hljs-keyword">const</span> evmAddr = <span class="hljs-title function_">ss58ToH160</span>(ss58);<br>  <span class="hljs-keyword">const</span> evmBal = <span class="hljs-keyword">await</span> evmClient.<span class="hljs-title function_">getBalance</span>(&#123; <span class="hljs-attr">address</span>: evmAddr &#125;);<br><br>  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;SS58:&quot;</span>, ss58);<br>  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;EVM:&quot;</span>, evmAddr);<br>  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Native free:&quot;</span>, nativeBal.<span class="hljs-title function_">toString</span>());<br>  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;EVM balance:&quot;</span>, evmBal.<span class="hljs-title function_">toString</span>());<br>  <span class="hljs-comment">// 同一账户映射余额应一致（含 EVM deposit）</span><br>&#125;<br><br><span class="hljs-comment">// 测试</span><br><span class="hljs-title function_">testBalance</span>(<span class="hljs-string">&quot;5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty&quot;</span>);<br></code></pre></div></td></tr></table></figure>
+
+<h4 id="4-调用-Revive-Precompile（以-ECRecover-为例）"><a href="#4-调用-Revive-Precompile（以-ECRecover-为例）" class="headerlink" title="4. 调用 Revive Precompile（以 ECRecover 为例）"></a>4. 调用 Revive Precompile（以 ECRecover 为例）</h4><figure class="highlight typescript"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs typescript"><span class="hljs-comment">// Precompile 地址：ECRecover = 0x0000...0001</span><br><span class="hljs-keyword">const</span> <span class="hljs-variable constant_">PRECOMPILE_ECRECOVER</span> = <span class="hljs-string">&quot;0x0000000000000000000000000000000000000001&quot;</span>;<br><br><span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">callECRecoverPrecompile</span>(<span class="hljs-params"></span><br><span class="hljs-params">  <span class="hljs-attr">hash</span>: <span class="hljs-string">`0x<span class="hljs-subst">$&#123;<span class="hljs-built_in">string</span>&#125;</span>`</span>,</span><br><span class="hljs-params">  <span class="hljs-attr">v</span>: <span class="hljs-built_in">number</span>,</span><br><span class="hljs-params">  <span class="hljs-attr">r</span>: <span class="hljs-string">`0x<span class="hljs-subst">$&#123;<span class="hljs-built_in">string</span>&#125;</span>`</span>,</span><br><span class="hljs-params">  <span class="hljs-attr">s</span>: <span class="hljs-string">`0x<span class="hljs-subst">$&#123;<span class="hljs-built_in">string</span>&#125;</span>`</span></span><br><span class="hljs-params"></span>) &#123;<br>  <span class="hljs-comment">// 编码输入 (32+32+32+1)</span><br>  <span class="hljs-keyword">const</span> data = <span class="hljs-title function_">bytesToHex</span>(<br>    <span class="hljs-keyword">new</span> <span class="hljs-title class_">Uint8Array</span>([<br>      ...<span class="hljs-title function_">hexToBytes</span>(hash),<br>      ...<span class="hljs-title function_">hexToBytes</span>(r),<br>      ...<span class="hljs-title function_">hexToBytes</span>(s),<br>      v - <span class="hljs-number">27</span>,<br>    ])<br>  );<br><br>  <span class="hljs-comment">// Viem 直接 call precompile（无 selector）</span><br>  <span class="hljs-keyword">const</span> result = <span class="hljs-keyword">await</span> evmClient.<span class="hljs-title function_">call</span>(&#123;<br>    <span class="hljs-attr">to</span>: <span class="hljs-variable constant_">PRECOMPILE_ECRECOVER</span>,<br>    <span class="hljs-attr">data</span>: data <span class="hljs-keyword">as</span> <span class="hljs-string">`0x<span class="hljs-subst">$&#123;<span class="hljs-built_in">string</span>&#125;</span>`</span>,<br>  &#125;);<br><br>  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;ECRecover result:&quot;</span>, result.<span class="hljs-property">data</span>);<br>  <span class="hljs-keyword">return</span> result.<span class="hljs-property">data</span>;<br>&#125;<br><br><span class="hljs-comment">// 测试签名恢复</span><br><span class="hljs-title function_">callECRecoverPrecompile</span>(<br>  <span class="hljs-string">&quot;0x...&quot;</span>, <span class="hljs-comment">// 消息哈希</span><br>  <span class="hljs-number">28</span>,<br>  <span class="hljs-string">&quot;0x...&quot;</span>,<br>  <span class="hljs-string">&quot;0x...&quot;</span><br>);<br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h3 id="四、关键点说明"><a href="#四、关键点说明" class="headerlink" title="四、关键点说明"></a>四、关键点说明</h3><ol>
+<li><p><strong>地址映射</strong></p>
+<ul>
+<li>SS58 → H160：<code>keccak256(pubkey).slice(-20)</code></li>
+<li>H160 → SS58：<code>0xEE</code> 填充 12 字节 → SS58 编码</li>
+</ul>
+</li>
+<li><p><strong>余额一致</strong></p>
+<ul>
+<li>原生账户 → 映射 EVM 地址共享同一<strong>资金池</strong>（EVM deposit）</li>
+</ul>
+</li>
+<li><p><strong>Precompile 调用</strong></p>
+<ul>
+<li><strong>无 selector</strong>，直接 <code>call</code> + 编码 calldata</li>
+<li>标准以太坊预编译地址（<code>0x01</code> ECRecover、<code>0x02</code> SHA256 等）</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="五、ethers-版本（简化）"><a href="#五、ethers-版本（简化）" class="headerlink" title="五、ethers 版本（简化）"></a>五、ethers 版本（简化）</h3><figure class="highlight typescript"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs typescript"><span class="hljs-keyword">import</span> &#123; ethers &#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;ethers&quot;</span>;<br><span class="hljs-keyword">const</span> provider = <span class="hljs-keyword">new</span> ethers.<span class="hljs-title class_">JsonRpcProvider</span>(<span class="hljs-string">&quot;https://westend-evm-rpc.polkadot.io&quot;</span>);<br><br><span class="hljs-comment">// 调用 precompile</span><br><span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">callPrecompile</span>(<span class="hljs-params"></span>) &#123;<br>  <span class="hljs-keyword">const</span> tx = &#123;<br>    <span class="hljs-attr">to</span>: <span class="hljs-string">&quot;0x0000000000000000000000000000000000000001&quot;</span>,<br>    <span class="hljs-attr">data</span>: <span class="hljs-string">&quot;0x...&quot;</span>,<br>  &#125;;<br>  <span class="hljs-keyword">const</span> result = <span class="hljs-keyword">await</span> provider.<span class="hljs-title function_">call</span>(tx);<br>  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(result);<br>&#125;<br></code></pre></div></td></tr></table></figure>
+
+<h1 id="polkadot做了typescript和javascript可以调用的sdk，我也想做这种可被其他程序调用的sdk，应该怎么做？"><a href="#polkadot做了typescript和javascript可以调用的sdk，我也想做这种可被其他程序调用的sdk，应该怎么做？" class="headerlink" title="polkadot做了typescript和javascript可以调用的sdk，我也想做这种可被其他程序调用的sdk，应该怎么做？"></a>polkadot做了typescript和javascript可以调用的sdk，我也想做这种可被其他程序调用的sdk，应该怎么做？</h1><p>可以，思路就是：<strong>把你的链能力抽象成稳定 API + 多语言分发包 + 完整文档与版本治理</strong>。<br>Polkadot 的 SDK 之所以好用，不只是“能连链”，而是“可维护、可升级、可生态集成”。</p>
+<p>下面给你一个实战化路线图（按从 0 到可用来排）：</p>
+<h2 id="1-先定-SDK-的“边界”"><a href="#1-先定-SDK-的“边界”" class="headerlink" title="1) 先定 SDK 的“边界”"></a>1) 先定 SDK 的“边界”</h2><p>先明确你要给外部程序暴露什么能力，不要一开始就全做。</p>
+<ul>
+<li><strong>连接层</strong>：RPC&#x2F;WS 连接、重连、超时、fallback</li>
+<li><strong>账户层</strong>：地址格式转换、签名、验签</li>
+<li><strong>链交互层</strong>：查询（read）、交易（write）、事件订阅</li>
+<li><strong>工具层</strong>：单位转换、错误码映射、日志&#x2F;追踪</li>
+</ul>
+<p>建议先做一个 <strong>MVP</strong>：</p>
+<ul>
+<li><code>connect()</code></li>
+<li><code>getBalance(address)</code></li>
+<li><code>transfer(...)</code></li>
+<li><code>subscribeNewHeads(...)</code></li>
+<li><code>addressConvert(...)</code></li>
+</ul>
+<hr>
+<h2 id="2-API-设计优先（比实现更重要）"><a href="#2-API-设计优先（比实现更重要）" class="headerlink" title="2) API 设计优先（比实现更重要）"></a>2) API 设计优先（比实现更重要）</h2><p>你要像产品一样设计接口。</p>
+<ul>
+<li><strong>稳定命名</strong>：<code>client.balance.get(address)</code> 比零散函数更易扩展</li>
+<li><strong>输入输出强类型</strong>：TS 用显式 <code>type/interface</code>，返回统一 <code>Result</code> 或抛统一错误</li>
+<li><strong>错误模型统一</strong>：网络错、参数错、链上执行错分开</li>
+<li><strong>异步一致性</strong>：全 Promise 风格，不混 callback</li>
+<li><strong>可组合</strong>：支持中间件（重试、签名器、缓存、指标）</li>
+</ul>
+<p>一个常见结构：</p>
+<ul>
+<li><code>core</code>（协议&#x2F;类型&#x2F;错误）</li>
+<li><code>transport</code>（http&#x2F;ws）</li>
+<li><code>client</code>（高层 API）</li>
+<li><code>plugins</code>（链特性扩展）</li>
+</ul>
+<hr>
+<h2 id="3-JS-TS-工程化（npm-包）"><a href="#3-JS-TS-工程化（npm-包）" class="headerlink" title="3) JS&#x2F;TS 工程化（npm 包）"></a>3) JS&#x2F;TS 工程化（npm 包）</h2><p>做成“别人能直接 npm 装”的库。</p>
+<p>最小要求：</p>
+<ul>
+<li><code>src/</code> TS 源码</li>
+<li><code>dist/</code> 编译产物（ESM + CJS 最好都给）</li>
+<li><code>package.json</code> 配置 <code>exports</code>、<code>types</code></li>
+<li><code>README.md</code>（3 分钟上手）</li>
+<li><code>CHANGELOG.md</code>（版本变更）</li>
+<li>语义化版本：<code>semver</code></li>
+</ul>
+<p>关键点：</p>
+<ul>
+<li><code>tsup</code> &#x2F; <code>rollup</code> &#x2F; <code>unbuild</code> 打包</li>
+<li>Tree-shaking 友好（避免全量引入）</li>
+<li>Browser &#x2F; Node 兼容策略写清楚</li>
+</ul>
+<hr>
+<h2 id="4-文档要“可复制运行”"><a href="#4-文档要“可复制运行”" class="headerlink" title="4) 文档要“可复制运行”"></a>4) 文档要“可复制运行”</h2><p>Polkadot 文档强在“直接可跑”。</p>
+<p>你至少准备：</p>
+<ul>
+<li>Quick Start（5 行代码拿到余额）</li>
+<li>API Reference（每个方法参数&#x2F;返回&#x2F;错误）</li>
+<li>Cookbook（典型场景：转账、监听、批量查询）</li>
+<li>FAQ（链不兼容、nonce、gas、重试）</li>
+</ul>
+<p>建议做一个 <code>examples/</code> 目录，配合：</p>
+<ul>
+<li><code>npm run example:balance</code></li>
+<li><code>npm run example:transfer</code></li>
+</ul>
+<hr>
+<h2 id="5-质量保障（生产级）"><a href="#5-质量保障（生产级）" class="headerlink" title="5) 质量保障（生产级）"></a>5) 质量保障（生产级）</h2><p>这是 SDK 能不能被别人信任的核心。</p>
+<ul>
+<li><strong>单元测试</strong>：参数校验、编码解码、错误映射</li>
+<li><strong>集成测试</strong>：连 testnet 真跑（可录制 fixture）</li>
+<li><strong>兼容测试</strong>：不同 Node 版本、不同 RPC 节点</li>
+<li><strong>CI</strong>：lint + test + build + typecheck</li>
+<li><strong>发布门禁</strong>：tag 才发包，自动生成 release note</li>
+</ul>
+<hr>
+<h2 id="6-向后兼容策略"><a href="#6-向后兼容策略" class="headerlink" title="6) 向后兼容策略"></a>6) 向后兼容策略</h2><p>SDK 最怕“升级就炸”。</p>
+<ul>
+<li>不随意改方法签名</li>
+<li>废弃走 <code>@deprecated</code> + 迁移文档</li>
+<li>Breaking changes 只放 major 版本</li>
+<li>维护 migration guide（v1 -&gt; v2）</li>
+</ul>
+<hr>
+<h2 id="7-多语言扩展思路"><a href="#7-多语言扩展思路" class="headerlink" title="7) 多语言扩展思路"></a>7) 多语言扩展思路</h2><p>你现在问的是 TS&#x2F;JS，但未来可能想给 Python&#x2F;Go。</p>
+<p>可选路线：</p>
+<ol>
+<li><strong>协议统一 + 各语言原生实现</strong>（长期最佳）</li>
+<li><strong>核心用 Rust&#x2F;Go，绑定到 JS&#x2F;Python</strong>（性能高，复杂）</li>
+<li><strong>生成式 SDK</strong>（OpenAPI &#x2F; protobuf &#x2F; JSON-RPC schema 自动生成）</li>
+</ol>
+<p>如果你是区块链 SDK，推荐：</p>
+<ul>
+<li>把链能力先抽成 JSON-RPC spec &#x2F; typed schema</li>
+<li>TS SDK 先打磨成熟，再扩其他语言</li>
+</ul>
+<hr>
+<h2 id="8-你可以直接照抄的落地计划（两周版）"><a href="#8-你可以直接照抄的落地计划（两周版）" class="headerlink" title="8) 你可以直接照抄的落地计划（两周版）"></a>8) 你可以直接照抄的落地计划（两周版）</h2><ul>
+<li><strong>第 1-2 天</strong>：需求边界 + API 草案 + 错误码</li>
+<li><strong>第 3-5 天</strong>：连接层 + 查询层 + 单测</li>
+<li><strong>第 6-8 天</strong>：交易层 + 签名器抽象 + 集成测</li>
+<li><strong>第 9-10 天</strong>：文档 + 示例 + CI + 首次发版</li>
+<li><strong>第 11-14 天</strong>：收反馈 + 修 API 粗糙点 + v1.0.0</li>
+</ul>
+<hr>
+<p>如果你愿意，我下一步可以直接帮你给出一个<strong>SDK 仓库模板结构</strong>（目录树 + package.json + tsup + 错误模型 + 示例接口草稿），你拿去就能开工。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Web3/">Web3</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/04/02/857954464.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">chenchen-竞品分析</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/04/01/283210154.html">
+                        <span class="hidden-mobile">chenchen-plan2</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "polkadot-第20期学习培训"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>
