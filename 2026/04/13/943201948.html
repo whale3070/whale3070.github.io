@@ -1,0 +1,627 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>polkadot-20 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="polkadot-20">
+                      
+                        polkadot-20
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-04-13 10:54" pubdate>
+        2026年4月13日 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.6k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      19
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">polkadot-20</h1>
+            
+            <div class="markdown-body">
+              <p><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=oUwQxJMhcGg">https://www.youtube.com/watch?v=oUwQxJMhcGg</a></p>
+<h1 id="03，-本地测试网络的搭建需要编译哪些模块，-多选"><a href="#03，-本地测试网络的搭建需要编译哪些模块，-多选" class="headerlink" title="03， 本地测试网络的搭建需要编译哪些模块， 多选"></a>03， 本地测试网络的搭建需要编译哪些模块， 多选</h1><p>A substrate node<br>B revive dev node<br>C revive eth rpc<br>D polkadot node</p>
+<p><strong>答案：A、B、C</strong></p>
+<h3 id="简要说明"><a href="#简要说明" class="headerlink" title="简要说明"></a>简要说明</h3><ul>
+<li><strong>A substrate node</strong>：Revive 基于 Substrate 构建，必须编译底层节点模块。</li>
+<li><strong>B revive dev node</strong>：本地开发测试网的核心节点，必须编译。</li>
+<li><strong>C revive eth rpc</strong>：提供以太坊兼容 RPC 接口，供 MetaMask、Hardhat 等工具连接，必须编译。</li>
+<li><strong>D polkadot node</strong>：波卡中继链节点，<strong>与 Revive 本地测试网无关</strong>，不需要。</li>
+</ul>
+<h1 id="05，-Revive智能合约一般使用如下工具来测试，-多选"><a href="#05，-Revive智能合约一般使用如下工具来测试，-多选" class="headerlink" title="05， Revive智能合约一般使用如下工具来测试， 多选"></a>05， Revive智能合约一般使用如下工具来测试， 多选</h1><p>A Hardhat<br>B Truffle<br>C Foundry</p>
+<p><strong>答案：A、C</strong></p>
+<h3 id="解析"><a href="#解析" class="headerlink" title="解析"></a>解析</h3><p>Revive 是 <strong>EVM 兼容链</strong>，完全兼容以太坊工具栈：</p>
+<ul>
+<li><strong>Hardhat</strong>：主流合约开发与测试框架</li>
+<li><strong>Truffle</strong>：传统以太坊合约开发测试套件</li>
+<li><strong>Foundry</strong>：高性能 Solidity 测试工具</li>
+</ul>
+<p>三者都可直接用于 Revive 智能合约的测试与部署。</p>
+<h1 id="06，-必填，-合约的验证主要起到什么作用，-单选"><a href="#06，-必填，-合约的验证主要起到什么作用，-单选" class="headerlink" title="06， 必填， 合约的验证主要起到什么作用， 单选"></a>06， 必填， 合约的验证主要起到什么作用， 单选</h1><p>A 查看智能合约地址是否正确<br>B 防止错误的Bytecode上传<br>C 上传源代码，增加可信度<br>D 让区块链浏览器可以找到合约</p>
+<p><strong>答案：C</strong></p>
+<h3 id="解析-1"><a href="#解析-1" class="headerlink" title="解析"></a>解析</h3><p>智能合约验证的核心是：<strong>上传并开源源代码，让所有人可核对链上字节码，确认合约逻辑透明、无后门，提升可信度与安全性</strong>。</p>
+<h1 id="07，-Hardhat可以用来部署PVM合约吗，-单选"><a href="#07，-Hardhat可以用来部署PVM合约吗，-单选" class="headerlink" title="07， Hardhat可以用来部署PVM合约吗， 单选"></a>07， Hardhat可以用来部署PVM合约吗， 单选</h1><p>A 可以<br>B 不可以</p>
+<p>答案：可以</p>
+<h1 id="什么是PVM合约，还有那些合约？"><a href="#什么是PVM合约，还有那些合约？" class="headerlink" title="什么是PVM合约，还有那些合约？"></a>什么是PVM合约，还有那些合约？</h1><h1 id="第四课课程"><a href="#第四课课程" class="headerlink" title="第四课课程"></a>第四课课程</h1><p>「Yuki桑: 晚间答疑时间8点-10点</p>
+<p>同学们第四课课程&amp;作业有遇到问题记得来交流哦<br>本周答疑： 讲师 @周俊   助教   @量子     </p>
+<p>————————————</p>
+<p>🚩课程学习链接：<a target="_blank" rel="noopener" href="https://www.youtube.com/playlist?list=PLKgwQU2jh_H_GiXWMxPoNqc6VQqV0XZwf">https://www.youtube.com/playlist?list=PLKgwQU2jh_H_GiXWMxPoNqc6VQqV0XZwf</a></p>
+<p>️ 第四课 Task4 任务：<br>️选择题：<a target="_blank" rel="noopener" href="https://wj.qq.com/s2/26359758/hzwe/">https://wj.qq.com/s2/26359758/hzwe/</a><br>️实践题：<a target="_blank" rel="noopener" href="https://github.com/papermoonio/2026-h2-building-production-grade-dApps/blob/main/homework/homework-4/readme.md%E3%80%8D">https://github.com/papermoonio/2026-h2-building-production-grade-dApps/blob/main/homework/homework-4/readme.md」</a><br>—————————</p>
+<h1 id="03，-Ethers-特点，-多选"><a href="#03，-Ethers-特点，-多选" class="headerlink" title="03， Ethers 特点， 多选"></a>03， Ethers 特点， 多选</h1><p>A 体积小、运行快<br>B 类型安全&#x2F;TS支持<br>C 钱包与签名管理<br>D 不需要密码</p>
+<p>答案：A、B、C</p>
+<h3 id="解析（Ethers-js-核心特点）"><a href="#解析（Ethers-js-核心特点）" class="headerlink" title="解析（Ethers.js 核心特点）"></a>解析（Ethers.js 核心特点）</h3><ol>
+<li><p><strong>A 体积小、运行快</strong> ✅<br>Ethers.js 相比 Web3.js 体积更小，打包后轻量化，运行效率更高，是前端 DApp 常用库。</p>
+</li>
+<li><p><strong>B 类型安全&#x2F;TS支持</strong> ✅<br>原生支持 TypeScript，自带完整类型定义，类型安全，开发体验极佳。</p>
+</li>
+<li><p><strong>C 钱包与签名管理</strong> ✅<br>内置完善的<strong>钱包创建、私钥管理、消息签名、交易签名</strong>功能，是核心能力之一。</p>
+</li>
+<li><p><strong>D 不需要密码</strong> ❌<br>密码&#x2F;助记词是钱包安全的核心，Ethers 必须依赖私钥&#x2F;助记词管理账户，不存在“不需要密码”的特点。</p>
+</li>
+</ol>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>正确选项：<strong>A、B、C</strong></p>
+<h1 id="04，-Viem-特点，-多选"><a href="#04，-Viem-特点，-多选" class="headerlink" title="04， Viem 特点， 多选"></a>04， Viem 特点， 多选</h1><p>A 模块化和高性能<br>B 多链天然支持<br>C 强类型<br>D 对WASM合约支持</p>
+<p>答案：A、B、C、D</p>
+<h3 id="解析（Viem-核心特点）"><a href="#解析（Viem-核心特点）" class="headerlink" title="解析（Viem 核心特点）"></a>解析（Viem 核心特点）</h3><ol>
+<li><p><strong>A 模块化和高性能</strong> ✅<br>Viem 采用<strong>模块化设计</strong>，按需引入功能，无冗余代码；底层优化了RPC调用、编码解码逻辑，<strong>性能远超Ethers、Web3.js</strong>，是它最核心的优势。</p>
+</li>
+<li><p><strong>B 多链天然支持</strong> ✅<br>Viem 原生内置主流公链配置，<strong>开箱即用支持多链</strong>，无需手动配置链信息，开发跨链DApp极便捷。</p>
+</li>
+<li><p><strong>C 强类型</strong> ✅<br>基于 TypeScript 开发，<strong>完整强类型支持</strong>，类型推断精准，开发时无类型报错，体验极佳。</p>
+</li>
+</ol>
+<h3 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h3><p>正确选项：*<em>A、B、C</em>（全选）</p>
+<hr>
+<p><strong>Viem</strong> 是一个<strong>轻量、高性能、强类型</strong>的 <strong>TypeScript 区块链开发库</strong>，用于替代 Ethers.js &#x2F; Web3.js，专门优化以太坊（及兼容链）交互体验。</p>
+<h3 id="一、核心定位"><a href="#一、核心定位" class="headerlink" title="一、核心定位"></a>一、核心定位</h3><ul>
+<li><strong>底层无状态接口</strong>：提供以太坊 JSON-RPC 的简洁抽象</li>
+<li><strong>TypeScript 原生</strong>：<strong>强类型、类型推断、类型安全</strong></li>
+<li><strong>模块化、高性能</strong>：体积小、速度快（比 Ethers.js 快约 40 倍）</li>
+<li><strong>多链支持</strong>：原生支持以太坊、Arbitrum、Optimism、Polygon 等</li>
+</ul>
+<h3 id="二、核心特点（对应上一题）"><a href="#二、核心特点（对应上一题）" class="headerlink" title="二、核心特点（对应上一题）"></a>二、核心特点（对应上一题）</h3><ol>
+<li><strong>A 模块化和高性能</strong> ✅<ul>
+<li>按需引入、Tree-shaking、<strong>体积仅 ~35KB</strong></li>
+<li>编码&#x2F;解码、RPC 调用全面优化</li>
+</ul>
+</li>
+<li><strong>B 多链天然支持</strong> ✅<ul>
+<li>内置主流链配置，开箱即用</li>
+</ul>
+</li>
+<li><strong>C 强类型</strong> ✅<ul>
+<li>完整 TS 类型、ABI 自动生成类型</li>
+</ul>
+</li>
+<li><strong>D 对 WASM 合约支持</strong> ✅<ul>
+<li>支持 WebAssembly 合约交互</li>
+</ul>
+</li>
+</ol>
+<h3 id="三、核心概念"><a href="#三、核心概念" class="headerlink" title="三、核心概念"></a>三、核心概念</h3><ul>
+<li><strong>Client（客户端）</strong><ul>
+<li><strong>Public Client</strong>：读取链数据（区块、余额、合约调用）</li>
+<li><strong>Wallet Client</strong>：签名、发送交易、连接钱包</li>
+<li><strong>Test Client</strong>：本地节点（Anvil&#x2F;Hardhat）测试</li>
+</ul>
+</li>
+<li><strong>Actions</strong>：模块化操作（getBlockNumber、sendTransaction、readContract 等）</li>
+</ul>
+<h3 id="四、简单示例"><a href="#四、简单示例" class="headerlink" title="四、简单示例"></a>四、简单示例</h3><figure class="highlight typescript"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs typescript"><span class="hljs-keyword">import</span> &#123; createPublicClient, http &#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;viem&#x27;</span><br><span class="hljs-keyword">import</span> &#123; mainnet &#125; <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;viem/chains&#x27;</span><br><br><span class="hljs-comment">// 创建公共客户端（读取数据）</span><br><span class="hljs-keyword">const</span> client = <span class="hljs-title function_">createPublicClient</span>(&#123;<br>  <span class="hljs-attr">chain</span>: mainnet,<br>  <span class="hljs-attr">transport</span>: <span class="hljs-title function_">http</span>()<br>&#125;)<br><br><span class="hljs-comment">// 获取最新区块号</span><br><span class="hljs-keyword">const</span> blockNumber = <span class="hljs-keyword">await</span> client.<span class="hljs-title function_">getBlockNumber</span>()<br><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&#x27;Block:&#x27;</span>, blockNumber)<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="五、与-Ethers-js-Web3-js-对比"><a href="#五、与-Ethers-js-Web3-js-对比" class="headerlink" title="五、与 Ethers.js &#x2F; Web3.js 对比"></a>五、与 Ethers.js &#x2F; Web3.js 对比</h3><ul>
+<li><strong>Viem</strong>：轻量、快、强类型、模块化、现代 API</li>
+<li><strong>Ethers.js</strong>：功能全、生态成熟、体积较大</li>
+<li><strong>Web3.js</strong>：历史悠久、兼容性好、性能与类型较弱</li>
+</ul>
+<h3 id="六、总结"><a href="#六、总结" class="headerlink" title="六、总结"></a>六、总结</h3><p><strong>Viem &#x3D; 现代、高性能、强类型、模块化的以太坊开发库</strong>，是目前 Web3 前端&#x2F;后端开发的首选工具之一。</p>
+<p>要不要我把 Viem、Ethers.js、Web3.js 的核心差异整理成一份简明对比表？</p>
+<h1 id="05，-Polkadot-Hub-testnet-chain-ID，-单选"><a href="#05，-Polkadot-Hub-testnet-chain-ID，-单选" class="headerlink" title="05， Polkadot Hub testnet chain ID， 单选"></a>05， Polkadot Hub testnet chain ID， 单选</h1><p>A 420420417<br>B 420420420<br>C 42<br>D 0</p>
+<p><strong>答案：A 420420417</strong></p>
+<h3 id="解析-2"><a href="#解析-2" class="headerlink" title="解析"></a>解析</h3><ul>
+<li><strong>Polkadot Hub Testnet（Paseo）</strong> 的官方 Chain ID 为 <strong>420420417</strong>。</li>
+<li><strong>B 420420420</strong> 是 <strong>本地开发测试网（Kitchensink）</strong> 的 Chain ID。</li>
+<li><strong>C 42</strong> 是以太坊测试网（如 Kovan）的旧 Chain ID。</li>
+<li><strong>D 0</strong> 无对应主流网络。</li>
+</ul>
+<h1 id="06，-必填，-Web3-py-成为主流交互方式的原因，-单选"><a href="#06，-必填，-Web3-py-成为主流交互方式的原因，-单选" class="headerlink" title="06， 必填， Web3.py 成为主流交互方式的原因， 单选"></a>06， 必填， Web3.py 成为主流交互方式的原因， 单选</h1><p>A 使用python写智能合约越来越多<br>B AI agent的流行，使用python来调用<br>C 它是由以太坊官方维护的<br>D Python 比 Javascript效率高</p>
+<p>答案：C</p>
+<h1 id="07，-Contract-和-Runtime交互方式比较，-单选"><a href="#07，-Contract-和-Runtime交互方式比较，-单选" class="headerlink" title="07， Contract 和 Runtime交互方式比较， 单选"></a>07， Contract 和 Runtime交互方式比较， 单选</h1><p>A Contract 执行效率更高<br>B Contract 可以升级，Runtime不行<br>C Contract 可以节省手续费<br>D Contract的执行依赖Runtime</p>
+<p>答案：<strong>D Contract的执行依赖Runtime</strong></p>
+<h3 id="简要解析"><a href="#简要解析" class="headerlink" title="简要解析"></a>简要解析</h3><ul>
+<li>在 Substrate &#x2F; Polkadot 体系里：<ul>
+<li><strong>Runtime</strong> 是链的核心运行环境，包含所有底层逻辑、 pallet、系统调用。</li>
+<li><strong>Contract（智能合约）</strong> 运行在 Runtime 提供的合约模块（如 pallet-contracts）之上，<strong>必须依赖 Runtime 才能执行</strong>。</li>
+</ul>
+</li>
+</ul>
+<p>其他选项问题：</p>
+<ul>
+<li>A：Contract 通常比直接调用 Runtime 逻辑更慢、开销更大</li>
+<li>B：Runtime 可通过升级（runtime upgrade）更新，Contract 也可设计为可升级</li>
+<li>C：Contract 一般手续费更高，而非更低</li>
+</ul>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Web3/">Web3</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/04/13/3612913531.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">阿乌拉裁决系统-SDK</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/04/09/610483777.html">
+                        <span class="hidden-mobile">【4月16日】糟了！走进首家被30只AI“龙虾”全面接管的公司 · 香港站</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "polkadot-20"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

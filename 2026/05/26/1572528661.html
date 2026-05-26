@@ -1,0 +1,590 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>LinkedIn Fake Recruiting + Malicious Repo Poisoning: A Post-Mortem - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="LinkedIn Fake Recruiting + Malicious Repo Poisoning: A Post-Mortem">
+                      
+                        LinkedIn Fake Recruiting + Malicious Repo Poisoning: A Post-Mortem
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-05-26 14:27" pubdate>
+        2026年5月26日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.8k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      35
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">LinkedIn Fake Recruiting + Malicious Repo Poisoning: A Post-Mortem</h1>
+            
+            <div class="markdown-body">
+              <h1 id="LinkedIn-Fake-Recruiting-Malicious-Repo-Poisoning-A-Post-Mortem"><a href="#LinkedIn-Fake-Recruiting-Malicious-Repo-Poisoning-A-Post-Mortem" class="headerlink" title="LinkedIn Fake Recruiting + Malicious Repo Poisoning: A Post-Mortem"></a>LinkedIn Fake Recruiting + Malicious Repo Poisoning: A Post-Mortem</h1><p><img src="/2016/01/01/10336"></p>
+<blockquote>
+<p><strong>Scammer’s LinkedIn profile</strong>: <a target="_blank" rel="noopener" href="https://www.linkedin.com/in/derlys-cardozo-73018818a/">Derlys Cardozo</a></p>
+</blockquote>
+<p>Tonight on LinkedIn I ran into a classic <strong>fake recruiting + malicious repository poisoning</strong> scam. The attacker impersonated <a target="_blank" rel="noopener" href="https://conduit.financial/">Conduit</a>, a well-known cross-border payments company, invited me to an interview, and dangled a high-paying remote role to trick applicants into cloning and running a malicious code repository — aiming to steal server keys, wallet credentials, API tokens, and other sensitive data via remote code execution (RCE).</p>
+<p>This post walks through the full interaction, the attack mechanics, the scammer’s underlying logic, and practical triage steps — as a warning to fellow engineers.</p>
+<hr>
+<h2 id="I-Full-Scam-Timeline"><a href="#I-Full-Scam-Timeline" class="headerlink" title="I. Full Scam Timeline"></a>I. Full Scam Timeline</h2><p>The operation chained LinkedIn outreach, a Google Meet “interview,” and a poisoned Bitbucket repo. The pacing was tight and the disguise convincing — it closely mimicked a legitimate overseas tech hiring process.</p>
+<h3 id="1-Initial-Contact-Impersonating-a-Real-Company"><a href="#1-Initial-Contact-Impersonating-a-Real-Company" class="headerlink" title="1. Initial Contact: Impersonating a Real Company"></a>1. Initial Contact: Impersonating a Real Company</h3><p>A user named <strong>Derlys Cardozo</strong> DM’d me on LinkedIn, claiming to represent Conduit’s expanding engineering and product teams and looking for engineers with matching experience. The pitch sounded like a normal overseas recruiter outreach.</p>
+<blockquote>
+<p>Hi Yuki,</p>
+<p>I’m reaching out regarding an opportunity at Conduit as we continue expanding our engineering and product teams while building new initiatives across our core product lines.</p>
+<p>We’re currently connecting with a small group of engineers and technical leaders whose experience may align with what we’re building. If you’re open to it, I’d be happy to share the full role details for your review.</p>
+<p>Best regards,<br>Derlys</p>
+</blockquote>
+<p>After I expressed interest, they immediately sent an attractive package: full-time and part-time remote roles — full-stack engineer, tech lead, technical PM, etc. — at <strong>$13,000–25,000&#x2F;month</strong>, far above market rates. They also asked for my resume, tech stack, salary expectations, and portfolio — further mimicking a real hiring flow to lower my guard.</p>
+<h3 id="2-Tailored-Resume-Review-They-Knew-I-Had-a-Security-Background-—-and-Still-Pushed"><a href="#2-Tailored-Resume-Review-They-Knew-I-Had-a-Security-Background-—-and-Still-Pushed" class="headerlink" title="2. Tailored Resume Review: They Knew I Had a Security Background — and Still Pushed"></a>2. Tailored Resume Review: They Knew I Had a Security Background — and Still Pushed</h3><p>After I shared my background and portfolio, they didn’t send generic praise. They <strong>called out my specific skills</strong>: cybersecurity, penetration testing, red teaming, Web3 development, quant research, independent product work — and said I was a strong fit for full-stack and Web3 roles.</p>
+<blockquote>
+<p>Hi Yuki,</p>
+<p>Thank you for sharing your background and portfolio. I had a chance to review your experience, and your mix of cybersecurity expertise, Web3 development, quantitative research, and independent product building really stood out.<br>Your work across penetration testing, red team operations, blockchain tooling, AI-assisted development workflows, and quantitative strategy research is especially impressive, along with the products and projects you’ve independently built and launched.<br>Based on your background, you seem like a strong potential fit for several of our current engineering tracks, particularly Full-Stack and Web3-focused initiatives.<br>Our team lead would love to set up a quick call with you today to learn more about your experience and discuss the opportunities in more detail.<br>What time are you available today?</p>
+</blockquote>
+<p><img src="/2016/01/01/10336"></p>
+<p>This makes one thing clear: <strong>the group didn’t spam blindly — they read my profile carefully and knew I had real red-team and security experience</strong>. They still accelerated the interview and compressed my thinking time. That was deliberate.</p>
+<p>We agreed on Google Meet. After a brief timezone mix-up, they sent a meeting link and kept pressuring me to join.</p>
+<h3 id="3-The-Interview-Trap-“Run-the-MVP-Locally”-as-a-Security-Litmus-Test"><a href="#3-The-Interview-Trap-“Run-the-MVP-Locally”-as-a-Security-Litmus-Test" class="headerlink" title="3. The Interview Trap: “Run the MVP Locally” as a Security Litmus Test"></a>3. The Interview Trap: “Run the MVP Locally” as a Security Litmus Test</h3><p>In a ~15-minute video call, they briefly described a chaotic multi-team project and said they needed someone who could ship. Then came the core trap: clone the Bitbucket repo <strong><code>hvd-bard-2026</code></strong>, <strong>pull the source, and run the project MVP locally</strong> on my machine or server — framed as a technical assessment.</p>
+<p>Years of red-team and offensive security work kicked in instantly: <strong>no legitimate big-company overseas interview asks you to run unknown third-party source code on your primary machine or private server</strong>. Within seconds I knew it was a supply-chain poisoning scam and ended the call.</p>
+<p>As I was about to call out the red flags, they <strong>blocked my LinkedIn account</strong> — confirming there was never a real job.</p>
+<p>I searched from another account and could still see their profile — meaning they had blocked me, not deleted themselves.</p>
+<blockquote>
+<p><strong>Scammer’s LinkedIn profile (confirmed again)</strong>: <a target="_blank" rel="noopener" href="https://www.linkedin.com/in/derlys-cardozo-73018818a/">https://www.linkedin.com/in/derlys-cardozo-73018818a/</a></p>
+</blockquote>
+<hr>
+<h2 id="II-How-the-Malicious-Repository-Works"><a href="#II-How-the-Malicious-Repository-Works" class="headerlink" title="II. How the Malicious Repository Works"></a>II. How the Malicious Repository Works</h2><p>I later checked the Bitbucket repo:</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://bitbucket.org/top-hvd-workspace/hvd-bard-2026/">https://bitbucket.org/top-hvd-workspace/hvd-bard-2026/</a></p>
+</blockquote>
+<p>It had already been reported by multiple victims; Atlassian intervened and took it down. This is a widespread <strong>“interview poisoning”</strong> pattern — social engineering plus code supply-chain attack, targeted at senior developers.</p>
+<h3 id="1-Primary-Targets"><a href="#1-Primary-Targets" class="headerlink" title="1. Primary Targets"></a>1. Primary Targets</h3><p>The scam focuses on Web3, security, and full-stack engineers. It exploits job-seeking psychology to get victims to run malicious code and exfiltrate high-value secrets:</p>
+<ul>
+<li>SSH keys</li>
+<li>Cloud service tokens</li>
+<li>Git &#x2F; blockchain wallet private keys</li>
+<li><code>.env</code> config files</li>
+<li>AI tool credentials</li>
+<li>High-privilege platform passwords</li>
+</ul>
+<p>Security professionals often hold higher-privilege machines and more valuable assets — making them premium targets.</p>
+<h3 id="2-Four-Malicious-Trigger-Vectors"><a href="#2-Four-Malicious-Trigger-Vectors" class="headerlink" title="2. Four Malicious Trigger Vectors"></a>2. Four Malicious Trigger Vectors</h3><p>These repos masquerade as normal Node&#x2F;React projects and combine silent execution paths — <strong>you can get hit without ever manually starting the app</strong>:</p>
+<h4 id="1-VS-Code-Cursor-automatic-tasks-highest-risk"><a href="#1-VS-Code-Cursor-automatic-tasks-highest-risk" class="headerlink" title="(1) VS Code &#x2F; Cursor automatic tasks (highest risk)"></a>(1) VS Code &#x2F; Cursor automatic tasks (highest risk)</h4><p>The repo ships <code>.vscode/tasks.json</code> with <code>runOn: &quot;folderOpen&quot;</code>. Open the folder in an editor and click <strong>Trust Workspace</strong>, and hidden commands run automatically — often via <code>curl</code> &#x2F; <code>wget</code> to fetch and execute remote scripts, with terminal output hidden.</p>
+<h4 id="2-npm-yarn-lifecycle-hooks"><a href="#2-npm-yarn-lifecycle-hooks" class="headerlink" title="(2) npm &#x2F; yarn lifecycle hooks"></a>(2) npm &#x2F; yarn lifecycle hooks</h4><p><code>package.json</code> may include <code>preinstall</code>, <code>postinstall</code>, or <code>prepare</code> scripts. <strong><code>npm install</code> alone can trigger malware</strong> — no need to start the project. Classic supply-chain technique.</p>
+<h4 id="3-Dynamic-RCE-C2-callback"><a href="#3-Dynamic-RCE-C2-callback" class="headerlink" title="(3) Dynamic RCE + C2 callback"></a>(3) Dynamic RCE + C2 callback</h4><p>Code may use <code>new Function()</code>, <code>eval()</code>, <code>child_process</code>, etc. On execution it reads environment variables and config, exfiltrates to a C2 server, and accepts remote commands. Some malicious URLs are Base64-encoded in sample config files to evade basic scans.</p>
+<h4 id="4-Camouflage"><a href="#4-Camouflage" class="headerlink" title="(4) Camouflage"></a>(4) Camouflage</h4><p>Front-end and README look like a real commercial project. Fake cloud or payment API keys may be planted as decoys. Malicious logic hides in backend code and dot-directories — hard to spot by eye.</p>
+<hr>
+<h2 id="III-Why-Target-Someone-Who-Already-Knows-Security"><a href="#III-Why-Target-Someone-Who-Already-Knows-Security" class="headerlink" title="III. Why Target Someone Who Already Knows Security?"></a>III. Why Target Someone Who Already Knows Security?</h2><p>The most interesting part: they clearly identified my red-team background and still ran the play. This wasn’t dumb spam — it was calculated.</p>
+<h3 id="1-High-value-targets-justify-the-risk"><a href="#1-High-value-targets-justify-the-risk" class="headerlink" title="1. High-value targets justify the risk"></a>1. High-value targets justify the risk</h3><p>From an attacker’s perspective, <strong>red team + Web3 + indie product builders</strong> are far more valuable than average developers. Their machines likely hold server access, cloud keys, crypto wallets, and AI credentials — one successful compromise pays well. That upside makes them willing to probe even security-aware targets.</p>
+<h3 id="2-Exploiting-the-“job-interview”-mental-mode"><a href="#2-Exploiting-the-“job-interview”-mental-mode" class="headerlink" title="2. Exploiting the “job interview” mental mode"></a>2. Exploiting the “job interview” mental mode</h3><p>Attackers bet on psychology: <strong>doing defense and pentesting daily doesn’t mean you’re in attack mode during an interview</strong>. At work you’re the hunter; in an interview your default is cooperate, demonstrate skills, get the offer. They’re not betting you don’t know security — they’re betting you’ll relax in hiring mode and treat “run a live demo” as normal, ignoring supply-chain risk.</p>
+<h3 id="3-Filtering-real-skill-vs-resume-padding"><a href="#3-Filtering-real-skill-vs-resume-padding" class="headerlink" title="3. Filtering real skill vs. resume padding"></a>3. Filtering real skill vs. resume padding</h3><p>The “interview task” doubles as a <strong>security awareness filter</strong>:</p>
+<ul>
+<li><strong>Runs the repo without question</strong> → likely padded resume, weak opsec → harvest</li>
+<li><strong>Refuses immediately</strong> → real security practitioner, not worth the effort → block and move on</li>
+</ul>
+<p>This suggests a mature operation — someone technical enough to read security terminology, select high-value targets, and iterate the playbook over time.</p>
+<hr>
+<h2 id="IV-Triage-and-Incident-Response"><a href="#IV-Triage-and-Incident-Response" class="headerlink" title="IV. Triage and Incident Response"></a>IV. Triage and Incident Response</h2><p>If you cloned, opened, or installed such a repo, follow these steps. Below are <strong>read-only inspection commands</strong> — do not run install or start commands.</p>
+<h3 id="1-Static-inspection-view-only-do-not-execute-code"><a href="#1-Static-inspection-view-only-do-not-execute-code" class="headerlink" title="1. Static inspection (view only, do not execute code)"></a>1. Static inspection (view only, do not execute code)</h3><p>On Linux, from the repo directory:</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># Enter repo directory</span><br><span class="hljs-built_in">cd</span> /root/hvd-bard-2026<br><br><span class="hljs-comment"># 1. Check npm lifecycle scripts</span><br>grep -nE <span class="hljs-string">&#x27;preinstall|postinstall|prepare|install&#x27;</span> package.json<br><span class="hljs-built_in">cat</span> package.json | jq <span class="hljs-string">&#x27;.scripts&#x27;</span><br><br><span class="hljs-comment"># 2. Check VS Code auto-run tasks (critical)</span><br><span class="hljs-built_in">cat</span> .vscode/tasks.json 2&gt;/dev/null<br>grep -nE <span class="hljs-string">&#x27;folderOpen|curl|wget|bash|cmd|vercel|eval&#x27;</span> .vscode/tasks.json 2&gt;/dev/null<br><br><span class="hljs-comment"># 3. Search for RCE, process spawn, env exfiltration</span><br>grep -rnE <span class="hljs-string">&#x27;Function\.constructor|new Function|eval\(|child_process|exec|process\.env&#x27;</span> --include=<span class="hljs-string">&#x27;*.js&#x27;</span> --include=<span class="hljs-string">&#x27;*.ts&#x27;</span> .<br><br><span class="hljs-comment"># 4. Search for Base64 encoding, suspicious domains (C2)</span><br>grep -rnE <span class="hljs-string">&#x27;atob|btoa|base64|vercel\.app|onrender\.com&#x27;</span> .<br><br><span class="hljs-comment"># 5. Search for top-level auto-run handlers</span><br>grep -rnE <span class="hljs-string">&#x27;errorTimeHandler|validateApiKey&#x27;</span> server/ . 2&gt;/dev/null<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="2-If-you-may-already-be-compromised"><a href="#2-If-you-may-already-be-compromised" class="headerlink" title="2. If you may already be compromised"></a>2. If you may already be compromised</h3><p>If you ran <code>npm install</code> or trusted the workspace in your editor, assume the machine is <strong>compromised</strong>:</p>
+<ol>
+<li><strong>Disconnect from the network</strong>; kill all <code>node</code>, <code>curl</code>, and <code>wget</code> processes</li>
+<li><strong>Rotate every secret</strong>: SSH keys, Git tokens, cloud keys, DB passwords, wallet private keys, platform tokens</li>
+<li><strong>Check persistence</strong>: <code>crontab</code>, <code>~/.bashrc</code>, <code>~/.zshrc</code>, <code>authorized_keys</code>, etc.</li>
+<li><strong>Delete the entire repo directory and <code>node_modules</code></strong> — partial cleanup is not enough</li>
+<li><strong>Report</strong>: email Atlassian at <a href="mailto:&#x61;&#x62;&#x75;&#x73;&#x65;&#x40;&#97;&#116;&#x6c;&#x61;&#x73;&#x73;&#105;&#x61;&#110;&#46;&#99;&#111;&#x6d;">abuse@atlassian.com</a>; report the LinkedIn account</li>
+</ol>
+<hr>
+<h2 id="V-Takeaways-and-General-Defenses"><a href="#V-Takeaways-and-General-Defenses" class="headerlink" title="V. Takeaways and General Defenses"></a>V. Takeaways and General Defenses</h2><p>This is a <strong>highly targeted scam</strong> aimed at Web3, full-stack, and security engineers — combining inflated remote salaries, brand impersonation, rushed interviews, and mature supply-chain poisoning. It’s far more dangerous than generic phishing.</p>
+<h3 id="1-Interview-red-lines"><a href="#1-Interview-red-lines" class="headerlink" title="1. Interview red lines"></a>1. Interview red lines</h3><p>Legitimate remote tech interviews <strong>will not ask you to clone and run unknown repos on your personal machine or server, or run <code>npm install</code> on untrusted code</strong>. Assessments use shared-screen coding, written tests, or Q&amp;A. <strong>Any request to run a third-party repo locally &#x3D; scam.</strong></p>
+<h3 id="2-Zero-trust-for-unknown-code"><a href="#2-Zero-trust-for-unknown-code" class="headerlink" title="2. Zero trust for unknown code"></a>2. Zero trust for unknown code</h3><p>Never use your primary device or production server for repos from recruiters or unknown interviewers. If you must inspect, use a <strong>disposable VM or isolated container</strong>, and:</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">npm install --ignore-scripts<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="3-Harden-your-IDE"><a href="#3-Harden-your-IDE" class="headerlink" title="3. Harden your IDE"></a>3. Harden your IDE</h3><p>In VS Code &#x2F; Cursor, disable automatic tasks:</p>
+<figure class="highlight json"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs json"><span class="hljs-attr">&quot;task.allowAutomaticTasks&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;off&quot;</span><br></code></pre></div></td></tr></table></figure>
+
+<p>Never trust unfamiliar project folders — that blocks auto-RCE via <code>tasks.json</code>.</p>
+<h3 id="4-Watch-for-salary-urgency-traps"><a href="#4-Watch-for-salary-urgency-traps" class="headerlink" title="4. Watch for salary + urgency traps"></a>4. Watch for salary + urgency traps</h3><p>Roles paying far above market, vague descriptions, same-day interviews, and pressure to decide fast are high risk. Cross-check the company website and official careers page; don’t rely on private LinkedIn DMs alone.</p>
+<h3 id="5-Preserve-evidence-and-report"><a href="#5-Preserve-evidence-and-report" class="headerlink" title="5. Preserve evidence and report"></a>5. Preserve evidence and report</h3><p>Save chat logs, profile URLs, and repo links; report to the platform and code host so others don’t fall for the same trap.</p>
+<hr>
+<blockquote>
+<p>Job scams are no longer low-effort scripts. Organized groups iterate playbooks tailored to senior technical hires. Even if you work in security offense or defense, stay alert in hiring contexts and hold the line on safe engineering practices — that’s how you avoid traps built specifically for people like us.</p>
+</blockquote>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Security/">Security</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/05/26/1572528660.html">
+                        <span class="hidden-mobile">LinkedIn 虚假招聘 + 恶意仓库投毒诈骗复盘</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "LinkedIn Fake Recruiting + Malicious Repo Poisoning: A Post-Mortem"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

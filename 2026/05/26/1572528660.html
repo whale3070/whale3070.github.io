@@ -1,0 +1,598 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>LinkedIn 虚假招聘 + 恶意仓库投毒诈骗复盘 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="LinkedIn 虚假招聘 + 恶意仓库投毒诈骗复盘">
+                      
+                        LinkedIn 虚假招聘 + 恶意仓库投毒诈骗复盘
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-05-26 14:27" pubdate>
+        2026年5月26日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.4k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      38
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">LinkedIn 虚假招聘 + 恶意仓库投毒诈骗复盘</h1>
+            
+            <div class="markdown-body">
+              <h1 id="LinkedIn-虚假招聘-恶意仓库投毒诈骗复盘"><a href="#LinkedIn-虚假招聘-恶意仓库投毒诈骗复盘" class="headerlink" title="LinkedIn 虚假招聘 + 恶意仓库投毒诈骗复盘"></a>LinkedIn 虚假招聘 + 恶意仓库投毒诈骗复盘</h1><p><img src="/2016/01/01/10336"></p>
+<blockquote>
+<p><strong>骗子 LinkedIn 账号</strong>：<a target="_blank" rel="noopener" href="https://www.linkedin.com/in/derlys-cardozo-73018818a/">Derlys Cardozo</a></p>
+</blockquote>
+<p>今天晚上我在 LinkedIn 遭遇了一起典型的<strong>虚假招聘 + 恶意仓库投毒</strong>诈骗。骗子冒用知名跨境支付企业 Conduit 的名义邀约面试，以高薪远程岗位为诱饵，诱导应聘者拉取恶意代码仓库并执行，企图通过远程代码执行（RCE）窃取服务器密钥、钱包凭证、账号 Token 等敏感数据。</p>
+<p>结合完整沟通过程、攻击原理、骗子深层博弈逻辑与排查手段，把本次受骗经历和风险细节整理如下，提醒技术同行警惕同类骗局。</p>
+<hr>
+<h2 id="一、完整行骗流程复盘"><a href="#一、完整行骗流程复盘" class="headerlink" title="一、完整行骗流程复盘"></a>一、完整行骗流程复盘</h2><p>整个诈骗环节依托 LinkedIn 社交关系、Google Meet 线上面试、Bitbucket 恶意仓库层层推进，节奏紧凑且伪装度极高，全程模拟正规海外技术招聘流程，极具迷惑性。</p>
+<h3 id="1-初始搭讪：冒用企业名义抛出岗位"><a href="#1-初始搭讪：冒用企业名义抛出岗位" class="headerlink" title="1. 初始搭讪：冒用企业名义抛出岗位"></a>1. 初始搭讪：冒用企业名义抛出岗位</h3><p>一名账号名为 <strong>Derlys Cardozo</strong> 的用户主动在 LinkedIn 私信我，声称代表 Conduit 团队扩张技术与产品岗位，筛选匹配经验的工程师沟通机会，话术正规，和海外猎头常规邀约别无二致。</p>
+<blockquote>
+<p>Hi Yuki,</p>
+<p>I’m reaching out regarding an opportunity at Conduit as we continue expanding our engineering and product teams while building new initiatives across our core product lines.</p>
+<p>We’re currently connecting with a small group of engineers and technical leaders whose experience may align with what we’re building. If you’re open to it, I’d be happy to share the full role details for your review.</p>
+<p>Best regards,<br>Derlys</p>
+</blockquote>
+<p>我表达求职意向后，对方立刻放出极具诱惑力的薪资与岗位清单：开放全职&#x2F;兼职远程岗位，包含全栈工程师、技术负责人、技术产品经理等，<strong>月薪 13,000–25,000 美元</strong>，远超行业常规水平，以此放大求职吸引力。同时要求我补充个人履历、技术栈、期望薪资、作品集等求职材料，进一步模仿正规招聘流程，降低戒备心。</p>
+<h3 id="2-精准精读履历：明知我具备安全攻防背景，依旧设套"><a href="#2-精准精读履历：明知我具备安全攻防背景，依旧设套" class="headerlink" title="2. 精准精读履历：明知我具备安全攻防背景，依旧设套"></a>2. 精准精读履历：明知我具备安全攻防背景，依旧设套</h3><p>在我提交背景与项目作品集后，对方并未模板式客套夸赞，而是<strong>精准点名我的核心专业能力</strong>：网络安全、渗透测试、红队演练、Web3 开发、量化研究、独立产品研发等细分技能，明确判定我匹配全栈、Web3 核心岗位。</p>
+<blockquote>
+<p>Hi Yuki,</p>
+<p>Thank you for sharing your background and portfolio. I had a chance to review your experience, and your mix of cybersecurity expertise, Web3 development, quantitative research, and independent product building really stood out.<br>Your work across penetration testing, red team operations, blockchain tooling, AI-assisted development workflows, and quantitative strategy research is especially impressive, along with the products and projects you’ve independently built and launched.<br>Based on your background, you seem like a strong potential fit for several of our current engineering tracks, particularly Full-Stack and Web3-focused initiatives.<br>Our team lead would love to set up a quick call with you today to learn more about your experience and discuss the opportunities in more detail.<br>What time are you available today?</p>
+</blockquote>
+<p><img src="/2016/01/01/10336"></p>
+<p>这段话术足以证明：<strong>诈骗团伙并非无脑广撒网，而是完整精读了我的简历，清楚我拥有专业红队渗透、安全攻防实战经验</strong>。但他们并未放弃接触，反而加急推进面试，刻意压缩我的思考时间，目的性极强。</p>
+<p>后续双方确认使用 Google Meet 作为面试工具，因时差产生短暂沟通偏差后，对方立刻发来会议链接，持续催促我上线沟通。</p>
+<h3 id="3-面试核心陷阱：要求本地运行项目-MVP，定向试探风控能力"><a href="#3-面试核心陷阱：要求本地运行项目-MVP，定向试探风控能力" class="headerlink" title="3. 面试核心陷阱：要求本地运行项目 MVP，定向试探风控能力"></a>3. 面试核心陷阱：要求本地运行项目 MVP，定向试探风控能力</h3><p>进入十几分钟的视频面试后，对方先简单铺垫所谓的项目现状，谎称团队多模块并行开发、协作混乱，需要落地能力强的工程师。随即抛出本次诈骗的核心陷阱：要求我克隆 Bitbucket 恶意仓库 <strong><code>hvd-bard-2026</code></strong>，在个人本地设备&#x2F;服务器中<strong>拉取源码、运行项目 MVP</strong>，将此作为核心技术考核环节。</p>
+<p>凭借多年红队渗透、安全攻防的实战经验，我瞬间识破破绽：<strong>正规大厂海外技术面试，绝对不会要求应聘者在个人主力设备、私有服务器中运行陌生外部源码</strong>。仅三秒判断，我便确定这是源码投毒诈骗，当即终止面试沟通。</p>
+<p>正当我准备指出漏洞、沟通疑点时，对方直接将我的 LinkedIn 账号拉黑，骗局彻底败露，也印证了其纯诈骗、无真实招聘的本质。</p>
+<p>我用其他账号去搜索，发现还能看到他，说明他把我拉黑了。<br><img src="/2016/01/01/10336"></p>
+<blockquote>
+<p><strong>骗子 LinkedIn 账号（再次确认）</strong>：<a target="_blank" rel="noopener" href="https://www.linkedin.com/in/derlys-cardozo-73018818a/">https://www.linkedin.com/in/derlys-cardozo-73018818a/</a></p>
+</blockquote>
+<hr>
+<h2 id="二、恶意仓库攻击原理详解"><a href="#二、恶意仓库攻击原理详解" class="headerlink" title="二、恶意仓库攻击原理详解"></a>二、恶意仓库攻击原理详解</h2><p>事后我核查了涉事 Bitbucket 仓库：</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://bitbucket.org/top-hvd-workspace/hvd-bard-2026/">https://bitbucket.org/top-hvd-workspace/hvd-bard-2026/</a></p>
+</blockquote>
+<p>该仓库已被多名受害者举报，Atlassian 官方也已介入处理、下架相关资源。这是当下海外技术圈高发的 <strong>「面试投毒攻击」</strong>，属于定向针对高阶开发者的社工 + 代码供应链复合攻击。</p>
+<h3 id="1-攻击核心目标"><a href="#1-攻击核心目标" class="headerlink" title="1. 攻击核心目标"></a>1. 攻击核心目标</h3><p>骗子精准盯上 Web3、安全、全栈高阶开发者，利用求职者的求职心态，诱导操作恶意代码，最终窃取设备内所有高价值敏感信息：</p>
+<ul>
+<li>SSH 密钥</li>
+<li>云服务 Token</li>
+<li>Git &#x2F; 区块链钱包私钥</li>
+<li><code>.env</code> 配置文件</li>
+<li>AI 工具凭证</li>
+<li>各类平台高权限账号密码</li>
+</ul>
+<p>相较于普通开发者，安全从业者的设备权限、私密资产价值更高，是他们的顶级收割目标。</p>
+<h3 id="2-四大恶意触发向量（仓库内置攻击逻辑）"><a href="#2-四大恶意触发向量（仓库内置攻击逻辑）" class="headerlink" title="2. 四大恶意触发向量（仓库内置攻击逻辑）"></a>2. 四大恶意触发向量（仓库内置攻击逻辑）</h3><p>该类伪装成正常 Node&#x2F;React 项目的恶意仓库，会组合多种静默执行手段，<strong>无需手动启动项目，简单操作即可中招</strong>，隐蔽性拉满：</p>
+<h4 id="（1）VS-Code-Cursor-自动任务（高危首选）"><a href="#（1）VS-Code-Cursor-自动任务（高危首选）" class="headerlink" title="（1）VS Code &#x2F; Cursor 自动任务（高危首选）"></a>（1）VS Code &#x2F; Cursor 自动任务（高危首选）</h4><p>仓库内置 <code>.vscode/tasks.json</code>，配置 <code>runOn: &quot;folderOpen&quot;</code>，只要用编辑器打开该文件夹并点击「信任工作区」，就会自动执行隐藏命令，通过 <code>curl</code> &#x2F; <code>wget</code> 拉取远端恶意脚本并运行，全程隐藏终端日志，普通用户无法察觉。</p>
+<h4 id="（2）npm-yarn-生命周期钩子"><a href="#（2）npm-yarn-生命周期钩子" class="headerlink" title="（2）npm &#x2F; yarn 生命周期钩子"></a>（2）npm &#x2F; yarn 生命周期钩子</h4><p><code>package.json</code> 中植入 <code>preinstall</code> &#x2F; <code>postinstall</code> &#x2F; <code>prepare</code> 脚本，<strong><code>npm install</code> 仅执行就会自动触发恶意脚本</strong>，不需要手动启动项目，是供应链攻击最常用的隐蔽手段。</p>
+<h4 id="（3）动态远程代码执行（RCE）-远控回连"><a href="#（3）动态远程代码执行（RCE）-远控回连" class="headerlink" title="（3）动态远程代码执行（RCE）+ 远控回连"></a>（3）动态远程代码执行（RCE）+ 远控回连</h4><p>代码中嵌入 <code>new Function()</code>、<code>eval()</code>、<code>child_process</code> 等危险语法，启动后会自动读取本机全部环境变量、配置文件，打包发送至攻击者的 C2 服务器；同时接收远端指令，实现任意代码执行。部分恶意 URL 还会通过 Base64 编码隐藏在示例配置文件中，规避基础筛查。</p>
+<h4 id="（4）伪装欺骗"><a href="#（4）伪装欺骗" class="headerlink" title="（4）伪装欺骗"></a>（4）伪装欺骗</h4><p>项目前端、README 文档做得和正规商业项目无异，还会放置虚假的云服务、支付平台密钥作为诱饵，降低求职者警惕性，恶意逻辑全部隐藏在后端、隐藏目录中，极难肉眼识别。</p>
+<hr>
+<h2 id="三、深层拆解：明知我懂安全，为何仍执意设套？"><a href="#三、深层拆解：明知我懂安全，为何仍执意设套？" class="headerlink" title="三、深层拆解：明知我懂安全，为何仍执意设套？"></a>三、深层拆解：明知我懂安全，为何仍执意设套？</h2><p>这也是本次骗局最值得深思的点：对方完整识别我的红队、渗透安全背景，却依旧针对性设局、主动试探，并非无脑诈骗，而是成熟黑产的精准博弈，核心逻辑有三点：</p>
+<h3 id="1-高价值目标优先，利益覆盖风险"><a href="#1-高价值目标优先，利益覆盖风险" class="headerlink" title="1. 高价值目标优先，利益覆盖风险"></a>1. 高价值目标优先，利益覆盖风险</h3><p>在黑产视角中，<strong>红队安全 + Web3 开发 + 独立产品研发</strong>的从业者，是远超普通开发者的优质猎物。这类人群的设备大概率持有服务器高权限、云密钥、加密钱包、AI 工具凭证等高价资产，单次收割收益极高。巨大的利益诱惑，让他们愿意冒险试探有安全背景的目标。</p>
+<h3 id="2-精准拿捏「求职心态盲区」"><a href="#2-精准拿捏「求职心态盲区」" class="headerlink" title="2. 精准拿捏「求职心态盲区」"></a>2. 精准拿捏「求职心态盲区」</h3><p>骗子深谙人性：<strong>日常做安全防守、挖漏洞，不代表面试时会全程戒备</strong>。日常工作中，我是主动防御、寻找漏洞的攻击者；但面试场景下，求职者的思维惯性是「配合考核、展示技术、争取 offer」。他们赌的不是我不懂安全，而是赌我会在求职场景下放松警惕，默认「现场跑 Demo 是常规面试环节」，从而忽略供应链投毒风险。</p>
+<h3 id="3-筛选真实能力，甄别简历注水者"><a href="#3-筛选真实能力，甄别简历注水者" class="headerlink" title="3. 筛选真实能力，甄别简历注水者"></a>3. 筛选真实能力，甄别简历注水者</h3><p>这是该团伙的高级之处：本次面试考核本身就是一次<strong>安全能力摸底测试</strong>。市面上大量开发者堆砌安全简历、实则无实战风控意识。骗子通过强制运行陌生源码的操作，快速筛选目标：</p>
+<ul>
+<li><strong>乖乖执行操作、无任何质疑</strong> → 简历注水、风控薄弱，直接收割</li>
+<li><strong>瞬间识破陷阱、拒绝操作</strong> → 真实具备安全实战能力，无利用价值，立刻拉黑放弃</li>
+</ul>
+<p>同时也能判断出，该团伙并非初级诈骗团队，内部有具备基础技术认知的人员，能读懂安全专业术语、精准筛选高价值目标，套路经过长期打磨，迭代非常成熟。</p>
+<hr>
+<h2 id="四、安全排查与应急处置方案"><a href="#四、安全排查与应急处置方案" class="headerlink" title="四、安全排查与应急处置方案"></a>四、安全排查与应急处置方案</h2><p>如果你不慎克隆、打开或安装了该类恶意仓库，按以下步骤处理，同时附上<strong>只读安全排查命令</strong>（全程禁止执行安装、启动类命令）。</p>
+<h3 id="1-安全静态排查（仅查看，不运行代码）"><a href="#1-安全静态排查（仅查看，不运行代码）" class="headerlink" title="1. 安全静态排查（仅查看，不运行代码）"></a>1. 安全静态排查（仅查看，不运行代码）</h3><p>适用于 Linux 环境，进入仓库目录后执行以下命令，排查恶意特征：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash"><span class="hljs-comment"># 进入仓库目录</span><br><span class="hljs-built_in">cd</span> /root/hvd-bard-2026<br><br><span class="hljs-comment"># 1. 检查 npm 生命周期恶意脚本</span><br>grep -nE <span class="hljs-string">&#x27;preinstall|postinstall|prepare|install&#x27;</span> package.json<br><span class="hljs-built_in">cat</span> package.json | jq <span class="hljs-string">&#x27;.scripts&#x27;</span><br><br><span class="hljs-comment"># 2. 检查 VS Code 自动执行任务（核心风险点）</span><br><span class="hljs-built_in">cat</span> .vscode/tasks.json 2&gt;/dev/null<br>grep -nE <span class="hljs-string">&#x27;folderOpen|curl|wget|bash|cmd|vercel|eval&#x27;</span> .vscode/tasks.json 2&gt;/dev/null<br><br><span class="hljs-comment"># 3. 检索代码内 RCE、进程调用、环境变量窃取逻辑</span><br>grep -rnE <span class="hljs-string">&#x27;Function\.constructor|new Function|eval\(|child_process|exec|process\.env&#x27;</span> --include=<span class="hljs-string">&#x27;*.js&#x27;</span> --include=<span class="hljs-string">&#x27;*.ts&#x27;</span> .<br><br><span class="hljs-comment"># 4. 检索 Base64 编码、可疑外网域名（C2 地址）</span><br>grep -rnE <span class="hljs-string">&#x27;atob|btoa|base64|vercel\.app|onrender\.com&#x27;</span> .<br><br><span class="hljs-comment"># 5. 检索顶层自动执行函数</span><br>grep -rnE <span class="hljs-string">&#x27;errorTimeHandler|validateApiKey&#x27;</span> server/ . 2&gt;/dev/null<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="2-已触发风险的应急处理（中招后必做）"><a href="#2-已触发风险的应急处理（中招后必做）" class="headerlink" title="2. 已触发风险的应急处理（中招后必做）"></a>2. 已触发风险的应急处理（中招后必做）</h3><p>若已经 <code>npm install</code>、用编辑器信任工作区，立刻判定设备<strong>已失陷</strong>，按流程处置：</p>
+<ol>
+<li><strong>立即断开网络</strong>，终止所有 <code>node</code>、<code>curl</code>、<code>wget</code> 相关进程</li>
+<li><strong>全量轮换所有密钥</strong>：SSH 密钥、Git 平台令牌、云服务密钥、数据库密码、加密钱包私钥、各类平台 Token</li>
+<li><strong>检查持久化植入</strong>：查看定时任务 <code>crontab</code>、用户配置文件 <code>~/.bashrc</code> &#x2F; <code>~/.zshrc</code>、SSH 授权密钥 <code>authorized_keys</code> 等，清理后门</li>
+<li><strong>彻底删除恶意仓库目录及 <code>node_modules</code></strong>，不要仅删除部分代码</li>
+<li><strong>向平台举报</strong>：向 Atlassian（<a href="mailto:&#x61;&#x62;&#x75;&#x73;&#x65;&#64;&#x61;&#116;&#x6c;&#97;&#x73;&#115;&#105;&#97;&#x6e;&#x2e;&#99;&#111;&#109;">abuse@atlassian.com</a>）举报恶意 Bitbucket 仓库，同时在 LinkedIn 投诉诈骗账号</li>
+</ol>
+<hr>
+<h2 id="五、个人总结与通用防护建议"><a href="#五、个人总结与通用防护建议" class="headerlink" title="五、个人总结与通用防护建议"></a>五、个人总结与通用防护建议</h2><p>本次骗局是当下非常典型的<strong>高阶定向诈骗</strong>：精准瞄准 Web3、全栈、安全工程师群体，利用高薪远程岗位、正规企业背书、加急面试节奏三重心理弱点，搭配成熟的代码供应链投毒攻击，专门收割高阶技术从业者，迷惑性和危害性远超普通诈骗。</p>
+<p>结合本次经历，给广大技术同行几条核心防护建议：</p>
+<h3 id="1-坚守面试底线原则"><a href="#1-坚守面试底线原则" class="headerlink" title="1. 坚守面试底线原则"></a>1. 坚守面试底线原则</h3><p>正规大厂远程技术面试，<strong>绝对不会要求求职者在个人本地&#x2F;服务器运行陌生源码、执行 <code>npm install</code> 等高危操作</strong>。技术考核只会采用共享屏幕手写代码、线上笔试、逻辑问答的形式。但凡要求本地拉取第三方仓库运行项目，<strong>100% 判定为诈骗风险</strong>。</p>
+<h3 id="2-陌生代码全程零信任"><a href="#2-陌生代码全程零信任" class="headerlink" title="2. 陌生代码全程零信任"></a>2. 陌生代码全程零信任</h3><p>来自猎头、陌生面试官的各类代码仓库，禁止在主力设备、工作服务器操作。如需核验查看，必须使用<strong>一次性虚拟机、隔离容器</strong>，查看时强制忽略脚本：</p>
+<figure class="highlight bash"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs bash">npm install --ignore-scripts<br></code></pre></div></td></tr></table></figure>
+
+<p>杜绝自动执行恶意代码。</p>
+<h3 id="3-强化-IDE-安全防护配置"><a href="#3-强化-IDE-安全防护配置" class="headerlink" title="3. 强化 IDE 安全防护配置"></a>3. 强化 IDE 安全防护配置</h3><p>在 VS Code &#x2F; Cursor 等编辑器中关闭自动任务：</p>
+<figure class="highlight json"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs json"><span class="hljs-attr">&quot;task.allowAutomaticTasks&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;off&quot;</span><br></code></pre></div></td></tr></table></figure>
+
+<p>所有陌生项目文件夹，一律拒绝「信任工作区」，从源头拦截自动 RCE 攻击。</p>
+<h3 id="4-警惕超高薪资-加急面试陷阱"><a href="#4-警惕超高薪资-加急面试陷阱" class="headerlink" title="4. 警惕超高薪资 + 加急面试陷阱"></a>4. 警惕超高薪资 + 加急面试陷阱</h3><p>薪资远超行业平均、岗位描述模糊、催促当天加急面试、压缩思考时间的海外远程岗位，优先判定为高风险。务必交叉核验企业官网、官方招聘渠道，切勿轻信私人猎头私信邀约。</p>
+<h3 id="5-留存证据，及时维权举报"><a href="#5-留存证据，及时维权举报" class="headerlink" title="5. 留存证据，及时维权举报"></a>5. 留存证据，及时维权举报</h3><p>遭遇同类诈骗后，完整保存聊天记录、诈骗账号主页、恶意仓库链接，及时向社交平台、代码托管平台投诉举报，避免更多技术从业者落入圈套。</p>
+<hr>
+<blockquote>
+<p>如今求职诈骗早已不再是低端话术骗局，黑产团队持续迭代套路，精准针对高阶技术人员定制攻击方案。哪怕自身具备安全攻防能力，在求职场景中也需时刻保持警惕，坚守安全操作底线，才能规避精心设计的定向陷阱。</p>
+</blockquote>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AE%89%E5%85%A8/">安全</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/05/26/1572528661.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">LinkedIn Fake Recruiting + Malicious Repo Poisoning: A Post-Mortem</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/05/26/3847291056.html">
+                        <span class="hidden-mobile">巴别塔平台 — 全栈开发 Onboarding</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "LinkedIn 虚假招聘 + 恶意仓库投毒诈骗复盘"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

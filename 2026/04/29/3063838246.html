@@ -1,0 +1,509 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>AI-API - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="AI-API">
+                      
+                        AI-API
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-04-29 19:22" pubdate>
+        2026年4月29日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      6 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      1
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">AI-API</h1>
+            
+            <div class="markdown-body">
+              <div class="hbe hbe-container" id="hexo-blog-encrypt" data-wpm="Oh, this is an invalid password. Check and try again, please." data-whm="Oh, these decrypted content cannot be verified, but you can still have a look.">
+  <script id="hbeData" type="hbeData" data-hmacdigest="8228522839857975a6546466d169ec58e85481ff4e6ea67691859a6fd7bb27d1">ae00ebaf7873947915bc417ccda28ec0f1cbe974457177124fd0245662b95e0c2eb325141ca744ca59f889a90de49a20423ae89d8d5073618dc2534248a7fdb9d5fa43d1efaad4df3ad25b3a34a84018ecb4a63226a61929696ecd210b5d696e187eec72cf82a0abd388fe60e8500c8c95a40a6696b0c61e2aeaeeca01a546e93a770012335a84a5bc97509f74d7dfb5f4d0124a018de53ce07e932ad983bd0b3543c139601cbdd6cb55b9a53480ac247ca9771aa4e87b8bfa1685c01e26dfe39cd97d1aa9e0e9c5313dbfd25d3ed07f38175b92cb9f2edd9e1f53fe984a60c1034e7b25f074615d390c9ef6f1f24c42c861597f5fd7f478e91749e8695771aeb9a44528280f9bcd1eff670891ce10f6ca8613060db614002c096b451460ea2475e988749d69be6e9ab7d899a8247240246205825f9dec70bc192ef841cb697a49c7791a96bfd4f8d94f16320482f430f18f9ae1624a9373343af9aec7162ff48b0fd01dc1646c167ed0a75b653f2665e1f08626904482a90c9b2937dd09d480af1d79eadf247a74c3b9ef141b95355561e075598207e560d80b0c53bbcb48a5b53b6802629abe2b9c338aa26a1a0ca310af33c2a2861c89f9da7f366e95fb76575c1605324d1ac5c4e0028995e551812f6b4611888ca3e887d434ac2c04667f26752e548048fe39ca66cbee067f7563044434ea40c113428f4ea4a22aa140b2f0fbf3f209d9d456285fc36cd36258402e48c747f6e9b606ec469a2a65ad50f88cf1a0bfdf258ecfb4b5473f4f17cb4bb4faf2fa26e6a226eeaef43d4aef4071a4074e7bc621b5cf8e61e6a100bb620738efc1b2a9ff9ad42e5646eff5d302fa5441322be354a5c1440bea9eb86fc26eb03982be2c5112f22ca2b38acf75ec43c8850a796dd16add8936840da7266c2448256fcaa4dc21f241a86ee1a42527c1fd4557338366c72738caca4442e59976618c12f5fd8d7ed6df15ffe9a9e4d38b98688da14d3503c690c479964d3d5025826ffa87591c488afdcbdd51038ea92c168adf4045f8fe87170965a38ee4b33e03b09e2a2e44348a0c670736d1400dc5c570f5951212a867fa31d20567d62eedbd0cabc66c09b9141f17a409ef79d5648593073ed2847631eeef57df2bcc4d99d8fc89bfe51cd68978b554ae160f309528ffba60bbdcb5a6ecc5de274a3a421fe6e12d3306471c706b6e7e0be1ff06f872d6cc44c5b8e5d8e824c7002a26b5204dcea1be613cd86e85cc6b30e28e62592c466aacdf5dc96d538e0f58d1738e667525c49b5e9f65ce20b593ea7d9eeecc16b3e924af1523b51badef71dba524619bb277b3f89acd9fb54374ac6d5796701549e8b2e143b310de63848d4615303671be56c69a5ea4d260c7fdf48fe57c1f79a482d56c98752a7efbc1be2227c2ff8e89a4ec4041c12fdecdf116da49264c15596b1a7cfa0c990d51c0792efed32c4c564322935222c056eb5e9d2be649523a0eeadc043c392edea30869cdace47da14005246218e92be21aac1cc6d765cd56fcd40582b05e3b976a0dd28f70053db7a6ad8276a45eef8241f65aaee270b5a4b2c95060380e6317f17f3bb9712d65088ad50621f5186d84e864df92056f4f29958a67072b49ca92c89123b218958786433aaf56a3a19d3a5bd187c192c17dc0a028fb6d76baee06fae047a685bca8da08a0966f0324be1713e9dd1a5776f788b8dcb227fc5352c862eba0c0d3666e7b4c592ed0a7cc1d875d55a5f61030c9de3a363a51966e6bce61d117d1b0c57d8c8d2c219eaaa20481f6cf822f07322873fde5f2003565d0478e636bd752916e3bf2c351f120e6fd12285a219fa0a98fda54ce28e5eba27e24c0356e8f4cf33c4327a77ff75f1616fe50e700197e4183598ba3cc88123e2ea0d84b35959f1219bed988ad83d3eb95cdc251eceedca1d9d92af3d16436d4ef74d11c73426a92450737d7acef9d9cc38cd8ecbc3d3c5b1db940fa494b31adbd8001b1f8673bf2c1a92af5b390469439443cece6efb640e61aad290eeef3adf720bb9531ffc4354c8229add2380f08fd68b925301ce6c279cb1d5fb23658d1404e34904c5c3ff1139e948a1eed2f5b48e7b91251df3f3455e5be7fe0a01405b330a5cd4b377ffc00536979c89fe21d0f8ddc5f13a5da546d822a030dc56d8dad83a9e118d8030ffe5b539414644e4d19da4e73360c03e836daaf41886e81bc0eef39798772bd18d531776a499fd6d80787ed2d9862afee3e7ce008462603096ceb6f9c4acd6b0e1d9551875899d69b24e2784a7289896f1b0a41ac59fcb2197d01948ec9a0b4b99a2b0a87dd634dc1e1f96c00c24aab2c2501feebbac75b80263725e5191a7a564e9ae5f41731f017b15029fe41f168e7f5242da03073c872bc40c0574a3c58ba66d5544bb2aed3704fd12fba00a8f5f36e5a80cbacabb1ab063adecf69f8f76ee1b2dddff1ea4a3048a88163c0f6c446f42bf6a99a03c623bcd69664b410825b607be645f772e494620b634319a1f0bc33c7b000de5afce36aef7f959c36f01a8fa9255200ac93f94566a184b5229507ac66f471f46845ea2a4d6c0435627bc78e7b76444b0f72070b778ffe9213293cc2b5f99564396d2b4318775d24cdc2e3a24cc4405813773c0f41f2a92a763762c703be49a51328a04a7715438128b436d231c853471be358d1118da2db6e68ad07991cb51bd22bddd318b89b69d8f84f08192d8bf0dce3d8ed2c560c709206365596f360353eb6c2c1b5075aa466f223daf5f5b1866f3ad68fa9cf6aa3ab5c5268bddac86d4ee5e045deeb944a28112ee9c4caabb0f03a8fea2a13e7244f90978fe52bd7b63c915ed1071169d5204302b40c91665ff739661ac53c416cd130f89e2af66ab460b40a199f0e3b2cb86b9fb87f624df67388d9e4ff21232b51752a438f34ab65376d256bbb56798c19aefc6aaeb42aa408b6033db6da53db61b1fe67c6f029d2337dff76a2c3e36bc3d6ea4af9fd31590c26d077b7a137da7d8a74f0520170d38168aa90e8343467b8bf66d67ed0be3c929e1ab71b0bd510be571b72d4f74bd7b857d3f6a625b05caf5c15a11300cd8648167023b1265f9387fed6c26f909a54760b5022a71020db1519b6a724b470e2de84aed8f65db227e8a1bafd6f28ec85d5d4133ef22ed502937af7b85522ecca7267b9660a599ce0b270100b3923a6634897814bdcc35b48ea2cb36459cf8b29b1c2fccf09cd5073d8d27d004e98e725f640b59c857ec494b2eef40a30a9503b16edff3defee9dceda8ff7b8e0281455037cf4277fee51a7bc5f5eee6e61cca0c7cc10ce6d1220bdb6a468508fb37d14c3ec616a94e7ba0a31db28d86288894cb7e07349ae73adabe34c7cbc0435f891f53d6a37f0b87ffc11d7801fcc73ad9ed71b34ae7d984adc7d3209dc0b01b7d8c86a326fd71c8e95142ad85f621fecdca4700346441f515c661ba2bc57cc5617911e2fb8d2faba3c75ce819ab67fc6b98fcddaa69806e95827549468b05db0044005fac54408aad2ac170dda79cf15b84ef8fc10bc4cd1193ed2123927c691305c9a7d4375e289c3c049357bd6aa4cc9f7f913cdb2147a520c43a133eac07650f795f1acd0c6c95da88a74c35433efaf24e3ef00588374ba8c82be5e967a4c44b05cafb2cfccd49c0f2a4c0c</script>
+  <div class="hbe hbe-content">
+    <div class="hbe hbe-input hbe-input-default">
+      <input class="hbe hbe-input-field hbe-input-field-default" type="password" id="hbePass">
+      <label class="hbe hbe-input-label hbe-input-label-default" for="hbePass">
+        <span class="hbe hbe-input-label-content hbe-input-label-content-default">Hey, password is required here.</span>
+      </label>
+    </div>
+  </div>
+</div>
+<script data-pjax src="/lib/hbe.js"></script><link href="/css/hbe.style.css" rel="stylesheet" type="text/css">
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/04/29/242792067.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">2026年Unlock Her Future Prize 绽放她未来女性创业大奖</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/04/29/3437379590.html">
+                        <span class="hidden-mobile">polkadot-第20期学习培训</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "AI-API"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

@@ -1,0 +1,573 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>阿乌拉裁决系统-SDK - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="阿乌拉裁决系统-SDK">
+                      
+                        阿乌拉裁决系统-SDK
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-04-13 10:57" pubdate>
+        2026年4月13日 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      878 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      11
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">阿乌拉裁决系统-SDK</h1>
+            
+            <div class="markdown-body">
+              <p><a target="_blank" rel="noopener" href="http://198.55.109.102:3000/ranking?round_id=novel2026_kuake">http://198.55.109.102:3000/ranking?round_id=novel2026_kuake</a></p>
+<p><a target="_blank" rel="noopener" href="http://198.55.109.102:3000/">http://198.55.109.102:3000/</a>  这是阿乌拉裁决系统，如何把它做成sdk，给其他的web应用调用呢？</p>
+<p><a target="_blank" rel="noopener" href="http://198.55.109.102:3000/">Aura Judgement System</a> 本质是 <strong>前端（约 :3000）+ 自建 JSON API（默认同机 :8888）</strong>。要做成给其它 Web 应用调用的 SDK，应围绕 <strong>API 基址</strong>，而不是只包 <code>:3000</code> 的页面。</p>
+<hr>
+<h3 id="1-先分清「页面」和「接口」"><a href="#1-先分清「页面」和「接口」" class="headerlink" title="1. 先分清「页面」和「接口」"></a>1. 先分清「页面」和「接口」</h3><ul>
+<li><strong><code>:3000</code></strong>：Vite 单页应用，负责 UI。</li>
+<li><strong><code>:8888</code>（或你配置的 <code>VITE_API_BASE</code>）</strong>：真正干活的后端，路径都是 <strong><code>/api/...</code></strong>。</li>
+</ul>
+<p>前端里写得很清楚：未配 <code>VITE_API_BASE</code> 时，会用 <strong><code>当前页面 host + :8888</code></strong> 作为 API 根地址（见 <code>aura-judge-buddy/src/lib/apiClient.ts</code> 里 <code>resolveApiBase()</code>）。</p>
+<p><strong>SDK 应对接的是「API 根 URL」</strong>（例如 <code>http://198.55.109.102:8888</code>），而不是 <code>:3000</code> 的根路径。</p>
+<hr>
+<h3 id="2-现有能力：你其实已经有一半「SDK-素材」"><a href="#2-现有能力：你其实已经有一半「SDK-素材」" class="headerlink" title="2. 现有能力：你其实已经有一半「SDK 素材」"></a>2. 现有能力：你其实已经有一半「SDK 素材」</h3><p><code>aura-judge-buddy/src/lib/apiClient.ts</code> + <code>api.ts</code> 已经封装了：</p>
+<ul>
+<li><code>API_BASE</code>、<code>round_id</code> 查询拼接（<code>withRoundQuery</code> 等）</li>
+<li>各类 <code>fetch</code> 封装与类型（<code>JudgeResult</code>、<code>RankingItem</code>、<code>AuditReport</code> 等）</li>
+</ul>
+<p><strong>做成 npm 包</strong>时，大致就是：</p>
+<ul>
+<li>抽成 <strong><code>@your-org/aura-client</code></strong>（或内网私有包）</li>
+<li>构造函数里传入 <strong><code>baseUrl</code> + 可选 <code>roundId</code> + 可选 <code>adminWallet</code></strong>（管理类接口才要 <code>X-Admin-Wallet</code>，见 <code>rebuild_backend.go</code> 里 <code>adminWalletAuthorized</code>）</li>
+<li><strong>去掉</strong> 对 <code>import.meta.env</code>、<code>window.localStorage</code> 的硬依赖，改为由调用方注入配置（这样 Node&#x2F;其它框架都能用）</li>
+</ul>
+<p>后端注册的主要路由包括（节选）：<code>GET/POST /api/audit</code>、<code>GET /api/ranking</code>、<code>GET /api/judge-result</code>、<code>GET /api/files</code>、<code>GET /api/rules/*</code>、提交与轮次相关接口等（见 <code>rebuild_backend.go</code> 里 <code>r.GET</code> &#x2F; <code>r.POST</code> 注册段）。</p>
+<hr>
+<h3 id="3-集成形态（按场景选）"><a href="#3-集成形态（按场景选）" class="headerlink" title="3. 集成形态（按场景选）"></a>3. 集成形态（按场景选）</h3><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>做法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>同域 BFF</strong>（推荐）</td>
+<td>你的业务站 <strong>自己的后端</strong> 用 Node&#x2F;Go 调 Aura <code>http(s)://host:8888/api/...</code>，浏览器只调你自己的 API。<strong>不暴露</strong> Aura 到公网，也省 CORS。</td>
+</tr>
+<tr>
+<td><strong>浏览器直连 Aura</strong></td>
+<td>必须在 Aura 侧配置 <strong><code>AURA_CORS_ORIGINS</code></strong>，允许你的前端 Origin（<code>rebuild_backend.go</code> 里 CORS 中间件）。SDK 里用 <code>fetch</code> + <code>credentials</code> 按需。</td>
+</tr>
+<tr>
+<td><strong>只嵌入体验</strong></td>
+<td>iframe 打开 <code>:3000</code> 某页——实现快，但<strong>不是</strong>结构化 SDK，数据回传要另想办法。</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="4-安全与产品化（上线给「别的应用」必做）"><a href="#4-安全与产品化（上线给「别的应用」必做）" class="headerlink" title="4. 安全与产品化（上线给「别的应用」必做）"></a>4. 安全与产品化（上线给「别的应用」必做）</h3><p>当前设计里：<strong>大量读接口 + 评审接口在代码层面并非「强 API Key 模型」</strong>；管理类删除等会校验 <strong><code>X-Admin-Wallet</code></strong> 是否与 <strong><code>AURA_ADMIN_WALLET</code></strong> 一致（未设置 <code>AURA_ADMIN_WALLET</code> 时管理校验会放宽，见 <code>adminWalletAuthorized</code>）。</p>
+<p>给外部 Web 用时建议：</p>
+<ul>
+<li>公网只暴露 <strong>你自己的网关</strong>，网关校验 <strong>JWT &#x2F; API Key</strong>，再转发到内网 Aura。</li>
+<li>或在 Aura 前加 <strong>Nginx + <code>proxy_set_header</code> + IP 白名单 &#x2F; mTLS</strong>。</li>
+</ul>
+<hr>
+<h3 id="5-SDK-包里建议包含什么"><a href="#5-SDK-包里建议包含什么" class="headerlink" title="5. SDK 包里建议包含什么"></a>5. SDK 包里建议包含什么</h3><ol>
+<li><strong>配置</strong>：<code>baseUrl</code>、<code>roundId?</code>、<code>fetchImpl?</code>（便于测试）、<code>adminWallet?</code>、<code>defaultTimeout?</code>  </li>
+<li><strong>方法</strong>：与现有前端一一对应，例如 <code>audit()</code>、<code>getRanking()</code>、<code>getJudgeResult()</code>、<code>getRulesActive()</code> 等（从 <code>api.ts</code> &#x2F; <code>apiClient.ts</code> 抄方法签名即可）。  </li>
+<li><strong>类型</strong>：导出 <code>JudgeResult</code>、<code>RankingItem</code> 等（已在 <code>api.ts</code>）。  </li>
+<li><strong>文档</strong>：每个接口的 <strong>query&#x2F;body</strong>、<strong>长耗时</strong>（如 <code>/api/audit</code> 可能很久）、<strong>错误 JSON 形态</strong>。  </li>
+<li><strong>可选</strong>：用 <strong>OpenAPI</strong> 从 Gin 生成 spec，再生成多语言客户端（需要你们在仓库里加 swagger 注解或单独维护 spec）。</li>
+</ol>
+<hr>
+<h3 id="6-小结"><a href="#6-小结" class="headerlink" title="6. 小结"></a>6. 小结</h3><ul>
+<li><strong>SDK &#x3D; 对 <code>http(s)://&lt;aura-api-host&gt;:8888</code> 上 <code>/api/*</code> 的类型化 HTTP 客户端</strong>，可直接以现有 <code>apiClient.ts</code> &#x2F; <code>api.ts</code> 为蓝本抽包。  </li>
+<li><strong><code>:3000</code> 只是演示&#x2F;管理 UI</strong>，不必也不应作为 SDK 的唯一入口。  </li>
+<li><strong>跨站浏览器调用</strong> 要配 CORS；<strong>严肃对外</strong> 建议业务后端代理 + 鉴权。</li>
+</ul>
+<p>如果你希望我直接在仓库里拆出一个 <code>packages/aura-sdk</code> 并写好 <code>package.json</code> 导出，需要切换到 <strong>Agent 模式</strong>（当前是 Ask 模式，我只能说明思路不能改代码）。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/AI/">AI</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Aura/">Aura</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/04/13/2376241644.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【4月20日星期一】规模化峰会：人工智能之家</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/04/13/943201948.html">
+                        <span class="hidden-mobile">polkadot-20</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "阿乌拉裁决系统-SDK"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>
