@@ -1,0 +1,534 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>和机器共生（五）- AI - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="和机器共生（五）- AI">
+                      
+                        和机器共生（五）- AI
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-06-03 17:28" pubdate>
+        2026年6月3日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      12
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">和机器共生（五）- AI</h1>
+            
+            <div class="markdown-body">
+              <p>上一篇：<br><a href="https://whale3070.github.io/2024/08/03/50517.html">和机器共生（四）- 漫画的末路</a><br><a href="https://whale3070.github.io/2024/07/22/38139.html">和机器共生（三）- web3.0</a><br><a href="https://whale3070.github.io/2024/07/22/39042.html">和机器共生（二）- 图书管理员的终结</a><br><a href="https://whale3070.github.io/2017/03/23/38726.html">和机器共生</a></p>
+<p>2017年写<a href="https://whale3070.github.io/2017/03/23/38726.html">和机器共生</a>的时候，我觉得司机、翻译、记者、会计、流水线工人会先受到冲击。2024年写<a href="https://whale3070.github.io/2024/07/22/39042.html">图书管理员的终结</a>的时候，我发现还有一种死法：不是机器人，而是电子书、Z-Library、Kindle——<strong>知识守门人的工作，先被信息获取方式的变化抹掉了。</strong></p>
+<p>2026年，轮到白领了。而且不是「五年后可能」，是<strong>已经有人失业了。</strong></p>
+<h1 id="云计算公司员工视角"><a href="#云计算公司员工视角" class="headerlink" title="云计算公司员工视角"></a>云计算公司员工视角</h1><p><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/617906623/answer/2043020235842786688">人工智能真的会让程序员在5年内失业吗？</a> —— 知乎上这个问题，下面有一个云计算公司员工的回答，我觉得说得挺准。我也来提供一个视角。坐标某大型云计算公司。</p>
+<p>公司已经大规模鼓励大家用 AI coding 了。</p>
+<p>距离 AI 完全取代我们，还有两个难点：</p>
+<ol>
+<li>核心代码没法喂给 Claude，目前只能用自家大模型辅助编程，所以效率还不是很高。</li>
+<li>云计算基础设施崩了会影响各行各业，包括政府服务，所以在代码上线前有着复杂而完善的流程，这部分 AI 暂时还替代不了。</li>
+</ol>
+<p>但这些我觉得在时间面前并非牢不可破。</p>
+<p>现在是 2026.5，我们组还在不断招人，优化基础设施以更好地服务 AI。但以五年的时长来看，我觉得会有一部分同事失业，可能也会包括我自己。和 AI 关联不那么密切的领域，应该比我们的处境还要悲观得多。历史的洪流滚滚而来，大家都一起焦虑，我反而不那么焦虑了。五年后看吧。</p>
+<h1 id="量化开发视角"><a href="#量化开发视角" class="headerlink" title="量化开发视角"></a>量化开发视角</h1><p>我在小红书上刷到一个人。ta 说，自己是前量化开发，上月底被裁员，三十多岁了，继续干量化还是转行做自媒体，各位大佬能不能出出主意。</p>
+<p>我问 ta：你是怎么失业的？</p>
+<p>ta 说：业绩压力 + AI 导致的。ta 在私募行业。</p>
+<p>量化开发是典型的白领工作：写策略、回测、调参，坐在屏幕前用脑子赚钱。ta 并不是流水线工人，也不是刚入行的实习生。公司裁 ta，名义上是业绩，背后是公司发现同样的事 AI 能做得更快、更便宜——或者至少老板相信如此。</p>
+<p>私募行业的节奏本来就快，业绩一压，AI 一上，人就成了最先被算账的那一批。</p>
+<h1 id="两个视角，并不矛盾"><a href="#两个视角，并不矛盾" class="headerlink" title="两个视角，并不矛盾"></a>两个视角，并不矛盾</h1><p>上面两个故事，一个来自还在招人的云计算公司，一个来自已经失业的量化开发。听起来矛盾，其实不矛盾。</p>
+<p>云计算那边说的是「五年后可能失业」——因为核心代码不能喂给外部模型，上线流程 AI 还替不了，所以还有缓冲。量化那边说的是「上个月已经失业」——策略研究、代码生成、报告撰写，正是 AI 最擅长的那类白领劳动。</p>
+<p><strong>AI 导致白领失业，不是五年后的预测，而是正在发生的事。</strong> 程序员、量化、分析师、文案、设计——凡是主要产出是「坐在电脑前把信息变成另一种信息」的工作，都在射程之内。有些公司还在招人修 AI 的基础设施，有些公司已经在用 AI 裁人；你站在哪一边，很大程度上取决于你的岗位离 AI 有多近。</p>
+<p>这和<a href="https://whale3070.github.io/2024/07/22/39042.html">图书管理员的终结</a>是同一种逻辑：图书馆管理员不是因为机器人下岗，而是因为「找书」这件事本身被搜索引擎和电子书替代了。2026 年的白领，面临的是同一种东西——<strong>中间层被抽掉。</strong></p>
+<h1 id="我不怕失业"><a href="#我不怕失业" class="headerlink" title="我不怕失业"></a>我不怕失业</h1><p>说这些，不是为了贩卖焦虑。</p>
+<p>我不怕失业。不是因为 AI 不会影响到我——它一定会。而是因为我知道，社会不变的是变化。有些人会固守在之前的行业，等着潮水退去；我什么都在学，什么都会一点。安全、写作、课程、AI、计划复盘——我的博客本身就是不断换轨道的记录。</p>
+<p>2017 年我说「和机器共生，而不是被机器淘汰」。那时候淘汰的主要是司机、收银员、流水线。2026 年，轮到白领了。但「共生」的意思从来都不是等机器放过你，而是<strong>在机器还没把这一块地占满之前，你已经站到下一块地上了。</strong></p>
+<p>和机器共生，而不是被机器淘汰。这话 2017 年写的时候，我还年轻。2026 年再看，它依然是我应对这个世界的方式。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E7%A4%BE%E4%BC%9A%E8%A7%82%E5%AF%9F/">社会观察</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E8%81%8C%E4%B8%9A%E5%8F%98%E8%BF%81/">职业变迁</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E9%A2%84%E6%B5%8B%E6%9C%AA%E6%9D%A5/">预测未来</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/03/2391361458.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">claude-101</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/01/873112201.html">
+                        <span class="hidden-mobile">用人口数字评估未来的发展-2026</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "和机器共生（五）- AI"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

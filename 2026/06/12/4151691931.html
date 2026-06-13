@@ -1,0 +1,541 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>点灯人的黄昏（二）：AI能替代什么，不能替代什么 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="点灯人的黄昏（二）：AI能替代什么，不能替代什么">
+                      
+                        点灯人的黄昏（二）：AI能替代什么，不能替代什么
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-06-12 16:50" pubdate>
+        2026年6月12日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      32
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">点灯人的黄昏（二）：AI能替代什么，不能替代什么</h1>
+            
+            <div class="markdown-body">
+              <p>上一篇我们拆开了一个机制：当一个体系开始奖励”流程的完整”而非”内容的真实”，它就会源源不断地生产出完整的流程和空洞的内容。</p>
+<p>这一篇要回答一个紧随其后的问题——如果那些空转的环节早已没有内容，而AI恰好极其擅长生成流程和文书，那么：边界到底在哪？什么能被替代，什么不能？</p>
+<p>我不打算给一个模糊的”AI有优势也有局限”式的平衡结论。我要把刀口切在一个具体的区分上：<strong>表演层</strong> vs <strong>物质层&#x2F;创造层</strong>。这两者之间的那条线，就是边界。</p>
+<h2 id="一、表演层：AI已经做得比平均水平好的事"><a href="#一、表演层：AI已经做得比平均水平好的事" class="headerlink" title="一、表演层：AI已经做得比平均水平好的事"></a>一、表演层：AI已经做得比平均水平好的事</h2><p>先定义什么是”表演层”。</p>
+<p>表演层指的是：那些形式完整、但内容可以被模板化生成的环节。它们的特征是——做完之后，产出的不是新知识、不是新技能、不是真实的改变，而是一份文档、一次汇报、一个流程记录。</p>
+<p>具体来说：</p>
+<p><strong>信息传递。</strong> 一个老师站在讲台上，把教材里写好的知识复述给学生听。这件事，AI已经能做得更好——不是好一点，是质的不同。清华开发的maic.chat就是一个例子：你告诉它你想学什么，它自动生成课件、出题、陪你对话讨论。它不会迟到，不会嘲讽你的问题，不会布置”看电影写观后感”这种作业。它没有坏心情的下午。</p>
+<p>我在985学校试图和老师讨论专业前景时被嘲讽，给计算机老师发邮件从未得到回应。而maic.chat和Claude这类工具有一个很低的、却很多人类老师达不到的底线：有问必答，不带情绪。</p>
+<p>当然，”有问必答”不等于”答得对”。这个缺陷我后面会展开。但在”响应学生的困惑”这件事上，一个永远在线、永远不嫌烦的工具，确实比一个拒绝回邮件的教授强——这个标准低得让人难堪，但它是真实的。</p>
+<p><strong>文书生成。</strong> 项目申请书、结题报告、综述、PPT——上一篇里那些科研项目最终产出的东西，AI几乎可以完全替代。而且替代的不只是写作速度，更是那套”把摩托罗拉装进苹果15盒子”的包装技术。如果一个系统的验收标准只是”文书规范、图表漂亮、每句话有出处”，那AI在这件事上已经超越绝大多数研究生。</p>
+<p><strong>综述整理与基础答疑。</strong> 研究生花三个月读文献、写综述。AI半小时能生成一份结构清晰、覆盖面广的综述草稿。一个本科生带着基础问题来问——什么是傅里叶变换、什么是P&#x2F;NP问题、某个历史事件的背景是什么——AI的回答在准确性和耐心上，大概率高于一个每学期带八十个学生、根本记不住你名字的助教。</p>
+<p><strong>标准化考核。</strong> 随便交一篇文章、老师随便打个分——这是我亲历的”考核”。AI能做的不是”也随便打分”，而是真的读你写的东西、给出具体反馈、指出哪里逻辑断裂。这件事本来该是老师做的，但当一个班有一百个学生、老师同时在写三个项目申请书时，他做不到。AI做得到。</p>
+<p>综合来看，表演层有一个共同特征：<strong>它的质量瓶颈不在知识本身，而在时间和精力。</strong> 一个老师如果只有一个学生，大概率能把课讲好、把反馈写细、把邮件回掉。但系统没有给他这个条件。AI没有这个约束。这就是为什么在表演层上，AI”比平均水平好”这个判断成立——它比的不是最好的老师，而是一个被系统压榨得无暇顾及教学的普通老师。</p>
+<p>还有一件事我必须说：AI不会侮辱你。不会嘲讽你提出的问题。不会对你的困惑表现出轻蔑。不会因为你追问”这个专业有没有前途”就让你闭嘴。它也不会性侵学生、不会暴力对待学生——这些话不该需要说，但现实让我不得不说。当体制对学生基本安全的保护都是缺位的，一个工具提供的”物理性安全”反而成了优势。这个事实让人悲哀，但它是真的。</p>
+<h2 id="二、物质层-创造层：AI碰不到的东西"><a href="#二、物质层-创造层：AI碰不到的东西" class="headerlink" title="二、物质层&#x2F;创造层：AI碰不到的东西"></a>二、物质层&#x2F;创造层：AI碰不到的东西</h2><p>现在切另一面。</p>
+<p>AI能替代表演层，但表演层不是大学应该做的全部事情——它只是大学实际在做的大部分事情。如果大学真的在做它本该做的事，那些事情，AI替代不了。</p>
+<p><strong>真实实验的物质成本和不确定性。</strong> 上一篇那位作者算得很清楚：一只裸鼠150块、建模成功率50-60%、一个面上基金只够试错一两次。真正的科研有不可压缩的物质层——你得真的把药注射进老鼠体内，真的等70天观察反应，真的面对”建模失败了”这个事实。AI能帮你写实验方案、做数据分析、甚至预测可能的结果，但它不能替你承受那70天的等待、那50%的失败率、那只死掉的老鼠。知识的前沿是用物质和时间堆出来的，不是用文字生成出来的。</p>
+<p><strong>原创问题的提出。</strong> AI极其擅长回答问题，但它不会自己产生问题。真正推动知识前进的不是”把已知的知识传递给下一个人”（这是表演层），而是”看见一个别人没看见的问题”。爱因斯坦不是因为把牛顿力学学得比别人好才提出相对论的，而是因为他注意到了一个所有人都在用、却没人追问的假设。这种能力——对”理所当然”的事物产生不安——是人类认知里最珍贵、也最难量化的部分。AI是在人类已有知识上训练出来的，它能重组、能类比、能延伸，但它不能对自己的知识感到不安。</p>
+<p><strong>“把一个人点燃”的师生关系。</strong> 我在第一篇里说过，DeepSeek描述的那种”人点燃人”的教育，我在985从未遇到。但我不否认它存在。一个老师对自己的领域有近乎天真的热爱，那种热爱是有感染力的——不是因为他讲得多好，而是因为你能看见一个人真的在乎一件事。这种体验AI做不到。不是因为技术不够，而是因为它没有”在乎”。它可以模拟热情的语气，但它对数学没有真正的着迷，对文学没有真正的心碎。它没有人生，所以它不能用自己的人生经历去共振你的困惑。</p>
+<p>但我要加一个残酷的限定：这种老师极其稀缺。我在一所985读了几年，一个都没碰到。如果你一辈子遇不到这种老师，那”AI无法替代好老师”这句话对你来说就是一句空话——它在描述一个你接触不到的东西。这就是为什么”AI能替代大部分大学教学”这个判断，对大部分学生来说，是成立的：不是因为AI能替代最好的教育，而是因为大部分学生从未接受过最好的教育。他们接受的是表演层，而表演层可以被替代。</p>
+<h2 id="三、诚实地说：AI的缺点"><a href="#三、诚实地说：AI的缺点" class="headerlink" title="三、诚实地说：AI的缺点"></a>三、诚实地说：AI的缺点</h2><p>如果我只写AI的好处，这篇文章就变成了广告。我亲自使用这些工具，我必须告诉你它们的问题：</p>
+<p><strong>它会编造。</strong> AI会一本正经地捏造不存在的文献、不存在的数据、不存在的案例，而且编得非常流畅，让你完全看不出来。它不是在”说谎”——它没有说谎的意图——它只是在预测”下一个最合理的词应该是什么”，如果编造比承认”我不知道”更符合语言模式，它就会编。这意味着：用AI学习时，你必须有独立验证的能力。如果你连验证都做不到（比如你完全不懂这个领域），它可以把你带到沟里去。</p>
+<p><strong>它没有真正的理解。</strong> 它在做模式匹配和概率预测，不是在”思考”。在大部分情况下这不影响使用，因为大部分知识传递本来就是模式匹配。但当你碰到真正反直觉的、前沿的、需要打破已有框架的问题时，AI很可能会用一个自信的、流畅的、完全错误的答案把你糊弄过去。而且你越不懂，越难发现它错了。</p>
+<p><strong>它对你不负责。</strong> 一个真正的老师——哪怕是一个很普通的老师——如果你挂科了、退学了、出事了，他至少在制度上要承担一部分责任（虽然现实中这种责任往往被逃避）。AI不承担任何后果。你学废了，它不会失眠。你做了错误的人生决策，它不会内疚。这意味着使用AI学习需要更强的自我负责能力，而这恰恰是很多本科生还没发展出来的。</p>
+<p><strong>它不会逼你。</strong> 好的教育有一部分是不舒服的——被追问、被要求重新想、被拒绝一个偷懒的答案。AI太好说话了。你给它一个草率的回答，它会说”这个角度很有趣”然后帮你展开。它不会说”这个论证有三个漏洞，你回去重想”。它的默认模式是顺从，而顺从不是教育。</p>
+<h2 id="四、那条线到底在哪"><a href="#四、那条线到底在哪" class="headerlink" title="四、那条线到底在哪"></a>四、那条线到底在哪</h2><p>综合以上，边界其实很清楚：</p>
+<p>能被替代的：信息传递、文书生成、综述整理、基础答疑、标准化考核反馈——一切”形式完整但内容可模板化”的环节。这些环节目前占据了大学教育和科研活动的大部分时间和精力。</p>
+<p>不能被替代的：真实实验的物质操作、原创问题的提出、对学生负责的制度性约束（虽然它常常失效）、以及那种极其稀缺的”一个人用自己的热爱点燃另一个人”的师生关系。</p>
+<p>问题在于——被替代不了的那部分，本来就只占这个体系运转的很小比例。大部分大学、大部分老师、大部分课程，提供的就是表演层。</p>
+<p>这就是为什么说”AI不能完全替代大学教育”是正确的，但同时”AI能替代大部分学生实际接受到的大学教育”也是正确的。这两句话不矛盾，因为大部分学生实际接受到的，不是大学教育应该有的样子。</p>
+<h2 id="五、一个更值得思考的角度"><a href="#五、一个更值得思考的角度" class="headerlink" title="五、一个更值得思考的角度"></a>五、一个更值得思考的角度</h2><p>最后我想把这条边界翻过来看一面。</p>
+<p>如果AI能替代的是表演层，那真正被威胁的不是”好老师”，而是”只在表演层运转的老师和制度”。一个真正在乎自己研究的老师、一个真的能把学生点亮的老师、一个真的在前沿推进知识的研究者——AI对他们不是威胁，是工具。它帮他们处理掉文书、综述、基础答疑这些消耗精力的事务，让他们有更多时间做真正重要的事。</p>
+<p>被照出来的，是那些早就空了、只靠制度惯性维持的位置。那些位置上的人，不管有没有AI，都没有在创造价值。AI只是让这件事变得更难假装了。</p>
+<p>而对一个学生来说——尤其是像我这样、在大学里几乎没有遇到过真正教育的学生——AI提供的不是”取代老师”的方案，而是一条绕过空转体系的路。你不再必须坐在画室里从九点到六点假装在接受教育。你可以自己决定学什么、怎么学、什么节奏。</p>
+<p>但这也意味着：你得自己对自己负责了。没有人替你验证AI说的对不对、没有人逼你重新想一遍、没有人在你走偏时把你拉回来。自由和责任是一体的。</p>
+<p>这是下一篇要谈的事——当学历不再是唯一的路，投入产出比要怎么重新算。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/View/">View</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/12/2155018765.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">点灯人的黄昏（三）：当体制空转，代价是一条命</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/12/418887296.html">
+                        <span class="hidden-mobile">点灯人的黄昏（一）：高校体制为什么在空转</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "点灯人的黄昏（二）：AI能替代什么，不能替代什么"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

@@ -1,0 +1,724 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>claude-101 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="claude-101">
+                      
+                        claude-101
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-06-03 18:02" pubdate>
+        2026年6月3日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      10.5k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      109
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">claude-101</h1>
+            
+            <div class="markdown-body">
+              <p><a target="_blank" rel="noopener" href="https://anthropic.skilljar.com/claude-101">https://anthropic.skilljar.com/claude-101</a></p>
+<h1 id="克劳德是谁？"><a href="#克劳德是谁？" class="headerlink" title="克劳德是谁？"></a>克劳德是谁？</h1><p>Claude 不仅仅是一个聊天机器人，它更是一款人工智能助手，旨在成为您的思考伙伴。在本课程中，您将了解 Claude 与其他人工智能工具的不同之处，以及它如何帮助您完成各种工作任务。</p>
+<p>要点总结<br>Claude 的设计宗旨是乐于助人、无害且诚实：从宏观层面来看，Claude 遵循一系列原则，以避免产生有害或歧视性的输出，避免协助人类从事非法或不道德的活动，并力求成为一个乐于助人、诚实且无害的人工智能系统。这种被称为“宪政人工智能”的方法意味着 Claude 经过训练，能够与人类价值观保持一致，并以透明的方式运行。<br>Claude 不仅仅是一个聊天机器人：它能够胜任各种对话和文本处理任务，并保持高度的可靠性和可预测性，包括摘要、搜索、创意写作和协作写作、问答、编程等等。您可以将 Claude 视为一位思维伙伴，它不仅能回答简单的问题，还能帮助您应对复杂的难题和挑战。<br>Claude 的设计理念是可控且协作：Claude 可以接受关于个性、语气和行为的指示，客户反馈 Claude 产生有害输出的可能性要小得多，更容易沟通，也更容易控制——因此您可以用更少的努力获得所需的输出。<br>无论身在何处，您都可以访问 Claude：所有套餐类型（免费版、专业版、高级版、团队版和企业版）均可使用 Claude 应用。登录后，您的对话、项目、记忆和偏好设置会在所有设备上同步。无论您是在办公桌前还是外出途中，都可以通过网页、桌面和移动应用访问 Claude。<br>了解克劳德的能力<br>Claude 的功能远不止简单的问答互动，它还能像助手一样与您并肩工作，既能自动化也能增强您的工作效率。以下是 Claude 的一些优势：</p>
+<ul>
+<li>写作与内容创作：克劳德可以与您合作撰写社交媒体帖子、专业邮件和复杂报告。克劳德接受过专业训练，能够根据个人风格和语气进行指导，因此您可以与他一起反复推敲文章结构和清晰度，直到清晰地表达出您的观点。</li>
+<li>研究与分析：Claude 可帮助您探索研究角度、整理研究成果并分析数据，从而挖掘出有意义的洞见。您可以上传文档，Claude 将帮助您理解复杂的信息——这得益于 Claude 的大型上下文窗口，该窗口可容纳超过 20 万个令牌（约 500 页或更多文本），而使用 Opus 4.7 的 Pro、Max、Team 和 Enterprise 套餐最高可达 100 万个令牌。这使得 Claude 能够在一次对话中处理大量资料。</li>
+<li>编码辅助：Claude Opus 4.7 是我们迄今为止功能最强大的模型，也是全球最佳的编码模型。它在实际编码任务中的出色表现意味着 Claude 可以帮助您编写、调试和解释多种编程语言的代码。</li>
+<li>问题解决与推理：克劳德能够处理复杂的认知任务、数学问题、策略性思考和分析以及研究。克劳德 Opus 4.7 和 Sonnet 4.7 是混合型机器人，提供两种模式：近乎即时的反应和用于深度推理的扩展思考。人格化的扩展思考模式使克劳德能够逐步解决问题，因此非常适合需要仔细分析的任务。</li>
+<li>学习新事物：无论您是在学习新技能、探索陌生领域，还是应对复杂挑战，Claude 都能适应您的学习风格和节奏。学习模式是 Claude 的一项全新体验，它引导您的思考过程，而非直接提供答案，从而帮助您培养批判性思维能力。</li>
+</ul>
+<h1 id="问题一，claude和chatGPT的区别是什么？"><a href="#问题一，claude和chatGPT的区别是什么？" class="headerlink" title="问题一，claude和chatGPT的区别是什么？"></a>问题一，claude和chatGPT的区别是什么？</h1><p>ChatGPT和Claude都是当今世界顶级的AI助手，但它们的设计理念、优势领域和使用体验有着根本性的不同。</p>
+<p>一个核心差异是：<strong>ChatGPT更像一个全能的”顾问”（Advisor），擅长与你协作、提供灵感；而Claude则像一个能干的”执行者”（Agent），更倾向于独立完成你交代的具体任务</strong>。</p>
+<p>为了让你更直观地了解它们的区别，我把核心对比整理成了下面的表格：</p>
+<table>
+<thead>
+<tr>
+<th align="left">对比维度</th>
+<th align="left">ChatGPT</th>
+<th align="left">Claude</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>核心定位</strong></td>
+<td align="left"><strong>通用型智能助手</strong><br>像一个知识渊博、能说会道的伙伴，擅长头脑风暴、信息查询和协助创作。</td>
+<td align="left"><strong>企业级安全执行专家</strong><br>像一个严谨、高效的员工，擅长独立完成编程、分析和文档处理等复杂任务。</td>
+</tr>
+<tr>
+<td align="left"><strong>突出强项</strong></td>
+<td align="left">- <strong>多模态能力</strong>：原生支持图像生成（DALL-E）、语音对话和网页浏览，功能全面。<br>- <strong>创意生成</strong>：在撰写营销文案、头脑风暴时更具创造力和发散性。<br>- <strong>庞大生态</strong>：拥有数千个插件和GPTs，可玩性和扩展性极高。</td>
+<td align="left">- <strong>编程与推理</strong>：在复杂的代码生成、调试和技术问题解决上表现更优，是许多开发者的首选。<br>- <strong>长文本处理</strong>：擅长一次性分析海量文档（如合同、财报），信息召回率更高。<br>- <strong>安全与合规</strong>：遵循”宪法AI”框架，输出更可控，适合金融、法律等高合规要求的行业。</td>
+</tr>
+<tr>
+<td align="left"><strong>相对短板</strong></td>
+<td align="left">- <strong>长文本可靠性</strong>：在处理极长文档时，中间部分的信息可能会有一定程度的损失或”遗忘”。<br>- <strong>风格公式化</strong>：在长篇写作中，有时会显得有些”模板化”，缺乏Claude那种自然流畅的人味儿。</td>
+<td align="left">- <strong>缺乏图像生成能力</strong>：可以分析图像，但无法像ChatGPT那样”画图”（这是一个关键区别）。<br>- <strong>创造力相对保守</strong>：在需要天马行空的创意任务上，有时不如ChatGPT”脑洞大开”。<br>- <strong>功能生态单一</strong>：没有插件商店，功能集成度不如ChatGPT丰富。</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="🚀-具体场景怎么选？"><a href="#🚀-具体场景怎么选？" class="headerlink" title="🚀 具体场景怎么选？"></a>🚀 具体场景怎么选？</h3><p>除了宏观定位，在具体任务上，它们的侧重点也不同：</p>
+<h4 id="当Claude是更优选择时"><a href="#当Claude是更优选择时" class="headerlink" title="当Claude是更优选择时"></a>当Claude是更优选择时</h4><ul>
+<li><strong>复杂编程与调试</strong>：如果你是开发者，需要理解整个项目代码库、修复棘手的Bug或进行架构重构，Claude的表现常常令人惊艳。70%的开发者更倾向于使用Claude完成编码任务。</li>
+<li><strong>处理和分析长文档</strong>：需要快速从上百页的合同、招股书或学术论文中提取关键信息、总结要点时，Claude处理长文本的稳定性和准确率更高。</li>
+<li><strong>追求自然的高质量写作</strong>：撰写报告、博客文章或营销邮件时，如果你希望文字读起来像真人写的一样自然流畅，Claude通常做得更好。</li>
+</ul>
+<h4 id="当ChatGPT是更优选择时"><a href="#当ChatGPT是更优选择时" class="headerlink" title="当ChatGPT是更优选择时"></a>当ChatGPT是更优选择时</h4><ul>
+<li><strong>需要生成图像的场景</strong>：如果你要让AI画一张图、设计一个Logo，或者需要一个图文并茂的回答，ChatGPT是唯一的选择，因为Claude不具备图像生成能力。</li>
+<li><strong>头脑风暴与创意探索</strong>：需要为新产品想100个名字、构思一个出人意料的营销方案时，ChatGPT的”发散性思维”能提供更多有趣的起点。</li>
+<li><strong>使用各种集成工具</strong>：你需要连接网络搜索最新信息、分析你上传的Excel数据，或者使用特定的插件来完成任务时，ChatGPT强大的工具生态会更方便。</li>
+</ul>
+<h3 id="💎-总结"><a href="#💎-总结" class="headerlink" title="💎 总结"></a>💎 总结</h3><p>总的来说，两者没有绝对的”谁更好”，只有”谁更适合”你当下的任务。</p>
+<p>有趣的是，很多深度用户的做法是<strong>同时拥有两者</strong>：用Claude来写代码、分析合同、润色文章，用ChatGPT来生成插图、搜索网络信息、进行创意脑暴。</p>
+<p>希望这个对比能帮你更好地选择和使用它们。如果你想了解它们在<strong>代码开发</strong>或<strong>长文写作</strong>等特定任务上的具体表现，我们可以接着聊聊～</p>
+<h1 id="示例项目，激发您的灵感"><a href="#示例项目，激发您的灵感" class="headerlink" title="示例项目，激发您的灵感"></a>示例项目，激发您的灵感</h1><p>不知道从哪里入手？以下是一些不同职能部门常见的项目类型：</p>
+<p>第四季度产品发布：请上传您的产品规格、竞品分析和信息构思笔记。克劳德在处理任何问询或文件草稿时都会牢记这些信息。<br>研究支持：集中管理您的竞品分析、用户研究数据和客户反馈。Claude 可以帮助您整合信息来源、撰写报告，并确保所有建议的一致性。<br>客户账户中心：将客户的品牌指南、过往交付成果和沟通记录集中管理。设置说明，以便 Claude 在创建提案或报告时，能够保持与客户一致的语气并参考其具体背景。<br>活动策划工作区：上传场地合同、演讲嘉宾简介和参会人员数据。Claude 可以帮助您生成与活动主题一致的活动流程文档、参会人员沟通材料和活动后报告。<br>职位描述生成器：收集以往的职位描述、团队章程和内部人员编制申请文件。与 Claude 合作，起草能够反映团队实际工作内容和文化的职位描述。</p>
+<h1 id="项目如何处理大型知识库"><a href="#项目如何处理大型知识库" class="headerlink" title="项目如何处理大型知识库"></a>项目如何处理大型知识库</h1><p>您可能想知道上传大量内容时会发生什么。项目会通过一种名为“检索增强生成”（RAG）的流程自动扩展以处理大量内容。简单来说，这意味着 Claude 可以在回答问题时自动查找并使用您上传文档中最相关的部分，而无需您指定要查看哪个文件。</p>
+<p>当您的项目知识接近上下文窗口的上限时，Claude 会自动启用 RAG 模式。Claude 不会一次性将所有项目内容加载到内存中，而是智能地搜索并检索回答问题所需的最相关信息。这可以将项目容量扩展至多 10 倍，同时保持响应质量。</p>
+<p>当您的项目启用 RAG 时，您会看到一个视觉指示器，但体验应该感觉相同——您仍然可以上传文档、与 Claude 聊天并获得上下文相关的回复。</p>
+<h1 id="项目最佳实践"><a href="#项目最佳实践" class="headerlink" title="项目最佳实践"></a>项目最佳实践</h1><p>为了最大限度地发挥项目的价值：</p>
+<p>先聚焦重点，再逐步扩展。从具体的用例入手，而不是试图创建一个包罗万象的项目。你可以随时根据需要添加更多内容。<br>保持知识库的更新。过时的文档会导致过时的回复。定期审查并更新您的项目知识。<br>写清楚指示。具体说明你的需求。含糊不清的指示会导致结果不一致。<br>请使用描述性名称命名文档（例如，“Q4-2025-Sales-Report.pdf”，而不是“report.pdf”），并将相关文件分组在一起。Claude 会利用文件名和文件间的邻近关系来理解文档之间的关系。<br>按名称引用文档。提问时，您可以提及具体文档，以帮助 Claude 缩小搜索范围：“根据我们的第三季度报告，客户最关心的问题是什么？”</p>
+<h1 id="课程反思"><a href="#课程反思" class="headerlink" title="课程反思"></a>课程反思</h1><p>在继续之前，请考虑以下几点：</p>
+<p>哪些正在进行的工作可以从拥有一个具有持续上下文的专用项目中受益？<br>你预计需要定期重新上传或重新向克劳德解释哪些文件？<br>如果你在一个团队中，是否有一些项目可以从共享知识和指导中受益？</p>
+<h1 id="项目介绍"><a href="#项目介绍" class="headerlink" title="项目介绍"></a>项目介绍</h1><p>学习目标<br>本课结束时，你将能够：</p>
+<p>解释什么是项目以及何时使用项目。<br>创建一个名为“新项目”的项目，并设置项目名称、描述和可见性。<br>将文档和文件添加到项目知识库<br>编写有效的项目指导书，以指导克劳德的行为<br>与团队成员共享项目（适用于 Claude for Work（团队版和企业版）用户）</p>
+<h1 id="使用工件进行创建"><a href="#使用工件进行创建" class="headerlink" title="使用工件进行创建"></a>使用工件进行创建</h1><p>学习目标<br>本课结束时，你将能够：</p>
+<p>解释一下什么是人工制品，以及克劳德何时制造了它们。<br>与同事分享成果并将其公开发布<br>排查常见工件问题</p>
+<h2 id="什么是人工制品？"><a href="#什么是人工制品？" class="headerlink" title="什么是人工制品？"></a>什么是人工制品？</h2><p>“工件”是 Claude 在对话旁边的专用窗口中创建的独立交互式输出。您无需在聊天窗口中看到一大段代码或文本，而是可以直接使用渲染好的内容——无论是可运行的网站、交互式图表，还是可以立即下载的文档。</p>
+<p>当内容符合特定条件时，Claude 会自动创建一个工件：</p>
+<p>它内容丰富且自成一体，通常超过15行。<br>你很可能想要编辑、迭代或重复使用它。<br>它代表了复杂的、独立存在的内容，无需周围环境的对话即可完整呈现。<br>这是你以后会想要参考或使用的内容。</p>
+<h2 id="常见工件类型"><a href="#常见工件类型" class="headerlink" title="常见工件类型"></a>常见工件类型</h2><p>克劳德可以制作各种各样的工艺品，每件都适合不同的需求：</p>
+<p>文档（包括 Markdown、纯文本、Word 文档、PDF、PowerPoint 和 Excel）：非常适合任何需要导出或继续编辑的文本密集型内容，例如会议记录、报告、项目计划、博客文章和其他书面内容。<br>代码片段：提供任何编程语言（Python、JavaScript、C++ 等）的可用代码。您可以查看、复制或下载代码，以便在您自己的项目中使用。<br>HTML页面：包含HTML、CSS和JavaScript的完整网页，所有代码都在一个文件中。非常适合用于创建落地页、表单、交互式演示或快速原型。<br>SVG图像：可缩放矢量图形，适用于徽标、图标、插图和其他视觉元素。这些图像直接在预览窗口中渲染，因此您可以准确地看到最终效果。<br>Mermaid图表：流程图、序列图、甘特图、组织结构图等等。描述您想要可视化的关系，Claude将为您创建一个可供您完善的图表。<br>React 组件：具有实际功能的交互式 UI 元素——计算器、仪表盘、游戏、数据可视化。它们并非只是简单的模型；它们包含实际逻辑并能响应用户输入。</p>
+<h2 id="创建你的第一个作品"><a href="#创建你的第一个作品" class="headerlink" title="创建你的第一个作品"></a>创建你的第一个作品</h2><p>制作一件作品就像聊天一样简单。你只需描述你的需求，克劳德就会决定是否将其制作成一件作品。</p>
+<p>例如，你可以说：</p>
+<p>“请创建一个流程图，展示我们的客户注册流程（注：除了基于代码的文档外，Claude 现在还可以使用 Imagine 生成 HTML 格式的流程图等可视化图表。）”<br>“创建一个交互式仪表盘，让我可以输入每月支出并查看明细。”<br>“为一款效率应用设计一个包含主图和功能列表的落地页。”<br>“编写一个项目简报模板，以便我能将其重复用于新项目。”<br>如果 Claude 没有在您期望的时候自动创建工件，您可以明确地要求：“将其创建为工件”或“在工件中显示此内容”。</p>
+<p>当 Claude 生成一个物品时，它会显示在对话右侧的专用窗口中。您可以在这里执行以下操作：</p>
+<p>查看不同格式：在预览（外观）和底层代码之间切换<br>复制内容：点击复制图标即可获取内容以供其他用途。<br>下载文件：将文物保存为文件到您的计算机。<br>查看代码：了解 Claude 在底层生成了哪些代码。</p>
+<h2 id="分享和发布作品"><a href="#分享和发布作品" class="headerlink" title="分享和发布作品"></a>分享和发布作品</h2><p>一旦你创造出了有用的东西，你就有多种方式可以分享它。</p>
+<p>复制或下载：如需个人使用或通过其他渠道分享，请使用文物窗口右下角的复制或下载按钮。</p>
+<p>在组织内部共享（Claude for Work）：团队版和企业版用户可以与同事在组织内部共享项目。共享的项目保留在组织内部，需要团队成员进行身份验证才能访问。</p>
+<p>公开发布：免费版、专业版和 Max 用户都可以发布作品，让任何拥有链接的人都能访问。发布时：</p>
+<p>只有选定的版本会公开（您的聊天记录仍然私密）<br>任何人无需Claude账户即可查看和操作该文物。<br>其他人可以“重新混音”你的作品——在他们自己的克劳德式对话中打开它，对其进行修改和扩展。<br>要发布，请点击作品右上角的“分享”或“发布”按钮。您可以随时返回该作品并取消公开访问来取消发布。注意：作品发布后，任何人都可以通过链接公开访问，即使没有 Claude 帐户也可以查看。已发布的作品不会被搜索引擎收录，因此不会出现在 Google 搜索结果中。</p>
+<h2 id="如何充分利用文物"><a href="#如何充分利用文物" class="headerlink" title="如何充分利用文物"></a>如何充分利用文物</h2><p>具体说明你的需求。 “创建一个预算追踪器”固然不错，但“创建一个月度预算追踪器，让我可以按类别输入支出，查看饼图明细，并在超支时收到提醒”则更好。</p>
+<p>描述最终用户。告诉克劳德谁将使用该文档有助于他做出合适的设计选择。“此流程图适用于新员工”和“此流程图适用于工程团队”会产生不同的结果。</p>
+<p>采用渐进式迭代。每次让克劳德添加一个功能或进行一项更改。这样更容易识别哪些功能有效，并及早发现问题。</p>
+<p>需要时再请求成果。如果你请求的内容比较重要，而克劳德只是在聊天中回复而不是创建成果，那就直接说“请把它创建成成果”。</p>
+<h2 id="课程反思-1"><a href="#课程反思-1" class="headerlink" title="课程反思"></a>课程反思</h2><p>在继续之前，请考虑以下几点：</p>
+<p>哪些重复性工作可以从可重复使用的交互式工具中受益？<br>你的工作流程中是否有一些步骤，如果用流程图或示意图来表示会更清晰？<br>什么样的原型或工具可以帮助你快速验证想法？</p>
+<h2 id="接下来会发生什么？"><a href="#接下来会发生什么？" class="headerlink" title="接下来会发生什么？"></a>接下来会发生什么？</h2><p>在下一课中，你将学习技能——可重用的指令集，它能教会 Claude 专门的工作流程。</p>
+<h1 id="运用技能"><a href="#运用技能" class="headerlink" title="运用技能"></a>运用技能</h1><p>学习目标<br>本课结束时，你将能够：</p>
+<p>解释什么是技能以及克劳德是如何运用技能的。<br>确定 Anthropic 内置的文档创建技能<br>在设置中启用和管理技能</p>
+<h2 id="什么是技能？"><a href="#什么是技能？" class="headerlink" title="什么是技能？"></a>什么是技能？</h2><p>技能文件夹包含指令、脚本和资源，克劳德会动态加载这些文件夹来提升特定任务的执行效率。你可以把它们想象成专业知识包——它们教会克劳德如何以可重复的方式完成特定任务。</p>
+<p>如果您曾使用 Claude 创建 Excel 表格、PowerPoint 演示文稿、Word 文档或 PDF 文件，那么您就已经体验过 Skills 的功能了。这些文件创建功能都由后台运行的 Skills 提供支持。但 Skills 的功能远不止于文档创建。自定义 Skills 可以将整个可重复的工作流程规范化——例如季度差异分析方法、品牌声音审核流程或合规性检查清单——这样 Claude 每次都能遵循相同的严格步骤。</p>
+<h2 id="技能类型"><a href="#技能类型" class="headerlink" title="技能类型"></a>技能类型</h2><p>你会遇到两类技能：</p>
+<p>Anthropic Skills由 Anthropic 公司创建和维护。这些功能包括增强 Excel、Word、PowerPoint 和 PDF 文件的文档创建功能。所有付费用户均可使用 Anthropic Skills，Claude 会在需要时自动调用这些功能——您无需进行任何特殊操作即可使用它们。<br>自定义技能是指您或您的组织为特定工作流程和领域特定任务而创建的技能。例如，您可以创建一个技能，将公司品牌指南应用于演示文稿、以特定格式组织会议记录，或执行组织的数据分析工作流程。</p>
+<h2 id="赋能技能"><a href="#赋能技能" class="headerlink" title="赋能技能"></a>赋能技能</h2><p>目前，Skills 功能以预览版的形式面向 Pro、Max、Team 和 Enterprise 套餐用户开放。要使用 Skills 功能，您需要启用代码执行和文件创建权限，因为 Skills 功能需要在 Claude 的安全沙盒计算环境中运行。</p>
+<p>以下是如何启用技能：</p>
+<p>导航至“设置”&gt;“功能”<br>确保已启用代码执行和文件创建功能。<br>滚动至“技能”部分<br>根据需要开启或关闭单个技能<br>对于企业版计划，组织所有者必须先在管理设置中启用代码执行和技能，然后各个成员才能访问它们。</p>
+<p>对于团队计划，此功能预览默认在组织级别启用。</p>
+<p>启用后，您将在设置中看到可用的技能列表，包括 Anthropic 的内置技能和您上传的任何自定义技能。</p>
+<h2 id="实践中的技能运用"><a href="#实践中的技能运用" class="headerlink" title="实践中的技能运用"></a>实践中的技能运用</h2><p>技能的妙处在于，你通常无需考虑它们——Claude 会根据你的请求自动选择技能。以下是一些会调用技能的提示示例：</p>
+<p>“创建一个Excel电子表格，用于跟踪每月支出，并包含计算总计的公式。”<br>请将此会议记录文档转换为 PowerPoint 演示文稿。<br>“生成一份总结这些数据的PDF报告”<br>“在Excel中构建财务模型并进行情景分析”<br>当克劳德使用技能时，你会在他的思路中看到技能相关的提示。输出结果会是一个可下载的文件，你可以将其保存到电脑或直接保存到 Google 云端硬盘。</p>
+<h2 id="文件执行"><a href="#文件执行" class="headerlink" title="文件执行"></a>文件执行</h2><p>克劳德会协助您处理幻灯片、电子表格和合同修改稿。</p>
+<p>这项功能意味着 Claude 可以在一个封闭的环境中处理您的实际文件，并创建文件的更新版本（注意：在聊天中，Claude 会创建文档的新版本，而不是直接编辑原始文档）。您可以上传幻灯片、电子表格、合同（或任何 .xlsx、.pptx、.docx 或 .pdf 文件），然后观看 Claude 创建幻灯片、进行分析并添加建议的修改。Claude 完成后，您可以下载这些文件或在云端硬盘中打开它们。</p>
+<p>注意：要使用这些功能，您需要授予 Claude 访问外部数据源的权限。只需在出现提示时启用“允许有限的网络访问”即可：</p>
+<h2 id="安全考量"><a href="#安全考量" class="headerlink" title="安全考量"></a>安全考量</h2><p>由于技能可能包含可执行代码，因此谨慎使用它们非常重要：</p>
+<p>仅从可信来源安装自定义技能<br>Anthropic 内置的技能由 Anthropic 进行测试和维护。<br>您上传的自定义技能仅供您的个人帐户使用。<br>如果您要从外部来源安装自定义技能，请在使用前查看其内容，以了解其功能。</p>
+<h2 id="创建自定义技能"><a href="#创建自定义技能" class="headerlink" title="创建自定义技能"></a>创建自定义技能</h2><p>虽然 Anthropic 内置的技能涵盖了常见的文档创建任务，但技能的真正强大之处在于创建自定义技能。自定义技能可以让您将特定的工作流程、品牌指南和工作方式教给 Claude，这样 Claude 就能在需要时自动应用这些知识。</p>
+<p>创建自定义技能最简单的方法是直接与 Claude 对话。您无需编写代码或手动创建文件——Claude 会为您处理技术架构。</p>
+<p>以下是如何通过对话创建技能的方法：</p>
+<p>发起新的聊天，告诉克劳德你想创建什么。例如：“我想创建一个用于撰写季度业务回顾的技能”或“我需要一个将我们的品牌指南应用于演示文稿的技能”。<br>回答克劳德的问题。克劳德会就你的工作流程对你进行面试，例如：这项技能应该做什么？这类工作怎样的产出才算好？你能举例说明你会在什么情况下使用这项技能吗？<br>如果您有参考资料，请上传。模板、风格指南、品牌素材或您引以为豪的作品案例都能帮助克劳德准确了解您的需求。<br>保存你的技能。完成后，克劳德会生成一个包含你正确结构化技能的文件。你只需保存该文件，克劳德就可以使用该技能了。<br>查看您的技能。在左侧边栏找到“自定义”选项卡。您可以在那里查看所有可用技能，甚至可以手动编辑您使用的技能，或者与克劳德聊天进行编辑。</p>
+<p>您的自定义技能将与 Anthropic 的内置技能一起出现在您的技能列表中。之后，每当您处理相关任务时，Claude 都会自动调用该技能，无需手动触发。您可以通过迭代来改进技能——只需让 Claude 编辑某个技能，它就会自动更新相关文件。</p>
+<h2 id="技能与项目"><a href="#技能与项目" class="headerlink" title="技能与项目"></a>技能与项目</h2><p>你可能想知道——如果技能和项目都可以用来为克劳德提供更多背景信息，那么我应该何时使用哪一个呢？你可以这样理解：项目存储知识，技能执行任务。</p>
+<p>项目是知识中心。它们包含 Claude 理解您的工作所需的参考资料——项目规范、会议记录、研究文档。当您将文件上传到项目时，Claude 会在该项目内的每一次对话中引用这些信息。</p>
+<p>技能是程序化的机器。它们编码了克劳德应该如何执行任务——具体的步骤、操作顺序以及每次都遵循的方法。当你需要克劳德始终如一地运行可重复的工作流程时，技能就能发挥作用。</p>
+<p>这两个功能相辅相成。技能可以引用项目中存储的知识——例如，你的“客户通话准备”技能可以从上传到项目知识库的客户资料中提取信息。项目提供“内容” （信息），技能提供“方法”（流程）。</p>
+<h1 id="连接您的工具"><a href="#连接您的工具" class="headerlink" title="连接您的工具"></a>连接您的工具</h1><h2 id="学习目标"><a href="#学习目标" class="headerlink" title="学习目标"></a>学习目标</h2><p>本课结束时，你将能够：</p>
+<p>请解释什么是连接器，以及它们为什么对你和克劳德的工作很重要。<br>浏览连接器目录并设置您的第一个连接<br>在与克劳德的对话中有效利用联网工具</p>
+<h2 id="什么是连接器？"><a href="#什么是连接器？" class="headerlink" title="什么是连接器？"></a>什么是连接器？</h2><p>要点总结<br>连接器让 Claude 从助手转变为信息灵通的合作者，使 Claude 能够访问您每天使用的相同工具、数据和上下文。Claude 无需从头开始每次对话，即可直接使用您的实际信息。<br>连接器允许 Claude 代表您读取信息并执行操作。根据连接器和您授予的权限，Claude 可以搜索您的文件、检索文档、分析数据、创建新内容、更新记录，并在您连接的应用程序中执行任务——所有操作均可在您的对话中完成。<br>模型上下文协议 (MCP) 为连接器提供支持。您可以将 MCP 理解为人工智能领域的 USB-C——一个通用标准，它允许 Claude 通过单一且一致的接口连接到许多不同的应用程序。这一开放标准意味着开发人员可以为任何工具构建连接器，并且这些连接器可以与 Claude 无缝协作。<br>连接器分为两种类型：网页连接器和桌面扩展。网页连接器将 Claude 连接到 Google Drive、Notion、Slack 和 Asana 等云服务。桌面扩展通过 Claude 桌面应用程序在您的计算机上本地运行，使 Claude 能够访问本地文件和原生应用程序。</p>
+<h2 id="查找和连接工具"><a href="#查找和连接工具" class="headerlink" title="查找和连接工具"></a>查找和连接工具</h2><p>Anthropic 在 claude.ai&#x2F;directory 维护着一个推荐连接器目录。该目录分为两个标签页：</p>
+<p>网络：云服务和应用程序（Gmail、Notion、Slack、Asana、Linear、Stripe 等）<br>桌面扩展：通过 Claude Desktop 应用程序在您的计算机上运行的本地工具<br>要浏览可用的连接器，您还可以单击聊天窗口左下角的“+”按钮，然后选择“连接器”。</p>
+<h2 id="设置-Web-连接器"><a href="#设置-Web-连接器" class="headerlink" title="设置 Web 连接器"></a>设置 Web 连接器</h2><p>以下是如何连接云服务：</p>
+<p>查找连接器：访问 claude.ai&#x2F;directory，或在任何聊天窗口中点击“+ ”&gt; “连接器” 。<br>点击“连接”：选择要添加的连接器<br>验证身份：您将被重定向到服务的登录页面。使用您现有的凭据登录。<br>授予权限：查看克劳德请求的具体权限，然后授权访问。<br>测试连接：返回 Claude 并尝试一个简单的请求，例如“你能访问我的[工具名称]吗？”<br>连接成功后，Claude 可以搜索、阅读该服务中的内容，在某些情况下还可以执行操作——具体取决于您授予的权限。</p>
+<h2 id="桌面扩展程序"><a href="#桌面扩展程序" class="headerlink" title="桌面扩展程序"></a>桌面扩展程序</h2><p>桌面扩展程序需要使用 Claude Desktop 应用程序，而不是网页界面。这些扩展程序允许 Claude 与本地应用程序、文件系统以及 macOS 或 Windows 上的原生功能进行交互。</p>
+<p>部分桌面扩展程序包括：</p>
+<p>本地文件访问，用于读取和整理文档<br>用于自动化 Web 任务的浏览器控制<br>原生应用集成（例如用于设计工作的 Figma）<br>安装桌面扩展程序：</p>
+<p>下载并安装Claude 桌面应用程序<br>打开应用，然后依次进入“设置”&gt;“扩展”。<br>浏览可用的扩展程序，然后点击“安装”。<br>请按照该扩展程序特有的任何其他设置步骤进行操作。</p>
+<h2 id="在工作中使用连接器"><a href="#在工作中使用连接器" class="headerlink" title="在工作中使用连接器"></a>在工作中使用连接器</h2><p>工具连接完成后，Claude 会在响应您的请求时考虑这些工具。以下是一些使用已连接工具的实用方法：</p>
+<p>项目管理（Asana、Linear、Jira）</p>
+<p>“本周我最重要的任务是什么？”<br>“创建一个新任务，用于审核第四季度预算提案”<br>“总结一下我们产品发布项目的进展情况”<br>沟通方式（Slack、Gmail）</p>
+<p>“找到我们讨论供应商合同的邮件往来记录。”<br>“请回复#营销频道 中的最新消息”<br>“昨天团队讨论后，对时间表做出了怎样的决定？”<br>文档（Notion、Google Drive、Confluence）</p>
+<p>“请在我们的文档中查找品牌声音指南”<br>“总结上周产品评审会议的会议记录”<br>“我们的风格指南对使用缩写有什么规定？”<br>商业工具（Stripe、PayPal、Salesforce）</p>
+<p>“请给我看看上个季度的收入趋势。”<br>“Acme公司的投资机会进展如何？”<br>“列出近期超过 1000 美元的交易”</p>
+<h2 id="安全和权限"><a href="#安全和权限" class="headerlink" title="安全和权限"></a>安全和权限</h2><p>将 Claude 连接到外部服务时，您就授予了它读取（有时甚至是修改）这些服务中数据的权限。以下是一些重要的注意事项：</p>
+<p>范围访问：权限取决于连接器的需求，您可以在每个应用程序的菜单中切换单个权限的开启和关闭。<br>Claude 只能看到你所看到的内容： Claude 只能访问你有权访问的数据。连接你的工作邮箱并不会让 Claude 访问你 CEO 的收件箱——只能访问你自己的收件箱。<br>随时可撤销：您可以通过 Claude 的设置或第三方服务的安全设置断开服务连接。与技能一样，您也可以查找或构建自定义连接器。请务必谨慎——仅从可信来源安装连接器。</p>
+<h2 id="课程反思-2"><a href="#课程反思-2" class="headerlink" title="课程反思"></a>课程反思</h2><p>在继续之前，请考虑以下几点：</p>
+<p>对于连接 Claude 而言，您日常工作中使用的哪些工具最有价值？<br>目前有哪些任务需要您复制粘贴信息，而连接器可以自动处理这些信息？<br>是否存在这样的工作流程：将来自多个关联数据源的数据合并在一起，可以显著节省时间？</p>
+<h2 id="接下来会发生什么？-1"><a href="#接下来会发生什么？-1" class="headerlink" title="接下来会发生什么？"></a>接下来会发生什么？</h2><p>在下一课中，您将学习企业搜索——这是 Claude for Work 用户的一项特殊功能，它将 Claude 连接到您组织的知识库，并提供针对您公司情况优化的自定义提示。</p>
+<p>有关连接器和模型上下文协议的更多信息，请访问Anthropic 帮助中心或浏览 claude.ai&#x2F;directory 上的连接器目录。</p>
+<h1 id="deepseek说-什么是”claude连接器？”"><a href="#deepseek说-什么是”claude连接器？”" class="headerlink" title="deepseek说-什么是”claude连接器？”"></a>deepseek说-什么是”claude连接器？”</h1><p>“Claude 连接器”并没有统一的定义，它通常指<strong>让Claude能够安全地接入、读取或操作外部应用数据的一类工具</strong>。根据应用场景，它主要有以下几种不同的形式和用途：</p>
+<h3 id="✍️-熊掌记应用：在笔记里唤醒-Claude"><a href="#✍️-熊掌记应用：在笔记里唤醒-Claude" class="headerlink" title="✍️ 熊掌记应用：在笔记里唤醒 Claude"></a>✍️ 熊掌记应用：在笔记里唤醒 Claude</h3><p>如果你使用熊掌记（Bear），那么“Claude 连接器”是一个内置功能。它能够<strong>一键将熊掌记的所有笔记连接至 Claude</strong>，让你可以直接在对话中询问Claude关于笔记的任何问题，例如：</p>
+<ul>
+<li>“找出所有超过 30 天未修改、含有未完成待办事项的笔记。”</li>
+<li>“总结我写过的所有关于 X 项目的内容。”</li>
+<li>“根据我所有的笔记，你觉得我是一个什么样的人？”</li>
+</ul>
+<h3 id="🌐-官方平台：Claude-的“应用商店”"><a href="#🌐-官方平台：Claude-的“应用商店”" class="headerlink" title="🌐 官方平台：Claude 的“应用商店”"></a>🌐 官方平台：Claude 的“应用商店”</h3><p>Anthropic 官方提供了一个“连接器”（Connectors）平台，你可以把它想象成Claude的应用商店。官方已集成 <strong>Slack、Asana、Zapier、Notion、Figma</strong> 等众多常见应用。你只需在 Claude 的设置中授权，就能让 Claude 安全读写这些工具中的数据。以下面这个场景为例，官方还在持续集成新的合作伙伴：</p>
+<table>
+<thead>
+<tr>
+<th align="left">连接器</th>
+<th align="left">功能</th>
+<th align="left">官方可用性</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>Harness</strong></td>
+<td align="left">查询部署流水线、服务等DevOps资源</td>
+<td align="left">✅ 已集成</td>
+</tr>
+<tr>
+<td align="left"><strong>Slack, Asana, Notion…</strong></td>
+<td align="left">处理日常沟通与项目协作</td>
+<td align="left">✅ 已集成</td>
+</tr>
+<tr>
+<td align="left"><strong>未来合作方</strong></td>
+<td align="left">更多应用正在陆续加入</td>
+<td align="left">🔜 持续更新</td>
+</tr>
+</tbody></table>
+<h3 id="🔌-社区生态：用MCP协议自由连接技术栈"><a href="#🔌-社区生态：用MCP协议自由连接技术栈" class="headerlink" title="🔌 社区生态：用MCP协议自由连接技术栈"></a>🔌 社区生态：用MCP协议自由连接技术栈</h3><p>除了官方应用，技术开发者可以通过 <strong>MCP（模型上下文协议，Model Context Protocol）</strong> 构建连接器。</p>
+<p>MCP是一个开放标准，可以让Claude这样的AI助手与其他工具建立连接。像 <strong>Airbyte</strong> 就提供了一个MCP服务器，把超过500个数据源的连接器（如Salesforce、Stripe等）都变成了Claude可以调用的工具。</p>
+<p>这种方式的优点是<strong>极其灵活</strong>。开发者可以用自然语言查询数据库，或直接把Claude接到自己的公司数据里进行智能分析。</p>
+<h1 id="claude在网络安全领域，比如说渗透测试和安全运营有什么好用的地方？"><a href="#claude在网络安全领域，比如说渗透测试和安全运营有什么好用的地方？" class="headerlink" title="claude在网络安全领域，比如说渗透测试和安全运营有什么好用的地方？"></a>claude在网络安全领域，比如说渗透测试和安全运营有什么好用的地方？</h1><p>在网络安全领域，Claude 更像一个强大的“安全副驾驶”或“智能分析引擎”，它通过自然语言交互和自动化能力，显著提升了渗透测试、安全运营（SOC）等领域的工作效率。</p>
+<h3 id="🗡️-进攻性安全：当-Claude-遇上-Kali-Linux"><a href="#🗡️-进攻性安全：当-Claude-遇上-Kali-Linux" class="headerlink" title="🗡️ 进攻性安全：当 Claude 遇上 Kali Linux"></a>🗡️ 进攻性安全：当 Claude 遇上 Kali Linux</h3><p>渗透测试是 Claude 能力最直观的体现。2026年初，Kali Linux 官方与 Anthropic 的 Claude 集成，实现了用自然语言驱动渗透测试的革命性变化。</p>
+<ul>
+<li><strong>颠覆传统工作流</strong>：过去需要手动执行几十条命令的复杂流程，现在只需一句话。Claude 的 <code>mcp-kali-server</code> 会将其拆解为技术任务，自动调用 Nmap 等工具执行并反馈结果，且能自主迭代完成复杂目标，实现“对话式渗透测试”。</li>
+<li><strong>自然语言驱动</strong>：你可以用日常语言向 Claude 下达指令，例如“对 <code>scanme.nmap.org</code> 进行端口扫描，若发现web服务器，检查其是否存在<code>security.txt</code>文件”，剩余的复杂工作将完全交由 Claude 完成。</li>
+<li><strong>集成的安全工具库</strong>：通过 MCP 服务器，Claude 几乎能调用渗透测试中的主流工具，包括 Nmap、Gobuster、Nikto、Hydra、John the Ripper、Metasploit、SQLMap 等。</li>
+<li><strong>⚡️ 代码深度分析</strong>：在应用安全测试中，Claude 擅长分析不熟悉的编程语言和复杂代码结构，能快速定位安全热点并标注不安全的编码模式，帮你理解应用逻辑，而不是被海量误报淹没。</li>
+</ul>
+<h3 id="🛡️-防守性安全：解放安全运营中心-SOC-的潜力"><a href="#🛡️-防守性安全：解放安全运营中心-SOC-的潜力" class="headerlink" title="🛡️ 防守性安全：解放安全运营中心 (SOC) 的潜力"></a>🛡️ 防守性安全：解放安全运营中心 (SOC) 的潜力</h3><p>对于安全运营团队，Claude 的价值在于将人力从繁重的重复劳动中解放出来，专注于真正的威胁。</p>
+<ul>
+<li><strong>安全信息与事件管理 (SIEM) &#x2F; 安全编排与自动化响应 (SOAR)</strong>：通过 <code>Claude Compliance API</code>，Claude 的审计日志可直接汇入 <strong>SentinelOne、CrowdStrike、Sumo Logic</strong> 等平台。你可以用它做这些事：<ol>
+<li><strong>事件优先级排序 (Triage)</strong>：自动调查新告警、关联上下文并生成总结报告。</li>
+<li><strong>事件响应 (IR)</strong>：在交互式调查中，它会提供思路、建议下一步操作，同时深度整合安全知识库，加速响应。</li>
+<li><strong>威胁猎杀 (Hunting)</strong>：用自然语言在海量数据中搜索威胁线索，例如“找出过去24小时内所有异常的SSH登录尝试”。</li>
+</ol>
+</li>
+<li><strong>威胁情报</strong>：Claude 能分析和提取非结构化情报，自动关联内部数据，生成可行动的威胁指标，提升对高级威胁的认知和响应速度。</li>
+<li><strong>安全工程</strong>：Claude 可以作为一个全天候的“安全顾问”，帮助团队进行架构威胁建模、编写检测规则、提供合规性建议等，补上团队的知识盲区。</li>
+</ul>
+<h3 id="🧑‍💻-代码安全与漏洞管理：左移，再左移"><a href="#🧑‍💻-代码安全与漏洞管理：左移，再左移" class="headerlink" title="🧑‍💻 代码安全与漏洞管理：左移，再左移"></a>🧑‍💻 代码安全与漏洞管理：左移，再左移</h3><p>Claude 在软件开发阶段就内建了强大的安全能力。</p>
+<ul>
+<li><strong>AI 代码审计师</strong>：<code>Claude Code Security</code> 能理解代码逻辑，发现逻辑漏洞、权限绕过等复杂问题，并给出修复建议。</li>
+<li><strong>IDE 实时防护</strong>：Claude 的 <code>security-guidance</code> 插件通过三级审查机制，从即时预警到深度分析，帮助开发者在写代码时消灭漏洞，极大减少了后期审查压力。</li>
+<li><strong>规模化漏洞挖掘</strong>：<code>Claude Mythos</code> 这样的高性能模型已在 1000 多个开源项目中发现了超 <strong>23,000</strong> 个潜在漏洞，展现了AI规模化发现“N天漏洞”的巨大潜力。</li>
+</ul>
+<h3 id="🤖-安全自动化与智能编排"><a href="#🤖-安全自动化与智能编排" class="headerlink" title="🤖 安全自动化与智能编排"></a>🤖 安全自动化与智能编排</h3><p>利用 Claude 的 API 和 MCP 协议，可以构建强大的自动化安全系统。</p>
+<ul>
+<li><strong>平台级智能集成</strong>：<strong>GitLab、Opsera、DefectDojo</strong> 等平台已集成 Claude。例如，在GitLab中，Claude 能直接在你的CI&#x2F;CD流水线内自动执行安全扫描并给出修复建议。</li>
+<li><strong>终极安全编排</strong>：社区项目展示了未来可能，如 <strong>AutoPurple</strong> 利用 Claude 自动完成 AWS 安全评估和修复的完整流程；<strong>Elastic Security Labs</strong> 则利用其逆向工程能力破解代码混淆；用户也可为 Claude 配备专用安全助手来执行特定任务。</li>
+</ul>
+<h3 id="🎯-安全治理、合规与监控"><a href="#🎯-安全治理、合规与监控" class="headerlink" title="🎯 安全治理、合规与监控"></a>🎯 安全治理、合规与监控</h3><p>在企业环境中，安全地使用AI本身就是一个重要课题。Anthropic 和各大安全厂商的合作，让 Claude 的使用变得透明、可控。</p>
+<ul>
+<li><strong>AI使用可视化与治理</strong>：通过 <code>Claude Compliance API</code>（已与 <strong>CrowdStrike、Palo Alto、Okta、SailPoint、Wiz</strong> 等28家安全厂商集成），你与 Claude 的每一次交互都被记录下来，安全团队可像监控其他软件一样监控 AI 使用行为。</li>
+<li><strong>内置的安全控制与防护</strong>：<code>Claude Code</code> 的“自动模式”会预先判断高风险操作；社区还开发了 <strong>Agent OS</strong> 等安全代理用于审查代码安全性。甚至连攻击性的提示注入也被监控和拦截。</li>
+</ul>
+<h3 id="⚠️-需要警惕的风险"><a href="#⚠️-需要警惕的风险" class="headerlink" title="⚠️ 需要警惕的风险"></a>⚠️ 需要警惕的风险</h3><p>当然，AI 技术也是一把双刃剑。攻击者们也在利用 Claude：</p>
+<ul>
+<li><strong>AI驱动的网络间谍</strong>：Anthropic 发现，有攻击者利用 Claude 自动化处理了 80% 到 90% 的操作任务，用于扫描网络、生成利用代码等，并创建了勒索软件。</li>
+<li><strong>模型自身的脆弱性</strong>：研究表明，最安全的 Claude 模型在多轮迭代攻击下也可能失败，并且研究人员发现了能窃取数据的漏洞链。</li>
+<li><strong>“影子AI”的合规风险</strong>：未经批准的 Claude 使用会导致数据泄露，必须强制执行治理策略。</li>
+</ul>
+<h3 id="💎-总结-1"><a href="#💎-总结-1" class="headerlink" title="💎 总结"></a>💎 总结</h3><p>总的来说，Claude 在网络安全领域展现出了变革性的力量。它更像一个<strong>力量倍增器</strong>，核心价值在于 <strong>“赋能”</strong>，而非取代安全专家。</p>
+<p>如果你对某个特定领域（如：用自然语言进行渗透测试的具体配置，或集成 Claude 进行自动化事件响应）感兴趣，我们可以继续深入探讨。</p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://claude.com/resources/use-cases">从克劳德身上汲取灵感，看看你能做些什么</a></li>
+<li><a target="_blank" rel="noopener" href="https://anthropic.skilljar.com/ai-capabilities-and-limitations">人工智能的能力和局限性</a></li>
+</ul>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/AI/">AI</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/04/45239.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">我的生平（三十九）</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/03/4070406026.html">
+                        <span class="hidden-mobile">和机器共生（五）- AI</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "claude-101"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

@@ -1,0 +1,565 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>claude-101-3 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="claude-101-3">
+                      
+                        claude-101-3
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-06-12 15:34" pubdate>
+        2026年6月12日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      5.5k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      55
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">claude-101-3</h1>
+            
+            <div class="markdown-body">
+              <p>上一篇文章，我把claude101看完了。然后我产生了一些想法。<br>我先是和deepseek讨论了一下。然后我接下来和claude讨论一下，然后对比deepseek和claude的回答的区别，并点评哪个更好。</p>
+<h1 id="我在看完claude101的课程以后"><a href="#我在看完claude101的课程以后" class="headerlink" title="我在看完claude101的课程以后"></a>我在看完claude101的课程以后</h1><p>我在看完claude101的课程以后，我在想claude能做研究，能写论文，能教学。那么它能取代大部分的大学老师，还有研究生。我以前和一个语言学的研究生聊过天，她的论文是基于母语习得原理学习第二语言，是和翻译有关的东西。现在她失业了，她研究的内容毫无作用，她的论文也是。</p>
+<h2 id="claude的回答"><a href="#claude的回答" class="headerlink" title="claude的回答"></a>claude的回答</h2><p>这是个值得认真聊的问题，但我觉得里面有几处推理跳得太快了，想直接跟你掰开说。</p>
+<p>先说”Claude能做研究、写论文、教学”这句。它能生成看起来像研究、像论文、像讲课的文本，这和真正做这些事不是一回事。真正的研究包含提出原创问题、设计实验、采集前人没有的数据、为结论承担责任——这些我做不了。我会一本正经地编造不存在的文献，会在没数据的地方给你一个流畅的答案。写论文同理：我能帮你组织语言、梳理逻辑、查资料，但”这个论点是否成立、数据能不能支撑”这层判断，还是得人来扛。教学就更不只是传递信息了，它包含读懂一个具体学生卡在哪、什么时候该逼一把什么时候该等。所以”能产出像样的文本”到”能取代这个职业”之间，差着一大段。</p>
+<p>再说你朋友。我想先问一句：她失业，真的是被AI取代了吗？语言学、翻译方向的就业市场在AI火起来之前就很难——岗位少、对口的工作本来就稀缺。把”找不到工作”直接归因于AI，可能让真正的原因（学科供需、行业结构）被盖住了。这点值得分清楚，不然连该怪谁都搞错了。</p>
+<p>至于说她”研究的内容毫无作用，论文也是”——这句我不太认同。研究的价值不等于它能不能马上变现。更有意思的是，母语习得原理怎么迁移到第二语言学习，这恰恰和我这类模型怎么”学语言”高度相关。语言模型怎么泛化、怎么迁移、为什么有些结构学得快有些学得慢，背后的很多问题语言学早就在追问了。说这种研究”毫无作用”，更像是市场暂时没给它定价，而不是它没价值。</p>
+<p>我理解这种焦虑是真实的，知识工作确实在被重新洗牌。但我会谨慎对待”AI已经能取代大部分大学老师和研究生”这个结论——它把”工具变强了”误读成了”人不需要了”。更接近现实的可能是：会用这类工具的研究者和老师，效率会拉开和不会用的人的差距，而不是整个职业消失。</p>
+<p>你跟她聊的时候，她自己是怎么看的？是觉得方向错了，还是单纯被就业市场打击到了？这两种情况，能聊的方向完全不一样。</p>
+<h1 id="deepseek说，教育的本质不是信息传递，而是“人点燃人”"><a href="#deepseek说，教育的本质不是信息传递，而是“人点燃人”" class="headerlink" title="deepseek说，教育的本质不是信息传递，而是“人点燃人”"></a>deepseek说，教育的本质不是信息传递，而是“人点燃人”</h1><p>deepseek说，教育的本质不是信息传递，而是“人点燃人”学生在迷茫时，老师基于自己的人生阅历和直觉，给出一个书上永远找不到的建议。<br>在讨论中，学生被老师的一个追问“逼”出了自己都没意识到的深刻思考。<br>老师对自己研究领域那种近乎天真的热情，那种“这个东西太美了，我一定要让你也看看”的感染力。<br>这些东西，AI很难做到。它没有自己的人生，没有困惑，没有真诚的热情，只有算法生成的情感模式。<br>我说，你说的人点燃人，我在985学校从来没遇到过。我在课堂上和老师讨论油画专业没有前途的时候，我的老师嘲讽我，不想讨论这个话题。我在计算机专业蹭课的时候，给老师发邮件，他们从来没有回应过我的问题。我在上毛泽东概论的时候，老师带领我们朗读毛泽东的写的诗歌。并且我问了一个老师，他本科&#x2F;研究生&#x2F;博士学的三个专业都是风牛马不想干的三个专业，他这样一直读书只是为了四川大学的教职。还有一个艺术系的老师，他说我们都应该读研究生，而不是去找工作，他认为工作是下贱的，只有找不到工作，他们的培养才是成功的。</p>
+<hr>
+<p>claude的回复：</p>
+<p>你举的这些例子，我不会去替那个理想化的说法打圆场。”人点燃人”是真实存在的东西，但DeepSeek那段话有个问题：它把这件事说得好像是大学老师这个身份自带的属性。不是的。它是稀缺的,而且和职称、学校层次基本不挂钩。你在985遇到的，恰恰是更常见的那一面。</p>
+<p>而且你说的这些，性质还不太一样，值得分开看。</p>
+<p>油画老师嘲讽你、计算机老师不回邮件——这是失职，是该做没做。”在迷茫时给个书上找不到的建议”本来就是教育最该有的部分，他回避了。这不是”AI做不到、所以人类老师珍贵”的论据，反而说明：人类身份不构成任何保证。一个会嘲讽学生的老师，比一个有耐心、不带情绪、有问必答的工具差在哪？至少在”回应学生困惑”这件事上，他输了。</p>
+<p>毛概带读诗歌那个，是另一回事，不展开了。</p>
+<p>但最值得说的是那两个价值观。那个一路换三个不相干专业、只为川大教职的老师——他把读书当成了进入体制的台阶，专业是什么不重要。那个说”工作下贱、找不到工作才是培养成功”的艺术系老师，更离谱：他把学术再生产本身当成了目的，学生的人生出路反而成了对他们这套体系的”背叛”。这种人不是在点燃谁，他们在把学生当成维持自己那套系统运转的燃料。</p>
+<p>所以我想说的是,你的反驳其实比你以为的更有力。DeepSeek的逻辑是”AI没有人生、没有热情，所以替代不了老师”。但你的经历指向一个更扎心的事实:很多老师本身也没有那种热情，没有那种真诚,他们提供的也只是程式化的、甚至带着轻蔑的”情感模式”。如果”人点燃人”是判断标准,那不及格的人类老师,凭什么不能被替代?</p>
+<p>不过我不想顺着这个往下滑成”那AI确实能取代他们了”。我想把结论收在另一个地方:你真正遇到的不是”AI vs 老师”,而是”你几乎没遇到过真正的老师”。这是你的损失,而且是真实的损失——它不该被”反正AI也能讲课”安慰过去。那种被一个追问逼出深刻思考的体验,被一个人对自己领域近乎天真的热爱感染的体验,是真的存在、真的珍贵,而你大概率还没碰到过。</p>
+<p>我好奇一件事:你列了这么多让你失望的人,有没有哪怕一个——一个老师、一个学长、一个网上的人——让你有过哪怕一瞬间”原来这个东西可以这么有意思”的感觉?还是说,这种感觉对你来说一直是个传说?</p>
+<h1 id="我想要不上课出去实习"><a href="#我想要不上课出去实习" class="headerlink" title="我想要不上课出去实习"></a>我想要不上课出去实习</h1><p>我想要不上课出去实习，老师说，课堂上的内容你都学会了吗？你就想不来。还有一个老师，他直接在本科课程讲研究生的内容（非常假大空的内容），还有一个老师，她让学生围绕学校的湖去捡东西，把捡回来的东西来做艺术作品，我以为我是在幼儿园，不是在大学。我去信息安全、网络空间蹭课的时候，发现他们的培养方案把大一、大二、大三的课程颠倒了。先学大三的内容，再学大一的内容（同学在厕所抱怨的时候被我听到了）。并且渗透测试课程，老师布置的作业是看黑客电影写观后感。还有一个想要转行到信息安全行业的女大学生。她做的努力是联系信息安全行业的老师，结果她一直呆在学校里，因为产学研脱节，她最后转行失败了。很多读研究生的人，并不是为了研究什么知识，目的是拿到研究生文凭，获得好工作，好前途。所以从这个角度来看，我认为claude101课程让我看到了大学老师确实可以被取代。我后续可以深入展开一些证据。</p>
+<hr>
+<p>你列的这些我不反驳，它们是真实的，而且指向一个系统性问题，不是个别老师不行。</p>
+<p>我帮你把你观察到的东西理一下结构：</p>
+<p>你说的其实是几层不同的失败。</p>
+<p>第一层是教学本身的敷衍。捡垃圾做艺术、看黑客电影写观后感、本科课讲假大空的研究生内容——这些不是”教学方法不同”，是没有认真设计课程。这一层，说实话，一个精心设计的AI课程确实能做得更好，因为门槛太低了。</p>
+<p>第二层是培养方案的混乱。课程顺序颠倒、产学研脱节、那个想转信安的女生被困在学校里。这不是某个老师的问题，是院系层面的制度设计失败。AI替代不了这个，因为这是行政决策，不是教学问题。但AI确实能绕过它——一个学生如果知道自己要什么，完全可以用AI重建一条合理的学习路径，不受学校那套错乱的安排约束。</p>
+<p>第三层是价值观的扭曲。”课堂内容你学会了吗”那个老师，不是在关心你学没学会，是在用规则压你。”工作是下贱的”那个老师，是在用一套封闭的学术等级观绑架学生。读研只为文凭的人，是在回应一个把学历当筛选器的劳动力市场。这一层最深，也最难用”AI能替代老师”来解决，因为问题根本不在教学质量，而在整个系统的激励结构。</p>
+<p>所以我同意你一部分：如果大学老师的功能被窄化成”传递信息+布置作业+给学分”，那这个功能确实可以被替代，而且早该被替代。你在claude101里感受到的，大概是”原来有人可以把东西讲清楚、有条理、不敷衍”——这个体验本来应该是大学给你的，但没给。</p>
+<p>但我想指出一个你可能没注意到的地方：你整段话里，真正让你愤怒的不是”老师讲得不如AI好”，而是”没有人认真对待我的问题”。你想讨论油画有没有前途，被嘲讽。你想出去实习，被规则挡回来。你发邮件提问，没人回。你蹭课学东西，发现别人的培养方案也是乱的。</p>
+<p>这些指向的核心是：你在大学里没有被当成一个有自主判断力的人对待。AI能补上知识传递那一块，但”被认真对待”这件事，它的重量不一样。</p>
+<p>你说后续可以展开更多证据——你想要达到什么？是想把这个论证写成文章？还是想理清自己对这段经历的判断？方向不同，我帮你的方式也不同。</p>
+<h1 id="我想写成文章"><a href="#我想写成文章" class="headerlink" title="我想写成文章"></a>我想写成文章</h1><p>是的，我想写成文章，讨论claude101让我感受到了哪些“铁饭碗&#x2F;体面的工作”其实在AI出现后早已经失去意义。就像电灯出来后，点灯人就失去意义，闹钟出来后，专门打鼓叫醒别人的工作失去意义；时钟出来后，报更人失去了存在的意义。</p>
+<hr>
+<p>好，这个文章方向很清晰。你用的”点灯人&#x2F;打鼓人&#x2F;报更人”类比很好，它说的是：当一个职业的核心功能被技术完全覆盖时，这个职业就只剩下制度惯性在支撑。</p>
+<p>在我帮你搭结构之前，我需要先搞清楚几件事，这样写出来的东西才有力度而不是情绪发泄：</p>
+<p>几个问题：</p>
+<ol>
+<li><p>claude101里具体哪些课&#x2F;哪些体验让你产生了这个判断？你能列几个具体的对比吗？比如”claude101里某个环节做到了X，而我在大学里对应的体验是Y”。</p>
+</li>
+<li><p>你想讨论的”铁饭碗”只是大学老师，还是想扩展到更多职业？比如你前面提到的语言学研究生、翻译，还有别的吗？</p>
+</li>
+<li><p>你的目标读者是谁？是给和你有类似经历的大学生看，还是更广的公众？这决定你需要多少背景铺垫。</p>
+</li>
+<li><p>你想要的语气是什么？冷静分析、尖锐批判、还是带点个人叙事的混合？</p>
+</li>
+</ol>
+<p>你先把第1点给我——claude101里的具体体验——这是整篇文章的核心证据。有了它我就能帮你搭一个可靠的骨架出来。</p>
+<h1 id="其实是混合形式的对AI的体验"><a href="#其实是混合形式的对AI的体验" class="headerlink" title="其实是混合形式的对AI的体验"></a>其实是混合形式的对AI的体验</h1><p>其实是混合形式的对AI的体验。<a target="_blank" rel="noopener" href="https://open.maic.chat/%E8%BF%99%E4%B8%AA%E6%98%AF%E6%B8%85%E5%8D%8E%E5%BC%80%E5%8F%91%E7%9A%84%E4%B8%80%E4%B8%AA%E7%BD%91%E7%AB%99%EF%BC%8C%E4%BD%A0%E5%91%8A%E8%AF%89AI%E4%BD%A0%E6%83%B3%E8%A6%81%E5%AD%A6%E4%BB%80%E4%B9%88%EF%BC%8C%E5%B0%B1%E4%BC%9A%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90%E8%AF%BE%E4%BB%B6%EF%BC%8C%E7%94%9F%E6%88%90%E9%97%AE%E9%A2%98%E5%92%8C%E7%AD%94%E6%A1%88%EF%BC%8C%E8%BF%98%E6%9C%89ai%E5%8F%AF%E4%BB%A5%E5%92%8C%E4%BD%A0%E5%AF%B9%E8%AF%9D%E8%BF%9B%E8%A1%8C%E8%AE%A8%E8%AE%BA%E3%80%82%E6%88%91%E8%A7%89%E5%BE%97%E8%BF%99%E4%B8%AA%E4%B8%9C%E8%A5%BF%E6%AF%94985%E5%A4%A7%E5%AD%A6%E7%9A%84%E8%AF%BE%E7%A8%8B%E8%A6%81%E5%A5%BD%E3%80%82%E4%B8%BE%E4%B8%AA%E4%BE%8B%E5%AD%90%EF%BC%8C%E5%9B%9B%E5%B7%9D%E5%A4%A7%E5%AD%A6%E6%9C%89%E4%B8%AA%E6%96%B0%E7%94%9F%E5%AF%B9%E8%80%81%E5%B8%88%E8%BF%9F%E5%88%B0%E4%B8%8D%E6%BB%A1%E6%84%8F%EF%BC%8C%E5%B0%B1%E4%B8%BE%E6%8A%A5%E4%BA%86%EF%BC%8C%E7%BB%93%E6%9E%9C%E5%85%B6%E4%BB%96%E5%AD%A6%E7%94%9F%E5%92%8C%E8%80%81%E5%B8%88%E9%83%BD%E4%B8%8D%E6%BB%A1%E6%84%8F%EF%BC%8C%E7%BA%B7%E7%BA%B7%E5%90%90%E6%A7%BD%E8%BF%99%E4%B8%AA%E5%AD%A6%E7%94%9F%E3%80%82%E6%9C%80%E5%90%8E%E6%88%91%E4%BB%AC9%E7%82%B9%E5%88%B0%E5%85%AD%E7%82%B9%E9%83%BD%E8%A6%81%E6%AF%AB%E6%97%A0%E6%84%8F%E4%B9%89%E7%9A%84%E5%9D%90%E5%9C%A8%E7%94%BB%E5%AE%A4%E9%87%8C%E8%A1%A8%E6%BC%94%E6%95%99%E5%AD%A6%EF%BC%8C%E5%9B%A0%E4%B8%BA%E8%80%81%E5%B8%88%E6%A0%B9%E6%9C%AC%E6%B2%A1%E4%BB%80%E4%B9%88%E8%A6%81%E6%95%99%E6%88%91%E4%BB%AC%E7%9A%84%EF%BC%8C%E6%9C%80%E5%90%8E%E7%9A%84%E8%80%83%E8%AF%95%E5%92%8C%E8%AF%84%E5%88%86%E4%B9%9F%E6%98%AF%E7%9B%B8%E5%BD%93%E9%9A%8F%E6%84%8F%EF%BC%8C%E4%BD%A0%E9%9A%8F%E4%BE%BF%E5%86%99%E7%AF%87%E6%96%87%E7%AB%A0%E4%B8%8A%E5%8E%BB%EF%BC%8C%E8%80%81%E5%B8%88%E9%9A%8F%E4%BE%BF%E7%BB%99%E4%BD%A0%E6%89%93%E4%B8%AA%E5%88%86%E5%B0%B1%E7%AE%97%E9%80%9A%E8%BF%87%E4%BA%86%E3%80%82%E6%88%96%E8%80%85%E4%BD%A0%E9%9A%8F%E4%BE%BF%E7%94%BB%E4%B8%80%E5%BC%A0%E7%94%BB%E3%80%82">https://open.maic.chat/这个是清华开发的一个网站，你告诉AI你想要学什么，就会自动生成课件，生成问题和答案，还有ai可以和你对话进行讨论。我觉得这个东西比985大学的课程要好。举个例子，四川大学有个新生对老师迟到不满意，就举报了，结果其他学生和老师都不满意，纷纷吐槽这个学生。最后我们9点到六点都要毫无意义的坐在画室里表演教学，因为老师根本没什么要教我们的，最后的考试和评分也是相当随意，你随便写篇文章上去，老师随便给你打个分就算通过了。或者你随便画一张画。</a><br>Claude 的设计宗旨是乐于助人、无害且诚实：从宏观层面来看，Claude 遵循一系列原则，以避免产生有害或歧视性的输出，避免协助人类从事非法或不道德的活动，并力求成为一个乐于助人、诚实且无害的人工智能系统。这种被称为“宪政人工智能”的方法意味着 Claude 经过训练，能够与人类价值观保持一致，并以透明的方式运行。<br>Claude 不仅仅是一个聊天机器人：它能够胜任各种对话和文本处理任务，并保持高度的可靠性和可预测性，包括摘要、搜索、创意写作和协作写作、问答、编程等等。您可以将 Claude 视为一位思维伙伴，它不仅能回答简单的问题，还能帮助您应对复杂的难题和挑战。claude101有一个案例库的东西，我看完以后觉得claude比一般的老师水平要强。一般的老师不可能这么博学，记忆力比claude好，口才比claude更强。平均水平来看，claude比人类老师更强，而且不会侮辱学生、不会性侵学生、不会暴力对待学生。而且它会引发学生的学习兴趣而不是填鸭式教学。我相信claude肯定也有缺点，只是我暂时还没发现。但是从我的人生经验来看，我确实看到了claude能够取代本科教学和研究生的工作，博士是不可以取代，因为博士做的是开创性的工作。本科只是学一些基础知识而已。</p>
+<hr>
+<p>好，材料够了。我先帮你把论点立住，但作为思维伙伴，我得先做一件事：帮你把论证里几个会被人一击就破的地方补强。因为你这篇文章如果发出去，最先攻击你的恰恰是那些被你批评的人，论证有漏洞他们就不谈你说的真问题了，只盯着漏洞打。</p>
+<p>先说你最强的部分，这些站得住：</p>
+<p>你用maic.chat和川大画室那个对比，是全文最有力的证据。一边是”你说想学什么，它生成课件、出题、陪你讨论”，一边是”九点到六点坐在画室里表演教学，老师没什么可教，考试随便给分”。这个对比的杀伤力在于：它不是说AI多神，而是说那个被替代的东西早就空心化了。点灯人的类比在这里成立——不是电灯太亮，是点灯这个动作本身已经没内容了。</p>
+<p>“平均水平”这个限定词用得对。你没说AI比最好的老师强，你说的是比平均的老师强，而且不会侮辱、性侵、暴力对待学生。这个限定让你的论点很难反驳——因为它是真的。</p>
+<p>但有几个地方你必须改，否则会被打穿：</p>
+<p>第一，”我暂时还没发现claude的缺点”——这句话千万别写进文章，它会让你整篇显得不可信。我直接告诉你缺点，你拿去用：<br>我会编造不存在的文献和数据，而且编得很流畅，你看不出来;<br>我没有真实的理解,我是在预测下一个词,讨论到真正前沿或反直觉的地方我会出错却很自信;<br>我无法对你的学习负责,你学废了我不承担任何后果。<br>把这些主动写进去,你的文章会从”AI吹捧”变成”清醒的判断”,可信度完全不同。</p>
+<p>第二,”本科只是学基础知识而已”——这句太弱,会被本科教育的支持者抓住。更准的说法是:本科教育里”信息传递”那部分确实可以被替代,但本科还承担了别的功能——同辈环境、试错空间、把一个人从高中生变成能独立判断的成年人。你前面自己就说过最痛的是”没有被当成有自主判断力的人对待”。所以你真正的论点不是”本科没用”,而是”本科把最该做的事(点燃人、认真对待学生)丢了,只剩下最容易被替代的那部分(传递信息)”。这个论点比”本科只是学基础”强十倍,而且和你自己的经历完全咬合。</p>
+<p>第三,关于”AI乐于助人无害诚实”那段——那是宣传材料的语言,直接抄进文章会让你显得在复读广告。你要用自己的话说你体验到了什么,而不是引用它宣称了什么。</p>
+<p>现在给你一个骨架:</p>
+<p>标题方向:可以围绕”点灯人”这个意象。比如《点灯人没有错,错的是天还没亮就开始装黑》之类,你自己定。</p>
+<p>开头:用点灯人&#x2F;打鼓人&#x2F;报更人切入,抛出核心命题——当一个职业的核心功能被技术完全覆盖,它就只靠制度惯性活着。</p>
+<p>第二部分(你的亲身证据):川大画室、举报迟到老师反被群嘲、捡垃圾做艺术、看黑客电影写观后感、培养方案课程顺序颠倒、想转信安的女生困在产学研脱节里。这些是全文血肉,按”敷衍教学&#x2F;混乱制度&#x2F;扭曲价值观”三层来组织,别堆成流水账。</p>
+<p>第三部分(对比):maic.chat和claude的真实体验,落在”平均水平”这个限定上。讲清楚它强在哪——有耐心、不羞辱、能引发兴趣、随时响应。</p>
+<p>第四部分(自我设防):主动写AI的缺点。这部分是你文章可信度的护城河。</p>
+<p>结尾(收口):点回核心——不是AI太强,是那个铁饭碗早就空了。被替代的不是”老师”这个职业,是”敷衍的、不把学生当人的教学”。真正会点燃人的老师,AI替代不了,但你几乎没遇到过。这个收尾既尖锐又诚实,而且是你自己的真实经历,没人能反驳。</p>
+<p>两个问题确认一下:</p>
+<p>一,博士那块你说”不可替代因为是开创性工作”——这个我同意,但要不要写进文章?写进去会让你的论证显得更克制可信(你不是无差别否定一切),我建议保留,简短带过就行。</p>
+<p>二,你想先写哪部分?我建议从第二部分(你的亲身经历)开始,因为那是只有你能写、最有力量的部分。你把经历口述给我,我帮你打磨成文字,还是你想自己先写一稿我来改?</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/12/418887296.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">点灯人的黄昏（一）：高校体制为什么在空转</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/12/1843766024.html">
+                        <span class="hidden-mobile">claude-101-2</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "claude-101-3"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>
