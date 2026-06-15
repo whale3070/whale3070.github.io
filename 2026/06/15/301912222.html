@@ -1,0 +1,755 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>你的工资条上没写的数字 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="你的工资条上没写的数字">
+                      
+                        你的工资条上没写的数字
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-06-15 14:46" pubdate>
+        2026年6月15日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      23
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">你的工资条上没写的数字</h1>
+            
+            <div class="markdown-body">
+              <p><strong>你的工资条上没写的数字：企业付了41000，你只拿到22000，剩下的19000去了哪里？</strong></p>
+<h3 id="开篇：一个你从来没算过的账"><a href="#开篇：一个你从来没算过的账" class="headerlink" title="开篇：一个你从来没算过的账"></a>开篇：一个你从来没算过的账</h3><p>我问你一个问题：如果你在上海月薪30000，你觉得你的老板为了雇你，每个月实际花了多少钱？</p>
+<p>30000？</p>
+<p>不。是<strong>41100元</strong>。</p>
+<p>多出来的11100元，你一分钱都不会看到。它不在你的工资条上，不在你的银行账户里，也不会有人主动告诉你这笔钱的存在。</p>
+<p>然后我再问你：这30000的税前工资，你到手多少？</p>
+<p><strong>22210元。</strong></p>
+<p>企业付出41100，你拿到22210。中间的<strong>18890元</strong>——占企业实际支出的46%——被系统无声地抽走了。</p>
+<p>每个月。每个月都是。</p>
+<hr>
+<h3 id="第一部分：钱到底被谁拿走了"><a href="#第一部分：钱到底被谁拿走了" class="headerlink" title="第一部分：钱到底被谁拿走了"></a>第一部分：钱到底被谁拿走了</h3><p>以上海月薪30000为例，逐项拆解：</p>
+<p><strong>企业额外缴纳的部分（你看不到的）：</strong></p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>比例</th>
+<th>金额</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>养老保险（企业）</td>
+<td>16%</td>
+<td>4800</td>
+</tr>
+<tr>
+<td>医疗保险（企业）</td>
+<td>9.5%</td>
+<td>2850</td>
+</tr>
+<tr>
+<td>失业保险（企业）</td>
+<td>0.5%</td>
+<td>150</td>
+</tr>
+<tr>
+<td>工伤保险（企业）</td>
+<td>~0.4%</td>
+<td>120</td>
+</tr>
+<tr>
+<td>生育保险（企业）</td>
+<td>1%</td>
+<td>300</td>
+</tr>
+<tr>
+<td>住房公积金（企业）</td>
+<td>7%</td>
+<td>2100</td>
+</tr>
+<tr>
+<td><strong>小计</strong></td>
+<td><strong>约37%</strong></td>
+<td><strong>约11100</strong></td>
+</tr>
+</tbody></table>
+<p>这11100元，企业替你交了，但你感知不到。</p>
+<p><strong>从你工资里扣掉的部分：</strong></p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>金额</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>养老保险（个人8%）</td>
+<td>2400</td>
+</tr>
+<tr>
+<td>医疗保险（个人2%）</td>
+<td>600</td>
+</tr>
+<tr>
+<td>失业保险（个人0.5%）</td>
+<td>150</td>
+</tr>
+<tr>
+<td>住房公积金（个人7%）</td>
+<td>2100</td>
+</tr>
+<tr>
+<td>个人所得税</td>
+<td>2540</td>
+</tr>
+<tr>
+<td><strong>小计</strong></td>
+<td><strong>7790</strong></td>
+</tr>
+</tbody></table>
+<p><strong>最终结果：</strong></p>
+<figure class="highlight dns"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs dns">企业实际支出：<span class="hljs-number">41100</span><br>你实际到手：<span class="hljs-number">22210</span><br>系统抽走：<span class="hljs-number">18890（46</span>%）<br></code></pre></div></td></tr></table></figure>
+
+<p>你以为你的工资是30000，其实你的劳动在老板眼里值41100，但你只拿到了22210。中间接近一半被一个你无法拒绝、无法谈判、无法退出的系统拿走了。</p>
+<hr>
+<h3 id="第二部分：这笔钱你能拿回来吗？"><a href="#第二部分：这笔钱你能拿回来吗？" class="headerlink" title="第二部分：这笔钱你能拿回来吗？"></a>第二部分：这笔钱你能拿回来吗？</h3><p>很多人会说：”五险一金又不是白交的，养老金以后能拿回来，公积金也是自己的。”</p>
+<p>逐项看：</p>
+<p><strong>住房公积金（个人+企业共4200&#x2F;月）：能拿回来</strong></p>
+<p>这是唯一真正属于你的钱。账户是你的，买房、租房、离职都能提取。但它被锁在账户里，使用条件受限，本质是强制储蓄，利率极低（1.5%），跑不赢通胀。</p>
+<p>结论：钱是你的，但被强制贬值。</p>
+<p><strong>医疗保险：部分能用</strong></p>
+<p>个人账户余额可以刷卡买药。但统筹部分（企业交的9.5%）是池子里的公共资金，你用不用得到取决于你生不生病。而且报销有起付线、有封顶线、有自费比例。</p>
+<p>结论：保险性质，交了不一定用得到，但算一种保障。</p>
+<p><strong>失业保险：大概率拿不到</strong></p>
+<p>领取条件严苛：必须是”非自愿失业”、缴满一年、主动登记。主动辞职不算。而且金额很低，大约是最低工资的70-90%。</p>
+<p>结论：大多数人一辈子用不到一次。</p>
+<p><strong>生育保险 + 工伤保险：看运气</strong></p>
+<p>用到了是保障，用不到就是纯贡献。</p>
+<p><strong>养老保险（重点来了）：这是最大的黑洞</strong></p>
+<p>个人交的8%进入个人账户（名义上是你的），企业交的16%进入统筹账户（不是你的，是拿去发给现在的退休老人的）。</p>
+<p>问题来了：</p>
+<ul>
+<li>个人账户的钱理论上退休后能拿，但回报率极低（约2-3%），30年后购买力缩水严重</li>
+<li>统筹部分完全不属于你，你交的钱正在被用来支付现在退休老人的养老金</li>
+<li>你未来能拿到多少养老金，取决于你退休时还有多少年轻人在交钱</li>
+</ul>
+<p>这就是<strong>现收现付制</strong>的本质：不是存钱等你老了取，而是代际转移——你养现在的老人，将来的年轻人养你。</p>
+<p><strong>但将来的年轻人够吗？</strong></p>
+<ul>
+<li>2023年出生人口902万</li>
+<li>2024年预计更低</li>
+<li>等你退休时（2050年代），缴费的年轻人数量可能只有现在的一半</li>
+</ul>
+<p>这意味着：要么你的养老金大幅缩水，要么领取年龄大幅推后，要么两者同时发生。</p>
+<p>结论：你现在交的养老保险，大概率拿不回等值的购买力。</p>
+<hr>
+<h3 id="第三部分：不同收入层级，谁被薅得最狠？"><a href="#第三部分：不同收入层级，谁被薅得最狠？" class="headerlink" title="第三部分：不同收入层级，谁被薅得最狠？"></a>第三部分：不同收入层级，谁被薅得最狠？</h3><table>
+<thead>
+<tr>
+<th>月薪</th>
+<th>企业总成本</th>
+<th>到手</th>
+<th>被扣比例</th>
+<th>到手占企业成本比</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>8000（基层）</td>
+<td>10960</td>
+<td>7200</td>
+<td>10%</td>
+<td>66%</td>
+</tr>
+<tr>
+<td>20000（白领）</td>
+<td>27400</td>
+<td>15560</td>
+<td>22%</td>
+<td>57%</td>
+</tr>
+<tr>
+<td>30000（中层）</td>
+<td>41100</td>
+<td>22210</td>
+<td>26%</td>
+<td>54%</td>
+</tr>
+<tr>
+<td>50000（高管）</td>
+<td>68500</td>
+<td>36564</td>
+<td>27%</td>
+<td>53%</td>
+</tr>
+<tr>
+<td>100000（高收入）</td>
+<td>113661</td>
+<td>69710</td>
+<td>30%</td>
+<td>61%</td>
+</tr>
+</tbody></table>
+<p><strong>最痛苦的群体：月薪2万-5万的打工人。</strong></p>
+<ul>
+<li>低收入者五险一金按最低基数缴，实际负担轻</li>
+<li>超高收入者有避税手段（股权激励、个人工作室、境外收入）</li>
+<li><strong>中间这层人</strong>：没有避税工具，五险一金实打实缴，个税阶梯正好在最陡的区间</li>
+</ul>
+<p>他们是整个系统的净供血者：赚得够多所以被扣得重，但又不够多所以没法跑。</p>
+<hr>
+<h3 id="第四部分：同样的劳动，在香港值多少？"><a href="#第四部分：同样的劳动，在香港值多少？" class="headerlink" title="第四部分：同样的劳动，在香港值多少？"></a>第四部分：同样的劳动，在香港值多少？</h3><table>
+<thead>
+<tr>
+<th></th>
+<th>深圳</th>
+<th>香港</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>企业总成本</td>
+<td><strong>53661人民币</strong></td>
+<td><strong>34600人民币</strong></td>
+</tr>
+<tr>
+<td>员工到手</td>
+<td>29064人民币</td>
+<td>29560人民币</td>
+</tr>
+<tr>
+<td>系统抽走比例</td>
+<td>46%</td>
+<td>12%</td>
+</tr>
+</tbody></table>
+<p><strong>同样的产出，同样的到手收入，深圳企业比香港企业多付55%的成本。</strong></p>
+<p>这多出来的55%，员工一分钱没多拿。全部被系统吃了。</p>
+<p>这意味着什么？</p>
+<ul>
+<li>企业为了控制成本，要么压低你的名义工资，要么用外包绕过社保，要么让一个人干三个人的活</li>
+<li>这三件事，正在中国大陆同时大规模发生</li>
+<li>不是老板黑心，是制度成本逼出来的</li>
+</ul>
+<hr>
+<h3 id="第五部分：为什么没人告诉你这些"><a href="#第五部分：为什么没人告诉你这些" class="headerlink" title="第五部分：为什么没人告诉你这些"></a>第五部分：为什么没人告诉你这些</h3><p><strong>原因一：企业不会告诉你</strong></p>
+<p>如果你知道老板实际为你花了41100，你可能会觉得”我应该拿更多”。所以工资条上只写税前30000，企业缴纳的部分从来不出现在你的视野里。</p>
+<p><strong>原因二：政府不会强调这些</strong></p>
+<p>因为这笔钱是维持养老体系运转的命脉。如果年轻人都知道自己交的钱在养别人的爷爷奶奶，而且自己退休时大概率拿不到同等回报，社会合意性就崩了。</p>
+<p><strong>原因三：你周围的人也不知道</strong></p>
+<p>大多数人从来没算过这笔账。他们只看到手工资，不知道企业成本，不知道系统抽了多少，更没有跨地区对比的参照系。</p>
+<p>信息不对称是维持系统运转的前提条件之一。</p>
+<hr>
+<h3 id="第六部分：这对你的人生决策意味着什么"><a href="#第六部分：这对你的人生决策意味着什么" class="headerlink" title="第六部分：这对你的人生决策意味着什么"></a>第六部分：这对你的人生决策意味着什么</h3><p><strong>如果你是打工人：</strong></p>
+<ul>
+<li>你的真实收入不是工资条上的数字，而是”企业为你花的总成本 × 你能到手的比例”</li>
+<li>在大陆，这个比例是54-57%。意味着你近一半的劳动成果被系统截留</li>
+<li>涨薪1万的实际感受只有涨薪5500左右（个税阶梯+社保同步上涨）</li>
+</ul>
+<p><strong>如果你在考虑工作地点：</strong></p>
+<ul>
+<li>同样的能力，在香港&#x2F;新加坡的税后收入比大陆高40-60%</li>
+<li>不是因为那边工资高，而是中间抽水的人少</li>
+<li>这个差距随收入增长而扩大</li>
+</ul>
+<p><strong>如果你在考虑要不要交社保：</strong></p>
+<p>这是个人决策，我不替你做。但你应该知道的事实是：</p>
+<ul>
+<li>养老金是现收现付，不是你的储蓄</li>
+<li>未来的回报取决于人口结构，而人口结构正在崩塌</li>
+<li>公积金是你的，但被强制低息锁定</li>
+<li>医保有保障价值，但统筹部分不属于你</li>
+</ul>
+<p>把这些信息摊开之后，每个人可以根据自己的情况做判断。我的选择是离开这个系统。你的选择取决于你的约束条件。</p>
+<hr>
+<h3 id="结尾"><a href="#结尾" class="headerlink" title="结尾"></a>结尾</h3><p>回到开头的那个数字：<strong>46%。</strong></p>
+<p>你每创造100块钱的价值，有46块被一个你无法选择、无法谈判、无法退出的系统拿走。这些钱的去向是：养现在的退休老人、维持一个正在失血的医保池子、以及存在一个利率跑不赢通胀的公积金账户里。</p>
+<p>这不是阴谋论，不是抱怨，只是一道算术题。</p>
+<p>当你下次听到有人说”年轻人不努力””为什么不消费””为什么不结婚生孩子”的时候，请让他们先看看这道算术题：</p>
+<p><strong>企业愿意为你付41100，你只拿到22210。</strong></p>
+<p>差额去了哪里，你知道了。</p>
+<p>至于你要不要继续待在这个系统里——这是你自己的选择。但至少，你应该是在知道真相之后做的选择，而不是在信息不对称中被默默收割。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/View/">View</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/15/328755136.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">同一个公式：医生、教师、女性、年轻人</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/15/755829001.html">
+                        <span class="hidden-mobile">时代红利是电梯，不是你的腿：为什么长辈的"成功经验"正在害死年轻人</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "你的工资条上没写的数字"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>
