@@ -1,0 +1,672 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>大家都是聪明人（二） - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="大家都是聪明人（二）">
+                      
+                        大家都是聪明人（二）
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-06-16 20:53" pubdate>
+        2026年6月16日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.3k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      33
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">大家都是聪明人（二）</h1>
+            
+            <div class="markdown-body">
+              <p>上一篇： <a href="https://whale3070.github.io/2025/04/29/58558.html">大家都是聪明人</a></p>
+<h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>系统对女性的期待是这样的：</p>
+<figure class="highlight"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs">年轻漂亮 → 结婚 → 生孩子 → 带孩子 → 没社保没五险一金 →  老后破产<br>全程免费劳动，全程没有属于自己的东西。<br></code></pre></div></td></tr></table></figure>
+
+<p>但如果一个女性意识到自己手里握着稀缺资源呢？</p>
+<p>全中国满足”年轻+漂亮+本科+愿意结婚”条件的女性大约60-70万。而想要她们的男性有6000万。供需比1:100。</p>
+<p>当你手握1:100的稀缺资源时，你有两种选择：</p>
+<p>A. 按系统的剧本走：结婚生孩子，免费交出资源，换来一个不确定的未来<br>B. 按自己的剧本走：利用稀缺性，最大化自己的收益，最小化自己的风险</p>
+<p>越来越多的女性选了B。这不是”捞女”，这是博弈论。</p>
+<hr>
+<h2 id="第一部分：系统要求你牺牲"><a href="#第一部分：系统要求你牺牲" class="headerlink" title="第一部分：系统要求你牺牲"></a>第一部分：系统要求你牺牲</h2><p>社会对年轻漂亮女性的默认剧本：</p>
+<p>22岁：毕业，找工作<br>25岁：谈恋爱，被催婚<br>27岁：结婚，收彩礼（但大部分回流到男方家庭）<br>28岁：生第一个孩子，辞职或降薪<br>30岁：生第二个孩子，彻底退出职场<br>32岁：全职带娃，社交圈萎缩<br>35岁：老公开始嫌你黄脸婆<br>40岁：可能被离婚，净身出户</p>
+<p>20年时间，换来了什么？</p>
+<ul>
+<li>没有收入</li>
+<li>没有技能</li>
+<li>没有属于自己的资产</li>
+<li>身体损耗不可逆</li>
+<li>随时可能被替换</li>
+</ul>
+<p>这个剧本的本质是：<strong>用你最值钱的十年（20-30岁），免费为别人的家族生产后代。</strong></p>
+<p>系统不会告诉你这些。系统只会告诉你”婚姻是幸福的归宿””母爱是伟大的””女人的价值在于家庭”。</p>
+<p>但大家都是聪明人。</p>
+<hr>
+<h2 id="第二部分：上有政策，下有对策"><a href="#第二部分：上有政策，下有对策" class="headerlink" title="第二部分：上有政策，下有对策"></a>第二部分：上有政策，下有对策</h2><p>当越来越多的女性看清了这个剧本，她们开始用自己的方式反击。</p>
+<h3 id="策略一：结婚但不生孩子"><a href="#策略一：结婚但不生孩子" class="headerlink" title="策略一：结婚但不生孩子"></a>策略一：结婚但不生孩子</h3><p>合法吗？完全合法。<br>违反婚姻法吗？不违反。生育是自愿的。<br>可以拖多久？理论上可以拖到绝经。</p>
+<p>她得到了什么：</p>
+<ul>
+<li>婚后财产分割权（法律保障）</li>
+<li>婚前大额赠与（彩礼、房、车）</li>
+<li>稳定的生活保障</li>
+<li>随时离婚的退出权</li>
+</ul>
+<p>她付出了什么：</p>
+<ul>
+<li>时间和陪伴</li>
+<li>但没有付出身体（不生育）</li>
+<li>没有付出职业（可以继续工作）</li>
+<li>没有不可逆的损失</li>
+</ul>
+<p>这是捞女吗？<br>不是。她结婚了，履行了婚姻义务（同居、忠诚）。<br>生育是自愿的，法律从未规定结婚必须生孩子。</p>
+<p>我见过一个漂亮女生，男朋友出了事，她第二天就消失了。行李都没拿。朋友圈直接清空。很多人骂她无情。</p>
+<p>但我想的是另一件事：她的资源是什么？年轻和漂亮。这个资源有保质期吗？有。每过一年都在贬值。她把最好的几年投入在一个人身上，那个人现在出事了，她所有的”投资”全部归零。如果她继续留下来，用正在贬值的剩余青春去等一个不确定的结果——这个账怎么算都是亏的。</p>
+<p>她残忍吗？残忍。但她不傻。</p>
+<p>还有一类女性，走了一条更隐蔽的路：结婚，但不生孩子。</p>
+<p>这是犯法吗？不是。生育是自愿的。没有任何法律规定结婚后必须生育。婚前拿到的大额赠与——彩礼、三金、转账——在法律上属于赠与，离婚时不退还。婚后的财产积累对半分。</p>
+<p>她什么都没做”错”。她只是在一个对她不公平的系统里，用系统自己的规则反过来博弈。</p>
+<p>有人说这是捞女。我觉得不是。捞女是用虚假承诺骗取金钱。而结婚是真实的，赠与是双方自愿的，不生孩子是合法的权利。你可以不喜欢这个策略，但你不能说它违法或不道德。</p>
+<p>为什么她要这样做？因为系统给她的其他选项都是坏选项：</p>
+<p>生三个孩子？职业生涯报废，损失百万-千万以上（取决于她个人的生产力）。<br>当全职太太？十年后可能被出轨净身出户。<br>不结婚自己过？职场性别歧视让她赚得比男性少。</p>
+<p>她用自己的稀缺性（年轻漂亮愿意结婚）换取了经济保障，同时拒绝交出最贵的那个部分（生育）。</p>
+<p>在一个生育成本完全由女性承担的社会里，这是完全理性的选择。</p>
+<h3 id="策略二：拿到大额赠与再做决定"><a href="#策略二：拿到大额赠与再做决定" class="headerlink" title="策略二：拿到大额赠与再做决定"></a>策略二：拿到大额赠与再做决定</h3><p>男性为什么愿意给大额赠与（彩礼、房、车）？<br>因为他在和其他男性竞争。</p>
+<p>供需比1:100<br>→ 100个男性竞争1个子宫外挂<br>→ 出价低的被淘汰<br>→ 价格被竞争推高</p>
+<p>他不给？有的是人给。<br>这不是女性贪心，这是市场定价。</p>
+<h3 id="策略三：看到风险就跑"><a href="#策略三：看到风险就跑" class="headerlink" title="策略三：看到风险就跑"></a>策略三：看到风险就跑</h3><p>我见过的真实案例：</p>
+<p>一个漂亮女生，男朋友出了事，她立刻跑了。</p>
+<p>有人骂她”拜金””没有感情”。</p>
+<p>但用博弈论看：<strong>当你发现交易对手的支付能力崩塌时，及时止损是唯一理性的选择。</strong> 你在股市不也是这么做的吗？</p>
+<p>另一个案例：男朋友花了几十万追她，她始终不结婚。</p>
+<p>有人骂她”骗钱”。</p>
+<p>但她没有承诺过任何东西。花钱是他自愿的。他在用钱竞标，她在观察他是否值得选择。最后她觉得不值得，没有成交。拍卖行里流拍了，你不能怪拍品”骗”了竞拍者。</p>
+<hr>
+<h2 id="第三部分：男性同事花了几十万也没结婚"><a href="#第三部分：男性同事花了几十万也没结婚" class="headerlink" title="第三部分：男性同事花了几十万也没结婚"></a>第三部分：男性同事花了几十万也没结婚</h2><p>我在技术行业见过的真实案例：</p>
+<p>一个信安行业的男同事，花了几十万追女生，最终没结婚。</p>
+<p>他的处境：</p>
+<ul>
+<li>月薪2-3万</li>
+<li>行业下行</li>
+<li>有房贷</li>
+<li>花了几十万后存款见底</li>
+<li>女方没有和他结婚</li>
+</ul>
+<p>他觉得自己被骗了。</p>
+<p>但实际发生了什么？</p>
+<ul>
+<li>他在用钱竞标一个稀缺资源</li>
+<li>出价不够高（或者条件不够好）</li>
+<li>对方选了更好的选项</li>
+<li>市场竞争，他输了</li>
+</ul>
+<p>这不是骗，这是市场。因为他还有一个选择，就是恋爱AA制，绝不给女性花钱。</p>
+<p>我也想对男性说一句公道话。<br>不是所有男性都必须去那个1:100的热门市场里搏杀。有些人看清了这一点，选择了另一条路。<br>我见过有男生条件很普通。</p>
+<p>他没有去追那些最漂亮最年轻的女生。他找了一个长相普通、年纪偏大、但性格很好的女生。</p>
+<p>那个女生之前的恋爱经历不太好，有点缺爱。</p>
+<p>他就很稳定地对她好——不是砸钱的那种好，是每天接她下班、记住她说过的每一句话、她生病时请假陪她去医院的那种好。</p>
+<p>半年后他们在一起了。没有彩礼大战，没有几十万的竞标，没有谁觉得谁”配不上”。<br>为什么这个策略有效？</p>
+<p>因为他换了一个市场。他不在1:100的红海里卷，他去了一个竞争者很少的地方。在那个市场里，”真心”和”稳定”本身就是稀缺品。当大多数男性都在用钱砸那些最热门的女性时，一个愿意用时间和真心经营关系的普通男性，反而成了差异化优势。</p>
+<hr>
+<h2 id="第四部分：刘佳刘佳，宜家宜室"><a href="#第四部分：刘佳刘佳，宜家宜室" class="headerlink" title="第四部分：刘佳刘佳，宜家宜室"></a>第四部分：刘佳刘佳，宜家宜室</h2><p>网上有个梗：一个房地产中介叫刘佳，不要房产彩礼，首付她出，男方只需要还房贷。</p>
+<p>表面看：天上掉馅饼，不要彩礼还帮你出首付！<br>实际看：她是卖方（房地产商）的代理人</p>
+<p>她的真实目的：</p>
+<ul>
+<li>不是嫁给你</li>
+<li>是让你买一套房</li>
+<li>首付她”出”（其实是开发商让利的营销成本）</li>
+<li>你背30年贷款</li>
+<li>开发商赚了，银行赚了</li>
+<li>你以为自己娶了老婆买了房</li>
+<li>实际上你只是签了30年的奴隶契约</li>
+</ul>
+<p>这个案例完美说明了：<br>当男性被”成家”的执念控制时，他会为此做出任何不理性的决策。<br>卖方（开发商、女性、中介）只需要利用这个执念就够了。</p>
+<p>刘佳的本质是什么？是<strong>房地产商发现了男性”传宗接代必须有房”这个心理弱点，然后把卖房包装成了”帮你成家”。</strong></p>
+<hr>
+<h2 id="第五部分：博弈论分析"><a href="#第五部分：博弈论分析" class="headerlink" title="第五部分：博弈论分析"></a>第五部分：博弈论分析</h2><h3 id="男性的困境"><a href="#男性的困境" class="headerlink" title="男性的困境"></a>男性的困境</h3><p>男性的需求：年轻漂亮的妻子+后代<br>市场的供给：极度稀缺（1:100）<br>他的选择：<br>A. 出高价（彩礼+房+车+工资卡）→ 可能成交<br>B. 出低价 → 被市场淘汰<br>C. 退出市场 → 没有后代</p>
+<p>大多数男性的选择：咬牙出高价<br>但高价出了也不保证结果：</p>
+<ul>
+<li>女方可能不生孩子</li>
+<li>女方可能拖着观察</li>
+<li>女方可能最终离婚分财产</li>
+</ul>
+<h3 id="女性的优势"><a href="#女性的优势" class="headerlink" title="女性的优势"></a>女性的优势</h3><p>当你拥有1:100的稀缺资源时：</p>
+<ul>
+<li>你是卖方，他们是买方</li>
+<li>你定价，他们竞标</li>
+<li>你可以同时看多个offer</li>
+<li>你可以随时拒绝不满意的</li>
+<li>你不着急，时间站在你这边（反正有100个人在排队）</li>
+</ul>
+<p>而且：</p>
+<ul>
+<li>结婚是合法的</li>
+<li>不生孩子是合法的</li>
+<li>收彩礼是合法的</li>
+<li>离婚分财产是合法的</li>
+</ul>
+<p>全程合法。全程理性。全程没有欺骗任何人。</p>
+<h3 id="系统的崩溃"><a href="#系统的崩溃" class="headerlink" title="系统的崩溃"></a>系统的崩溃</h3><p>当大量女性都这么做：</p>
+<ul>
+<li>男性出了高价但得不到后代</li>
+<li>生育率继续下跌</li>
+<li>房价因为”结婚买房”的需求被人为推高（刘佳模式）</li>
+<li>男性的经济被婚恋市场榨干</li>
+<li>更加没钱养孩子</li>
+<li>生育率进一步下跌</li>
+</ul>
+<p>这是一个正反馈循环：<br>社会期待女性生育免费 → 部分女性选择退出婚恋 → 愿意结婚生子的女性变得稀缺  →  稀缺导致价格上涨 → 男性负担不起<br>→ 更多男性退出 → 少子化，女婴人数减少 → 女性稀缺性进一步上升 </p>
+<hr>
+<h2 id="第六部分：这是”捞女”吗？"><a href="#第六部分：这是”捞女”吗？" class="headerlink" title="第六部分：这是”捞女”吗？"></a>第六部分：这是”捞女”吗？</h2><p>捞女的定义：欺骗感情，骗取钱财<br>这些女性做的：明码标价，公开博弈</p>
+<p>区别在于：</p>
+<ul>
+<li>捞女：假装爱你，骗你的钱</li>
+<li>理性女性：我不一定爱你，但我愿意和你合作，条件是……</li>
+</ul>
+<p>后者不是骗，是谈判。<br>商业世界每天都在发生这样的谈判。<br>只有在婚恋领域，女性理性地谈条件才会被骂”捞”。</p>
+<p>为什么？<br>因为系统预设了”女性应该无私奉献”。<br>当女性不再无私奉献，系统就给她贴标签：捞女、拜金、不配。</p>
+<p>但标签改变不了供需关系。<br>骂不骂，市场价就在那里。</p>
+<hr>
+<h2 id="结尾"><a href="#结尾" class="headerlink" title="结尾"></a>结尾</h2><p>当系统要求你牺牲青春、健康、职业、自由去免费生产后代时，你有三种选择：</p>
+<ol>
+<li>服从：按剧本走，赌一个不确定的未来</li>
+<li>退出：不婚不育，自己赚自己花（我的选择）</li>
+<li>反击：利用稀缺性，最大化自己的收益</li>
+</ol>
+<p>三种都是合法的。三种都是理性的。<br>区别只在于你的风险偏好和手里的牌。</p>
+<p>系统不会崩溃是因为有人在无私奉献。系统会崩溃是因为越来越少的人愿意无私奉献。</p>
+<p>当最后一个”无私奉献”的女性也学会了博弈论，生育率就会到达真正的零点。</p>
+<p><strong>这不是女性的错。这是系统拒绝为生育付费的必然结果。</strong></p>
+<p>所以现在的博弈均衡是什么样的？</p>
+<p>聪明的女性不再免费交出生育能力。她要么不生，要么要价格。<br>聪明的男性不再盲目竞标。他要么退出，要么换赛道。</p>
+<p>热门市场的成交量暴跌——只有极少数高净值男性能玩得起。<br>非热门市场靠真心匹配的也是少数。<br>大量人选择退出。</p>
+<p>结婚率每年下降。生育率继续跌。这不是因为年轻人”自私”或”不负责任”。这是因为所有参与者都变得理性了。</p>
+<p>一个建立在”女性免费生育”假设上的系统，当女性不再免费的那一天，就注定崩塌。</p>
+<p>一个建立在”男性必须为婚房掏空积蓄”假设上的系统，当男性拒绝掏空的那一天，也同样崩塌。</p>
+<p>这不是谁对谁错的问题。这是一个系统拒绝承认生育有真实成本、拒绝让所有人公平分担这个成本的必然后果。</p>
+<p>上有政策，下有对策。</p>
+<p>当系统要求人牺牲，但又不给补偿——大家都是聪明人。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/View/">View</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/29/3063838246.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">AI-API竞品分析</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/16/4027771337.html">
+                        <span class="hidden-mobile">我们可以继续假装生育是免费的</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "大家都是聪明人（二）"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>
