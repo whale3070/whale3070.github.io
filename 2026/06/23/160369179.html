@@ -1,0 +1,550 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>SOC - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="SOC">
+                      
+                        SOC
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-06-23 07:09" pubdate>
+        2026年6月23日 早上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.6k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      37
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">SOC</h1>
+            
+            <div class="markdown-body">
+              <p><a target="_blank" rel="noopener" href="https://app.letsdefend.io/training/lesson_detail/introduction-to-soc">https://app.letsdefend.io/training/lesson_detail/introduction-to-soc</a></p>
+<p>如果你想成为一名安全运营中心分析师<br>如果你的职业目标是成为一名 SOC 分析师，我们建议你重点关注 SIEM、日志管理和 EDR 等 SOC 工具，并做好笔记。</p>
+<p>完成本课程后，您可以继续学习更高级的技术课程。但是，您应该先从本课程开始。</p>
+<h1 id="SOC类型和角色"><a href="#SOC类型和角色" class="headerlink" title="SOC类型和角色"></a>SOC类型和角色</h1><p>什么是SOC？<br>安全运营中心 (SOC) 是一个设施，信息安全团队在此持续监控和分析组织的安全状况。SOC 团队的主要目的是利用技术、人员和流程来检测、分析和应对网络安全事件。</p>
+<p>片上系统 (SOC) 模型类型<br>根据您的安全需求和预算，有几种类型的安全运营中心 (SOC)：</p>
+<p>内部安全运营中心<br>当一个组织组建网络安全团队时，就会成立这个团队。考虑建立内部安全运营中心 (SOC) 的组织应该有预算来支持其持续运作。</p>
+<p>虚拟SOC<br>这种类型的安全运营中心团队没有固定办公地点，经常在不同地点远程办公。</p>
+<p>共同管理的安全运营中心<br>联合管理型安全运营中心（Co-Managed SOC）由内部安全运营中心人员与外部托管安全服务提供商（MSSP）合作组成。在这种模式下，协调至关重要。</p>
+<p>指挥安全办公室<br>这个安全运营中心（SOC）团队负责监管大区域内的各个小型安全运营中心。采用这种模式的机构包括大型电信运营商和国防机构。</p>
+<p>人员、流程和技术<br>构建一个成功的安全运营中心（SOC）需要周密的协调。最重要的是，人员、流程和技术之间必须建立紧密的联系。</p>
+<p>简而言之，我们将讨论SOC所需的人员、流程和技术。</p>
+<p>人们<br>一支强大的安全运营中心 (SOC) 团队需要训练有素、熟悉安全警报和攻击场景的人员。由于攻击类型不断变化，因此需要能够轻松适应新型攻击并愿意进行研究的团队成员。</p>
+<p>流程<br>为了进一步完善您的安全运营中心 (SOC) 架构，您需要使其符合多种不同的安全要求，例如 NIST、PCI 和 HIPAA。所有流程都需要高度标准化，以确保万无一失。</p>
+<p>技术<br>团队需要针对渗透测试、检测、预防和分析等诸多任务配备不同的产品，并且需要密切关注市场和技术动态，以找到最适合组织的解决方案。有时，市场上最好的产品可能并不一定最适合您的团队。请记住，还要考虑其他因素，例如组织的预算。</p>
+<p>SOC角色<br>安全运营中心分析师<br>根据安全运营中心 (SOC) 的架构，该角色可分为 1 级、2 级和 3 级。安全分析师负责对警报进行分类、查找原因并提供补救建议。</p>
+<p>事件响应人员<br>事件响应官是负责威胁检测的人员。该职位负责对安全漏洞进行初步评估。</p>
+<p>威胁猎手<br>威胁猎手是网络安全专业人员，他们主动寻找并调查组织网络或系统中的潜在威胁和漏洞。他们结合人工和自动化技术，检测、隔离和缓解高级持续性威胁 (APT) 以及其他可能绕过传统安全措施的复杂攻击。威胁猎手通常对组织的 IT 基础设施和安全态势有着深入的了解，并掌握新兴威胁和攻击策略。他们的目标是在威胁造成损害或中断业务之前发现并消除它们。</p>
+<p>安全工程师<br>安全工程师负责维护安全信息和事件管理 (SIEM) 解决方案以及安全运营中心 (SOC) 产品的安全基础设施。例如，安全工程师负责构建 SIEM 与安全编排、自动化和响应 (SOAR) 产品之间的连接。</p>
+<p>SOC 经理<br>安全运营中心（SOC）经理承担预算编制、战略制定、人员管理和运营协调等管理职责。他们处理的是运营问题，而不是技术问题。</p>
+<h1 id="安全运营中心分析师及其职责"><a href="#安全运营中心分析师及其职责" class="headerlink" title="安全运营中心分析师及其职责"></a>安全运营中心分析师及其职责</h1><p>在本节中，我们将讨论什么是安全运营中心（SOC）分析师，他们在安全运营中心团队中的位置，以及该职位的总体职责。在了解该职位的技术细节之前，仔细阅读这些部分非常重要。这样，有志成为安全运营中心分析师的候选人可以了解自己未来的职业发展方向。</p>
+<p>安全运营中心 (SOC) 分析师是第一个调查系统威胁的人员。如果情况需要，他们会将事件上报给主管，以便主管能够缓解威胁。SOC 分析师在 SOC 团队中扮演着重要角色，因为他们是第一个响应威胁的人员。</p>
+<p>成为安全运营中心分析师的优势<br>攻击手段和恶意软件种类繁多，而且每天都在不断增加。作为一名分析师，调查这些不同类型的事件会让你更有乐趣。即使你使用的操作系统、安全产品等相同，由于分析的事件各不相同，工作也不会那么单调乏味。此外，你可能不会每周或每天都遇到这些攻击手段。</p>
+<p>安全运营中心分析师的一天<br>安全运营中心 (SOC) 分析师通常会在一天中审查安全信息和事件管理 (SIEM) 系统中的警报，并确定哪些是真正的威胁。为了得出结论，他们会使用各种安全防护产品，例如端点检测与响应 (EDR)、日志管理和安全运营自动化 (SOAR)。我们将在后续的培训课程中详细解释这些产品的使用原因和方法。</p>
+<p>要成为一名成功的 SOC 分析师，不依赖安全产品，并且能够正确分析 SIEM 警报，您必须具备以下技能和能力。</p>
+<p>操作系统<br>要判断系统中的异常情况，首先需要了解什么是正常情况。例如，Windows 操作系统中包含许多服务，如果不了解哪些服务是正常的或可以被视为正常的 Windows 服务，就很难判断哪些服务可疑。因此，您应该熟悉 Windows&#x2F;Linux 操作系统的工作原理。</p>
+<p>网络<br>首先，在这个岗位上，你将处理大量的恶意IP地址和URL，因此你需要确认网络上没有任何设备试图连接到这些地址。完成这一步后，分析的方向就确定了。</p>
+<p>这一步稍微复杂一些，因为您可能需要在网络上找到潜在的数据泄露点。要完成所有这些操作，您需要了解网络基础知识。</p>
+<p>恶意软件分析<br>在应对大多数威胁时，您很可能会遇到某种恶意软件。为了了解这些恶意程序的真正目的（它们有时会表现出不同的行为来迷惑分析人员），您需要具备恶意软件分析技能。</p>
+<p>至少要确定恶意文件的命令和控制中心是什么，以及是否有设备与该地址通信。</p>
+<p>总的来说，我们已经讨论了什么是安全运营中心（SOC）分析师，该职位有哪些职责，以及SOC分析师需要具备哪些技能。随着课程的深入，还将涵盖技术领域，首先从安全信息和事件管理（SIEM）入手。</p>
+<h1 id="SIEM与分析师关系"><a href="#SIEM与分析师关系" class="headerlink" title="SIEM与分析师关系"></a>SIEM与分析师关系</h1><p>本课将讨论什么是 SIEM，为什么在 SOC 中使用 SIEM，以及 SIEM 与 SOC 分析师的关系。</p>
+<p>什么是SIEM？<br>SIEM 是一种安全解决方案，它结合了安全信息和事件管理，涉及对环境中发生的事件进行实时记录。事件日志记录的最终目的是检测安全威胁。</p>
+<p>总的来说，SIEM产品功能丰富。作为SOC分析师，我们最感兴趣的是那些能够收集和过滤数据并针对可疑事件发出警报的功能。</p>
+<p>例如：如果用户在 Windows 操作系统上尝试在 10 秒内输入 20 次错误密码，则此行为可疑。忘记密码的用户不太可能在如此短的时间内尝试输入这么多次密码。因此，我们创建了一条 SIEM 规则&#x2F;过滤器来检测超过阈值的此类活动。基于此 SIEM 规则，当出现这种情况时，系统将生成警报。</p>
+<p>一些流行的 SIEM 解决方案包括：IBM QRadar、ArcSight ESM、FortiSIEM、Splunk 等。要了解更多信息，您可以访问 LetsDefend 的“监控”页面。</p>
+<p>SOC分析师与SIEM之间的关系<br>尽管 SIEM 解决方案功能丰富，但 SOC 分析师通常只负责跟踪警报。配置和规则关联则由其他团队&#x2F;人员负责。</p>
+<p>如上所述，警报由经过过滤器的数据生成。警报首先由安全运营中心 (SOC) 分析师进行分析。这正是 SOC 分析师在安全运营中心工作的开始。本质上，他们必须判断生成的警报是真实威胁还是误报。</p>
+<p>为了更好地理解，我们回到“监控”页面；如下所示，SIEM 界面上有各种警报。SOC 分析师应借助其他 SOC 产品（例如 EDR、日志管理、威胁情报源等）分析这些警报的详细信息，并最终确定它们是否构成真正的威胁。</p>
+<p>您可以在“主频道”中查看新创建的警报，并将此频道视为共享频道。在此模拟环境中，您的队友不可见，但在实际工作场景中，他们将能够看到此面板。选择要处理的警报后，单击“操作”区域中的“认领”按钮，即可认领该警报并将其定向到“调查频道”。这样，您的队友可以看到您正在处理哪个警报。同时，这也有助于他们了解您已在处理哪些警报，以便他们选择其他警报。这样，您的团队就可以快速查看所有警报。</p>
+<p>点击警报后，即可查看警报详情。这样您就可以收集调查所需的信息（主机名、IP 地址、文件哈希信息等）。</p>
+<p>小贴士<br>请注意，SIEM 系统有时会产生误报。优秀的 SOC 分析师能够识别此类情况并向团队提供反馈，从而提高 SOC 团队的效率。</p>
+<p>例子：<br>假设一个 SIEM 团队制定了一套规则，该规则会针对 URL 地址中包含“union”一词的情况生成警报，并且正在尝试检测 SQL 注入。</p>
+<p>用户使用“<a target="_blank" rel="noopener" href="https://www.google.com/search?q=sql+union+usage%E2%80%9D%E8%BF%9B%E8%A1%8C%E6%90%9C%E7%B4%A2%EF%BC%8CSIEM">https://www.google.com/search?q=sql+union+usage”进行搜索，SIEM</a> 系统随即生成了警报。目前看来，并未发现明显的威胁。该警报的触发原因是 URL 中包含关键词“union”。此类异常情况可以分享给 SIEM 团队，以便优化警报流程。</p>
+<p>结语<br>到目前为止，我们已经介绍了什么是 SIEM、它如何帮助 SOC 分析师以及如何使用它。在课程的后续部分，我们将讨论如何分析 SIEM 中创建的警报。</p>
+<p>最后，作为安全运营中心 (SOC) 分析师，您可以查看安全信息和事件管理 (SIEM) 控制面板：</p>
+<h1 id="日志管理"><a href="#日志管理" class="headerlink" title="日志管理"></a>日志管理</h1><p>作为一名安全运营中心（SOC）分析师，您将进行大量的日志分析。因此，熟悉“日志管理”系统&#x2F;解决方案至关重要。您使用哪种产品并不重要，重要的是要知道要查找什么以及在哪里查找。</p>
+<p>本课的剩余部分将讨论 SOC 分析师如何有效地使用“日志管理”解决方案。</p>
+<p>什么是日志管理？<br>顾名思义，日志管理提供对环境中所有日志（Web 日志、操作系统日志、防火墙日志、代理日志、EDR 日志等）的访问权限，并允许您在一个位置集中管理它们。这可以提高效率并节省时间。</p>
+<p>如果无法从一个地方访问日志，那么相同的请求（例如，目标是确定 letsdefend.io 上的所有用户）就必须发送到不同的设备。这将增加出错的概率，并延长所需时间。</p>
+<p>如果您访问 Let’sDefend 的“日志管理”页面，您会看到代理、Exchange 和防火墙等各种日志源，它们都列在“类型”列表中。这意味着所有这些日志源都已集中到一个位置，只需一次查询即可查看来自代理、防火墙等来源的日志输出。</p>
+<p>日志管理的目的<br>安全运营中心 (SOC) 分析师通常依赖日志管理来确定是否存在与特定地址的通信，并查看通信详情。假设您遇到一段恶意软件，运行后发现它正在与“letsdefend.io”地址通信并执行来自该地址的命令。在这种情况下，“letsdefend.io”是命令与控制中心，您可以在公司日志管理中搜索“letsdefend.io”，查看是否有任何设备尝试与该命令与控制中心通信。</p>
+<p>这就引出了第二种情况：您收到一条 SIEM 警报，指出您网络中的一台 LetsDefendHost 设备正在向 IP 地址 122[.]194[.]229[.]59 泄露数据。您已经进行了调查，将该设备从网络中隔离，执行了必要的流程，现在您已恢复控制。但您仍然遗漏了一个问题：是否有其他设备向可疑 IP 地址 (122[.]194[.]229[.]59) 发送数据？警报可能只包含了 LetsDefendHost，但您仍然应该在日志管理中搜索该可疑地址，看看系统是否遗漏了任何信息，并尝试查找任何关联。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/23/1397647489.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">一些缩写</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/23/197566769.html">
+                        <span class="hidden-mobile">VATP虚拟资产交易平台</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "SOC"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

@@ -1,0 +1,611 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>一些缩写 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="一些缩写">
+                      
+                        一些缩写
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-06-23 07:14" pubdate>
+        2026年6月23日 早上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.3k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      24
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">一些缩写</h1>
+            
+            <div class="markdown-body">
+              <h1 id="SRE部门是什么部门"><a href="#SRE部门是什么部门" class="headerlink" title="SRE部门是什么部门"></a>SRE部门是什么部门</h1><p><strong>SRE部门</strong>，全称是<strong>网站可靠性工程部门（Site Reliability Engineering Department）</strong>，它是一个源自Google、近年来在大型科技公司中越来越受重视的技术部门。可以把它理解为<strong>用软件工程的方法，来系统性解决传统运维（OPS）难题的“高级运维研发部”</strong>。</p>
+<p>它的核心使命不是“保证系统不坏”，而是<strong>在“系统稳定性”与“快速功能迭代”之间找到最佳平衡点</strong>。</p>
+<h3 id="🎯-SRE部门的职责是什么？"><a href="#🎯-SRE部门的职责是什么？" class="headerlink" title="🎯 SRE部门的职责是什么？"></a>🎯 SRE部门的职责是什么？</h3><p>SRE部门的工作可以概括为以下几个核心领域：</p>
+<ul>
+<li><strong>可用性保障</strong>：负责确保关键业务系统的可用性（如99.99%），快速响应并处理故障，进行事后复盘。</li>
+<li><strong>性能与容量规划</strong>：监控系统性能，预判业务增长带来的流量压力，提前扩容或优化。</li>
+<li><strong>变更管理</strong>：审核并安全地发布新代码或配置变更，减少因变更引发的故障。</li>
+<li><strong>自动化与工具开发</strong>：<strong>这是SRE的核心</strong>。通过编写代码，将重复性的运维工作（如环境部署、故障自愈）自动化，替代人工操作。</li>
+<li><strong>运维顾问</strong>：在新系统设计阶段，提供高可用、可扩展架构的建议，从源头提升稳定性。</li>
+</ul>
+<h3 id="⚙️-SRE的核心工作理念"><a href="#⚙️-SRE的核心工作理念" class="headerlink" title="⚙️ SRE的核心工作理念"></a>⚙️ SRE的核心工作理念</h3><p>SRE与传统运维的本质区别，源于以下关键理念：</p>
+<ul>
+<li><strong>用软件工程解决运维问题</strong>：SRE团队由<strong>软件工程师</strong>组成，他们用编码能力去解决本应由人工处理的运维问题，目标是减少手工劳动。</li>
+<li><strong>“错误预算” (Error Budget)</strong>：这是SRE最核心的管理理念。它规定系统在特定周期内允许的“不可用”时间（如99.99%可用性对应每月约4分钟停机）。只要故障时间在“预算”内，团队就可以快速发布新功能；一旦“超标”，就必须暂停发布，优先修复稳定性。这巧妙地将产品开发和稳定性需求统一起来。</li>
+<li><strong>服务水平指标 (SLI) 与目标 (SLO)</strong>：SLI是衡量系统行为的量化指标（如响应时间），SLO是这些指标的目标值。SRE通过监控SLI是否达成SLO，来客观决策是否需要介入。</li>
+</ul>
+<h3 id="🆚-SRE-vs-传统运维-OPS"><a href="#🆚-SRE-vs-传统运维-OPS" class="headerlink" title="🆚 SRE vs. 传统运维 (OPS)"></a>🆚 SRE vs. 传统运维 (OPS)</h3><table>
+<thead>
+<tr>
+<th align="left">维度</th>
+<th align="left"><strong>传统运维 (OPS)</strong></th>
+<th align="left"><strong>SRE (网站可靠性工程)</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>核心方法</strong></td>
+<td align="left">依靠<strong>人工</strong>操作，遵循标准化流程。</td>
+<td align="left">依靠<strong>软件工程和自动化</strong>，用代码管理基础设施（IaC）。</td>
+</tr>
+<tr>
+<td align="left"><strong>关注重点</strong></td>
+<td align="left">保证设备、网络、应用“<strong>稳定运行</strong>”。</td>
+<td align="left">在保证稳定性的同时，<strong>量化并管理“不可用”的时间</strong>。</td>
+</tr>
+<tr>
+<td align="left"><strong>应对故障</strong></td>
+<td align="left">被动响应，按手册人工恢复。</td>
+<td align="left">主动预防，通过设计冗余、混沌工程等让系统<strong>能自愈</strong>。</td>
+</tr>
+<tr>
+<td align="left"><strong>人员技能</strong></td>
+<td align="left">熟悉脚本、操作系统、网络配置。</td>
+<td align="left"><strong>具备软件开发能力</strong>，精通分布式系统、算法、API设计。</td>
+</tr>
+<tr>
+<td align="left"><strong>与开发团队的关系</strong></td>
+<td align="left">通常是<strong>对立</strong>的（开发要“快”，运维要“稳”）。</td>
+<td align="left">是<strong>协作</strong>的，共同为“错误预算”负责。</td>
+</tr>
+</tbody></table>
+<h3 id="📂-SRE部门在企业中的位置"><a href="#📂-SRE部门在企业中的位置" class="headerlink" title="📂 SRE部门在企业中的位置"></a>📂 SRE部门在企业中的位置</h3><p>SRE部门通常是一个独立的团队，隶属于CTO（首席技术官）或技术VP（副总裁）之下。它的组织关系大致如下：</p>
+<pre><code class=" mermaid">flowchart TD
+    CTO[CTO / 技术副总裁]
+
+    subgraph Dev[应用开发部门]
+        D1[产品研发团队]
+        D2[测试团队]
+    end
+
+    subgraph SRE[Site Reliability Engineering&lt;br&gt;（核心：稳定性+效率）]
+        S1[基础设施工程&lt;br&gt;（K8s/容器/网络）]
+        S2[自动化与工具开发&lt;br&gt;（CI/CD/监控平台）]
+        S3[运维值班与应急响应&lt;br&gt;（故障处理/灾备）]
+    end
+
+    subgraph Ops[传统职能]
+        O1[硬件与机房管理&lt;br&gt;（IDC/服务器上下架）]
+    end
+
+    CTO --&gt; Dev
+    CTO --&gt; SRE
+    CTO --&gt; Ops
+
+    SRE -.-&gt;|制定SLO/错误预算| Dev
+    SRE ---|自动化与工具支撑| Ops
+</code></pre>
+
+<h3 id="🏢-谁需要SRE部门？"><a href="#🏢-谁需要SRE部门？" class="headerlink" title="🏢 谁需要SRE部门？"></a>🏢 谁需要SRE部门？</h3><p>SRE并非所有公司都需要，其需求与业务规模相关：</p>
+<ul>
+<li><strong>大型互联网公司</strong>：如Google、Netflix、阿里、腾讯等，用户量巨大，对稳定性要求极高，<strong>必备</strong>SRE团队。</li>
+<li><strong>金融、证券、交易所</strong>：交易系统对延迟和可用性有极致要求，SRE团队是关键保障。</li>
+<li><strong>SaaS服务商</strong>：服务中断直接导致客户流失和收入损失，SRE能有效降低风险。</li>
+<li><strong>中小型初创公司</strong>：在早期，通常由<strong>后端开发或DevOps工程师</strong>兼任SRE职责。当系统复杂度和用户量增长后，才考虑组建独立SRE团队。</li>
+</ul>
+<h3 id="💎-一句话总结"><a href="#💎-一句话总结" class="headerlink" title="💎 一句话总结"></a>💎 一句话总结</h3><p><strong>SRE部门就是一群“懂开发”的高级工程师，通过编写代码和量化管理（错误预算），来确保大规模分布式系统既“跑得快”又“站得稳”的部门。</strong> 它不是一个传统意义上的“后勤运维”，而是与技术开发并重的前沿技术部门。</p>
+<p>如果你想了解SRE与DevOps的具体区别，或者成为一名SRE需要具备哪些技能，可以随时再问我。😊</p>
+<h1 id="fortigate是什么"><a href="#fortigate是什么" class="headerlink" title="fortigate是什么"></a>fortigate是什么</h1><p><strong>FortiGate</strong> 是全球网络安全公司 Fortinet（飞塔）推出的<strong>下一代防火墙（Next-Generation Firewall，NGFW）</strong> 产品系列。它不仅仅是传统意义上的防火墙，更是一个集多种安全功能于一体的综合安全平台，旨在为企业、数据中心和云环境提供高级别的网络防护。</p>
+<h3 id="🎯-核心功能与优势"><a href="#🎯-核心功能与优势" class="headerlink" title="🎯 核心功能与优势"></a>🎯 核心功能与优势</h3><p>与传统防火墙只检查数据包的“源IP、目的IP和端口”不同，FortiGate 作为 NGFW，能深入分析网络流量，识别具体的应用和用户行为。它的关键能力和优势体现在：</p>
+<ul>
+<li><strong>全面的安全功能集成</strong>：在一个设备上集成了多种安全能力，包括<strong>入侵防御系统（IPS）、反病毒、反垃圾邮件、Web过滤、敏感数据防泄漏</strong>等。这避免了部署多个单点安全产品的复杂性和高成本。</li>
+<li><strong>高性能的专用硬件架构</strong>：FortiGate 采用“<strong>多核CPU + 专用芯片</strong>”的架构。其内置的<strong>CP（内容处理器）芯片</strong>用于加速内容检测，<strong>NP（网络处理器）芯片</strong>则用于高速处理网络层数据转发。这种设计使其能提供超高的吞吐量（最高可达80Gbps），例如新型号 <strong>FortiGate 70G</strong> 的IPsec VPN吞吐量是业界平均水平的<strong>11倍</strong>，而能耗却大幅降低。</li>
+<li><strong>AI驱动的智能威胁防护</strong>：FortiGate 能够利用全球威胁情报和人工智能&#x2F;机器学习（AI&#x2F;ML）技术，实时检测并响应高级威胁，如勒索软件和零日漏洞。其内置的生成式AI助手 <strong>FortiAI</strong> 还能帮助安全团队自动分析事件、创建响应剧本，大幅提升运维效率。</li>
+<li><strong>强大的网络与VPN能力</strong>：除了安全功能，它还提供强大的路由能力（支持静态路由、OSPF、BGP等），并支持 <strong>IPsec VPN</strong> 和 <strong>SSL VPN</strong>，方便构建安全的远程访问和站点到站点连接。</li>
+<li><strong>高可靠性</strong>：支持 <strong>VRRP</strong> 和更高级的 <strong>HA（高可用性）</strong> 技术，可实现主备或主主模式，确保网络连接的稳定。</li>
+</ul>
+<h3 id="🗂️-产品系列与部署形态"><a href="#🗂️-产品系列与部署形态" class="headerlink" title="🗂️ 产品系列与部署形态"></a>🗂️ 产品系列与部署形态</h3><p>FortiGate 拥有非常丰富的产品线，可以部署为硬件、虚拟化或云服务等多种形态，以适应不同规模和应用场景：</p>
+<ul>
+<li><strong>桌面设备 (Desktop)</strong>：面向小型办公、远程办公和零售店等场景。代表型号有 <strong>FortiGate 30G, 40F, 60F</strong> 等。</li>
+<li><strong>中端设备 (Mid-Range)</strong>：为中小企业和企业分支机构设计，提供高性价比的解决方案。代表型号包括 <strong>FortiGate 100F, 200F, 400F</strong> 等。</li>
+<li><strong>高端设备 (High-End)</strong>：面向大型企业、数据中心和服务提供商，提供超高性能和扩展性。代表型号有 <strong>FortiGate 6000F, 6300F, 7000E</strong> 系列等。</li>
+<li><strong>工规级设备 (Rugged)</strong>：专门为<strong>工业控制系统（OT）</strong> 和<strong>任务关键型</strong>的恶劣环境设计，具备更强的耐用性和抗干扰能力。</li>
+<li><strong>虚拟化和云原生形态</strong>：除了硬件设备，FortiGate 也提供 <strong>虚拟机（VM）</strong> 和 <strong>云原生防火墙（CNF）</strong> 形态，可以部署在 AWS、Azure、Google Cloud 等主流公有云上，实现统一的安全策略。</li>
+<li><strong>防火墙即服务 (FGaaS)</strong>：Fortinet 还提供 <strong>FortiGate 即服务（FGaaS）</strong>，这是一种在Fortinet数据中心以服务形式提供的NGFW，支持按需付费。</li>
+</ul>
+<h3 id="🌐-市场地位与生态系统"><a href="#🌐-市场地位与生态系统" class="headerlink" title="🌐 市场地位与生态系统"></a>🌐 市场地位与生态系统</h3><p>FortiGate 是全球<strong>部署最广泛的网络防火墙</strong>，据称拥有超过<strong>50%的全球市场份额</strong>。它是 Fortinet 提出的 <strong>Security Fabric（安全织网）</strong> 安全平台的核心组件，能够与 Fortinet 的其他安全产品（如SD-WAN、交换机、无线接入点等）无缝集成，实现<strong>全网统一的自动化威胁检测与响应</strong>。</p>
+<p>总的来说，FortiGate 不仅是一款高性能的下一代防火墙，更是 Fortinet 构建统一、智能安全生态系统的核心，为各种规模的组织提供从边缘到云端的全面防护。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/jargon/">jargon</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/23/2722503303.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">立Flag就会被打脸</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/23/160369179.html">
+                        <span class="hidden-mobile">SOC</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "一些缩写"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>
