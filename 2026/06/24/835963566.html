@@ -1,0 +1,785 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>养儿防老：一场精算不过关的幻觉 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="养儿防老：一场精算不过关的幻觉">
+                      
+                        养儿防老：一场精算不过关的幻觉
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-06-24 08:11" pubdate>
+        2026年6月24日 早上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.6k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      27
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">养儿防老：一场精算不过关的幻觉</h1>
+            
+            <div class="markdown-body">
+              <h2 id="一、一个古老的承诺"><a href="#一、一个古老的承诺" class="headerlink" title="一、一个古老的承诺"></a>一、一个古老的承诺</h2><p>“养儿防老”——这四个字在中国流传了几千年，像一份口头契约：我养你长大，你养我到老。</p>
+<p>但这份契约没有签字，没有公证，没有违约金，甚至连条款都没有写清楚。它唯一的执行力，来自一个假设：你的孩子一定会孝顺、一定会有钱、一定会愿意把资源分给你。</p>
+<p>这个假设成立吗？</p>
+<h2 id="二、算一笔账"><a href="#二、算一笔账" class="headerlink" title="二、算一笔账"></a>二、算一笔账</h2><h3 id="有多大概率获得自己想要的养儿防老？-11"><a href="#有多大概率获得自己想要的养儿防老？-11" class="headerlink" title="有多大概率获得自己想要的养儿防老？ 11%"></a>有多大概率获得自己想要的养儿防老？ 11%</h3><p>这个很难给出精确概率，但可以拆开来估算一下每个条件的大致情况：</p>
+<p><strong>三个条件逐个看</strong></p>
+<ol>
+<li>“成才”（有稳定收入，能养活自己）</li>
+</ol>
+<ul>
+<li>中国青年失业率近几年在15-20%区间波动</li>
+<li>即便就业了，大城市年轻人自己活着都紧巴巴，房贷车贷已经压满</li>
+<li>能养活自己还有余力的，乐观估计60-70%</li>
+</ul>
+<ol start="2">
+<li>“孝顺”（愿意给父母花钱花时间）</li>
+</ol>
+<ul>
+<li>这个没有硬数据，但愿意持续稳定给父母转钱、定期陪伴的，体感上不到一半</li>
+<li>很多人不是不孝顺，是心有余力不足</li>
+</ul>
+<ol start="3">
+<li>“有能力反哺”（有钱有时间有条件照顾你）</li>
+</ol>
+<ul>
+<li>既有钱、又有时间、还住得近、愿意付出——这四个同时满足的比例很低</li>
+<li>乐观估计30-40%</li>
+</ul>
+<p><strong>三个条件同时满足的概率</strong></p>
+<p>如果粗略按 0.65 × 0.5 × 0.35 来算，大约是 11% 左右。</p>
+<p>也就是说单个孩子能实现”养儿防老”完整剧本的概率，大概十分之一。</p>
+<p><strong>“生两个提高概率”的逻辑</strong></p>
+<p>两个孩子至少一个满足的概率：1 -（1-0.11）² ≈ 21%</p>
+<p>好一点了，但依然是五分之一不到。而且别忘了：</p>
+<ul>
+<li>养两个孩子的成本翻倍</li>
+<li>两个孩子之间可能互相推诿（”你管吧””不是还有哥&#x2F;弟吗”）</li>
+<li>多子女家庭因为遗产和赡养分配反目的案例大量存在</li>
+</ul>
+<p><strong>对比方案</strong></p>
+<p>把养两个孩子的钱（保守估计150-300万）做任何一种长期投资或者买商业养老保险，20年后的确定性远高于21%。</p>
+<p><strong>结论</strong></p>
+<p>“养儿防老”是一个期望收益低、方差极大、且本金不可回收的投资。生两个不过是把一次赌博变成两次赌博，赔率本身没有变好。</p>
+<h3 id="养育成本-vs-回报"><a href="#养育成本-vs-回报" class="headerlink" title="养育成本 vs 回报"></a>养育成本 vs 回报</h3><p><strong>假设条件</strong></p>
+<ul>
+<li>坐标：中国二三线城市</li>
+<li>孩子从出生养到22岁（大学毕业）</li>
+<li>父母60岁开始需要养老，活到80岁</li>
+<li>只算经济账，不算情感</li>
+</ul>
+<hr>
+<p><strong>一、养育成本投入</strong></p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>年均支出</th>
+<th>年数</th>
+<th>小计</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0-6岁（奶粉、托育、衣物）</td>
+<td>3-5万</td>
+<td>6</td>
+<td>24万</td>
+</tr>
+<tr>
+<td>6-18岁（教育、生活、兴趣班）</td>
+<td>4-6万</td>
+<td>12</td>
+<td>60万</td>
+</tr>
+<tr>
+<td>18-22岁（大学学费+生活费）</td>
+<td>4-5万</td>
+<td>4</td>
+<td>18万</td>
+</tr>
+<tr>
+<td>婚房首付（二三线）</td>
+<td>—</td>
+<td>—</td>
+<td>30-50万</td>
+</tr>
+<tr>
+<td>彩礼&#x2F;婚礼</td>
+<td>—</td>
+<td>—</td>
+<td>10-20万</td>
+</tr>
+</tbody></table>
+<p><strong>总投入：约150-170万</strong>（保守估计，不含一线城市溢价）</p>
+<hr>
+<p><strong>二、”养儿防老”的预期回报</strong></p>
+<p>假设儿子孝顺且有能力，每月给父母2000-3000元：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>月给付</th>
+<th>年限（60-80岁）</th>
+<th>总回报</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>乐观（每月3000）</td>
+<td>3000</td>
+<td>20年</td>
+<td>72万</td>
+</tr>
+<tr>
+<td>中等（每月1500）</td>
+<td>1500</td>
+<td>20年</td>
+<td>36万</td>
+</tr>
+<tr>
+<td>现实（逢年过节给点）</td>
+<td>约500&#x2F;月均</td>
+<td>20年</td>
+<td>12万</td>
+</tr>
+</tbody></table>
+<hr>
+<p><strong>三、概率加权后的期望回报</strong></p>
+<table>
+<thead>
+<tr>
+<th>情况</th>
+<th>概率</th>
+<th>回报</th>
+<th>期望值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>孝顺+有钱+愿意给</td>
+<td>11%</td>
+<td>72万</td>
+<td>7.9万</td>
+</tr>
+<tr>
+<td>孝顺但钱不多</td>
+<td>25%</td>
+<td>36万</td>
+<td>9万</td>
+</tr>
+<tr>
+<td>偶尔给点意思一下</td>
+<td>30%</td>
+<td>12万</td>
+<td>3.6万</td>
+</tr>
+<tr>
+<td>不给&#x2F;啃老&#x2F;失联</td>
+<td>34%</td>
+<td>0或负数</td>
+<td>0</td>
+</tr>
+</tbody></table>
+<p><strong>概率加权期望回报：约20.5万</strong></p>
+<hr>
+<p><strong>四、ROI计算</strong></p>
+<p>ROI &#x3D;（回报 - 投入）&#x2F; 投入 × 100%</p>
+<p>ROI &#x3D;（20.5万 - 160万）&#x2F; 160万 × 100% &#x3D; <strong>-87%</strong></p>
+<hr>
+<p><strong>五、对比方案：同样160万做投资</strong></p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>年化</th>
+<th>20年后（60岁时）</th>
+<th>可支撑养老年限</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>定期存款</td>
+<td>2.5%</td>
+<td>约260万</td>
+<td>每月1万花26年</td>
+</tr>
+<tr>
+<td>指数基金定投</td>
+<td>7%</td>
+<td>约430万</td>
+<td>每月1.5万花24年</td>
+</tr>
+<tr>
+<td>黄金</td>
+<td>8%</td>
+<td>约490万</td>
+<td>每月1.5万花27年</td>
+</tr>
+<tr>
+<td>商业养老保险</td>
+<td>4%</td>
+<td>约320万</td>
+<td>按合同终身领取</td>
+</tr>
+</tbody></table>
+<hr>
+<p><strong>六、总结</strong></p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>养儿防老</th>
+<th>自己投资</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>投入</td>
+<td>160万</td>
+<td>160万</td>
+</tr>
+<tr>
+<td>期望回报</td>
+<td>20.5万</td>
+<td>260-490万</td>
+</tr>
+<tr>
+<td>ROI</td>
+<td>-87%</td>
+<td>+63%到+206%</td>
+</tr>
+<tr>
+<td>确定性</td>
+<td>约11%达到理想情况</td>
+<td>90%以上（除非全球经济崩溃）</td>
+</tr>
+<tr>
+<td>可控性</td>
+<td>取决于另一个人的意愿</td>
+<td>完全自己掌控</td>
+</tr>
+<tr>
+<td>流动性</td>
+<td>无法提前支取</td>
+<td>随时可调整</td>
+</tr>
+</tbody></table>
+<hr>
+<p><strong>结论</strong></p>
+<p>从精算角度看，”养儿防老”是一个投入160万、期望回报20.5万、ROI为-87%的项目。任何一个理性的投资人看到这个数据都不会投。</p>
+<p>任何一个基金经理拿出这个数据，都会被投资人打出去。但几亿中国父母，正在用毕生积蓄投入这个项目。</p>
+<h2 id="三、”低成本高回报”的毒计"><a href="#三、”低成本高回报”的毒计" class="headerlink" title="三、”低成本高回报”的毒计"></a>三、”低成本高回报”的毒计</h2><p>有些父母更”聪明”。他们的策略是：花最少的钱养孩子，要求最多的回报。</p>
+<p>具体操作：不给孩子好的教育资源，不花钱培养兴趣，不给情感支持，但从小灌输”你欠我的””你以后要报答我”。让孩子尽早打工，工资上交。把孩子当作一台未来的提款机来培养。</p>
+<p>这套策略有一个致命漏洞：孩子会长大。</p>
+<p>小时候没有选择，只能服从。但人一旦接触到外部世界——上了大学、进了城市、有了网络——就会意识到自己的童年不正常。经济独立的那一天，就是清算的那一天。</p>
+<p>2018年，北大留美学生王猛写了一封万字长信控诉父母的控制和忽视，拉黑父母6年，12年不回家过年。他的父母到最后都不理解：”我们为他付出了一切。”</p>
+<p>豆瓣”父母皆祸害”小组巅峰时期超过12万成员。里面最高频的帖子是：”我终于经济独立了，我拉黑了我父母。””我出国了，我再也不回去了。”</p>
+<p>越是低投入高控制的家庭，孩子离开时越决绝。这不是养老策略，是在培养一个定时炸弹。</p>
+<h2 id="四、我的妹妹"><a href="#四、我的妹妹" class="headerlink" title="四、我的妹妹"></a>四、我的妹妹</h2><p>我有一个妹妹——乙妹，她是我妈妈的弟弟的第一个孩子。</p>
+<p>她的开局是这样的：农村、有一个智障弟弟、父母没有感情。舅舅一年回家一次，舅妈每月从舅舅那里领三千块”工资”。过年的时候父母沉迷赌博，她一个人在家看电视里的小游戏，或者刷短视频。</p>
+<p>她出生的地方没有公交车，没有图书馆，没有课外书，没有好的老师。她从来没有被父母带出去旅游过。唯一一次出远门，是我大学时偷偷带她去了趟张家界，花了不到一千块。她的父亲宁愿赌博输钱，也不会花这一千块带女儿看看外面的世界。</p>
+<p>她现在在二本读环境设计——一个不好找工作的专业。而她爸爸已经放话了：等你毕业，一分钱都不会给你。</p>
+<p>她特别讨厌她爸爸。</p>
+<p>这是一个”养儿防老”逻辑下的典型产物：舅舅生了两个孩子，一个智障无法自理，一个女儿被当作低成本投资——不花心思培养，不给资源支持，但期待将来回报。</p>
+<p>结果呢？女儿恨他。智障的儿子无法养他。他的”养儿防老”计划，两条路都走不通。</p>
+<h2 id="五、这笔账为什么算不过来"><a href="#五、这笔账为什么算不过来" class="headerlink" title="五、这笔账为什么算不过来"></a>五、这笔账为什么算不过来</h2><p>“养儿防老”之所以是幻觉，不只是因为ROI是负数，更因为它的底层逻辑全部建立在不可控的假设上：</p>
+<ul>
+<li>假设孩子健康——但有人生出智障孩子</li>
+<li>假设孩子成才——但就业率摆在那里</li>
+<li>假设孩子孝顺——但你怎么对他，他长大后就怎么对你</li>
+<li>假设孩子不会走远——但人往高处走，有能力的孩子都在大城市或国外</li>
+<li>假设孩子愿意牺牲自己的生活来照顾你——但他有自己的家庭、工作、人生</li>
+</ul>
+<p>每一个假设都是一个可能断裂的链条，任何一个断了，整个计划就归零。</p>
+<h2 id="六、为什么人们还在相信"><a href="#六、为什么人们还在相信" class="headerlink" title="六、为什么人们还在相信"></a>六、为什么人们还在相信</h2><p>因为在避孕技术普及之前，生孩子不是一个选择，而是性行为的必然后果。所有的文化叙事——“传宗接代””多子多福””养儿防老”——都是在”不可避免要生”这个前提下，为生育赋予意义的配套故事。</p>
+<p>现在避孕套、避孕药、人工流产都已经普及，生育第一次变成了可选项。但故事还在惯性运转。很多人在”可以不生”的时代，仍然用”不得不生”时代的逻辑做决定。</p>
+<p>加上沉没成本——已经生了，已经投入了二十年，承认这是一笔亏本买卖太痛苦了。所以必须继续相信”孩子以后会对我好的”。</p>
+<p>这不是信仰，是不敢面对现实。</p>
+<h2 id="七、真正能防老的是什么"><a href="#七、真正能防老的是什么" class="headerlink" title="七、真正能防老的是什么"></a>七、真正能防老的是什么</h2><p>钱。健康。社会关系。以及一个不依赖任何单一个体的养老计划。</p>
+<p>把同样的160万投入长期理财，20年后你有260-490万，足够你请最好的护工、住最好的养老院、过有尊严的晚年。而且这笔钱不会跟你吵架，不会拉黑你，不会出国不回来，不会在你老了以后说”等你死了一分钱都不给你花”。</p>
+<p>养儿防老的对立面不是”孤独终老”。是”用确定性替代赌博，用理性替代幻觉”。</p>
+<h2 id="八、写在最后"><a href="#八、写在最后" class="headerlink" title="八、写在最后"></a>八、写在最后</h2><p>我的妹妹拿到了一手烂牌。她的父亲用最低的成本养她，期待最高的回报。</p>
+<p>但她已经开始恨他了。</p>
+<p>等她毕业、经济独立的那一天，她大概率会离开，不再回头。她的父亲会在某个冬天突然发现：那个他从没认真投入过的女儿，真的不会来给他养老。</p>
+<p>而他的儿子，一年级都没读过，话也不会说。</p>
+<p>这就是”养儿防老”这场幻觉的最终结局——不是温馨的天伦之乐，而是一个赌输了的赌徒，独自面对空荡荡的牌桌。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/View/">View</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/29/3063838246.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">AI-API竞品分析</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/23/2722503303.html">
+                        <span class="hidden-mobile">立Flag就会被打脸</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "养儿防老：一场精算不过关的幻觉"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>
