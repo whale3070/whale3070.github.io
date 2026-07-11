@@ -1,0 +1,748 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>十年博客总结（2016-2026） - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="十年博客总结（2016-2026）">
+                      
+                        十年博客总结（2016-2026）
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-07-03 13:09" pubdate>
+        2026年7月3日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      4k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      47
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">十年博客总结（2016-2026）</h1>
+            
+            <div class="markdown-body">
+              <blockquote>
+<p>本文是对 <strong>2016 年 1 月 至 2026 年 7 月</strong> 期间，本博客全部文章的一次十年总复盘。<br>共统计 <strong>1363 篇</strong> 文章，覆盖安全、编程、Web3、AI、雅思、CISSP、社会观察、自传等十余个方向。</p>
+</blockquote>
+<h1 id="一、十年文章数量分布"><a href="#一、十年文章数量分布" class="headerlink" title="一、十年文章数量分布"></a>一、十年文章数量分布</h1><table>
+<thead>
+<tr>
+<th>年份</th>
+<th>文章数</th>
+<th>阶段定位</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2016</td>
+<td>28</td>
+<td>安全入门期</td>
+</tr>
+<tr>
+<td>2017</td>
+<td>63</td>
+<td>CTF + 靶机刷题期</td>
+</tr>
+<tr>
+<td>2018</td>
+<td>45</td>
+<td>渗透实战 + 课程表期</td>
+</tr>
+<tr>
+<td>2019</td>
+<td>103</td>
+<td>HackTheBox&#x2F;OSCP 爆发期</td>
+</tr>
+<tr>
+<td>2020</td>
+<td>79</td>
+<td>Windows 提权 + 域渗透期</td>
+</tr>
+<tr>
+<td>2021</td>
+<td>110</td>
+<td>红队 &#x2F; 免杀培训期</td>
+</tr>
+<tr>
+<td>2022</td>
+<td>114</td>
+<td>C2 设计 + 自传起步期</td>
+</tr>
+<tr>
+<td>2023</td>
+<td>191</td>
+<td>雅思 + CISSP 双线作战期</td>
+</tr>
+<tr>
+<td>2024</td>
+<td>163</td>
+<td>应急响应 + Web3 转型期</td>
+</tr>
+<tr>
+<td>2025</td>
+<td>244</td>
+<td>Solidity &#x2F; Web3 全投入期</td>
+</tr>
+<tr>
+<td>2026</td>
+<td>217</td>
+<td>黑客松 + 创业 + AI 期</td>
+</tr>
+</tbody></table>
+<p>写作密度峰值出现在 2023-2026 年，平均每年 200+ 篇，与”转行 Web3 + 出国备考 + 自传写作 + 黑客松创业”四线并行高度吻合。</p>
+<h1 id="二、文章类型与方向"><a href="#二、文章类型与方向" class="headerlink" title="二、文章类型与方向"></a>二、文章类型与方向</h1><h2 id="1-信息安全-渗透测试（2016-2022-主线，至今延续）"><a href="#1-信息安全-渗透测试（2016-2022-主线，至今延续）" class="headerlink" title="1. 信息安全 &#x2F; 渗透测试（2016-2022 主线，至今延续）"></a>1. 信息安全 &#x2F; 渗透测试（2016-2022 主线，至今延续）</h2><p>贯穿十年的根基赛道，约占全部文章 40%。</p>
+<ul>
+<li><strong>基础入门（2016-2018）</strong>：网卡设置、OS 入门、shell 入门、HTML 基础、nmap、wireshark、whois、nessus、lcx 内网端口转发、LAMP 架站</li>
+<li><strong>CTF 刷题（2017）</strong>：BC01-BC18 系列（大数求和、奖券、hashkill、百米、字典、速度爆破、ASCII 艺术）、SQL 绕过表单、布尔盲注、文件包含、天网管理系统、NSCTF-web200</li>
+<li><strong>靶机渗透（2017-2019）</strong>：Kioptrix 系列、Pwnlab、FristiLeaks、mr-robot、Vulnix、g0rmint、bashed、kotarak、Poison、SolidState、Waldo、jerry、Lampiao</li>
+<li><strong>HackTheBox &#x2F; OSCP 真题（2019-2020）</strong>：Popcorn、Grandpa、Joker、Devel、Access、Active、Blocky、Mirai、Optimum、Shocker、Granny、Arctic、Bastard、Irked、Nibbles、cronOS、Apocalyst、Valentine、Frolic、Dab、Help、Tenten、CrimeStoppers、dropzone、Pluck、Traverxec、Sneaky、Calamity、mantis、Ypuffy、monitors.htb、Hackthebox-Cap</li>
+<li><strong>永恒之蓝 &#x2F; ms08-067 &#x2F; CVE 复现（2019）</strong>：raven2（CVE-2016-10033）、Shocker（shellshock）</li>
+<li><strong>Windows 提权系列（2020）</strong>：binpath、服务提权、dll 劫持、注册表提权、命名管道、HotPotato、计划任务提权、内存&#x2F;注册表密码挖掘</li>
+<li><strong>域渗透系列（2020-2021）</strong>：域渗透入门（一-五）、pass the ticket、Kerberoasting、金票据&#x2F;银票据、域渗透案例一-四、ELS.CORP、ELS-CHILD、ELS.local ms17-010、weblogic-rce 到域控 DC</li>
+<li><strong>缓冲区溢出（2019-2020）</strong>：slmail windows 缓冲区溢出案例（一-四）、crossfire linux 缓冲区溢出、brainpan 栈溢出、Grandpa msf 栈溢出</li>
+<li><strong>红队 &#x2F; 免杀培训（2021-2022）</strong>：黑客学徒日记系列（动态免杀、傀儡进程、过火绒&#x2F;360&#x2F;卡巴&#x2F;小红伞&#x2F;WinDefender、AMSI、Bring Your Own Interpreter、DotNetToJScript、DInvoke、SharpShooter、图片隐写 shellcode）、免杀培训框架、源码免杀培训系列课程、红队渗透培训系列课程（主讲人 whale3070）、论 C2 设计思路、poshC2、Iot-c2、C2 命令与控制</li>
+<li><strong>攻击链 &#x2F; PoC 编写（2021-2022）</strong>：攻击链一-十一（ssh&#x2F;mysql&#x2F;rdp 弱密码、tomcat、H3C 堡垒机、Apache Kylin、Apache ofbiz、Log4j-rce）、xray poc 编写（Fastjson、Spring Cloud Gateway、Spring4Shell）、xray 反连功能、批量 PoC&#x2F;EXP、CNVD 漏洞提交计划、奇安信&#x2F;蓝凌 OA&#x2F;华域 Reporter 漏洞</li>
+<li><strong>信息搜集 &#x2F; 隧道（2019-2022）</strong>：masscan、子域名搜集、fofa、shodan、proxychains、reGeorg、ssf 隧道、icmp 隧道、cobaltstrike dns 隧道、域前置 domain fronting、脱网机上线</li>
+<li><strong>2023 HTB 新题</strong>：Busqueda、Soccer（WebSocket 注入）、MonitorsTwo（Docker 逃逸）、PC（gRPC）、Agile（flask-unsign）、Snoopy（域传送）、Stocker（Nosql inject）、Sandworm（SSTI）、TwoMillion、Pilgrimage、Sau、Inject、Derailed、Pollution</li>
+<li><strong>应急响应 &#x2F; 认证（2024）</strong>：事件应急响应专家（一-五）、信息安全行业认证-应急响应、Nessus 漏洞插件编写、使用煎饼进行更好的 GIAC 考试</li>
+<li><strong>近期回归（2026）</strong>：安全运营中心（SOC）、SIEM 警报调查、AI Agent 的安全边界、web3 威胁情报、LinkedIn 虚假招聘 + 恶意仓库投毒诈骗复盘</li>
+</ul>
+<h2 id="2-编程-脚本（2016-至今）"><a href="#2-编程-脚本（2016-至今）" class="headerlink" title="2. 编程 &#x2F; 脚本（2016-至今）"></a>2. 编程 &#x2F; 脚本（2016-至今）</h2><ul>
+<li><strong>Shell &#x2F; Python（2016-2020）</strong>：shell 入门、shell-script（一-四）、python、pythonGUI、python-nmap 模块、masscan 结合 python、一个快速全端口扫描的 bash 脚本、汇率转换程序、图片加水印、avi 转 mp4、PDF 转 PNG</li>
+<li><strong>C &#x2F; Java（2017-2023）</strong>：visual C++ and gcc、Java 反序列化（一-三）、RMI 接口安全、初识 php 反序列化</li>
+<li><strong>COBOL 考古（2023）</strong>：COBOL 编程、COBOL 考古（二-十二）—— 一段独特的”老语言考古”系列</li>
+<li><strong>JavaScript &#x2F; Golang（2025-2026）</strong>：javascript（一-四）、fireflyQR golang 开发（一-三）</li>
+<li><strong>Web 开发（2025）</strong>：编写一个字幕网站（FastAPI + Uvicorn）</li>
+<li><strong>构建工具（2024-2026）</strong>：make 与 makefile、Docker 系列（一-九）、Mermaid、Mermaid+Vscode</li>
+</ul>
+<h2 id="3-Web3-区块链（2024-至今，约-165-篇核心）"><a href="#3-Web3-区块链（2024-至今，约-165-篇核心）" class="headerlink" title="3. Web3 &#x2F; 区块链（2024-至今，约 165 篇核心）"></a>3. Web3 &#x2F; 区块链（2024-至今，约 165 篇核心）</h2><p>十年里最大的赛道转型，2024 年起步，2025 年全面投入，2026 年进入黑客松 + 创业落地。</p>
+<ul>
+<li><strong>概念入门（2024-2025）</strong>：和机器共生（三）web3.0、区块链图书馆、转行研究-网络安全与 WEB3.0&#x2F;Defi、Web3 基础概念系列（DeFi、质押、现实资产上链、NFT、以太坊扩容、ETH 与 Gas、术语、BSC、ERC-20、MakerDAO、Uniswap、SUSHI、BAYC、Tornado Cash、Polygon、Foundry、Solidity）</li>
+<li><strong>Solidity 开发（2025）</strong>：Solidity programming essentials 读书笔记（一-四）、Solidity 2 个月学习路线、solidity 基础语法、remix 编译运行 solidity（一-十三）、hardhat 开发框架（一-四）、foundry 编译运行、cryptozombies（一-14，含 TronBox&#x2F;NEO&#x2F;zkSync&#x2F;Chainlink&#x2F;Truffle）、cyfrin-updraft（一-2）、university.alchemy（一-10）、著名的 solidity 合约、solidity 开发-工厂合约</li>
+<li><strong>DeFi 安全（2025-2026）</strong>：Damn Vulnerable DeFi（一-八）、slither（一-3）、稳定币不稳定-Iron Finance 崩溃事件、香港 VASP 合约安全、香港 RWA 审计、CertiK、香港 RWA 合约审计岗位投递清单</li>
+<li><strong>加密货币 &#x2F; 投资（2022-2026）</strong>：比特币杂谈、门罗币杂谈、柴犬币 SHIB、去中心化门罗币矿池、允许加密货币支付的商户、加密货币的介绍、如何花 USDT、tickmill 操作指南、币安收益率分析、招商永隆+IBKR+币安+华泰、HyperLiquid</li>
+<li><strong>黑客松 &#x2F; 训练营（2025-2026）</strong>：Polkadot Solidity 开发课程笔记（一-13）、Polkadot 黑客松 demoday、Polkadot Revive 迁移挑战赛、Starknet 训练营（一-4）、Avalanche 黑客松（一-6）、Monad Blitz 黑客松、Global Web3 Dev Con、Conflux eSpace&#x2F;Smart Contract、HTX Genesis Hackathon</li>
+<li><strong>创业项目（2026）</strong>：fireflyQR 系列（用户增长、monad 高并发、redis、三方角色网关、conflux 存储代付、金库协议、Mock USDT、跨境贸易-一带一路与 Web3）、金库协议（团队启动会、前端测试、bug）、Aura 产品需求文档、巴别塔 AI 助手 PRD、OpenClaw、MiroFish、miro-engine</li>
+<li><strong>创业落地（2026）</strong>：香港数码港、数码港创业家计划、CCMF 创意微型基金、公司注册进度、公司公户、股权分配原则、保密协议 NDA、顾问服务协议、退出协议、求职信、招聘</li>
+</ul>
+<h2 id="4-AI-大模型（2023、2026-爆发）"><a href="#4-AI-大模型（2023、2026-爆发）" class="headerlink" title="4. AI &#x2F; 大模型（2023、2026 爆发）"></a>4. AI &#x2F; 大模型（2023、2026 爆发）</h2><ul>
+<li><strong>2023 起步</strong>：ChatGPT 可以用来做什么、ChatGPT&amp;WeChall、AI 绘画的历史现状与未来、机器学习入门、机器学习与恶意代码分析</li>
+<li><strong>2026 系统学习</strong>：Deep Dive into LLMs like ChatGPT（2-8）、AI prompt engineering A deep dive、LLM 作业第一周&#x2F;第二周、和 gemini 的聊天、ChatGPT 之类的大语言模型使用感想、Stanford 大学公开课 vibe coding</li>
+<li><strong>Claude &#x2F; Cursor &#x2F; Codex（2026）</strong>：Cursor、claude code、claude-101（一-3）、Claude Code 封号机制深度探查报告、openAI 如何使用 codex、使用 claudeAPI 开发、codex、copilot、Lovable AI 开发平台（一-2）</li>
+<li><strong>AI 评审 &#x2F; 产品（2026）</strong>：AI 评审系统、AI 评审系统-核心竞争力、AI-API 竞品分析、Web 端的 AI 智能助理平台、巴别塔 AI 助手、Agent Economy on Bitcoin、博客文章+机器学习（思想 2D 地图、文章年代变化分析、一键”自动目录”）</li>
+</ul>
+<h2 id="5-雅思英语学习（2022-2025，约-200-篇）"><a href="#5-雅思英语学习（2022-2025，约-200-篇）" class="headerlink" title="5. 雅思英语学习（2022-2025，约 200 篇）"></a>5. 雅思英语学习（2022-2025，约 200 篇）</h2><p>出国留学准备的核心赛道，从了解考试到错题精解。</p>
+<ul>
+<li><strong>考试结果与计划</strong>：雅思考试结果、英语学习方法、英语听力练习、英文词汇量、学英语到底有什么用、学口语的网站</li>
+<li><strong>阅读课程</strong>：雅思阅读课程（一-七：判断题、选择题、完形填空、段落匹配、简答题、速读、同义词替换）、获得雅思阅读 9 分的注意事项</li>
+<li><strong>口语课程</strong>：雅思口语课程（一-三十四：爱好、家庭、工作、朋友、假期、技术、体育、气候变化、15 个常用短语、形容一个人、6.5 到 7.5、30 个习语、To have 用法、RMS01-08、辛普森一家 S01-05、恶搞之家 S01、WalkingDead S1-S4）</li>
+<li><strong>听力课程</strong>：雅思听力课程（一-第九课听写）</li>
+<li><strong>写作课程</strong>：雅思写作课程（一-第二十二课：图表练习、折线图、表格、task1 段落&#x2F;时态、动词变形、大作文类型&#x2F;第一段&#x2F;主要段落&#x2F;练习）</li>
+<li><strong>真题错题解析</strong>：第 1-52 套雅思真题错题解析（横跨 2023-2025，约 50 篇）</li>
+<li><strong>同义词 &#x2F; 词汇</strong>：同义词解析（一-四）、人类一败涂地-英语时态、刻意练习-英语时态</li>
+</ul>
+<h2 id="6-CISSP-安全认证（2023-2024，约-30-篇）"><a href="#6-CISSP-安全认证（2023-2024，约-30-篇）" class="headerlink" title="6. CISSP &#x2F; 安全认证（2023-2024，约 30 篇）"></a>6. CISSP &#x2F; 安全认证（2023-2024，约 30 篇）</h2><ul>
+<li>CISSP（一-二十九）完整笔记、CISSP 考试大纲、CISSP+INE（三十）</li>
+<li>信息安全行业认证-应急响应、使用煎饼进行更好的 GIAC 考试</li>
+<li>13 个薪资最高的网络安全职位、安全研究岗位到底是做什么、信息安全行业现状&#x2F;缺点、转载-网络安全行业的未来</li>
+</ul>
+<h2 id="7-经济-社会观察（2016-至今，约-300-篇）"><a href="#7-经济-社会观察（2016-至今，约-300-篇）" class="headerlink" title="7. 经济 &#x2F; 社会观察（2016-至今，约 300 篇）"></a>7. 经济 &#x2F; 社会观察（2016-至今，约 300 篇）</h2><p>十年从未中断的”副线”，观察视角从宏观经济到人口、生育、女性、教育、老龄化。</p>
+<ul>
+<li><strong>宏观经济</strong>：经济危机的逻辑、美联储加息、人民币升值&#x2F;贬值、通货膨胀 vs 通货紧缩、地方债务地雷（一-二）、债务危机读后感（一-二）、5000 年债务史、钱的非权威传记、国家为什么会失败&#x2F;破产、2023&#x2F;2024&#x2F;2025&#x2F;2026 年经济行情、土耳其的经济、汇率下跌之后：日元贬值的宏观经济启示</li>
+<li><strong>人口 &#x2F; 生育 &#x2F; 老龄化</strong>：大国空巢读后感（一-二）、老龄化社会的特点、人口红利何时结束、为什么年轻人不愿意生孩子了、2100 年中国还剩下多少人、了解国外-人口下降最快的 20 个国家、老龄化与生育补贴、老龄化社会中的日本创新困境、用人口数字评估未来的发展（2022&#x2F;2026）、中国正在以什么速度衰老、养儿防老：一场精算不过关的幻觉</li>
+<li><strong>女性 &#x2F; 婚姻 &#x2F; 生育成本</strong>：从中国与日本的女性地位谈婚姻、木嶋佳苗与男频小说、当女人想当人、廉价的子宫、男人的子宫外挂（一-二）、婚姻挤压的研究、21 世纪 20 年代的婚姻观、避孕套人工流产与女权、虚假的婚姻、单女和婚女谁更有钱、子宫外挂的市场供给：为什么彩礼越来越贵、物化女性的代价、我们可以继续假装生育是免费的、生育提升六字真言、谈谈生育成本值多少钱</li>
+<li><strong>教育 &#x2F; 职业</strong>：谈中国的教育（一-三）、大学什么时候倒闭、垃圾专业有哪些、谈谈艺考、外包和正式员工的区别、外包制度终将毁灭中国经济、什么是青春饭、论我国的 35 岁中年危机（一-二）、点灯人的黄昏（一-四：高校体制空转、AI 能替代什么、体制空转的代价、学知识到底为了什么）</li>
+<li><strong>社会评论</strong>：论传销、北漂、谈阶级-被遗忘的历史、刘学州一事、谈谈 JM 帝国作者被抓事件、字节跳动乔木出轨事件、凯文米特尼克之死、akid 王懿杂谈、一个文科女之死、别问丧钟为谁而鸣、浙江一男子购买茅台假酒、网安培训圈百万级暴雷前兆</li>
+</ul>
+<h2 id="8-我的生平-自传（2022-至今，约-40-篇-草稿）"><a href="#8-我的生平-自传（2022-至今，约-40-篇-草稿）" class="headerlink" title="8. 我的生平 &#x2F; 自传（2022-至今，约 40 篇 + 草稿）"></a>8. 我的生平 &#x2F; 自传（2022-至今，约 40 篇 + 草稿）</h2><ul>
+<li>我的生平（一-四十）连载，从 2022 年开始，2026 年仍在持续</li>
+<li>自传出版中-进度百分之 5%、my-life 其他大纲的草稿、自传重新打磨并添加中英双语版本</li>
+<li>Germany-info（一-3）、Disappeared for twenty years</li>
+</ul>
+<h2 id="9-读书笔记（持续，约-30-本）"><a href="#9-读书笔记（持续，约-30-本）" class="headerlink" title="9. 读书笔记（持续，约 30+ 本）"></a>9. 读书笔记（持续，约 30+ 本）</h2><p>黑客与画家、献给阿尔吉侬的花束、朗朗自传、围城、互联网企业安全高级指南、OWASP 渗透测试指南、大国空巢、房思琪的初恋乐园、父权制与资本主义、聪明的投资者、下流老人、事实、此生未完成、明天我要去冰岛、暮色将近、狗屁工作、超单身社会、怦然心动的人生整理魔法、债务危机、5000 年债务史、国家为什么会失败、超越百岁、控糖革命、钱的千年兴衰史、Solidity programming essentials、这世界既残酷也温柔、成为主角、驯养人类、狗虹计划</p>
+<h2 id="10-课程表-学习计划（2017-2027）"><a href="#10-课程表-学习计划（2017-2027）" class="headerlink" title="10. 课程表 &#x2F; 学习计划（2017-2027）"></a>10. 课程表 &#x2F; 学习计划（2017-2027）</h2><p>我的课程表 2017&#x2F;2018、2019-2027 年学习计划、本周学习计划、Polkadot Solidity 开发-冠军冲刺计划、hackethon 夺冠计划、hackethon 至暗时刻</p>
+<h2 id="11-留学准备（2023-2024）"><a href="#11-留学准备（2023-2024）" class="headerlink" title="11. 留学准备（2023-2024）"></a>11. 留学准备（2023-2024）</h2><p>卢森堡大学、德国萨尔大学、德国大学 CS 专业、挪威&amp;芬兰留学项目、爱尔兰大学、沙特大学、新西兰绿色清单移民、新西兰 6 分技术移民、德国 APS 审核全流程、转载-如何在另一个国家找到工作、出国前一定要算这笔账（Numbeo）</p>
+<h2 id="12-生活-兴趣（散见各年）"><a href="#12-生活-兴趣（散见各年）" class="headerlink" title="12. 生活 &#x2F; 兴趣（散见各年）"></a>12. 生活 &#x2F; 兴趣（散见各年）</h2><p>钓鱼技巧（一-五：认识鱼类、渔具、天时地利、钓法、冬钓鲫鱼）、摩托车 D 证考试、汽车 C1 证考试、营养学、了解疾病（一-二）、控糖革命、一种断舍离的生活、独居指南、如何休息-精力管理、高血压、新冠后遗症、视频处理、图片处理、colemak 键盘布局、泰坦尼克号、龙与虎观后感、海上的钢琴师、我喜欢的影视作品推荐、twilight&#x2F;新月&#x2F;月食&#x2F;权力的游戏章节精读、水晶洞的歌声、rednote 营销推广</p>
+<h1 id="三、十年写作主线演进图"><a href="#三、十年写作主线演进图" class="headerlink" title="三、十年写作主线演进图"></a>三、十年写作主线演进图</h1><figure class="highlight yaml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs yaml"><span class="hljs-number">2016</span> <span class="hljs-string">──</span> <span class="hljs-string">安全入门（OS</span> <span class="hljs-string">/</span> <span class="hljs-string">shell</span> <span class="hljs-string">/</span> <span class="hljs-string">nmap</span> <span class="hljs-string">/</span> <span class="hljs-string">渗透基础）</span><br>  <span class="hljs-string">│</span><br><span class="hljs-number">2017</span> <span class="hljs-string">──</span> <span class="hljs-string">CTF</span> <span class="hljs-string">刷题</span> <span class="hljs-string">+</span> <span class="hljs-string">Kioptrix</span> <span class="hljs-string">靶机</span> <span class="hljs-string">+</span> <span class="hljs-string">第一篇课程表</span><br>  <span class="hljs-string">│</span><br><span class="hljs-number">2018</span> <span class="hljs-string">──</span> <span class="hljs-string">靶机实战</span> <span class="hljs-string">+</span> <span class="hljs-string">实习总结</span> <span class="hljs-string">+</span> <span class="hljs-number">2019</span> <span class="hljs-string">计划</span><br>  <span class="hljs-string">│</span><br><span class="hljs-number">2019</span> <span class="hljs-string">──</span> <span class="hljs-string">HackTheBox/OSCP</span> <span class="hljs-string">爆发</span> <span class="hljs-string">+</span> <span class="hljs-string">永恒之蓝</span> <span class="hljs-string">+</span> <span class="hljs-string">Cobalt</span> <span class="hljs-string">Strike</span> <span class="hljs-string">+</span> <span class="hljs-string">Docker</span> <span class="hljs-string">+</span> <span class="hljs-string">AWS</span><br>  <span class="hljs-string">│</span><br><span class="hljs-number">2020</span> <span class="hljs-string">──</span> <span class="hljs-string">Windows</span> <span class="hljs-string">提权</span> <span class="hljs-string">+</span> <span class="hljs-string">域渗透入门</span> <span class="hljs-string">+</span> <span class="hljs-string">缓冲区溢出</span> <span class="hljs-string">+</span> <span class="hljs-string">免杀</span><br>  <span class="hljs-string">│</span><br><span class="hljs-number">2021</span> <span class="hljs-string">──</span> <span class="hljs-string">红队</span> <span class="hljs-string">/</span> <span class="hljs-string">黑客学徒日记</span> <span class="hljs-string">/</span> <span class="hljs-string">免杀培训</span> <span class="hljs-string">+</span> <span class="hljs-string">攻击链</span> <span class="hljs-string">+</span> <span class="hljs-string">PoC</span> <span class="hljs-string">编写</span> <span class="hljs-string">+</span> <span class="hljs-string">Log4j</span><br>  <span class="hljs-string">│</span><br><span class="hljs-number">2022</span> <span class="hljs-string">──</span> <span class="hljs-string">C2</span> <span class="hljs-string">设计</span> <span class="hljs-string">+</span> <span class="hljs-number">360</span> <span class="hljs-string">红队面试</span> <span class="hljs-string">+</span> <span class="hljs-string">我的生平开篇</span> <span class="hljs-string">+</span> <span class="hljs-string">雅思起步</span> <span class="hljs-string">+</span> <span class="hljs-string">经济人口观察</span><br>  <span class="hljs-string">│</span><br><span class="hljs-number">2023</span> <span class="hljs-string">──</span> <span class="hljs-string">雅思课程全开</span> <span class="hljs-string">+</span> <span class="hljs-string">CISSP</span> <span class="hljs-string">全本</span> <span class="hljs-string">+</span> <span class="hljs-string">COBOL</span> <span class="hljs-string">考古</span> <span class="hljs-string">+</span> <span class="hljs-string">HTB</span> <span class="hljs-string">新题</span> <span class="hljs-string">+</span> <span class="hljs-string">ChatGPT</span><br>  <span class="hljs-string">│</span><br><span class="hljs-number">2024</span> <span class="hljs-string">──</span> <span class="hljs-string">雅思真题精解</span> <span class="hljs-string">+</span> <span class="hljs-string">应急响应认证</span> <span class="hljs-string">+</span> <span class="hljs-string">Web3</span> <span class="hljs-string">入门</span> <span class="hljs-string">+</span> <span class="hljs-string">自传推进</span><br>  <span class="hljs-string">│</span><br><span class="hljs-number">2025</span> <span class="hljs-string">──</span> <span class="hljs-string">Solidity</span> <span class="hljs-string">全投入</span> <span class="hljs-string">+</span> <span class="hljs-string">Damn</span> <span class="hljs-string">Vulnerable</span> <span class="hljs-string">DeFi</span> <span class="hljs-string">+</span> <span class="hljs-string">加密投资</span> <span class="hljs-string">+</span> <span class="hljs-string">转行研究</span><br>  <span class="hljs-string">│</span><br><span class="hljs-number">2026</span> <span class="hljs-string">──</span> <span class="hljs-string">黑客松创业（Polkadot/Starknet/Avalanche）+</span> <span class="hljs-string">fireflyQR</span> <span class="hljs-string">+</span> <span class="hljs-string">数码港</span> <span class="hljs-string">+</span> <span class="hljs-string">AI/Claude</span> <span class="hljs-string">+</span> <span class="hljs-string">自传出版</span><br></code></pre></div></td></tr></table></figure>
+
+<h1 id="四、十年关键标签-Top-20"><a href="#四、十年关键标签-Top-20" class="headerlink" title="四、十年关键标签 Top 20"></a>四、十年关键标签 Top 20</h1><table>
+<thead>
+<tr>
+<th>标签</th>
+<th>出现次数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>安全工具</td>
+<td>400</td>
+</tr>
+<tr>
+<td>渗透测试</td>
+<td>391</td>
+</tr>
+<tr>
+<td>社会观察</td>
+<td>307</td>
+</tr>
+<tr>
+<td>编程</td>
+<td>305</td>
+</tr>
+<tr>
+<td>部署过程</td>
+<td>283</td>
+</tr>
+<tr>
+<td>课程笔记</td>
+<td>211</td>
+</tr>
+<tr>
+<td>读书笔记</td>
+<td>185</td>
+</tr>
+<tr>
+<td>安全开发</td>
+<td>183</td>
+</tr>
+<tr>
+<td>我的生平</td>
+<td>176</td>
+</tr>
+<tr>
+<td>过程记录</td>
+<td>172</td>
+</tr>
+<tr>
+<td>区块链</td>
+<td>165</td>
+</tr>
+<tr>
+<td>复盘</td>
+<td>145</td>
+</tr>
+<tr>
+<td>女性视角</td>
+<td>135</td>
+</tr>
+<tr>
+<td>计划</td>
+<td>111</td>
+</tr>
+<tr>
+<td>Web3</td>
+<td>101</td>
+</tr>
+<tr>
+<td>运维</td>
+<td>85</td>
+</tr>
+<tr>
+<td>投资</td>
+<td>81</td>
+</tr>
+<tr>
+<td>域渗透</td>
+<td>78</td>
+</tr>
+<tr>
+<td>免杀</td>
+<td>65</td>
+</tr>
+<tr>
+<td>雅思阅读</td>
+<td>63</td>
+</tr>
+</tbody></table>
+<h1 id="五、十年总结"><a href="#五、十年总结" class="headerlink" title="五、十年总结"></a>五、十年总结</h1><p>回望这 1363 篇文章，可以清晰看到一条主线：<strong>从一个安全入门者，成长为红队渗透培训讲师，再转型为 Web3 开发者与创业者。</strong></p>
+<ul>
+<li><strong>前 5 年（2016-2020）</strong>：扎根渗透测试与红队技术，从 CTF 刷题到 OSCP、域渗透、免杀培训，建立了扎实的安全技术体系。</li>
+<li><strong>中 3 年（2021-2023）</strong>：技术输出期——开设红队培训课程、编写 PoC、研究 C2 设计；同时开始系统性社会观察与自传写作，并启动雅思 + CISSP 双线备考。</li>
+<li><strong>近 2 年（2024-2026）</strong>：赛道转型期——从网络安全转向 Web3 &#x2F; 智能合约开发，参与 Polkadot、Starknet、Avalanche、Monad 等多个黑客松，注册公司、申请数码港创业基金，同时深度使用 AI（Claude、Cursor、Codex）赋能开发与写作。</li>
+</ul>
+<p>十年里始终未变的，是<strong>对社会、人口、女性、教育议题的持续观察</strong>，以及<strong>自传《我的生平》的连载</strong>——这两条”副线”和技术主线交织，构成了这个博客独特的人格底色。</p>
+<p>下一个十年，方向已清晰：<strong>Web3 + AI + 创业 + 自传出版</strong>。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%A4%8D%E7%9B%98/">复盘</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E6%88%91%E7%9A%84%E7%94%9F%E5%B9%B3/">我的生平</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E6%80%BB%E7%BB%93/">总结</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/07/06/2079270676.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">合作前，快速筛掉“只答应、不做事”的人</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/07/02/1767565030.html">
+                        <span class="hidden-mobile">一些缩写5</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "十年博客总结（2016-2026）"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

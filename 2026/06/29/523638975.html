@@ -1,0 +1,528 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>web3威胁情报 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="web3威胁情报">
+                      
+                        web3威胁情报
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-06-29 04:58" pubdate>
+        2026年6月29日 凌晨
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      13
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">web3威胁情报</h1>
+            
+            <div class="markdown-body">
+              <p>我需要自动化的web3威胁情报推送系统</p>
+<h1 id="这是一个威胁情报的python框架"><a href="#这是一个威胁情报的python框架" class="headerlink" title="这是一个威胁情报的python框架"></a>这是一个威胁情报的python框架</h1><p><a target="_blank" rel="noopener" href="https://github.com/hoodinformatik/OpenThreat">https://github.com/hoodinformatik/OpenThreat</a></p>
+<h2 id="misteye"><a href="#misteye" class="headerlink" title="misteye"></a>misteye</h2><p><a target="_blank" rel="noopener" href="https://app.misteye.io/home">https://app.misteye.io/home</a><br><a target="_blank" rel="noopener" href="https://app.misteye.io/api-docs">https://app.misteye.io/api-docs</a></p>
+<p>高级 Web3 威胁检测引擎<br>实时掌握恶意域名、IP、DeFi 攻击、AI 技能&#x2F;MCP 攻击和供应链攻击途径的情报。</p>
+<p>MistEye 提供速度极快的 REST API，用于扫描域名、IP 地址、URL、文件哈希值、供应链软件包（npm、PyPI、NuGet、RubyGems、Go、Crates.io、Maven、Packagist）、代码仓库、浏览器&#x2F;IDE 扩展、AI 工具和移动应用。身份验证通过请求x-api-key头进行。所有 API 查询都会记录在您的历史记录中。</p>
+<h1 id="先做一个最简单的吧，如何把消息推送到飞书的bot"><a href="#先做一个最简单的吧，如何把消息推送到飞书的bot" class="headerlink" title="先做一个最简单的吧，如何把消息推送到飞书的bot?"></a>先做一个最简单的吧，如何把消息推送到飞书的bot?</h1><p>好，从最小可用开始。飞书自定义机器人推送其实就是一个 HTTP POST，非常简单。</p>
+<h2 id="第一步：在飞书群里创建机器人"><a href="#第一步：在飞书群里创建机器人" class="headerlink" title="第一步：在飞书群里创建机器人"></a>第一步：在飞书群里创建机器人</h2><ol>
+<li>打开一个飞书群（建议先建个测试群）</li>
+<li>群设置 → 群机器人 → 添加机器人 → 自定义机器人</li>
+<li>设置名字和头像，<strong>复制 webhook 地址</strong>，形如：<figure class="highlight awk"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs awk">https:<span class="hljs-regexp">//</span>open.feishu.cn<span class="hljs-regexp">/open-apis/</span>bot<span class="hljs-regexp">/v2/</span>hook/xxxxxxxx-xxxx-xxxx<br></code></pre></div></td></tr></table></figure></li>
+<li>安全设置：建议勾选”签名校验”（更安全）或”自定义关键词”（更简单）。<strong>第一次先用”自定义关键词”</strong>，填一个比如 <code>Alert</code>，消息里包含这个词才能发出去。</li>
+</ol>
+<h2 id="第二步：最小-Python-脚本"><a href="#第二步：最小-Python-脚本" class="headerlink" title="第二步：最小 Python 脚本"></a>第二步：最小 Python 脚本</h2><p>我帮你创建一个最简单的脚本，先跑通推送这一步。</p>
+<figure class="highlight python"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs python"><span class="hljs-keyword">import</span> requests<br><span class="hljs-keyword">import</span> json<br><br><span class="hljs-comment"># 替换成你的 webhook 地址</span><br>WEBHOOK_URL = <span class="hljs-string">&quot;https://open.feishu.cn/open-apis/bot/v2/hook/你的-webhook-id&quot;</span><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">send_text</span>(<span class="hljs-params">content: <span class="hljs-built_in">str</span></span>):<br>    <span class="hljs-string">&quot;&quot;&quot;发送纯文本消息&quot;&quot;&quot;</span><br>    payload = &#123;<br>        <span class="hljs-string">&quot;msg_type&quot;</span>: <span class="hljs-string">&quot;text&quot;</span>,<br>        <span class="hljs-string">&quot;content&quot;</span>: &#123;<span class="hljs-string">&quot;text&quot;</span>: content&#125;<br>    &#125;<br>    resp = requests.post(WEBHOOK_URL, json=payload, timeout=<span class="hljs-number">10</span>)<br>    <span class="hljs-built_in">print</span>(resp.status_code, resp.text)<br>    <span class="hljs-keyword">return</span> resp.json()<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">send_card</span>(<span class="hljs-params">title: <span class="hljs-built_in">str</span>, fields: <span class="hljs-built_in">dict</span>, color: <span class="hljs-built_in">str</span> = <span class="hljs-string">&quot;red&quot;</span></span>):<br>    <span class="hljs-string">&quot;&quot;&quot;发送富文本卡片消息，更适合安全告警&quot;&quot;&quot;</span><br>    field_elements = [<br>        &#123;<br>            <span class="hljs-string">&quot;is_short&quot;</span>: <span class="hljs-literal">True</span>,<br>            <span class="hljs-string">&quot;text&quot;</span>: &#123;<span class="hljs-string">&quot;tag&quot;</span>: <span class="hljs-string">&quot;lark_md&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">f&quot;**<span class="hljs-subst">&#123;k&#125;</span>**\n<span class="hljs-subst">&#123;v&#125;</span>&quot;</span>&#125;<br>        &#125;<br>        <span class="hljs-keyword">for</span> k, v <span class="hljs-keyword">in</span> fields.items()<br>    ]<br>    payload = &#123;<br>        <span class="hljs-string">&quot;msg_type&quot;</span>: <span class="hljs-string">&quot;interactive&quot;</span>,<br>        <span class="hljs-string">&quot;card&quot;</span>: &#123;<br>            <span class="hljs-string">&quot;header&quot;</span>: &#123;<br>                <span class="hljs-string">&quot;title&quot;</span>: &#123;<span class="hljs-string">&quot;tag&quot;</span>: <span class="hljs-string">&quot;plain_text&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: title&#125;,<br>                <span class="hljs-string">&quot;template&quot;</span>: color  <span class="hljs-comment"># red/orange/blue/green</span><br>            &#125;,<br>            <span class="hljs-string">&quot;elements&quot;</span>: [<br>                &#123;<span class="hljs-string">&quot;tag&quot;</span>: <span class="hljs-string">&quot;div&quot;</span>, <span class="hljs-string">&quot;fields&quot;</span>: field_elements&#125;<br>            ]<br>        &#125;<br>    &#125;<br>    resp = requests.post(WEBHOOK_URL, json=payload, timeout=<span class="hljs-number">10</span>)<br>    <span class="hljs-built_in">print</span>(resp.status_code, resp.text)<br>    <span class="hljs-keyword">return</span> resp.json()<br><br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&quot;__main__&quot;</span>:<br>    <span class="hljs-comment"># 测试 1：纯文本（注意包含关键词 Alert）</span><br>    send_text(<span class="hljs-string">&quot;Alert: 这是一条测试消息&quot;</span>)<br><br>    <span class="hljs-comment"># 测试 2：富文本卡片，模拟一次真实告警</span><br>    send_card(<br>        title=<span class="hljs-string">&quot;🚨 Web3 Security Alert&quot;</span>,<br>        fields=&#123;<br>            <span class="hljs-string">&quot;受害方&quot;</span>: <span class="hljs-string">&quot;ExampleProtocol&quot;</span>,<br>            <span class="hljs-string">&quot;损失金额&quot;</span>: <span class="hljs-string">&quot;$1,200,000&quot;</span>,<br>            <span class="hljs-string">&quot;攻击类型&quot;</span>: <span class="hljs-string">&quot;Reentrancy&quot;</span>,<br>            <span class="hljs-string">&quot;链&quot;</span>: <span class="hljs-string">&quot;Ethereum&quot;</span>,<br>            <span class="hljs-string">&quot;来源&quot;</span>: <span class="hljs-string">&quot;@PeckShieldAlert&quot;</span>,<br>            <span class="hljs-string">&quot;时间&quot;</span>: <span class="hljs-string">&quot;2025-01-15 14:30 UTC&quot;</span>,<br>        &#125;,<br>        color=<span class="hljs-string">&quot;red&quot;</span><br>    )<br></code></pre></div></td></tr></table></figure>
+
+<p>要不要我直接把这个脚本写到项目里？我可以建一个目录结构，先把 <code>feishu_notify.py</code> 跑通，验证你的 webhook 没问题。你只需要：</p>
+<ol>
+<li>告诉我项目放哪个目录（或者我建一个 <code>web3-alert-bot/</code>）</li>
+<li>把 webhook 地址给我（或者你自己填进 <code>.env</code>）</li>
+</ol>
+<p>确认后我就开干，跑通第一步推送，再往上加 Twitter 和 Grok。</p>
+<h3 id="飞书文档，添加机器人到群"><a href="#飞书文档，添加机器人到群" class="headerlink" title="飞书文档，添加机器人到群"></a>飞书文档，添加机器人到群</h3><p><a target="_blank" rel="noopener" href="https://open.feishu.cn/document/historical-version/management-weekly-report-based-docs/step-2-add-the-robot-to-the-group?lang=zh-CN">https://open.feishu.cn/document/historical-version/management-weekly-report-based-docs/step-2-add-the-robot-to-the-group?lang=zh-CN</a></p>
+<p>请保管好此 Webhook 地址。 请保管好该 Webhook 地址，不要公布在 GitHub、博客等可公开查阅的网站上，以防止地址泄露后被恶意调用发送垃圾信息</p>
+<p><a target="_blank" rel="noopener" href="https://open.feishu.cn/document/client-docs/bot-v3/add-custom-bot?lang=zh-CN">自定义机器人使用指南</a></p>
+<h3 id="运行脚本"><a href="#运行脚本" class="headerlink" title="运行脚本"></a>运行脚本</h3><p>在python脚本中填写webhook地址，并运行py脚本</p>
+<p>在飞书群组中，效果如下<br><img src="/2026/06/29/523638975/4.png"></p>
+<h1 id="筛选一些可靠的情报来源"><a href="#筛选一些可靠的情报来源" class="headerlink" title="筛选一些可靠的情报来源"></a>筛选一些可靠的情报来源</h1><p>在推特上面，</p>
+<h1 id="使用python抓取情报来源"><a href="#使用python抓取情报来源" class="headerlink" title="使用python抓取情报来源"></a>使用python抓取情报来源</h1><p><a target="_blank" rel="noopener" href="https://github.com/d60/twikit">https://github.com/d60/twikit</a></p>
+<h1 id="用claude-code开发"><a href="#用claude-code开发" class="headerlink" title="用claude code开发"></a>用claude code开发</h1><h1 id="用GLM修改"><a href="#用GLM修改" class="headerlink" title="用GLM修改"></a>用GLM修改</h1><p>&#x2F;root&#x2F;web3-threat&#x2F;web3威胁情报<br>目录下开发完毕</p>
+<p>目前实现的效果是，在飞书群里五分钟内推送指定的cve漏洞和web3威胁情报信息。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/29/509466224.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">一些缩写4</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/25/2151236563.html">
+                        <span class="hidden-mobile">一些缩写3</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "web3威胁情报"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

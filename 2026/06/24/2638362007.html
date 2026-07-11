@@ -1,0 +1,604 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>安全运营中心 (SOC) - 如何调查 SIEM 警报？ - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="安全运营中心 (SOC) - 如何调查 SIEM 警报？">
+                      
+                        安全运营中心 (SOC) - 如何调查 SIEM 警报？
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-06-24 15:17" pubdate>
+        2026年6月24日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      4k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      41
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">安全运营中心 (SOC) - 如何调查 SIEM 警报？</h1>
+            
+            <div class="markdown-body">
+              <p><a target="_blank" rel="noopener" href="https://app.letsdefend.io/training/lessons/how-to-investigate-a-siem-alert">https://app.letsdefend.io/training/lessons/how-to-investigate-a-siem-alert</a></p>
+<h1 id="如何调查-SIEM-警报？"><a href="#如何调查-SIEM-警报？" class="headerlink" title="如何调查 SIEM 警报？"></a>如何调查 SIEM 警报？</h1><p>深入学习我们的实用课程“如何调查 SIEM 警报？”，掌握提升网络安全职业生涯的关键技能。这门深入浅出的课程涵盖了从理解安全信息和事件管理 (SIEM) 的基础知识到调查和响应警报的实践技巧等方方面面。课程着重于真实场景，您将学习如何分析警报、识别误报并有效缓解潜在威胁。无论您是初学者还是经验丰富的专业人士，这门课程都能帮助您提升组织的安全态势，并始终领先于不断演变的网络安全威胁。</p>
+<h1 id="SIEM-警报简介"><a href="#SIEM-警报简介" class="headerlink" title="SIEM 警报简介"></a>SIEM 警报简介</h1><p>“如何调查 SIEM 警报”课程旨在帮助您更好地了解调查和应对安全事件的过程。</p>
+<p>LetsDefend 的实践页面提供动手练习和模拟，帮助您在模拟的安全运营中心 (SOC) 环境中加深对 SIEM 警报调查流程的理解。本课程将向您介绍警报分析的基础知识，以及如何充分利用这些练习和模拟。</p>
+<h2 id="你将学到什么"><a href="#你将学到什么" class="headerlink" title="你将学到什么"></a>你将学到什么</h2><p>关闭的警报越多，就能越快地应对新的攻击，并处理任何安全运营中心收到的数百条警报，因为这些警报涵盖了许多真实威胁行为者使用的技术。</p>
+<p>提升分析技能：利用先进技术增强您的警报分析能力，从而更精确地识别潜在威胁和异常情况。</p>
+<p>工具熟悉度：获得 SOC 中常用网络安全工具的实际操作经验。<br>日志分析：深入了解如何查找日志和检测恶意活动，从而有效识别和应对安全威胁。<br>改进事件响应：增强您快速有效地响应安全事件的能力，最大限度地减少潜在损失并减少停机时间。<br>增强威胁情报：通过分析和解决警报，深入了解不断演变的威胁和攻击技术，从而增强主动防御策略。<br>持续改进：密切关注新出现的威胁并解决警报，以提高您的准备和响应能力。<br>在本课程中，您将学习如何在 LetsDefend 模拟 SOC 环境中从头到尾调查和响应警报。</p>
+<h2 id="检测"><a href="#检测" class="headerlink" title="检测"></a>检测</h2><p>SIEM 警报是由 S​​IEM 系统根据预定义的规则和关联算法生成的通知。这些规则通常会根据组织的具体安全需求进行定制。当事件符合定义的条件时，SIEM 系统就会触发警报。</p>
+<p>在 LetsDefend 中，网络安全专家会创建并持续更新警报。这些警报涵盖一系列威胁，从攻击者最常用的攻击手段到最复杂的零日漏洞利用。</p>
+<h2 id="监测"><a href="#监测" class="headerlink" title="监测"></a>监测</h2><p>本节将向您介绍“监控”页面。“监控”页面分为三个部分，用作查看已生成警报的仪表板。这三个部分分别是：</p>
+<ul>
+<li>主频道</li>
+<li>调查频道</li>
+<li>关闭警报</li>
+</ul>
+<h2 id="主频道"><a href="#主频道" class="headerlink" title="主频道"></a>主频道</h2><p>监控页面默认显示所有可供认领的未结事件。在主频道中，您可以找到显示已触发警报关键详细信息的字段，包括：</p>
+<p>严重程度 ：表示严重程度，分为 低 、 中 、 高 或 严重 。<br>日期 ：显示事件发生的日期。（UTC+0 时区）<br>规则名称 ：标识由事件触发的具体规则。<br>EventID ：为事件提供唯一标识符。<br>类型 ：指定触发的事件或警报类型。<br>操作 ：将此警报的所有权分配给您，以便您进行进一步调查和分析。</p>
+<p>您可以使用左上角的筛选按钮，根据严重性、类型和角色条件来筛选显示的警报。</p>
+<h2 id="承担责任"><a href="#承担责任" class="headerlink" title="承担责任"></a>承担责任</h2><p>确定要调查的警报后，点击该警报即可查看更多详情。警报详情提供了关于该警报各个方面的全面信息。接下来，使用右上角的“认领”选项。此操作会将该警报分配给您，以便您进行进一步的分析和调查。</p>
+<p>一旦认领了警报，它就会自动发送到调查渠道，您可以在那里发起案件，以进一步分析和应对安全事件。</p>
+<h2 id="调查频道"><a href="#调查频道" class="headerlink" title="调查频道"></a>调查频道</h2><p>调查频道用于管理和响应活跃警报。当警报分配给您时，它将显示在此频道中。您可以在此处创建案例，以便更详细地调查警报。</p>
+<p>创建警报案例后，“案例管理”页面会立即打开，您可以在此启动流程手册。在“案例管理”页面，您可以查看事件详情并启动流程手册。流程手册是一系列预先设置好的指令，指导您完成调查流程。</p>
+<h2 id="剧本"><a href="#剧本" class="headerlink" title="剧本"></a>剧本</h2><p>在安全运营中心 (SOC) 环境中，存在多种不同类型的警报（例如网络攻击、勒索软件、恶意软件、网络钓鱼等）。调查这些警报的方法和途径各不相同。用于有效且一致地分析由安全信息和事件管理 (SIEM) 或其他安全工具生成的警报的工作流程称为“剧本”。</p>
+<p>例如，当您在 LetsDefend 监控页面上点击警报的“创建案例”按钮时，系统会自动在“案例管理”中创建一个工单。系统会为其分配一个特定的操作手册，并提供必要的步骤，以便您按照说明正确调查警报。</p>
+<h2 id="为什么战术手册很重要？"><a href="#为什么战术手册很重要？" class="headerlink" title="为什么战术手册很重要？"></a>为什么战术手册很重要？</h2><p>作为安全运营中心 (SOC) 分析师，我们并非总能准确掌握处理警报的具体步骤。操作手册通过提供清晰的分步流程，帮助我们在调查过程中遵循正确的步骤。这对于刚刚入行的新分析师来说尤其重要。</p>
+<h2 id="关闭警报"><a href="#关闭警报" class="headerlink" title="关闭警报"></a>关闭警报</h2><p>一旦行动手册完成，所有查询都已处理完毕（包括分析阶段），我们需要返回调查频道中的监控页面，正式关闭警报。</p>
+<p>需要对警报进行分析，以确定它是真阳性还是假阳性。真阳性意味着警报属实，需要采取进一步措施；而假阳性则意味着警报是误报。</p>
+<p>分析完成后，您应将分析结果记录在“分析师备注”部分。该文档应包含您的推理过程、相关数据或观察结果，以及调查过程中采取的步骤。这一点至关重要，因为它记录了您的分析过程，可供将来参考或用于解决类似警报。</p>
+<p>警报关闭后，您可以在“已关闭警报”部分查看分析详情。您可以在这里找到您对操作手册问题的回答，这些回答证实了您对情况的评估是准确的。</p>
+<p>如需更深入了解调查过程和警报的更多背景信息，您还可以访问官方事件报告或社区演练。这些资源提供了宝贵的信息，有助于您了解威胁形势并改进未来的应对措施。</p>
+<p>在本课中，我们学习了 SIEM 警报的相关知识，包括如何筛选警报、如何获取警报所有权以及如何从监控页面打开警报案例。</p>
+<p>在下一课中，我们将共同解决一个 SIEM 警报。</p>
+<h1 id="In-which-channel-can-you-take-ownership-of-the-alert"><a href="#In-which-channel-can-you-take-ownership-of-the-alert" class="headerlink" title="In which channel can you take ownership of the alert?"></a>In which channel can you take ownership of the alert?</h1><p>main channel</p>
+<h1 id="Once-you-have-completed-the-analysis-of-an-alert-in-which-channel-can-you-close-the-alert"><a href="#Once-you-have-completed-the-analysis-of-an-alert-in-which-channel-can-you-close-the-alert" class="headerlink" title="Once you have completed the analysis of an alert, in which channel can you close the alert?"></a>Once you have completed the analysis of an alert, in which channel can you close the alert?</h1><p>Investigation Channel</p>
+<h1 id="案例创建与行动手册启动"><a href="#案例创建与行动手册启动" class="headerlink" title="案例创建与行动手册启动"></a>案例创建与行动手册启动</h1><p><a target="_blank" rel="noopener" href="https://app.letsdefend.io/training/lesson_detail/case-creation-and-playbook-initiation">https://app.letsdefend.io/training/lesson_detail/case-creation-and-playbook-initiation</a></p>
+<p>在本节中，我们将学习如何为警报创建案例并启动行动手册。创建案例有助于我们组织和跟踪调查工作，而行动手册则指导我们完成必要步骤，以有效应对安全事件。</p>
+<h1 id="领取任务"><a href="#领取任务" class="headerlink" title="领取任务"></a>领取任务</h1><p>在本课程中，我们将分析事件ID：257 - SOC282 - 网络钓鱼警报 - 检测到欺骗性邮件。</p>
+<p>这是一个网络钓鱼警报，需要调查以确定其合法性和潜在影响。首先，请点击下方按钮，将此警报分配给自己。</p>
+<h1 id="创建案例"><a href="#创建案例" class="headerlink" title="创建案例"></a>创建案例</h1><p>当警报需要进一步调查时，第一步是创建案例。这包括记录警报的详细信息、分配责任归属并启动行动手册。您可以在调查频道中查看分配给您的警报。</p>
+<ol>
+<li>创建一个案例：</li>
+</ol>
+<p>导航至调查频道。<br>选择您想要为其创建案例的警报。<br>点击“创建案例”按钮，启动案例创建流程。</p>
+<h1 id="启动操作手册"><a href="#启动操作手册" class="headerlink" title="启动操作手册"></a>启动操作手册</h1><p>案件创建完成后，您将进入“案件管理”选项卡。在此页面上，您可以找到“事件详情”。操作手册提供了预定义的步骤来指导您的调查，遵循这些步骤将有助于您分析案件。</p>
+<p>开始使用操作手册</p>
+<p>按下“开始剧本”按钮。</p>
+<p>该操作手册的第一步“解析电子邮件”指示我们收集有关收到的电子邮件的关键详细信息，包括发件人、收件人、时间以及任何可疑内容或附件等信息。</p>
+<p>保持“战术手册”选项卡打开</p>
+<p>战术手册标签页应始终保持在侧边栏打开状态。<br>保持剧本标签页打开，创建一个新标签页，然后返回到警报调查标签页。</p>
+<p>您可以在“警报详情”页面找到部分问题的答案。请新建一个文本文件，记录您的发现。</p>
+<p>点击监控页面<br>前往调查频道<br>查看警报详情。</p>
+<h1 id="邮件分析"><a href="#邮件分析" class="headerlink" title="邮件分析"></a>邮件分析</h1><p>电子邮件分析<br>在本部分，我们将分析电子邮件，以收集与我们的调查相关的信息，因为电子邮件通常是关键的证据来源，并提供有关潜在安全威胁的宝贵见解。</p>
+<h2 id="导航至电子邮件安全"><a href="#导航至电子邮件安全" class="headerlink" title="导航至电子邮件安全"></a>导航至电子邮件安全</h2><p>要开始电子邮件分析，请导航至“电子邮件安全”选项卡。此部分提供用于详细检查电子邮件的工具和功能。</p>
+<p>点击电子邮件安全选项卡。<br>使用搜索栏查找与调查相关的电子邮件。</p>
+<h2 id="使用详细搜索"><a href="#使用详细搜索" class="headerlink" title="使用详细搜索"></a>使用详细搜索</h2><p>使用“电子邮件安全”选项卡中的详细搜索栏查找与调查相关的特定电子邮件。根据需要填写以下字段：</p>
+<p>发件人<br>接受者<br>主题<br>发件人 IP 地址<br>附件名称<br>邮件正文<br>日期<br>行动</p>
+<h2 id="检查电子邮件内容"><a href="#检查电子邮件内容" class="headerlink" title="检查电子邮件内容"></a>检查电子邮件内容</h2><p>找到相关电子邮件后，检查邮件内容，找出操作手册第一步中最后两个问题的答案。</p>
+<p>这封邮件的内容可疑吗？<br>有附件吗？</p>
+<h2 id="操作步骤-："><a href="#操作步骤-：" class="headerlink" title="操作步骤 ："></a>操作步骤 ：</h2><p>点击邮件即可查看其内容。<br>检查邮件正文、附件、发件人信息和其他详细信息。<br>向下滚动查看附件。</p>
+<h2 id="继续执行策略手册"><a href="#继续执行策略手册" class="headerlink" title="继续执行策略手册"></a>继续执行策略手册</h2><p>收集到所需信息后，请记下来以完成此步骤。</p>
+<ul>
+<li>回到剧本。</li>
+<li>点击“下一步”继续执行操作手册的下一步。</li>
+</ul>
+<h2 id="下一步行动指南"><a href="#下一步行动指南" class="headerlink" title="下一步行动指南"></a>下一步行动指南</h2><p>下一步指示我们检查电子邮件中的附件或 URL。</p>
+<h2 id="为了确定这一点-："><a href="#为了确定这一点-：" class="headerlink" title="为了确定这一点 ："></a>为了确定这一点 ：</h2><p>查看附件： 查看电子邮件底部，看看是否有任何附件。<br>查看邮件正文： 检查邮件内容是否包含任何超链接。超链接可能指向恶意网站或下载恶意文件，因此识别和分析这些链接至关重要。</p>
+<h2 id="分析网址-附件"><a href="#分析网址-附件" class="headerlink" title="分析网址&#x2F;附件"></a>分析网址&#x2F;附件</h2><p>下一步是分析 URL&#x2F;附件。如果电子邮件包含任何附件或 URL，则必须使用第三方沙箱进行分析。这些沙箱使我们能够在不危及系统安全的情况下，安全地检查内容是否恶意。</p>
+<p>注意 ：建议使用虚拟机下载警报中提供的附件或文件，因为它们可能包含恶意软件。您可以使用沙箱环境进行下载。除非另有说明，否则压缩文件的密码始终为“ infected ”。</p>
+<p>请按照以下步骤操作：</p>
+<ul>
+<li>下载附件： 下载电子邮件附件。</li>
+<li>分析 URL&#x2F;附件： 使用提供的工具检查附件和 URL 的安全性。</li>
+</ul>
+<p>您可以免费使用以下产品&#x2F;服务：</p>
+<p>AnyRun ： 交互式恶意软件分析服务和沙箱。<br>VirusTotal ： 一项分析文件和 URL 是否存在病毒的服务。<br>URLHouse ： 恶意网址数据库。<br>URLScan ： 一款用于扫描和分析网站的工具。<br>HybridAnalysis ： 一款免费的恶意软件分析服务。</p>
+<p>如果您不熟悉这些工具的使用，可以查看我们的 VirusTotal SOC 分析师 课程。</p>
+<p>如果内容是恶意的：</p>
+<p>点击“恶意”表示该内容构成威胁。</p>
+<p>如果内容不具恶意：</p>
+<p>点击“无恶意”表示内容安全。</p>
+<p>或者，您可以使用 Let’sDefend 中的沙箱机器进行静态分析。这些机器包含各种恶意软件分析工具，使用起来非常安全。</p>
+<p>沙盒 ：“ <a target="_blank" rel="noopener" href="https://app.letsdefend.io/sandbox">https://app.letsdefend.io/sandbox</a> ”</p>
+<h2 id="下一步行动指南-1"><a href="#下一步行动指南-1" class="headerlink" title="下一步行动指南"></a>下一步行动指南</h2><p>下一步，我们需要确认邮件是否已送达用户。为了解可疑邮件的传播范围和潜在影响，这一步至关重要。</p>
+<p>检查邮件是否已送达用户：</p>
+<p>为了确定这一点，我们需要检查警报详情中的“设备操作”部分，因为该部分提供了有关安全系统针对该电子邮件采取的操作的信息。</p>
+<p>操作步骤：</p>
+<p>导航至警报详情</p>
+<p>返回调查频道中的“警报详情”页面。<br>检查“设备操作”部分</p>
+<p>找到警报中详细说明安全系统采取的措施的部分。<br>确定电子邮件送达状态</p>
+<p>查找指示电子邮件是否已送达的条目。您可能会看到的常见术语包括“ 已允许 ”、“ 已删除 ”或“ 已隔离 ”。</p>
+<p>回答剧本问题</p>
+<p>根据“设备操作”部分中的信息，确定电子邮件是否已送达用户。<br>如果邮件已送达，请选择“ 已送达 ”。<br>如果邮件未送达，请选择“ 未送达 ”。</p>
+<h1 id="网络和日志分析"><a href="#网络和日志分析" class="headerlink" title="网络和日志分析"></a>网络和日志分析</h1><p>本课程重点讲解如何分析网络和日志数据，以确定是否访问了恶意 URL。</p>
+<p>为了确定用户是否已执行其下载的文件，这一步骤至关重要。</p>
+<h2 id="导航日志管理"><a href="#导航日志管理" class="headerlink" title="导航日志管理"></a>导航日志管理</h2><p>首先，请导航至“日志管理”页面。我们将在此查看日志，以识别任何可疑活动或与恶意 IP 地址和命令与控制 (C2) 地址的连接。</p>
+<p>操作步骤：</p>
+<p>查找受影响主机的 IP 地址</p>
+<p>前往 LetsDefend 平台上的“端点安全”页面。在搜索栏中搜索主机名。<br>查看“主机信息”，找到主机的 IP 地址。</p>
+<p>导航至日志管理页面：<br>• 在 LetsDefend 平台上，导航至“日志管理”页面。点击屏幕右上角的按钮，切换到“基本”模式。<br>查找 IP 地址：<br>• 在搜索栏中输入目标主机名的 IP 地址。这样您就可以看到从该主机发起的所有连接。<br>分析日志条目：<br>• 检查显示的日志条目。重点关注“源地址”和“目标地址”列，以识别任何可疑连接。<br>• 检查网络活动，以识别警报时间范围内任何异常的出站连接或数据传输，这些连接或传输可能表明与 C2 服务器通信。<br>确定访问状态：<br>• 点击“原始数据”按钮查看指定条目的原始日志。确定是否访问了恶意文件或 URL。<br>以下示例展示了如何检查 C2 地址是否被访问：</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/soc/">soc</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/25/2151236563.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">一些缩写3</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/24/835963566.html">
+                        <span class="hidden-mobile">养儿防老：一场精算不过关的幻觉</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "安全运营中心 (SOC) - 如何调查 SIEM 警报？"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

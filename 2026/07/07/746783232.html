@@ -1,0 +1,587 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>工作英语（一） - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="工作英语（一）">
+                      
+                        工作英语（一）
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-07-07 19:10" pubdate>
+        2026年7月7日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.8k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      19
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">工作英语（一）</h1>
+            
+            <div class="markdown-body">
+              <h1 id="circular-to"><a href="#circular-to" class="headerlink" title="circular to"></a>circular to</h1><p>“circular to” 这个短语通常出现在正式文书或邮件中，最常见的意思是 <strong>“致……的通函&#x2F;通知”</strong> 或 <strong>“发给……的传阅文件”</strong>。</p>
+<ul>
+<li><p>这里 <strong>circular</strong> 作名词，意为“通告、通函”；<strong>to</strong> 表示接收对象。<br>例：<em>The company issued a circular to all employees.</em> → 公司向所有员工发了一份通函。</p>
+</li>
+<li><p>有时也会用在 <strong>形容词 + to</strong> 的结构中，比如 <em>circular to</em> 表示“对……来说是循环的&#x2F;绕圈的”，但这种情况极少见，日常几乎不会这样用。</p>
+</li>
+</ul>
+<p>如果您是在我之前翻译的那份评论里看到了这个词，请告诉我具体在哪一页，我可以结合上下文给出更精确的解释。如果只是泛泛而问，上面的答案就是最常用的含义。</p>
+<h1 id="internet-brokers"><a href="#internet-brokers" class="headerlink" title="internet brokers"></a>internet brokers</h1><p>“internet brokers” 直译是 <strong>“互联网经纪商”</strong> 或 <strong>“互联网中介”</strong>，具体含义取决于行业场景：</p>
+<ul>
+<li><strong>金融领域</strong>：指通过互联网提供证券、外汇、保险等交易服务的经纪公司（如 Robinhood、eToro 等在线券商），用户可在线上开户、买卖资产。</li>
+<li><strong>广告&#x2F;数据领域</strong>：指在线广告交易平台或数据中介，负责在广告主与发布商之间撮合流量或数据交易（如 Google AdX、The Trade Desk 等）。</li>
+<li><strong>IT&#x2F;安全领域</strong>：如果出现在您之前提到的安全文档中，可能指“互联网代理服务商”或“网络接入中介”，也可能指那些提供 API 网关、云服务中间层的第三方供应商。</li>
+</ul>
+<p>由于您没有给出具体上下文，我无法确定是哪种。如果您能告诉我这个词出现在哪一页或哪句话里，我可以结合内容给出更精确的解释。如果只是泛泛而问，以上定义已覆盖常见情况。</p>
+<h1 id="indiscriminately"><a href="#indiscriminately" class="headerlink" title="indiscriminately"></a>indiscriminately</h1><p>不加区分地、胡乱地、随机地<br>例：The malware spread indiscriminately across all devices.<br>→ 该恶意软件不加区分地在所有设备上传播。</p>
+<h1 id="impersonate"><a href="#impersonate" class="headerlink" title="impersonate"></a>impersonate</h1><p>它来自动词 impersonate，意思是 冒充他人身份、模仿某人，通常带有欺骗目的。</p>
+<p>在网络安全或账户管理场景中，常指攻击者伪装成合法用户、管理员或系统组件。</p>
+<h1 id="purported"><a href="#purported" class="headerlink" title="purported"></a>purported</h1><p>它通常用于描述某事物 被宣称是某种样子，但 不一定属实，带有一种“未经证实”或“表面宣称”的语气。</p>
+<p>作为形容词，常放在名词前；作为动词时，它是 purport 的过去式&#x2F;过去分词，意为“声称、意图”。</p>
+<h1 id="“interchangeably”"><a href="#“interchangeably”" class="headerlink" title="“interchangeably”"></a>“interchangeably”</h1><p> 的中文翻译是 “可互换地”、“交替地” 或 “互相替换地”。</p>
+<h1 id="reiterate"><a href="#reiterate" class="headerlink" title="reiterate"></a>reiterate</h1><p>意为 重复说过的话，目的是 加强语气、强调重要性，或 让对方不要忘记。</p>
+<h1 id="stay-abreast-of"><a href="#stay-abreast-of" class="headerlink" title="stay abreast of"></a>stay abreast of</h1><p>这个短语通常以 stay abreast of + 某事物 的形式出现，表示 时刻关注某事的最新动态，确保自己不落后于新信息或新变化。</p>
+<h1 id="commensurate"><a href="#commensurate" class="headerlink" title="commensurate"></a>commensurate</h1><p>表示 某事物的规模、程度、大小等与另一事物成比例或保持合理对应关系，强调两者平衡、匹配。</p>
+<p>通常与介词 with 搭配使用：commensurate with（与……相称&#x2F;相应）。</p>
+<h1 id="“revocation-of-passkeys”"><a href="#“revocation-of-passkeys”" class="headerlink" title="“revocation of passkeys”"></a>“revocation of passkeys”</h1><p>的中文翻译是 “通行密钥的撤销” 或 “撤销通行密钥”，也可译为 “通行密钥吊销”。</p>
+<p>为什么说是revocation of passkeys而不是cancel of passkeys</p>
+<p>这个问题问得很到位，点出了英语中近义词选择的微妙之处。在安全（Security）和身份认证（IAM）领域，<strong>必须用 “revocation”</strong>，而不用 “cancel”，原因如下：</p>
+<h3 id="1-核心语义区别（颁发-vs-计划）"><a href="#1-核心语义区别（颁发-vs-计划）" class="headerlink" title="1. 核心语义区别（颁发 vs. 计划）"></a>1. 核心语义区别（颁发 vs. 计划）</h3><ul>
+<li><strong>Revoke（撤销&#x2F;吊销）</strong>：针对的是<strong>已经授予的权限、凭证、证书或状态</strong>。它的前提是“这个东西曾经是有效的、被承认的”，现在因为某些原因（如泄露、离职、过期）将其<strong>作废</strong>，使其回到“无效”状态。</li>
+<li><strong>Cancel（取消）</strong>：针对的是<strong>尚未发生的计划、订单、事件或进程</strong>。它的前提是“这件事还在流程中，我让它不执行了”。</li>
+</ul>
+<p><strong>打个比方：</strong></p>
+<blockquote>
+<p><strong>Revoke</strong> 像是<strong>没收你的门禁卡</strong>（这张卡之前能开门，现在从系统里删掉权限，卡废了）。<br><strong>Cancel</strong> 像是<strong>取消明天的会议</strong>（会议还没开，叫停了）。</p>
+</blockquote>
+<h3 id="2-为什么-“Cancel-of-passkeys”-说不通？"><a href="#2-为什么-“Cancel-of-passkeys”-说不通？" class="headerlink" title="2. 为什么 “Cancel of passkeys” 说不通？"></a>2. 为什么 “Cancel of passkeys” 说不通？</h3><ul>
+<li><strong>通行密钥（Passkeys）</strong> 是一种加密凭证，它<strong>已经存在</strong>于设备中且正在被使用（属于“已生效状态”）。</li>
+<li>如果你说 “cancel the passkey”，听上去像在说“取消这个密钥的生成&#x2F;注册流程”，或者“把还没发出去的密钥收回来”，这不符合实际操作。</li>
+<li>实际操作是：这个密钥被用于登录，现在因为手机丢了或怀疑被攻击，<strong>我们要废掉它的合法性</strong>，让它再也通不过校验——这必须用 <strong>revoke</strong>。</li>
+</ul>
+<h3 id="3-行业术语惯例（法律法规）"><a href="#3-行业术语惯例（法律法规）" class="headerlink" title="3. 行业术语惯例（法律法规）"></a>3. 行业术语惯例（法律法规）</h3><p>在计算机安全和法律行政领域，<strong>“Revocation” 是固定术语</strong>：</p>
+<ul>
+<li><strong>证书吊销（Certificate Revocation）</strong>——这是 SSL&#x2F;TLS 证书里的标准叫法，RFC 协议里就叫 <code>CRL (Certificate Revocation List)</code>。</li>
+<li><strong>令牌撤销（Token Revocation）</strong>——OAuth 2.0 规范中明确使用 <code>revoke</code> 接口。</li>
+<li><strong>权限撤销（Permission Revocation）</strong>——操作系统权限模型的标准用词。</li>
+</ul>
+<p>只要涉及“废除已授予的身份&#x2F;权限凭证”，英语界统一使用 <strong>Revoke</strong>。如果用 “Cancel”，会被同行视为外行话，因为它无法表达“剥夺权限”这一法律和技术上的强制性。</p>
+<h3 id="4-补充：动作主体的区别"><a href="#4-补充：动作主体的区别" class="headerlink" title="4. 补充：动作主体的区别"></a>4. 补充：动作主体的区别</h3><ul>
+<li><strong>Revoke</strong> 通常由<strong>权威&#x2F;系统&#x2F;管理员</strong>执行（强制性的，用户可能被动接受）。</li>
+<li><strong>Cancel</strong> 通常由<strong>发起者</strong>执行（主观意愿，比如用户自己取消输入密码的操作）。</li>
+</ul>
+<p>如果你告诉安全团队 “We need to cancel these passkeys”，他们大概率会愣一下，然后纠正你说：“You mean <strong>revoke</strong> them?” 所以，你的疑问很有价值——这正好是区分专业英语和日常英语的关键点。</p>
+<h1 id="“small-cap-stocks”"><a href="#“small-cap-stocks”" class="headerlink" title="“small-cap stocks”"></a>“small-cap stocks”</h1><p>中文翻译是 “小盘股” 或 “小市值股票”。</p>
+<h1 id="illiquid-assets"><a href="#illiquid-assets" class="headerlink" title="illiquid assets"></a>illiquid assets</h1><p>非流动资产 &#x2F; 流动性差的资产</p>
+<h1 id="“truncated-after”"><a href="#“truncated-after”" class="headerlink" title="“truncated after”"></a>“truncated after”</h1><p>“truncated after” 直译为 <strong>“在……之后截断”</strong>。</p>
+<p>它具体指<strong>以某一点为界，保留该点之前（或包含该点）的内容，删除该点之后的所有内容</strong>。</p>
+<p>根据具体语境，常见译法如下：</p>
+<ol>
+<li><p><strong>直译（通用）</strong>：在……之后截断</p>
+<ul>
+<li><em>例：The file was truncated after the error.</em> → 文件在报错之后被截断。</li>
+</ul>
+</li>
+<li><p><strong>技术&#x2F;编程语境</strong>（常跟数字，如字符数、行数）：</p>
+<ul>
+<li>通常译作 <strong>“保留前……，其余截断”</strong> 或 <strong>“在……处截断”</strong>。</li>
+<li><em>例：The string is truncated after 10 characters.</em> <ul>
+<li>严谨译法：该字符串在第10个字符之后被截断。（即只保留前10个字符）</li>
+<li>地道简译：该字符串仅保留前10个字符。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>强调位置</strong>：以……为界截断</p>
+<ul>
+<li><em>例：Data is truncated after the decimal point.</em> → 数据在小数点之后截断（即只取整数部分，舍去小数）。</li>
+</ul>
+</li>
+</ol>
+<p><strong>特别提醒</strong>：如果看到“truncated after”后面跟的是<strong>时间点</strong>（如 <code>after 5 seconds</code>），则译为“在5秒后中断&#x2F;截断”。</p>
+<p>如果您能提供完整的句子，我可以给出更精准的上下文翻译。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E9%9B%85%E6%80%9D%E9%98%85%E8%AF%BB/">雅思阅读</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/07/08/1324020696.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">SFC对虚拟资产交易平台运营者的网络安全要求分析</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/07/07/3728633984.html">
+                        <span class="hidden-mobile">低欲望社会-读后感</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "工作英语（一）"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

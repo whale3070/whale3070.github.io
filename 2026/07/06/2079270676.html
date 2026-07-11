@@ -1,0 +1,526 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>合作前，快速筛掉“只答应、不做事”的人 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="合作前，快速筛掉“只答应、不做事”的人">
+                      
+                        合作前，快速筛掉“只答应、不做事”的人
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-07-06 23:13" pubdate>
+        2026年7月6日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.7k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      26
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">合作前，快速筛掉“只答应、不做事”的人</h1>
+            
+            <div class="markdown-body">
+              <p>我待过两种完全极致的人生状态。<br>我先说一件不太光彩的事。<br>曾经有很长一段时间，我是彻底停摆的。<br>每天躺在床上刷短视频、看小说、点外卖，对外界毫无兴趣，什么都不想做，也什么都没做。日子日复一日流逝，我没有任何产出，没有任何成长，人生完全陷入静止。<br>后来，我硬生生从这种泥潭里爬了出来。<br>这半年，我打黑客松、组队攻坚、落地项目、写代码，一步步创办自己的公司，对接合作、拆分任务、跟进进度、落地结果。<br>我讲这段经历，不是为了灌励志鸡汤。<br>核心原因只有一个：正是因为我亲身当过“不做事的人”，我才能精准认出所有同类。<br>我不是站在岸上居高临下评价别人，我是从停滞的死水里面亲自游出来的人。我清楚这种状态从内部看是什么心态，从外部看是什么模样。<br>也正是创业、频繁合作后，我看清了一个特别残酷的真相：<br>职场和合作场里，藏着一大批“看似参与、实则躺平”的人。<br>他们会爽快答应任务、积极参与分工、正经签署协议，但到了交付节点，永远没有结果。<br>这篇文章，只解决一个非常实用的问题：如何在合作开始之前，就精准筛掉这类“只承诺、不落地”的人，避免内耗和踩坑。</p>
+<hr>
+<p>01 先看透：不做事的人，从来不会直白摆烂<br>很多人误以为，不做事的人就是懒惰、摆烂、不上进。<br>其实根本不是。他们各有精致的外壳，伪装得比谁都靠谱，极具迷惑性。主要分为三类：<br>第一种：停摆型<br>就像曾经的我。不是人品差、不想努力，而是整个人彻底陷入状态卡顿，动弹不得。<br>这类人没有恶意，只是被困在了自我内耗和惰性里，连自己的人生都拉不出来，更不可能接住你的合作任务。<br>你想靠合作带动他、拯救他，最后只会被他拖慢节奏、消耗精力。<br>这种人很好筛，他们不会主动参加任何需要报名的、需要出门的任务。<br>第二种：高标准、零行动型（最迷惑）<br>我身边有个很典型的例子：名校计算机本科，起点远超大多数人。<br>刚毕业时手握优质offer，嫌弃薪资太低果断拒绝，张口就要翻倍薪资。可市场给不了他想要的条件，他便干脆在家待业打游戏。后来读研又中途退学。<br>两年时间，存款不多不少，人生完全静止，没有任何进展。<br>这类人最容易让人误以为“有追求、有野心”。<br>但剥开外壳看内核：他的高标准，从来不是用来鞭策自己的，而是用来给自己“不开始”找借口的。<br>只要不行动、不尝试，就永远不会失败，就能一直自我催眠：我很优秀，我只是不屑于将就。<br>第三种：想捡现成、坐等分红型（最危险）<br>这类人是合作里的最大坑，我打黑客松组队时频繁遇到。<br>他们的核心诉求极其直白：只想分功劳、分收益，不想做执行、扛压力。<br>聊项目前景、聊分红比例、聊权益分配，比谁都积极、思路比谁都清晰。但一问到具体分工、落地动作、执行难点，就含糊其辞、推诿逃避。<br>三类人表象不同、人设不同，但内核高度统一：<br>所有承诺都是空的，到了该出结果的时刻，永远一无所有。<br>他在开始的时候说要合作，想参加黑客松，到要交任务的时候，问我“有什么我能帮忙的呢？”<br>态度很好，看着没有什么问题吧？<br>但是实际上，一周之前就安排了一个很简单的任务，他就是不做。一周之后还好意思问，“有什么我能帮忙的呢？”<br>他不是忘记了，他就是觉得做事情和他无关。</p>
+<hr>
+<p>02 合作筛人，只看行动，不看嘴炮<br>很多人筛合作伙伴，习惯性看简历、听承诺、凭感觉。<br>这是最大的误区。<br>因为不做事的人，最擅长的就是嘴上做事、画饼造势。真正靠谱的执行力，从来都藏在具体行动信号里。分享5个我一直在用的实操筛选方法，精准避坑：</p>
+<ol>
+<li>先用微型任务试手，别直接签大合作<br>这是成本最低、准确率最高的筛选方式。<br>真正会做事的人，你丢一个简单的小任务，两三天内一定能给到反馈。哪怕成果粗糙、不够完美，但一定有落地、有产出、有进度。<br>不做事的人，能把一件小事拖成遥遥无期的大工程。<br>要么全程沉默、毫无动静，要么反复追问细节、索要模板，用无休止的提问消耗你的耐心，变相拖延自己的进度。<br>小任务见真章，执行力骗不了人。一轮小成本试错，能过滤掉80%的不靠谱合作者。</li>
+<li>看他聊过程动作，还是只聊愿景分红<br>靠谱的合作者，沟通永远落地务实。<br>他们会主动拆解进度：我先做A环节，预计3天完成，大概率会卡在B问题，提前想好备选方案。全程聊的是落地、执行、风险、进度。<br>不靠谱的人，永远悬浮在高空。<br>张口就是项目前景、行业风口、未来体量，三句不离怎么分钱、怎么分权益。唯独对自己要做什么、能贡献什么、什么时候交付，一概模糊。<br>当一个人对分钱的兴趣，远大于做事的兴趣，直接pass。</li>
+<li>看主动推进，还是被动等催<br>分工落地后，一个细节就能定胜负：需不需要你反复催促？<br>会做事的人，自带推进属性。遇到问题主动沟通、主动复盘、主动找解决方案，还会定期同步阶段性进度，不用任何人督促。<br>不做事的人，全程处于“静音待机”状态。<br>你不催，他永远没动静；你一催，他永远有一堆完美的理由拖延。<br>记住一句铁律：第一次拖延不是意外，是模式的预警。<br>不要自我安慰、帮对方找借口，一次拖延是偶然，两次拖延就是常态，趁早远离。</li>
+<li>重点看：有没有独立做完一件事的经历<br>筛人别盯学历、头衔、背书，这些都没用。<br>唯一核心标准：他有没有从头到尾、独立落地、拿到明确结果的经历。<br>可以是独立做完一个项目、备考拿下高难度证书、把一个想法落地成产品、长期坚持做成一件事。<br>关键是两个词：独立、有结果。<br>但凡完整独立做完过一件事的人，骨子里都有“成事肌肉记忆”。他们懂坚持、懂复盘、懂如何熬过没有反馈的瓶颈期。<br>而从来没有完整落地过任何事的人，大概率接不住你的任务。因为他从来没有学会过“坚持、落地、收尾”。</li>
+<li>警惕：高标准、零付出的人<br>有野心、有高要求从来不是缺点。<br>真正的问题是：对回报要求极高，对自己的付出极度敷衍。<br>这类人嘴上说着要优质结果、高额回报，却拿不出任何对应的行动积累。<br>辨别方法很简单：让他说说，为了自己口中的高标准、高目标，过去做过什么、现在正在做什么？<br>答不上具体动作、只有空泛愿景的，所有高标准，都是逃避努力的借口。</li>
+</ol>
+<hr>
+<p>03 已经踩坑？唯一正确的处理方式：快止损<br>如果不慎已经组队、签约，对方却持续摆烂、到期无交付，别纠结、别内耗，记住三个字：快止损。<br>给大家三个落地的合作原则：</p>
+<ol>
+<li>协议务必细化节点与验收标准。每个里程碑绑定对应权益、付款、分工，未完成交付直接终止、不予结算，从规则上杜绝躺平蹭收益。</li>
+<li>别迷信NDA保密协议。保密协议只能防信息泄露，管不了执行力，更逼不出交付结果，无法保障项目进度。</li>
+<li>放弃拯救心态。追着摆烂的人要结果、催进度，消耗的时间、情绪、精力，远比重新找人成本更高。沉没成本已经付出，别再持续加码。<br>及时切割无效人脉、无效合作，把所有精力留给愿意做事、能出结果的人。</li>
+</ol>
+<hr>
+<p>04 最后：筛人不是苛刻，是认清规律<br>有人会觉得，这样精准筛选、果断切割，太过功利、太过冷酷。<br>但我最有资格说这句话：我也曾是那个“卡在原地、一动不动”的人，我不评判任何人的停滞。<br>我清楚，很多人不做事，不是人品坏、不想上进，只是暂时陷入了人生卡顿、内耗、迷茫，动弹不得。<br>那里没有坏人，只有动不了的人。<br>但成年人的合作，永远要尊重两条底层规律：<br>第一，市场和团队，永远不会为“不做事”买单。靠蹭别人成果、坐等分红的人，或许能侥幸一次、两次，但最终一定会被做事的人淘汰、出局。<br>第二，你的时间和精力，极其珍贵。你好不容易跳出停滞的泥潭，走上向上成长的曲线，没有义务停下来，拖着一个不肯迈步的人同行，更不能被对方拉回原地。<br>我越来越笃定：<br>决定人与人最终差距的，从来不是学历、出身、运气。<br>而是最朴素的四个字：愿不愿意做事。<br>做事的人，哪怕起步笨拙、漏洞百出，也会在一次次落地中迭代成长，永远走在向上的路上。<br>不做事的人，哪怕天赋再好、起点再高，数年之后依旧原地踏步，困在空想和借口里。<br>你已经选择了“行动”与“成长”，就好好守住这条路，别让任何人，打乱你的向上节奏。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/View/">View</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/07/07/3728633984.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">低欲望社会-读后感</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/07/03/20260703tenyear.html">
+                        <span class="hidden-mobile">十年博客总结（2016-2026）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "合作前，快速筛掉“只答应、不做事”的人"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>
