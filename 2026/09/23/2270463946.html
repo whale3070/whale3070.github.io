@@ -1,0 +1,666 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>一些缩写7 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="一些缩写7">
+                      
+                        一些缩写7
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-09-23 07:49" pubdate>
+        2026年9月23日 早上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.9k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      31
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">一些缩写7</h1>
+            
+            <div class="markdown-body">
+              <h1 id="ISACA-是什么"><a href="#ISACA-是什么" class="headerlink" title="ISACA 是什么"></a>ISACA 是什么</h1><p><strong>ISACA（Information Systems Audit and Control Association，国际信息系统审计与控制协会）</strong>，1969年成立的全球非营利专业协会，总部美国，专注<strong>IT审计、信息安全治理、风险管控、数字信任</strong>领域，是GRC圈子最权威的机构之一，推出COBIT框架和全球四大顶级证书：<strong>CISA、CISM、CRISC、CGEIT</strong>。</p>
+<blockquote>
+<p>✅一句话区分你前面问的 IRCA &#x2F; ISO27001：</p>
+<ul>
+<li><strong>IRCA</strong>：管<strong>ISO体系审核员注册</strong>（ISO27001&#x2F;9001这类管理体系的第三方审核资质）</li>
+<li><strong>ISACA</strong>：管<strong>IT治理、IT审计、企业安全管理</strong>的个人专业认证，偏业务+风控+审计思维，<strong>不是ISO体系审核注册机构</strong><br>两者可以搭配，互不冲突，很多GRC专家是双持证。</li>
+</ul>
+</blockquote>
+<h2 id="ISACA四大核心证书（都有硬性工作经验门槛！这点非常关键）"><a href="#ISACA四大核心证书（都有硬性工作经验门槛！这点非常关键）" class="headerlink" title="ISACA四大核心证书（都有硬性工作经验门槛！这点非常关键）"></a>ISACA四大核心证书（都有硬性工作经验门槛！这点非常关键）</h2><blockquote>
+<p>全部是<strong>考试通过 + 满足从业年限 + 承诺遵守职业道德 + 持续继续教育CPE维持证书有效</strong>，只考过试拿不到证。</p>
+</blockquote>
+<h3 id="1-CISA｜注册信息系统审计师（最经典）"><a href="#1-CISA｜注册信息系统审计师（最经典）" class="headerlink" title="1. CISA｜注册信息系统审计师（最经典）"></a>1. CISA｜注册信息系统审计师（最经典）</h3><p><strong>Certified Information Systems Auditor</strong></p>
+<ul>
+<li>定位：<strong>IT审计黄金标准</strong>，评估IT系统、IT内控、IT合规，看系统有没有漏洞、流程是否可信</li>
+<li>经验要求：<strong>5年IT审计&#x2F;内控相关经验</strong>，部分学历可以减免年限</li>
+<li>适合岗位：IT审计师、SOC、内部审计、第三方IT鉴证、交易所&#x2F;银行IT风控</li>
+<li>用处&amp;赚钱：<br>香港&#x2F;金融大厂、四大、银行、交易所招聘IT审计优先看CISA；<br>全职薪资显著高于普通安全运维；也可以接独立IT审计、内控评估项目；<br>是<strong>金融、上市企业IT合规刚需证书</strong>。</li>
+</ul>
+<h3 id="2-CISM｜注册信息安全经理"><a href="#2-CISM｜注册信息安全经理" class="headerlink" title="2. CISM｜注册信息安全经理"></a>2. CISM｜注册信息安全经理</h3><p><strong>Certified Information Security Manager</strong></p>
+<ul>
+<li>定位：<strong>安全项目&#x2F;安全团队管理</strong>，战略、安全治理、风险、事件响应、安全项目落地，面向CISO、安全负责人</li>
+<li>经验要求：<strong>5年信息安全管理经验</strong></li>
+<li>适合：安全经理、GRC负责人、SOC负责人、CISO后备人选</li>
+<li>用处&amp;赚钱：偏向管理层岗位，<strong>不侧重底层漏洞技术，侧重如何搭建企业安全体系、向董事会汇报风险</strong>；港企、跨国企业安全管理岗高薪标配。</li>
+</ul>
+<h3 id="3-CRISC｜风险与信息系统控制认证"><a href="#3-CRISC｜风险与信息系统控制认证" class="headerlink" title="3. CRISC｜风险与信息系统控制认证"></a>3. CRISC｜风险与信息系统控制认证</h3><p><strong>Certified in Risk and Information Systems Control</strong></p>
+<ul>
+<li>定位：<strong>企业IT风险管理专家</strong>，识别、评估、处置IT风险，设计控制措施</li>
+<li>经验：5年IT风险&#x2F;内控经验</li>
+<li>适合：风险经理、GRC、风控中台、业务风险评估；金融、保险、大型集团最爱。</li>
+</ul>
+<h3 id="4-CGEIT｜企业IT治理认证"><a href="#4-CGEIT｜企业IT治理认证" class="headerlink" title="4. CGEIT｜企业IT治理认证"></a>4. CGEIT｜企业IT治理认证</h3><p><strong>Certified in the Governance of Enterprise IT</strong></p>
+<ul>
+<li>定位：顶层IT治理，IT战略对齐业务、IT投资、董事会层面治理，偏高管路线</li>
+<li>经验：5年企业IT治理经验，门槛最高，考的人最少，面向IT总监&#x2F;CISO</li>
+</ul>
+<h3 id="附加热门：CDPSE（数据隐私专家）"><a href="#附加热门：CDPSE（数据隐私专家）" class="headerlink" title="附加热门：CDPSE（数据隐私专家）"></a>附加热门：CDPSE（数据隐私专家）</h3><p>数据保护、隐私合规，GDPR、个人信息保护相关，适合隐私合规岗。</p>
+<h2 id="ISACA还有一套框架：COBIT"><a href="#ISACA还有一套框架：COBIT" class="headerlink" title="ISACA还有一套框架：COBIT"></a>ISACA还有一套框架：COBIT</h2><p>COBIT是ISACA出品的<strong>IT治理框架</strong>，用来对齐业务目标与IT管控，很多大型企业、金融机构做IT治理、内控、数字化风控都在用，和ISO27001（信息安全体系）可以互补：</p>
+<ul>
+<li>ISO27001：<strong>信息安全管理体系</strong>（怎么做安全、安全控制项）</li>
+<li>COBIT：<strong>IT整体治理</strong>（IT怎么管、权责、决策、价值交付）</li>
+</ul>
+<h2 id="ISACA证书-vs-ISO27001-IRCA（重点，帮你理清路线）"><a href="#ISACA证书-vs-ISO27001-IRCA（重点，帮你理清路线）" class="headerlink" title="ISACA证书 vs ISO27001&#x2F;IRCA（重点，帮你理清路线）"></a>ISACA证书 vs ISO27001&#x2F;IRCA（重点，帮你理清路线）</h2><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>ISO27001 IRCA路线</th>
+<th>ISACA（CISA&#x2F;CISM）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>核心方向</td>
+<td><strong>ISMS体系搭建、ISO标准认证审核</strong></td>
+<td><strong>IT审计、安全治理、企业风险</strong></td>
+</tr>
+<tr>
+<td>能干什么</td>
+<td>帮企业搭建27001体系（咨询）；做ISO体系第三方认证审核（IRCA注册后）</td>
+<td>IT内控审计、安全战略管理、IT风险评估、上市&#x2F;金融IT鉴证</td>
+</tr>
+<tr>
+<td>签字效力</td>
+<td>ISO认证报告签字（体系认证）</td>
+<td>IT审计&#x2F;内控评估报告，<strong>不能做ISO27001体系认证签字</strong>（不属于IRCA）</td>
+</tr>
+<tr>
+<td>经验门槛</td>
+<td>LA课程+攒审核人日，注册IRCA</td>
+<td>考试+5年相关从业经验才能拿证，门槛更高</td>
+</tr>
+<tr>
+<td>变现场景</td>
+<td>咨询项目、审核人日费</td>
+<td>大厂GRC&#x2F;IT审计全职岗，内控&#x2F;风险咨询，金融合规项目</td>
+</tr>
+</tbody></table>
+<h2 id="能不能赚钱？"><a href="#能不能赚钱？" class="headerlink" title="能不能赚钱？"></a>能不能赚钱？</h2><p><strong>能，但不是考完立刻接单变现，强依赖经验</strong></p>
+<ol>
+<li>求职加薪：香港、跨国企业、四大、银行、交易所，CISA&#x2F;CISM是硬加分项，中高级岗位会优先，薪资天花板明显高于单纯技术安全岗。</li>
+<li>副业&#x2F;项目：有项目经验后，可以承接IT内控审计、风险评估、GRC咨询；<strong>但不能靠CISA直接去做ISO27001认证审核签字</strong>（这个权限是IRCA）。</li>
+<li>缺点：<ul>
+<li>考试成本高（报名费贵）；</li>
+<li><strong>硬性5年经验</strong>，只考过试没有经验，证书拿不下来；</li>
+<li>每年需要持续CPE学分维持证书有效，还要遵守职业道德。</li>
+</ul>
+</li>
+</ol>
+<h1 id="SOW是什么"><a href="#SOW是什么" class="headerlink" title="SOW是什么"></a>SOW是什么</h1><p><strong>SOW</strong> 最常见的含义是 <strong>Statement of Work</strong>，中文叫<strong>工作说明书</strong>或<strong>工作范围说明书</strong>。</p>
+<p>它是项目管理、外包合作和商务合同里非常核心的一份文件，用来<strong>明确双方要做什么、交付什么、什么时候交、做到什么程度</strong>。</p>
+<p>具体来说，SOW 通常包含这些内容：</p>
+<ul>
+<li><strong>项目范围</strong>：具体要做哪些工作，不包含哪些工作</li>
+<li><strong>交付物</strong>：最终要交出什么成果，比如报告、软件、设计图等</li>
+<li><strong>时间节点</strong>：各阶段的起止时间、里程碑</li>
+<li><strong>验收标准</strong>：怎样算合格、怎样算完成</li>
+<li><strong>双方职责</strong>：甲方提供什么，乙方负责什么</li>
+<li><strong>费用与付款</strong>：多少钱、怎么付、按什么节点付</li>
+<li><strong>变更机制</strong>：需求变了怎么处理</li>
+</ul>
+<p>它和合同的关系是：<strong>合同管法律和商务条款，SOW 管具体干什么活</strong>。SOW 通常作为合同的附件或组成部分，一旦签字就具有约束力。</p>
+<p>在不同场景下，SOW 也可能指：</p>
+<ul>
+<li><strong>Scope of Work</strong>：工作范围，意思接近</li>
+<li>某些技术领域里的特定缩写，比如半导体里的“硅片上外延”等，但日常商务场景下基本都指 Statement of Work</li>
+</ul>
+<p>如果你是在某个具体场景里看到这个词，可以告诉我上下文，我帮你确认它具体指哪个。</p>
+<h1 id="Com-Laude是什么，可以做钓鱼网站防护吗"><a href="#Com-Laude是什么，可以做钓鱼网站防护吗" class="headerlink" title="Com Laude是什么，可以做钓鱼网站防护吗"></a>Com Laude是什么，可以做钓鱼网站防护吗</h1><p>可以。<strong>Com Laude 能做与钓鱼网站相关的防护，但它不是那种面向普通用户的“反钓鱼软件”</strong>，而是一家面向企业品牌的<strong>域名注册与数字品牌保护公司</strong>。它的防护逻辑主要是从<strong>域名和品牌滥用</strong>入手，而不是在你电脑或邮箱里拦截钓鱼链接。</p>
+<h2 id="Com-Laude-是什么"><a href="#Com-Laude-是什么" class="headerlink" title="Com Laude 是什么"></a>Com Laude 是什么</h2><p>Com Laude 是一家总部在伦敦的<strong>全球企业域名注册商和数字品牌保护公司</strong>，主要服务国际品牌、律师事务所和大型企业。核心业务包括：</p>
+<ul>
+<li><strong>企业域名管理</strong>：帮企业注册、续费、管理大量域名，防止品牌相关域名被抢注。</li>
+<li><strong>品牌保护与侵权监控</strong>：通过工具（如 Com Laude Watch）扫描大量域名，发现商标滥用、仿冒域名等。</li>
+<li><strong>域名组合优化</strong>：用 Com Laude Intelligence 分析 DNS、流量和安全风险，优化企业域名资产。</li>
+<li><strong>企业级注册商服务</strong>：收购 Markmonitor 后，进一步扩展为企业域名和品牌保护服务商。</li>
+</ul>
+<h2 id="它能做钓鱼网站防护吗"><a href="#它能做钓鱼网站防护吗" class="headerlink" title="它能做钓鱼网站防护吗"></a>它能做钓鱼网站防护吗</h2><p><strong>能，但主要是间接防护，而不是直接拦截钓鱼网站。</strong></p>
+<p>它和钓鱼防护相关的能力主要有这些：</p>
+<ol>
+<li><p><strong>仿冒域名发现</strong><br>钓鱼网站常用和品牌很像的域名，比如把 <code>apple.com</code> 改成 <code>app1e.com</code>。Com Laude 可以监控这类域名，帮品牌发现潜在钓鱼站点。</p>
+</li>
+<li><p><strong>域名抢注与滥用监控</strong><br>如果有人在域名里滥用你的品牌名，它可以监控并协助处理。</p>
+</li>
+<li><p><strong>商标侵权与域名争议</strong><br>发现恶意域名后，可以走 UDRP 等争议解决流程，尝试拿回或关停域名。</p>
+</li>
+<li><p><strong>DNS 与域名安全分析</strong><br>通过分析 DNS 记录和流量，发现异常域名或安全风险。</p>
+</li>
+<li><p><strong>品牌保护整体策略</strong><br>它更像是一个“品牌域名保镖”，帮企业提前布防、发现和处置仿冒域名。</p>
+</li>
+</ol>
+<h2 id="它不能做什么"><a href="#它不能做什么" class="headerlink" title="它不能做什么"></a>它不能做什么</h2><p>它通常<strong>不直接</strong>做这些：</p>
+<ul>
+<li>不拦截你邮箱里的钓鱼邮件</li>
+<li>不保护个人用户上网时点到的钓鱼链接</li>
+<li>不替代浏览器、杀毒软件或邮件网关的反钓鱼功能</li>
+<li>不直接帮你“黑掉”或立刻关停所有钓鱼网站</li>
+</ul>
+<p>这些通常需要配合<strong>邮件安全网关、浏览器防护、EDR、威胁情报、SOC 团队</strong>等一起做。</p>
+<h2 id="简单总结"><a href="#简单总结" class="headerlink" title="简单总结"></a>简单总结</h2><p><strong>Com Laude 是一家企业域名注册和品牌保护公司，可以做钓鱼网站防护的一部分工作，主要是发现、监控和处置仿冒域名。</strong><br>它适合<strong>企业品牌保护</strong>，不是普通用户用来防钓鱼的工具。</p>
+<p>如果你是在评估“我们公司要不要用 Com Laude 来防钓鱼”，可以重点看它的<strong>域名监控、仿冒域名处置、商标保护和 DNS 安全</strong>这几块。</p>
+<h1 id="passkey"><a href="#passkey" class="headerlink" title="passkey"></a>passkey</h1><p>这是 GitHub 在引导你<strong>添加 Passkey（通行密钥）</strong>，一种比密码更安全、也更方便的登录方式。下面帮你逐句解释。</p>
+<h2 id="这段话的意思"><a href="#这段话的意思" class="headerlink" title="这段话的意思"></a>这段话的意思</h2><p><strong>Configure passwordless authentication</strong><br>配置“无密码认证”。</p>
+<p><strong>Add a passkey</strong><br>添加一个通行密钥。</p>
+<p><strong>Your device supports passkeys, a password replacement that validates your identity using touch, facial recognition, a device password, or a PIN.</strong><br>你的设备支持 Passkey。它可以<strong>替代密码</strong>，通过以下方式验证你的身份：</p>
+<ul>
+<li>触摸（指纹）</li>
+<li>面部识别</li>
+<li>设备密码</li>
+<li>PIN 码</li>
+</ul>
+<p><strong>Passkeys can be used for sign-in as a simple and secure alternative to your password and two-factor credentials.</strong><br>Passkey 可以用来登录，作为你的<strong>密码</strong>和**双重验证（2FA）**的替代方案，既简单又安全。</p>
+<h2 id="Passkey-到底是什么"><a href="#Passkey-到底是什么" class="headerlink" title="Passkey 到底是什么"></a>Passkey 到底是什么</h2><p>简单说，Passkey 就是<strong>用你手机&#x2F;电脑自带的生物识别或锁屏密码来登录网站</strong>，不用再输账号密码，也不用收验证码。</p>
+<p>它基于 FIDO2&#x2F;WebAuthn 标准，工作原理大致是：</p>
+<ul>
+<li>你的设备生成一对密钥：<strong>私钥</strong>存在你的设备里（手机、电脑的安全芯片），<strong>公钥</strong>交给 GitHub。</li>
+<li>登录时 GitHub 发一个挑战，你的设备用指纹&#x2F;面容&#x2F;PIN 解锁私钥来签名，GitHub 用公钥验证。</li>
+<li><strong>私钥永远不会离开你的设备</strong>，也不会上传到 GitHub，所以钓鱼网站拿不到、数据库泄露也偷不走。</li>
+</ul>
+<h2 id="对你来说意味着什么"><a href="#对你来说意味着什么" class="headerlink" title="对你来说意味着什么"></a>对你来说意味着什么</h2><ul>
+<li><strong>更安全</strong>：不怕钓鱼、不怕密码泄露、不怕验证码被截。</li>
+<li><strong>更方便</strong>：登录时刷个脸或按个指纹就行，不用记密码、不用等短信。</li>
+<li><strong>可替代 2FA</strong>：有了 Passkey，通常就不需要再单独搞一次两步验证了。</li>
+</ul>
+<h2 id="要不要点“Add-a-passkey”"><a href="#要不要点“Add-a-passkey”" class="headerlink" title="要不要点“Add a passkey”"></a>要不要点“Add a passkey”</h2><ul>
+<li>如果你的设备（较新的手机、电脑，或装了密码管理器的浏览器）支持，<strong>建议添加</strong>，体验和安全都更好。</li>
+<li>添加后建议<strong>保留原有密码和 2FA</strong> 作为备用，尤其是换设备或设备丢失时。</li>
+<li>如果这不是你自己的设备，或你不想绑定，可以<strong>先跳过</strong>，不影响正常用密码登录。</li>
+</ul>
+<p>需要的话，我可以告诉你具体在 GitHub 上一步步怎么添加。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/jargon/">jargon</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/08/31/45241.html">
+                        <span class="hidden-mobile">我的生平（四十一）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "一些缩写7"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

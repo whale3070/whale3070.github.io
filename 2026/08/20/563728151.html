@@ -1,0 +1,607 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>strix - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="strix">
+                      
+                        strix
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-08-20 06:49" pubdate>
+        2026年8月20日 早上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.8k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      19
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">strix</h1>
+            
+            <div class="markdown-body">
+              <h1 id="strix是什么，哪一年开始出现的"><a href="#strix是什么，哪一年开始出现的" class="headerlink" title="strix是什么，哪一年开始出现的"></a>strix是什么，哪一年开始出现的</h1><p>你提到的 <code>app.strix.ai</code> 背后的 <strong>Strix，是一个开源的 AI 渗透测试工具</strong>，可以把它理解为一个由 AI 驱动的“黑客团队”。</p>
+<p>它出现的时间不算长，根据公开信息，<strong>Strix 首次发布是在 2025 年 8 月</strong>。</p>
+<h3 id="🤖-什么是-Strix？"><a href="#🤖-什么是-Strix？" class="headerlink" title="🤖 什么是 Strix？"></a>🤖 什么是 Strix？</h3><p>Strix 不是一个简单的漏洞扫描器，而是一个模拟真人黑客行为的<strong>自主 AI 渗透测试框架</strong>。它通过多智能体协作，能自动完成从侦察、漏洞发现到验证的完整渗透测试流程。</p>
+<ul>
+<li><p><strong>核心工作方式</strong>：Strix 会给目标（代码仓库或网站）分配一个由多个专业 AI 代理组成的“团队”。这些代理各司其职，比如侦察代理收集信息，漏洞利用代理尝试各种攻击，<strong>验证代理则会实际尝试利用漏洞，确保报告的问题真实存在，而非误报</strong>。</p>
+</li>
+<li><p><strong>主要能力与特点</strong>：</p>
+<ul>
+<li><strong>动态测试与验证</strong>：Strix 会实际<strong>运行你的代码、动态分析应用行为，并给出可复现的攻击证明（PoC）</strong>，而不是仅仅进行静态扫描。</li>
+<li><strong>集成真实工具</strong>：它在<strong>隔离的 Docker 沙箱</strong>中运行，内置了 <strong>Kali Linux</strong> 的完整工具集（如 nmap, sqlmap 等），像真人黑客一样操作。</li>
+<li><strong>高效与自动化</strong>：能将通常需要数周的渗透测试<strong>缩短至几个小时完成</strong>，并支持<strong>集成到 CI&#x2F;CD 流程</strong>中，实现自动化的安全检查。</li>
+<li><strong>开发者友好</strong>：提供简洁的 <strong>命令行界面（CLI）</strong> ，并能<strong>自动生成修复建议或补丁</strong>，帮助开发者快速解决问题。</li>
+</ul>
+</li>
+</ul>
+<h3 id="⌛-出现时间"><a href="#⌛-出现时间" class="headerlink" title="⌛ 出现时间"></a>⌛ 出现时间</h3><p>Strix 项目的首次公开发布是在 <strong>2025 年 8 月</strong>。相关资料显示，到 2025年底，它在 GitHub 上已获得了数千颗星标，受到了广泛关注。</p>
+<p>Strix 通过将 AI 与成熟的渗透测试方法相结合，为开发和安全团队提供了一种高效、自动化的安全测试新方式。</p>
+<h1 id="strix和sqlmap与metasploit的区别"><a href="#strix和sqlmap与metasploit的区别" class="headerlink" title="strix和sqlmap与metasploit的区别?"></a>strix和sqlmap与metasploit的区别?</h1><p>这三款工具虽然都是安全领域的利器，但它们的定位和核心能力截然不同。</p>
+<p>简单来说：<strong>Strix 像一个自主的“AI黑客团队”，而 SQLMap 和 Metasploit 则是这个团队手中非常专业的“工具”</strong>。</p>
+<ul>
+<li><strong>Strix</strong> 是一个 <strong>AI 渗透测试“指挥中心”</strong>。它是一个能自主规划、决策并执行完整渗透测试流程的 AI 智能体。</li>
+<li><strong>SQLMap</strong> 是一个 <strong>SQL 注入漏洞“专家”</strong>。它是一款专注于自动化检测和利用 SQL 注入漏洞的专用工具。</li>
+<li><strong>Metasploit</strong> 是一个 <strong>漏洞利用“武器库”</strong>。它是一个庞大的渗透测试框架，提供了大量漏洞利用代码和工具。</li>
+</ul>
+<p>下面是一个详细的对比：</p>
+<table>
+<thead>
+<tr>
+<th align="left">特性</th>
+<th align="left">Strix</th>
+<th align="left">SQLMap</th>
+<th align="left">Metasploit</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>核心定位</strong></td>
+<td align="left">AI驱动的<strong>自主渗透测试平台</strong></td>
+<td align="left"><strong>SQL注入</strong>漏洞自动化检测与利用工具</td>
+<td align="left">集成的<strong>漏洞利用框架</strong>与攻击模拟平台</td>
+</tr>
+<tr>
+<td align="left"><strong>工作方式</strong></td>
+<td align="left"><strong>AI智能体</strong>自主规划、决策、执行完整渗透流程</td>
+<td align="left">遵循预设<strong>规则</strong>，对目标URL进行SQL注入<strong>专项测试</strong></td>
+<td align="left">安全专家<strong>手动选择</strong>和组合模块，执行漏洞利用</td>
+</tr>
+<tr>
+<td align="left"><strong>核心能力</strong></td>
+<td align="left">像真人黑客一样<strong>动态运行代码、验证漏洞</strong>并提供修复建议</td>
+<td align="left">自动<strong>检测、利用</strong>SQL注入漏洞，<strong>获取</strong>数据库信息</td>
+<td align="left">提供<strong>超过1700个</strong>漏洞利用模块、载荷等，用于模拟攻击</td>
+</tr>
+<tr>
+<td align="left"><strong>漏洞验证</strong></td>
+<td align="left"><strong>实际验证</strong>，提供可利用的<strong>概念验证（PoC）</strong></td>
+<td align="left"><strong>验证</strong>SQL注入漏洞的可利用性</td>
+<td align="left"><strong>执行</strong>漏洞利用，验证其有效性</td>
+</tr>
+<tr>
+<td align="left"><strong>技术原理</strong></td>
+<td align="left">基于<strong>大语言模型（LLM）</strong> 的多智能体协作</td>
+<td align="left">基于<strong>特征签名</strong>的规则匹配引擎</td>
+<td align="left">基于<strong>已知漏洞库</strong>的模块化利用框架</td>
+</tr>
+<tr>
+<td align="left"><strong>自动化程度</strong></td>
+<td align="left"><strong>高度自主</strong>，能独立完成从侦察到报告的全流程</td>
+<td align="left"><strong>高度自动化</strong>，但专注于SQL注入这一特定任务</td>
+<td align="left"><strong>中等</strong>，需要安全专家驱动，选择和组合模块</td>
+</tr>
+<tr>
+<td align="left"><strong>用户画像</strong></td>
+<td align="left">开发、安全、DevOps团队，寻求<strong>自动化、集成化</strong>的安全方案</td>
+<td align="left">渗透测试人员、安全研究者，进行<strong>专项漏洞</strong>检测</td>
+<td align="left">渗透测试人员、漏洞研究员、安全专家</td>
+</tr>
+</tbody></table>
+<h3 id="🧠-Strix：AI驱动的“黑客团队”"><a href="#🧠-Strix：AI驱动的“黑客团队”" class="headerlink" title="🧠 Strix：AI驱动的“黑客团队”"></a>🧠 Strix：AI驱动的“黑客团队”</h3><p>Strix 是一个革命性的<strong>自主AI渗透测试平台</strong>。它的核心是一个由<strong>多个专业化AI智能体（Agent）组成的“黑客团队”</strong>，能够模拟真人黑客的思维和操作方式。</p>
+<ul>
+<li><strong>自主决策</strong>：Strix 的AI代理能自己决定下一步做什么。比如，发现一个登录框，如果SQL注入不成功，它会思考并尝试其他方法（如XSS或逻辑漏洞）。</li>
+<li><strong>多智能体协作</strong>：一个完整的Strix团队包含负责侦察、注入测试、权限提升等不同任务的智能体，它们<strong>并行工作、共享情报</strong>，协同完成攻击。</li>
+<li><strong>真实漏洞验证</strong>：Strix 不只做扫描，它会<strong>在隔离的Docker沙箱中动态运行你的代码，实际尝试利用漏洞，并给出可复现的攻击证明（PoC）</strong> 。这极大地降低了误报。</li>
+<li><strong>开发者友好</strong>：它提供简单的命令行界面，能<strong>自动生成修复补丁</strong>，并可无缝<strong>集成到CI&#x2F;CD流水线</strong>中。</li>
+</ul>
+<h3 id="🎯-SQLMap：专注的“SQL注入专家”"><a href="#🎯-SQLMap：专注的“SQL注入专家”" class="headerlink" title="🎯 SQLMap：专注的“SQL注入专家”"></a>🎯 SQLMap：专注的“SQL注入专家”</h3><p>SQLMap 是一款久经考验的<strong>开源自动化SQL注入工具</strong>。</p>
+<ul>
+<li><strong>目标单一</strong>：它的全部能力都围绕 <strong>SQL注入漏洞</strong> 的检测和利用。</li>
+<li><strong>功能强大</strong>：支持几乎所有主流数据库（MySQL, Oracle, PostgreSQL等），能识别布尔盲注、时间盲注、报错注入等多种SQL注入类型。成功利用后，可以<strong>获取数据库信息、表名、甚至执行系统命令</strong>。</li>
+<li><strong>工具属性</strong>：它是一个执行特定任务的“工具”，需要由人来指挥。它不会去扫描端口或测试其他类型的漏洞。</li>
+</ul>
+<h3 id="🧰-Metasploit：庞大的“漏洞利用武器库”"><a href="#🧰-Metasploit：庞大的“漏洞利用武器库”" class="headerlink" title="🧰 Metasploit：庞大的“漏洞利用武器库”"></a>🧰 Metasploit：庞大的“漏洞利用武器库”</h3><p>Metasploit 是全球最流行的<strong>开源渗透测试框架</strong>。</p>
+<ul>
+<li><strong>框架而非工具</strong>：它更像一个<strong>平台或“武器库”</strong>，集成了<strong>超过1700个漏洞利用模块（Exploits）、攻击载荷（Payloads）</strong> 等。</li>
+<li><strong>高度模块化</strong>：安全专家可以根据目标情况，像搭积木一样<strong>选择和组合不同的模块</strong>，来执行从信息收集到漏洞利用、再到后渗透攻击的完整链条。</li>
+<li><strong>专家驱动</strong>：Metasploit 的强大与否，很大程度上取决于使用者的专业知识和经验。它需要人来“驾驶”。</li>
+</ul>
+<h3 id="💎-总结"><a href="#💎-总结" class="headerlink" title="💎 总结"></a>💎 总结</h3><ul>
+<li><strong>Strix</strong> 是那个能<strong>统领全局、自主决策的“AI黑客团队”</strong>，它甚至可以把SQLMap和Metasploit当作手下的工具来调用。</li>
+<li><strong>SQLMap</strong> 是这个团队里那位 <strong>“SQL注入专家”</strong>，专注于把一类漏洞研究到极致。</li>
+<li><strong>Metasploit</strong> 则是团队那个庞大的 <strong>“武器库”</strong>，为各种攻击提供弹药。</li>
+</ul>
+<p>如果想了解更具体的安装或使用方法，可以告诉我哦。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/tools/">tools</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/08/31/2270492508.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">咨询记录-复盘</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/07/09/4032018268.html">
+                        <span class="hidden-mobile">一些缩写6</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "strix"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>
