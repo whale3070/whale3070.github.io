@@ -1,0 +1,1449 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>2100年中国还剩下多少人（二） - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="2100年中国还剩下多少人（二）">
+                      
+                        2100年中国还剩下多少人（二）
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-11-06 12:35" pubdate>
+        2026年11月6日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      6.4k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      75
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">2100年中国还剩下多少人（二）</h1>
+            
+            <div class="markdown-body">
+              <h2 id="开篇：当单年暴跌17-，是时候算算最坏的情况了"><a href="#开篇：当单年暴跌17-，是时候算算最坏的情况了" class="headerlink" title="开篇：当单年暴跌17%，是时候算算最坏的情况了"></a>开篇：当单年暴跌17%，是时候算算最坏的情况了</h2><p>2024年8月，我写过一篇《2100年中国还剩下多少人》，用2015-2023年的数据推演，得出结论：</p>
+<blockquote>
+<p><strong>2100年，中国最多有5亿7293.79万人。</strong></p>
+</blockquote>
+<p>当时的核心假设是：出生人口每10年下降19.177%，这个数字来自1993年到2023年这30年的下降幅度（从2126万跌至903万，下降了57.53%）。</p>
+<p>那时候我觉得，这已经够悲观了。</p>
+<p>但2025年的数据出来后，我发现自己太乐观了。</p>
+<p><strong>2024年出生人口：954万</strong><br><strong>2025年出生人口：792万</strong><br><strong>单年暴跌：162万</strong><br><strong>跌幅：17%</strong></p>
+<p><strong>我用10年19%的下降率，现实却用1年17%的暴跌打了我的脸。</strong></p>
+<p>2024年那篇文章，我算的是”最多还剩多少人”——那是在假设”趋势不会加速”的前提下。但2025年792万这个数字告诉我：趋势不仅没有减缓，反而在加速。</p>
+<p>所以，是时候算算最坏的情况了。</p>
+<p>这篇文章，我要算的是：<strong>2100年，中国最少还剩多少人。</strong></p>
+<hr>
+<h2 id="第一章：推演的铁律——20年前的女婴数，决定20年后的命运"><a href="#第一章：推演的铁律——20年前的女婴数，决定20年后的命运" class="headerlink" title="第一章：推演的铁律——20年前的女婴数，决定20年后的命运"></a>第一章：推演的铁律——20年前的女婴数，决定20年后的命运</h2><p>在讨论未来出生人口之前，必须先理解一个逃不掉的数学规律：</p>
+<blockquote>
+<p><strong>20年前的女婴数 &#x3D; 20年后的育龄女性基数</strong></p>
+</blockquote>
+<p>这不是假设，不是预测，而是<strong>已经发生的事实</strong>。</p>
+<h3 id="为什么是20年？"><a href="#为什么是20年？" class="headerlink" title="为什么是20年？"></a>为什么是20年？</h3><p>因为女性的主要生育年龄是20-35岁。一个2003年出生的女婴，会在2023年（20岁）到2038年（35岁）之间进入生育期。</p>
+<p>这意味着：</p>
+<ul>
+<li>2023年有多少育龄女性？取决于2003-2008年出生了多少女婴。</li>
+<li>2043年有多少育龄女性？取决于2023-2028年出生了多少女婴。</li>
+<li>2063年有多少育龄女性？取决于2043-2048年出生了多少女婴。</li>
+</ul>
+<p><strong>已经出生的女婴数量，是无法改变的硬约束。无论政策如何调整，都无法让2003年出生的733万女婴变成1000万。</strong></p>
+<h3 id="计算2023-2043年的育龄女性基数"><a href="#计算2023-2043年的育龄女性基数" class="headerlink" title="计算2023-2043年的育龄女性基数"></a>计算2023-2043年的育龄女性基数</h3><p>我在上一篇文章里算过：</p>
+<p>1988年到2003年出生的女性数量：</p>
+<ul>
+<li>1988-1992年：1153.74+1147.17+1127.83+1060+994.84 &#x3D; 5483.58万</li>
+<li>1993-1997年：993.46+978.6+959.53+956.94+943.52 &#x3D; 4832.05万  </li>
+<li>1998-2002年：917.51+879.7+662+780.73+755.5 &#x3D; 3995.44万</li>
+<li>2003年：733.49万</li>
+</ul>
+<p><strong>16年平均：(5483.58+4832.05+3995.44+733.49) ÷ 16 &#x3D; 940.285万&#x2F;年</strong></p>
+<p>这意味着，<strong>2023-2038年，平均每年有940万育龄女性。</strong></p>
+<p>但问题在于，这个基数正在崩溃。</p>
+<h3 id="2003年的转折点"><a href="#2003年的转折点" class="headerlink" title="2003年的转折点"></a>2003年的转折点</h3><p>2003年出生了733万女婴。20年后的2023年，她们20岁，进入育龄期。</p>
+<p>2023年，中国出生了903万人，按照性别比118:100计算（100÷218≈45.87%），女婴数约为：</p>
+<p><strong>903万 × 45.87% ≈ 414万</strong></p>
+<p>再过20年，到2043年，这414万女婴会进入育龄期。</p>
+<p><strong>从940万&#x2F;年（2023）到414万&#x2F;年（2043），育龄女性基数在20年内腰斩。</strong></p>
+<h3 id="2025年的加速崩溃"><a href="#2025年的加速崩溃" class="headerlink" title="2025年的加速崩溃"></a>2025年的加速崩溃</h3><p>2025年出生792万，女婴数：</p>
+<p><strong>792万 × 45.87% ≈ 363万</strong></p>
+<p>到2045年，育龄女性基数将跌至363万&#x2F;年。</p>
+<p><strong>这就是死亡螺旋的起点。</strong></p>
+<hr>
+<h2 id="第二章：2026-2050年推演——育龄女性从727万跌至241万"><a href="#第二章：2026-2050年推演——育龄女性从727万跌至241万" class="headerlink" title="第二章：2026-2050年推演——育龄女性从727万跌至241万"></a>第二章：2026-2050年推演——育龄女性从727万跌至241万</h2><p>现在开始逐年推演。推演的核心公式是：</p>
+<figure class="highlight dns"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs dns">某年出生人口 = 该年育龄女性基数 × 总和生育率<br>某年女婴数 = 该年出生人口 × <span class="hljs-number">45</span>.<span class="hljs-number">87</span>%（性别比<span class="hljs-number">118:100</span>）<br><span class="hljs-number">20</span>年后育龄女性基数 = <span class="hljs-number">20</span>年前的女婴数<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="第一步：确定2026-2050年的育龄女性基数"><a href="#第一步：确定2026-2050年的育龄女性基数" class="headerlink" title="第一步：确定2026-2050年的育龄女性基数"></a>第一步：确定2026-2050年的育龄女性基数</h3><p>这些女性来自2006-2030年出生的女婴，其中2006-2025年的数据已知或可推算：</p>
+<table>
+<thead>
+<tr>
+<th>出生年份</th>
+<th>出生人口（万）</th>
+<th>女婴数（万）</th>
+<th>20岁时（育龄期开始）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2006</td>
+<td>1584</td>
+<td>727</td>
+<td>2026年</td>
+</tr>
+<tr>
+<td>2007</td>
+<td>1594</td>
+<td>731</td>
+<td>2027年</td>
+</tr>
+<tr>
+<td>2008</td>
+<td>1608</td>
+<td>738</td>
+<td>2028年</td>
+</tr>
+<tr>
+<td>2009</td>
+<td>1615</td>
+<td>741</td>
+<td>2029年</td>
+</tr>
+<tr>
+<td>2010</td>
+<td>1592</td>
+<td>730</td>
+<td>2030年</td>
+</tr>
+<tr>
+<td>2011</td>
+<td>1604</td>
+<td>736</td>
+<td>2031年</td>
+</tr>
+<tr>
+<td>2012</td>
+<td>1635</td>
+<td>750</td>
+<td>2032年</td>
+</tr>
+<tr>
+<td>2013</td>
+<td>1640</td>
+<td>752</td>
+<td>2033年</td>
+</tr>
+<tr>
+<td>2014</td>
+<td>1687</td>
+<td>774</td>
+<td>2034年</td>
+</tr>
+<tr>
+<td>2015</td>
+<td>1655</td>
+<td>759</td>
+<td>2035年</td>
+</tr>
+<tr>
+<td>2016</td>
+<td>1786</td>
+<td>819</td>
+<td>2036年</td>
+</tr>
+<tr>
+<td>2017</td>
+<td>1723</td>
+<td>791</td>
+<td>2037年</td>
+</tr>
+<tr>
+<td>2018</td>
+<td>1523</td>
+<td>699</td>
+<td>2038年</td>
+</tr>
+<tr>
+<td>2019</td>
+<td>1465</td>
+<td>672</td>
+<td>2039年</td>
+</tr>
+<tr>
+<td>2020</td>
+<td>1200</td>
+<td>550</td>
+<td>2040年</td>
+</tr>
+<tr>
+<td>2021</td>
+<td>1062</td>
+<td>487</td>
+<td>2041年</td>
+</tr>
+<tr>
+<td>2022</td>
+<td>956</td>
+<td>439</td>
+<td>2042年</td>
+</tr>
+<tr>
+<td>2023</td>
+<td>903</td>
+<td>414</td>
+<td>2043年</td>
+</tr>
+<tr>
+<td>2024</td>
+<td>954</td>
+<td>438</td>
+<td>2044年</td>
+</tr>
+<tr>
+<td>2025</td>
+<td>792</td>
+<td>363</td>
+<td>2045年</td>
+</tr>
+</tbody></table>
+<p>从这张表可以看出：</p>
+<ul>
+<li><strong>2026-2036年</strong>：育龄女性基数在727-819万之间（得益于2016年二胎政策反弹）</li>
+<li><strong>2037-2043年</strong>：开始断崖下跌，从791万跌至414万</li>
+<li><strong>2044-2045年</strong>：跌破450万，只有438万和363万</li>
+</ul>
+<h3 id="第二步：推演2026-2045年的出生人口"><a href="#第二步：推演2026-2045年的出生人口" class="headerlink" title="第二步：推演2026-2045年的出生人口"></a>第二步：推演2026-2045年的出生人口</h3><p><strong>悲观情景的生育率假设：</strong></p>
+<ul>
+<li>2026-2030年：0.75-0.80（略低于2025年的0.84）</li>
+<li>2031-2040年：0.65-0.70</li>
+<li>2041-2045年：0.55-0.60</li>
+</ul>
+<p>理由：</p>
+<ol>
+<li>房地产崩盘（2023-2026）压制生育意愿</li>
+<li>大规模失业（房地产产业链5000-7500万人）</li>
+<li>地方财政崩溃，生育补贴形同虚设</li>
+<li>社保危机初现（2028年开始），年轻人不敢生</li>
+</ol>
+<p><strong>逐年推演表：</strong></p>
+<table>
+<thead>
+<tr>
+<th>年份</th>
+<th>育龄女性（万）</th>
+<th>生育率</th>
+<th>出生人口（万）</th>
+<th>女婴数（万）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2026</td>
+<td>727</td>
+<td>0.80</td>
+<td>582</td>
+<td>267</td>
+</tr>
+<tr>
+<td>2027</td>
+<td>731</td>
+<td>0.78</td>
+<td>570</td>
+<td>261</td>
+</tr>
+<tr>
+<td>2028</td>
+<td>738</td>
+<td>0.76</td>
+<td>561</td>
+<td>257</td>
+</tr>
+<tr>
+<td>2029</td>
+<td>741</td>
+<td>0.75</td>
+<td>556</td>
+<td>255</td>
+</tr>
+<tr>
+<td>2030</td>
+<td>730</td>
+<td>0.73</td>
+<td>533</td>
+<td>244</td>
+</tr>
+<tr>
+<td>2031</td>
+<td>736</td>
+<td>0.70</td>
+<td>515</td>
+<td>236</td>
+</tr>
+<tr>
+<td>2032</td>
+<td>750</td>
+<td>0.68</td>
+<td>510</td>
+<td>234</td>
+</tr>
+<tr>
+<td>2033</td>
+<td>752</td>
+<td>0.66</td>
+<td>496</td>
+<td>228</td>
+</tr>
+<tr>
+<td>2034</td>
+<td>774</td>
+<td>0.65</td>
+<td>503</td>
+<td>231</td>
+</tr>
+<tr>
+<td>2035</td>
+<td>759</td>
+<td>0.64</td>
+<td>486</td>
+<td>223</td>
+</tr>
+<tr>
+<td>2036</td>
+<td>819</td>
+<td>0.63</td>
+<td>516</td>
+<td>237</td>
+</tr>
+<tr>
+<td>2037</td>
+<td>791</td>
+<td>0.62</td>
+<td>490</td>
+<td>225</td>
+</tr>
+<tr>
+<td>2038</td>
+<td>699</td>
+<td>0.60</td>
+<td>419</td>
+<td>192</td>
+</tr>
+<tr>
+<td>2039</td>
+<td>672</td>
+<td>0.58</td>
+<td>390</td>
+<td>179</td>
+</tr>
+<tr>
+<td>2040</td>
+<td>550</td>
+<td>0.57</td>
+<td>314</td>
+<td>144</td>
+</tr>
+<tr>
+<td>2041</td>
+<td>487</td>
+<td>0.56</td>
+<td>273</td>
+<td>125</td>
+</tr>
+<tr>
+<td>2042</td>
+<td>439</td>
+<td>0.55</td>
+<td>241</td>
+<td>111</td>
+</tr>
+<tr>
+<td>2043</td>
+<td>414</td>
+<td>0.55</td>
+<td>228</td>
+<td>105</td>
+</tr>
+<tr>
+<td>2044</td>
+<td>438</td>
+<td>0.55</td>
+<td>241</td>
+<td>110</td>
+</tr>
+<tr>
+<td>2045</td>
+<td>363</td>
+<td>0.55</td>
+<td>200</td>
+<td>92</td>
+</tr>
+</tbody></table>
+<p><strong>2026-2045年总出生：9420万</strong></p>
+<h3 id="关键节点"><a href="#关键节点" class="headerlink" title="关键节点"></a>关键节点</h3><ul>
+<li><p><strong>2028年：跌破600万</strong>（561万）</p>
+<ul>
+<li>此时育龄女性738万，但生育率已降至0.76</li>
+</ul>
+</li>
+<li><p><strong>2032年：跌破500万</strong>（510万）</p>
+<ul>
+<li>2012年出生的750万女婴进入育龄期，但生育率降至0.68</li>
+</ul>
+</li>
+<li><p><strong>2039年：跌破400万</strong>（390万）</p>
+<ul>
+<li>2019年出生的672万女婴进入育龄期，生育率0.58</li>
+<li><strong>此时已进入”遊佐町化”前夜</strong></li>
+</ul>
+</li>
+<li><p><strong>2045年：跌破200万</strong>（200万）</p>
+<ul>
+<li>2025年出生的363万女婴进入育龄期</li>
+<li><strong>死亡螺旋加速</strong></li>
+</ul>
+</li>
+</ul>
+<h3 id="第三步：推演2046-2070年"><a href="#第三步：推演2046-2070年" class="headerlink" title="第三步：推演2046-2070年"></a>第三步：推演2046-2070年</h3><p>到了2046年，育龄女性来自2026年出生的女婴（267万）。从此刻起，育龄女性基数将长期维持在300万以下。</p>
+<p><strong>2046-2070年推演（5年为一档）：</strong></p>
+<table>
+<thead>
+<tr>
+<th>时段</th>
+<th>育龄女性（万&#x2F;年）</th>
+<th>生育率</th>
+<th>年均出生（万）</th>
+<th>5年总出生（万）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2046-2050</td>
+<td>267→244</td>
+<td>0.54</td>
+<td>138</td>
+<td>690</td>
+</tr>
+<tr>
+<td>2051-2055</td>
+<td>236→228</td>
+<td>0.52</td>
+<td>120</td>
+<td>600</td>
+</tr>
+<tr>
+<td>2056-2060</td>
+<td>231→192</td>
+<td>0.50</td>
+<td>106</td>
+<td>530</td>
+</tr>
+<tr>
+<td>2061-2065</td>
+<td>179→125</td>
+<td>0.48</td>
+<td>73</td>
+<td>365</td>
+</tr>
+<tr>
+<td>2066-2070</td>
+<td>111→92</td>
+<td>0.46</td>
+<td>47</td>
+<td>235</td>
+</tr>
+</tbody></table>
+<p><strong>2046-2070年总出生：2420万</strong></p>
+<p>到2070年，育龄女性已不足100万&#x2F;年，年均出生只有47万。</p>
+<hr>
+<h2 id="第三章：2071-2100年——遊佐町状态"><a href="#第三章：2071-2100年——遊佐町状态" class="headerlink" title="第三章：2071-2100年——遊佐町状态"></a>第三章：2071-2100年——遊佐町状态</h2><p>日本山形县遊佐町，老龄化率47%，生育率接近0。年轻人全部逃离，只剩下老人，学校关闭，妇产科倒闭，小镇事实上”死亡”。</p>
+<p><strong>中国在2070年代会进入类似状态。</strong></p>
+<h3 id="2071-2100年推演"><a href="#2071-2100年推演" class="headerlink" title="2071-2100年推演"></a>2071-2100年推演</h3><p>到2071年，育龄女性来自2051年出生的女婴。而2051年的出生人口，取决于2031年出生的女婴（236万）和她们的生育率（约0.52）：</p>
+<p>2051年出生 &#x3D; 236万 × 0.52 ≈ <strong>123万</strong><br>2051年女婴 &#x3D; 123万 × 45.87% ≈ <strong>56万</strong></p>
+<p>到2071年，育龄女性基数已跌至56万&#x2F;年。</p>
+<p><strong>此后的推演：</strong></p>
+<table>
+<thead>
+<tr>
+<th>时段</th>
+<th>育龄女性（万&#x2F;年）</th>
+<th>生育率</th>
+<th>年均出生（万）</th>
+<th>总出生（万）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2071-2080</td>
+<td>56→40</td>
+<td>0.45</td>
+<td>22</td>
+<td>220</td>
+</tr>
+<tr>
+<td>2081-2090</td>
+<td>28→20</td>
+<td>0.44</td>
+<td>11</td>
+<td>110</td>
+</tr>
+<tr>
+<td>2091-2100</td>
+<td>14→10</td>
+<td>0.43</td>
+<td>5</td>
+<td>50</td>
+</tr>
+</tbody></table>
+<p><strong>2071-2100年总出生：380万</strong></p>
+<p>到2100年，年均出生只有5万人。</p>
+<p><strong>这相当于什么？</strong></p>
+<ul>
+<li>2025年出生792万，2100年只有5万</li>
+<li><strong>75年间，出生人口暴跌99.4%</strong></li>
+</ul>
+<hr>
+<h2 id="第四章：移民的双重打击——基于联合国数据的重新计算"><a href="#第四章：移民的双重打击——基于联合国数据的重新计算" class="headerlink" title="第四章：移民的双重打击——基于联合国数据的重新计算"></a>第四章：移民的双重打击——基于联合国数据的重新计算</h2><p>在计算2100年人口时，很多人容易忽略一个关键因素：<strong>移民不仅带走了人，还带走了未来的人口。</strong></p>
+<h3 id="联合国的移民数据"><a href="#联合国的移民数据" class="headerlink" title="联合国的移民数据"></a>联合国的移民数据</h3><p>根据联合国经济和社会事务部（UN DESA）数据：</p>
+<ul>
+<li><p><strong>2020年中国对外移民存量：1046万人</strong></p>
+<ul>
+<li>其中女性：569万（54%）</li>
+<li>其中男性：477万（46%）</li>
+</ul>
+</li>
+<li><p><strong>主要目的地：</strong></p>
+<ul>
+<li>美国：218万</li>
+<li>韩国：80万</li>
+<li>日本：77万</li>
+<li>加拿大：69万</li>
+<li>澳大利亚：65万</li>
+<li>新加坡：43万</li>
+</ul>
+</li>
+<li><p><strong>移入中国的人口：143万（2020年）</strong></p>
+<ul>
+<li>外籍人士：84.6万</li>
+<li>港澳台居民：58.5万</li>
+</ul>
+</li>
+</ul>
+<p><strong>净流出：1046万 - 84.6万 ≈ 960万</strong></p>
+<h3 id="移民的加速趋势"><a href="#移民的加速趋势" class="headerlink" title="移民的加速趋势"></a>移民的加速趋势</h3><p>1046万是70年（1950-2020）的累计数，意味着：</p>
+<ul>
+<li>1950-1990年（40年）：约200-300万</li>
+<li>1990-2010年（20年）：约300-400万</li>
+<li>2010-2020年（10年）：约400-500万</li>
+</ul>
+<p><strong>移民在加速，而且越来越多的是育龄女性（54%）。</strong></p>
+<h3 id="2026-2100年移民预测"><a href="#2026-2100年移民预测" class="headerlink" title="2026-2100年移民预测"></a>2026-2100年移民预测</h3><p>基于房地产崩盘、失业潮、社保危机，移民会继续加速：</p>
+<table>
+<thead>
+<tr>
+<th>时段</th>
+<th>年均移民（万）</th>
+<th>总移民（万）</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2026-2030</td>
+<td>80</td>
+<td>400</td>
+<td>房地产崩盘后第一波</td>
+</tr>
+<tr>
+<td>2031-2040</td>
+<td>100</td>
+<td>1000</td>
+<td>社保危机加速移民</td>
+</tr>
+<tr>
+<td>2041-2050</td>
+<td>80</td>
+<td>800</td>
+<td>经济衰退，但移民门槛提高</td>
+</tr>
+<tr>
+<td>2051-2075</td>
+<td>50</td>
+<td>1250</td>
+<td>人口基数已小，绝对数下降</td>
+</tr>
+<tr>
+<td>2076-2100</td>
+<td>30</td>
+<td>750</td>
+<td>维持低位</td>
+</tr>
+</tbody></table>
+<p><strong>2026-2100年总移民：4200万</strong></p>
+<h3 id="第一重打击：移民本身"><a href="#第一重打击：移民本身" class="headerlink" title="第一重打击：移民本身"></a>第一重打击：移民本身</h3><p>4200万移民中：</p>
+<ul>
+<li>来自2026-2100年出生的人：<strong>2100万</strong>（50%）</li>
+<li>来自2026年前出生的人：2100万（80后、90后、00后）</li>
+</ul>
+<h3 id="第二重打击：移民在海外生的孩子"><a href="#第二重打击：移民在海外生的孩子" class="headerlink" title="第二重打击：移民在海外生的孩子"></a>第二重打击：移民在海外生的孩子</h3><p><strong>这是最容易被忽略的。</strong></p>
+<p>移民出去的2100万人（2026-2100年出生）：</p>
+<ul>
+<li>育龄人口占比：50% &#x3D; <strong>1050万</strong></li>
+<li>海外生育率：1.5（高于国内0.5-0.8，低于移民国2.0）</li>
+<li>海外子女：1050万 ÷ 2（夫妇）× 1.5 &#x3D; <strong>788万</strong></li>
+</ul>
+<p><strong>这788万孩子，虽然有中国血统，但国籍是外国，不算中国人口。</strong></p>
+<h3 id="为什么海外生育率是1-5？"><a href="#为什么海外生育率是1-5？" class="headerlink" title="为什么海外生育率是1.5？"></a>为什么海外生育率是1.5？</h3><p>虽然移民国生育率可能是1.8-2.0，但中国移民的生育率会略低，因为：</p>
+<ul>
+<li>经济压力（海外生活成本高）</li>
+<li>文化适应（双职工家庭，没有老人帮忙带娃）</li>
+</ul>
+<p>但比国内高（0.5-0.8），因为：</p>
+<ul>
+<li>没有996压力</li>
+<li>社会福利更好（育儿假、托儿所）</li>
+<li>教育成本相对较低</li>
+</ul>
+<p><strong>所以取中间值1.5比较合理。</strong></p>
+<h3 id="移民的总流失（2026-2100年出生的人）"><a href="#移民的总流失（2026-2100年出生的人）" class="headerlink" title="移民的总流失（2026-2100年出生的人）"></a>移民的总流失（2026-2100年出生的人）</h3><figure class="highlight"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs">移民本身：2100万<br>移民在海外生的孩子：788万<br><br>总流失：2888万<br></code></pre></div></td></tr></table></figure>
+
+<p><strong>这意味着：每100个移民出去的中国人，会带走约137个中国人口（本人+海外子女）。</strong></p>
+<h3 id="2015-2025年出生的人也会移民"><a href="#2015-2025年出生的人也会移民" class="headerlink" title="2015-2025年出生的人也会移民"></a>2015-2025年出生的人也会移民</h3><p>这部分人（1.40亿）中，也会有移民：</p>
+<ul>
+<li>移民比例：15%（略低于2026-2100年出生的）</li>
+<li>移民人数：1.40亿 × 15% &#x3D; <strong>2100万</strong></li>
+<li>海外子女：2100万 ÷ 2 × 50% × 1.5 &#x3D; <strong>788万</strong></li>
+</ul>
+<p><strong>流失：2888万</strong></p>
+<hr>
+<h2 id="第五章：总出生人口与最终存活人数"><a href="#第五章：总出生人口与最终存活人数" class="headerlink" title="第五章：总出生人口与最终存活人数"></a>第五章：总出生人口与最终存活人数</h2><h3 id="2026-2100年总出生"><a href="#2026-2100年总出生" class="headerlink" title="2026-2100年总出生"></a>2026-2100年总出生</h3><figure class="highlight dns"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs dns"><span class="hljs-number">2026-2045</span>年：<span class="hljs-number">9420</span>万<br><span class="hljs-number">2046-2070</span>年：<span class="hljs-number">2420</span>万<br><span class="hljs-number">2071-2100</span>年：<span class="hljs-number">380</span>万<br><br>总计：<span class="hljs-number">12220</span>万 = <span class="hljs-number">1</span>.<span class="hljs-number">22</span>亿<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="加上2015-2025年已出生人口"><a href="#加上2015-2025年已出生人口" class="headerlink" title="加上2015-2025年已出生人口"></a>加上2015-2025年已出生人口</h3><p>我在2024年文章里计算过：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs yaml"><span class="hljs-number">2015</span><span class="hljs-number">-2024</span><span class="hljs-string">年：13160万</span><br><span class="hljs-number">2025</span><span class="hljs-string">年：792万</span><br><br><span class="hljs-string">小计：13952万</span> <span class="hljs-string">=</span> <span class="hljs-number">1.40</span><span class="hljs-string">亿</span><br></code></pre></div></td></tr></table></figure>
+
+<h3 id="2015-2100年总出生"><a href="#2015-2100年总出生" class="headerlink" title="2015-2100年总出生"></a>2015-2100年总出生</h3><figure class="highlight apache"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs apache"><span class="hljs-attribute">1</span>.<span class="hljs-number">40</span>亿（<span class="hljs-number">2015</span>-<span class="hljs-number">2025</span>）+ <span class="hljs-number">1</span>.<span class="hljs-number">22</span>亿（<span class="hljs-number">2026</span>-<span class="hljs-number">2100</span>）= <span class="hljs-number">2</span>.<span class="hljs-number">62</span>亿<br></code></pre></div></td></tr></table></figure>
+
+<hr>
+<h2 id="第六章：扣除死亡、移民、非自然死亡"><a href="#第六章：扣除死亡、移民、非自然死亡" class="headerlink" title="第六章：扣除死亡、移民、非自然死亡"></a>第六章：扣除死亡、移民、非自然死亡</h2><h3 id="1-到2100年的自然存活率"><a href="#1-到2100年的自然存活率" class="headerlink" title="1. 到2100年的自然存活率"></a>1. 到2100年的自然存活率</h3><p>假设平均寿命85岁，2100年活着的人最早出生于2015年。</p>
+<p><strong>2026-2100年出生的人（1.22亿）：</strong></p>
+<ul>
+<li>2026-2050年出生（50-74岁）：0.94亿 × 85% &#x3D; 0.80亿</li>
+<li>2051-2100年出生（0-49岁）：0.28亿 × 92% &#x3D; 0.26亿</li>
+</ul>
+<p><strong>小计：1.06亿</strong></p>
+<p><strong>2015-2025年出生的人（1.40亿）：</strong></p>
+<ul>
+<li>到2100年是75-85岁</li>
+<li>存活率：40%</li>
+<li>1.40亿 × 40% &#x3D; <strong>0.56亿</strong></li>
+</ul>
+<p><strong>自然存活总计：1.06亿 + 0.56亿 &#x3D; 1.62亿</strong></p>
+<h3 id="2-扣除移民及海外子女"><a href="#2-扣除移民及海外子女" class="headerlink" title="2. 扣除移民及海外子女"></a>2. 扣除移民及海外子女</h3><p><strong>2026-2100年出生的人：</strong></p>
+<ul>
+<li>移民：2100万</li>
+<li>海外子女：788万</li>
+<li>小计：<strong>2888万</strong></li>
+</ul>
+<p><strong>2015-2025年出生的人：</strong></p>
+<ul>
+<li>移民：2100万</li>
+<li>海外子女：788万</li>
+<li>小计：<strong>2888万</strong></li>
+</ul>
+<p><strong>移民总流失：5776万 ≈ 0.58亿</strong></p>
+<h3 id="3-扣除非自然死亡"><a href="#3-扣除非自然死亡" class="headerlink" title="3. 扣除非自然死亡"></a>3. 扣除非自然死亡</h3><p>包括自杀、意外、社保崩溃导致的老年人非正常死亡：</p>
+<ul>
+<li>2.62亿 × 3% &#x3D; <strong>786万 ≈ 0.08亿</strong></li>
+</ul>
+<h3 id="4-2015-2100年出生并存活到2100年"><a href="#4-2015-2100年出生并存活到2100年" class="headerlink" title="4. 2015-2100年出生并存活到2100年"></a>4. 2015-2100年出生并存活到2100年</h3><figure class="highlight abnf"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs abnf">自然存活：<span class="hljs-number">1.62</span>亿<br>减去移民及海外子女：<span class="hljs-number">0.58</span>亿<br>减去非自然死亡：<span class="hljs-number">0.08</span>亿<br><br>最终：<span class="hljs-number">1.62</span> - <span class="hljs-number">0.58</span> - <span class="hljs-number">0.08</span> <span class="hljs-operator">=</span> <span class="hljs-number">0.96</span>亿<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="5-加上2015年前出生、2100年还活着的人"><a href="#5-加上2015年前出生、2100年还活着的人" class="headerlink" title="5. 加上2015年前出生、2100年还活着的人"></a>5. 加上2015年前出生、2100年还活着的人</h3><p>主要是2000-2014年出生的人（到2100年是86-100岁）：</p>
+<ul>
+<li>这部分人口约2.5亿</li>
+<li>到2100年存活率：30%</li>
+<li>存活：0.75亿</li>
+</ul>
+<p>但这部分人移民比例更高（30%，因为是高净值&#x2F;高学历群体）：</p>
+<ul>
+<li>移民流失：0.75亿 × 30% &#x3D; 0.23亿</li>
+<li>剩余：0.52亿</li>
+</ul>
+<p>考虑到2028年开始的社保危机，老年人非正常死亡率会上升，这个数字要打7折：</p>
+<ul>
+<li>0.52亿 × 70% &#x3D; <strong>0.36亿</strong></li>
+</ul>
+<hr>
+<h2 id="第七章：最终结果——1-3亿"><a href="#第七章：最终结果——1-3亿" class="headerlink" title="第七章：最终结果——1.3亿"></a>第七章：最终结果——1.3亿</h2><figure class="highlight yaml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs yaml"><span class="hljs-number">2015</span><span class="hljs-number">-2100</span><span class="hljs-string">年出生并存活到2100年：0.96亿</span><br><span class="hljs-number">2015</span><span class="hljs-string">年前出生并存活到2100年：0.36亿</span><br><br><span class="hljs-string">总计：1.32亿</span> <span class="hljs-string">≈</span> <span class="hljs-number">1.3</span><span class="hljs-string">亿</span><br></code></pre></div></td></tr></table></figure>
+
+<p>考虑到计算误差和不确定性：</p>
+<p><strong>2100年，中国最少有1.2-1.4亿人，中位数1.3亿。</strong></p>
+<hr>
+<h2 id="第八章：1-3亿是什么概念？"><a href="#第八章：1-3亿是什么概念？" class="headerlink" title="第八章：1.3亿是什么概念？"></a>第八章：1.3亿是什么概念？</h2><h3 id="历史倒退"><a href="#历史倒退" class="headerlink" title="历史倒退"></a>历史倒退</h3><p><strong>中国历史人口：</strong></p>
+<ul>
+<li>清朝道光年间（1840年）：约4.1亿</li>
+<li>清朝嘉庆年间（1800年）：约3.0亿</li>
+<li><strong>明朝万历年间（1600年）：约1.5-2.0亿</strong></li>
+</ul>
+<p><strong>2100年的1.3亿人，相当于倒退到明朝万历年间。</strong></p>
+<p>400多年的人口增长，在75年内归零。</p>
+<h3 id="国际对比"><a href="#国际对比" class="headerlink" title="国际对比"></a>国际对比</h3><p><strong>当前（2026年）各国人口：</strong></p>
+<ul>
+<li>印度：14.3亿</li>
+<li>中国：14.0亿</li>
+<li>美国：3.4亿</li>
+<li>印尼：2.8亿</li>
+<li>巴基斯坦：2.4亿</li>
+<li>巴西：2.2亿</li>
+<li>尼日利亚：2.2亿</li>
+<li>孟加拉国：1.7亿</li>
+<li>俄罗斯：1.44亿</li>
+<li>日本：1.25亿</li>
+<li>菲律宾：1.17亿</li>
+</ul>
+<p><strong>2100年的中国（1.3亿），相当于：</strong></p>
+<ul>
+<li>当前的日本（1.25亿）</li>
+<li>当前俄罗斯（1.44亿）的90%</li>
+<li>当前菲律宾（1.17亿）的1.1倍</li>
+</ul>
+<p><strong>更直观的对比：</strong></p>
+<ul>
+<li>2026年中国：14亿</li>
+<li>2100年中国：1.3亿</li>
+<li><strong>75年后，中国人口只剩下当前的9.3%</strong></li>
+</ul>
+<h3 id="区域对比"><a href="#区域对比" class="headerlink" title="区域对比"></a>区域对比</h3><p><strong>2026年中国各省人口：</strong></p>
+<ul>
+<li>广东省：1.27亿</li>
+<li>山东省：1.01亿</li>
+<li>河南省：0.99亿</li>
+<li>江苏省：0.85亿</li>
+</ul>
+<p><strong>2100年全中国人口（1.3亿） ≈ 2026年的广东省</strong></p>
+<hr>
+<h2 id="第九章：乐观与悲观——1-3亿到3-8亿的区间"><a href="#第九章：乐观与悲观——1-3亿到3-8亿的区间" class="headerlink" title="第九章：乐观与悲观——1.3亿到3.8亿的区间"></a>第九章：乐观与悲观——1.3亿到3.8亿的区间</h2><h3 id="乐观情景的修正"><a href="#乐观情景的修正" class="headerlink" title="乐观情景的修正"></a>乐观情景的修正</h3><p>你2024年算的5.73亿，是基于”每10年下降19%”的假设。现在需要修正两个因素：</p>
+<ol>
+<li>移民及海外子女</li>
+<li>非自然死亡</li>
+</ol>
+<p><strong>修正后的乐观情景：</strong></p>
+<p>假设：</p>
+<ul>
+<li>生育率缓慢下降（每10年15%）</li>
+<li>移民比例较低（10%）</li>
+<li>社保不崩溃，非自然死亡率低</li>
+</ul>
+<figure class="highlight abnf"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs abnf"><span class="hljs-number">2015</span>-<span class="hljs-number">2100</span>年出生：<span class="hljs-number">5.73</span>亿<br>移民本身：<span class="hljs-number">5.73</span> × <span class="hljs-number">10</span>% <span class="hljs-operator">=</span> <span class="hljs-number">0.57</span>亿<br>海外子女：<span class="hljs-number">0.57</span> ÷ <span class="hljs-number">2</span> × <span class="hljs-number">50</span>% × <span class="hljs-number">1.5</span> <span class="hljs-operator">=</span> <span class="hljs-number">0.21</span>亿<br>存活到<span class="hljs-number">2100</span>年：<span class="hljs-number">5.73</span> × <span class="hljs-number">70</span>% <span class="hljs-operator">=</span> <span class="hljs-number">4.01</span>亿<br>减去移民及海外子女：<span class="hljs-number">0.78</span>亿<br>减去非自然死亡：<span class="hljs-number">0.15</span>亿<br><br>最终：<span class="hljs-number">4.01</span> - <span class="hljs-number">0.78</span> - <span class="hljs-number">0.15</span> <span class="hljs-operator">=</span> <span class="hljs-number">3.08</span>亿<br><br>加上<span class="hljs-number">2015</span>年前出生的：<span class="hljs-number">0.70</span>亿<br><br>总计：<span class="hljs-number">3.78</span>亿 ≈ <span class="hljs-number">3.8</span>亿<br></code></pre></div></td></tr></table></figure>
+
+<h3 id="两个情景对比"><a href="#两个情景对比" class="headerlink" title="两个情景对比"></a>两个情景对比</h3><table>
+<thead>
+<tr>
+<th>情景</th>
+<th>2024年原始推演</th>
+<th>2026年修正（含移民海外子女）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>乐观情景（最多）</strong></td>
+<td>5.73亿</td>
+<td><strong>3.8亿</strong></td>
+</tr>
+<tr>
+<td><strong>悲观情景（最少）</strong></td>
+<td>未算</td>
+<td><strong>1.3亿</strong></td>
+</tr>
+</tbody></table>
+<p><strong>区间：1.3亿 - 3.8亿</strong></p>
+<p><strong>中位数：约2.5亿</strong></p>
+<h3 id="哪个更接近现实？"><a href="#哪个更接近现实？" class="headerlink" title="哪个更接近现实？"></a>哪个更接近现实？</h3><p><strong>2024-2025年的事实：</strong></p>
+<ul>
+<li>2024年乐观假设：”每10年下降19%”</li>
+<li>2024-2025年现实：<strong>单年暴跌17%</strong></li>
+</ul>
+<p><strong>这意味着趋势比乐观情景更接近悲观情景。</strong></p>
+<h3 id="什么情况下会接近3-8亿？"><a href="#什么情况下会接近3-8亿？" class="headerlink" title="什么情况下会接近3.8亿？"></a>什么情况下会接近3.8亿？</h3><p>需要满足以下所有条件：</p>
+<ol>
+<li>生育率在2030年前止跌回升至1.3以上</li>
+<li>房地产崩盘得到控制，不再继续恶化</li>
+<li>失业问题得到根本解决</li>
+<li>社保体系不崩溃，退休金正常发放</li>
+<li>移民潮停止或逆转</li>
+</ol>
+<p><strong>这些条件在2026年看来，几乎不可能同时满足。</strong></p>
+<h3 id="什么情况下会低于1-3亿？"><a href="#什么情况下会低于1-3亿？" class="headerlink" title="什么情况下会低于1.3亿？"></a>什么情况下会低于1.3亿？</h3><p>如果出现以下情况：</p>
+<ol>
+<li>生育率跌至0.3以下（韩国路径：0.72→0.5→0.3）</li>
+<li>社保在2028年崩溃，触发大规模老年人自杀潮（参考希腊）</li>
+<li>移民潮扩大至30%以上（每年移民150万+）</li>
+<li>战争、瘟疫等黑天鹅事件</li>
+</ol>
+<p><strong>这些”加速因素”部分已经在发生（社保压力、移民潮），但还没有到”崩溃”阶段。</strong></p>
+<h3 id="最可能的结果"><a href="#最可能的结果" class="headerlink" title="最可能的结果"></a>最可能的结果</h3><p>基于2026年的现实趋势：</p>
+<ul>
+<li>房地产已经崩盘</li>
+<li>失业潮正在发生（5000-7500万人）</li>
+<li>移民潮持续扩大（年均80-100万）</li>
+<li>社保压力逐年加大</li>
+</ul>
+<p><strong>2100年中国人口最可能在2.0-3.0亿之间，更接近悲观情景的1.3亿，而非乐观情景的3.8亿。</strong></p>
+<hr>
+<h2 id="第十章：关键时间节点——从792万到5万的崩溃路线图"><a href="#第十章：关键时间节点——从792万到5万的崩溃路线图" class="headerlink" title="第十章：关键时间节点——从792万到5万的崩溃路线图"></a>第十章：关键时间节点——从792万到5万的崩溃路线图</h2><table>
+<thead>
+<tr>
+<th>年份</th>
+<th>出生人口（万）</th>
+<th>标志性事件</th>
+<th>社会状态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>2025</strong></td>
+<td><strong>792</strong></td>
+<td><strong>单年暴跌17%</strong></td>
+<td>房地产崩盘后遗症</td>
+</tr>
+<tr>
+<td>2028</td>
+<td>561</td>
+<td>跌破600万</td>
+<td>社保危机初现</td>
+</tr>
+<tr>
+<td>2032</td>
+<td>510</td>
+<td>跌破500万</td>
+<td>公务员大面积欠薪</td>
+</tr>
+<tr>
+<td>2039</td>
+<td>390</td>
+<td>跌破400万</td>
+<td>县城财政集体崩溃</td>
+</tr>
+<tr>
+<td>2045</td>
+<td>200</td>
+<td>跌破200万</td>
+<td>老龄化率超25%（上寿阶段）</td>
+</tr>
+<tr>
+<td>2050</td>
+<td>121</td>
+<td>跌破150万</td>
+<td>老龄化率接近30%（期颐阶段）</td>
+</tr>
+<tr>
+<td>2060</td>
+<td>106</td>
+<td>年均百万出生</td>
+<td>大量县城空心化</td>
+</tr>
+<tr>
+<td>2070</td>
+<td>47</td>
+<td>跌破50万</td>
+<td>老龄化率超35%（茶寿阶段）</td>
+</tr>
+<tr>
+<td>2080</td>
+<td>11</td>
+<td>只剩十万级出生</td>
+<td>遊佐町化全面到来</td>
+</tr>
+<tr>
+<td>2090</td>
+<td>11</td>
+<td>维持最低存活</td>
+<td>社会基本功能衰退</td>
+</tr>
+<tr>
+<td>2100</td>
+<td>5</td>
+<td>年均5万出生</td>
+<td>人口1.3亿</td>
+</tr>
+</tbody></table>
+<p><strong>从792万到5万，用了75年。</strong></p>
+<p><strong>这不是科幻，这是基于”20年前女婴数&#x3D;20年后育龄女性”这个铁律的数学推演。</strong></p>
+<hr>
+<h2 id="第十一章：谁该为此负责？"><a href="#第十一章：谁该为此负责？" class="headerlink" title="第十一章：谁该为此负责？"></a>第十一章：谁该为此负责？</h2><h3 id="2003年的选择"><a href="#2003年的选择" class="headerlink" title="2003年的选择"></a>2003年的选择</h3><p>2003年，有733万女婴出生。</p>
+<p>同年，有约820万男婴出生（性别比112左右）。</p>
+<p>这意味着，有数十万女婴在B超室或产房里”消失”了——因为父母想要儿子，不想要女儿。</p>
+<p>20年后，2023年，这733万女婴20岁了，进入生育期。她们只生了903万孩子，其中414万女婴。</p>
+<p>再过20年，2043年，这414万女婴会20岁。如果她们也像母亲一样，只生414万 × 0.55 ≈ 228万孩子，那么女婴只有105万。</p>
+<p>到2063年，这105万女婴20岁时，可能只生105万 × 0.50 ≈ 53万孩子，女婴只有24万。</p>
+<p>到2083年，这24万女婴20岁时，可能只生24万 × 0.45 ≈ 11万孩子，女婴只有5万。</p>
+<p><strong>这就是死亡螺旋，而起点在2003年——那一年，有人决定堕掉女胎。</strong></p>
+<h3 id="2016年的幻觉"><a href="#2016年的幻觉" class="headerlink" title="2016年的幻觉"></a>2016年的幻觉</h3><p>2016年，”全面二孩”政策出台，当年出生人口反弹至1786万。</p>
+<p>很多人欢呼：”看，只要放开政策，大家还是愿意生的！”</p>
+<p>但他们没看到：</p>
+<ul>
+<li>2017年立刻跌至1723万（-3.5%）</li>
+<li>2018年暴跌至1523万（-11.6%）</li>
+<li>2019年继续跌至1465万（-3.8%）</li>
+</ul>
+<p><strong>2016年的反弹，只是”补偿性生育”——那些本来想生二胎但政策不允许的家庭，集中释放了生育意愿。</strong></p>
+<p>这些家庭生完二胎后，就再也不生了。而新一代年轻人，根本不想生。</p>
+<p><strong>政策放开了，生育意愿却没了。</strong></p>
+<h3 id="2023年的转折"><a href="#2023年的转折" class="headerlink" title="2023年的转折"></a>2023年的转折</h3><p>2023年出生903万，比2022年的956万少了53万，跌幅5.5%。</p>
+<p>当时很多人还在说：”跌幅在收窄，可能要止跌了。”</p>
+<p>但2024年出现短暂反弹至954万，让人松了口气。</p>
+<p>直到2025年的792万出来，单年暴跌162万，跌幅17%。</p>
+<p><strong>人们才意识到：2024年的954万，不是止跌回升，而是回光返照。</strong></p>
+<h3 id="2026年的觉醒"><a href="#2026年的觉醒" class="headerlink" title="2026年的觉醒"></a>2026年的觉醒</h3><p>2026年，房地产崩盘已成定局。</p>
+<p>一线城市核心区房价跌15-25%，外围跌35-50%；二线城市跌20-40%；三四线城市跌30-50%+，流动性锁死。</p>
+<p>5000-7500万人失业或收入大幅下降。</p>
+<p>地方财政崩溃，公务员大面积欠薪。东南沿海（浙江、江苏、广东）收入下降15-30%，中西部绩效奖金全部砍削，部分县市拖欠工资2-6个月。</p>
+<p>这一年，年轻人终于明白：</p>
+<ul>
+<li>生孩子养不起</li>
+<li>房子是负资产</li>
+<li>工作朝不保夕</li>
+<li>社保指不上</li>
+</ul>
+<p><strong>2026年，出生人口可能跌至582万。</strong></p>
+<h3 id="谁该负责？"><a href="#谁该负责？" class="headerlink" title="谁该负责？"></a>谁该负责？</h3><p><strong>那些在2003年堕掉女胎的父母，要负责吗？</strong><br>要。他们的选择，导致20年后儿子找不到老婆。</p>
+<p><strong>那些在2016年拒绝生二胎的年轻人，要负责吗？</strong><br>不。他们只是理性地评估了成本，做出了对自己最有利的选择。</p>
+<p><strong>那些在2023年说”年轻人不努力”的专家，要负责吗？</strong><br>要。他们用”个体努力”掩盖了”结构性崩溃”。</p>
+<p><strong>那些在2026年还在炒房的投机者，要负责吗？</strong><br>要。他们把年轻人的未来变现成了自己的财富。</p>
+<p><strong>但最该负责的，是那些制定政策的人。</strong></p>
+<p>他们在该放开生育时（1990年代），没有放开。<br>他们在该控制房价时（2000年代），没有控制。<br>他们在该改革社保时（2010年代），没有改革。</p>
+<p>等到2020年代，一切都晚了。</p>
+<hr>
+<h2 id="尾声：当数学成为预言"><a href="#尾声：当数学成为预言" class="headerlink" title="尾声：当数学成为预言"></a>尾声：当数学成为预言</h2><p>2024年8月，我写《2100年中国还剩下多少人》时，用的是平均下降率（每10年19%）。那是一个”温和衰退”的假设，结论是：</p>
+<blockquote>
+<p><strong>2100年，中国最多有5.73亿人。</strong></p>
+</blockquote>
+<p>2026年11月，我重新算了一遍，用的是加速下降率（单年17%），并且加入了移民及海外子女的双重流失。这是一个”崩溃式衰退”的假设，结论是：</p>
+<blockquote>
+<p><strong>2100年，中国最少有1.3亿人。</strong></p>
+</blockquote>
+<p><strong>两个推演的结果：</strong></p>
+<ul>
+<li>乐观情景（修正后）：3.8亿</li>
+<li>悲观情景：1.3亿</li>
+</ul>
+<p>相差近3倍。</p>
+<p>但我必须诚实地说：<strong>基于2026年的现实趋势，悲观情景的可能性更大。</strong></p>
+<h3 id="数学不会骗人"><a href="#数学不会骗人" class="headerlink" title="数学不会骗人"></a>数学不会骗人</h3><p>2003年出生733万女婴，这是事实。<br>2023年她们20岁，进入生育期，这是事实。<br>2023年出生414万女婴，这是事实。<br>2043年她们会20岁，这是事实。<br>2043年她们会生多少孩子，这是可以推算的。</p>
+<p><strong>数学不会因为你的期望而改变，它只会按照自己的规律，一步步走向结论。</strong></p>
+<h3 id="1046万移民的警示"><a href="#1046万移民的警示" class="headerlink" title="1046万移民的警示"></a>1046万移民的警示</h3><p>根据联合国数据，截至2020年，中国对外移民存量1046万人。</p>
+<p>这是70年的累计数，看起来不多——每年平均只有15万。</p>
+<p>但这1046万人中，54%是女性，大部分是育龄女性。她们在海外生的孩子，虽然有中国血统，但国籍是外国。</p>
+<p><strong>如果每个移民家庭平均生1.5个孩子，1046万移民会带走约800万未来人口。</strong></p>
+<p>而2026-2100年，移民会继续加速。如果75年累计移民4200万，他们会带走约3000万未来人口。</p>
+<p><strong>移民不仅带走了人，还带走了未来。</strong></p>
+<h3 id="792万的启示"><a href="#792万的启示" class="headerlink" title="792万的启示"></a>792万的启示</h3><p>2025年，中国出生792万人。</p>
+<p>这是建国以来最低的出生人口，也是一个历史性的转折点。</p>
+<p>从2025年开始，中国正式进入”年均出生不足800万”的时代。而按照我的推演，到2028年会跌破600万，到2032年会跌破500万。</p>
+<p><strong>每一个跌破，都是一个不可逆的临界点。</strong></p>
+<p>就像水从山顶流下，一旦越过某个山脊，就再也回不去了。</p>
+<h3 id="给2100年的人"><a href="#给2100年的人" class="headerlink" title="给2100年的人"></a>给2100年的人</h3><p>如果2100年真的只剩1.3亿人，那时候的人会看着这篇文章，想些什么？</p>
+<p>他们可能会笑话我们2026年的人”瞎操心”。</p>
+<p>但他们不知道的是：</p>
+<ul>
+<li>他们的存在，正是因为我们这代人的选择</li>
+<li>他们的总数，只相当于2026年一个广东省</li>
+<li>他们中的大部分人，都出生在我们这代人的选择之后</li>
+</ul>
+<p><strong>2100年的1.3亿人，会生活在一个什么样的世界？</strong></p>
+<ul>
+<li>大量县城空心化，房屋成片荒废</li>
+<li>学校、医院、妇产科大规模关闭</li>
+<li>基础设施无人维护，逐渐衰败</li>
+<li>老龄化率超过35%，到处都是老人</li>
+<li>年轻人稀缺，被当作”珍稀资源”</li>
+<li>社会创新停滞，经济活力丧失</li>
+</ul>
+<p><strong>这就是”传宗接代”执念的终局——当所有人都想着传宗接代，最终却无宗可传。</strong></p>
+<h3 id="算着算着，又把自己气笑了"><a href="#算着算着，又把自己气笑了" class="headerlink" title="算着算着，又把自己气笑了"></a>算着算着，又把自己气笑了</h3><p>2024年我算出”最多5.73亿”时，有人说我危言耸听。</p>
+<p>2025年出生人口暴跌162万后，我重新算了一遍，发现答案是”最少1.3亿”。</p>
+<p><strong>这两个数字之间，是一个叫做”趋势”的东西。</strong></p>
+<p>你可以选择相信3.8亿，也可以选择相信1.3亿，但”趋势”不会因为你的选择而改变。</p>
+<p>它只会按照数学的必然性，一步步走向终点。</p>
+<p>75年后，2100年的中国人会看着这篇文章，笑话我们2026年的人”瞎操心”。</p>
+<p>但那时候，他们的总数可能只有1.3亿——相当于现在一个广东省。</p>
+<p>而他们中的大部分人，都出生在我们这代人的选择之后。</p>
+<p><strong>当2003年有人决定堕掉女胎时，他们没有想到，这会导致2100年的中国只剩1.3亿人。</strong></p>
+<p><strong>当2025年出生人口跌至792万时，我们还没有意识到，这是一场不可逆转的崩溃的开始。</strong></p>
+<p><strong>但数学已经给出了答案。</strong></p>
+<p><strong>剩下的，只是等待时间去验证。</strong></p>
+<hr>
+<p><strong>2026年11月6日</strong></p>
+<p><strong>2100年，中国最少有1.3亿人。</strong></p>
+<p><strong>区间：1.3亿 - 3.8亿</strong></p>
+<p><strong>中位数：约2.5亿</strong></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/View/">View</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/12/30/22151.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">2027年学习计划</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/11/05/4264713810.html">
+                        <span class="hidden-mobile">杜鹃的末日：一场拖延战术与数学必然的合谋</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "2100年中国还剩下多少人（二）"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

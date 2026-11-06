@@ -1,0 +1,633 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>一些缩写7 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="一些缩写7">
+                      
+                        一些缩写7
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-10-05 04:59" pubdate>
+        2026年10月5日 凌晨
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      33
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">一些缩写7</h1>
+            
+            <div class="markdown-body">
+              <h1 id="Cloudflare-One是什么，提供什么功能"><a href="#Cloudflare-One是什么，提供什么功能" class="headerlink" title="Cloudflare One是什么，提供什么功能?"></a>Cloudflare One是什么，提供什么功能?</h1><p><a target="_blank" rel="noopener" href="https://www.cloudflare.com/zh-tw/sase/">Cloudflare One</a> 是 Cloudflare 推出的云原生 SASE（安全访问服务边缘）平台。 它将企业网络连接服务（NaaS）与零信任安全服务（SSE）整合在同一个全球边缘网络中。 [1, 2]<br>简单来说，它的核心逻辑是：用 Cloudflare 遍布全球 300 多个城市的底层网络，替代掉企业传统的物理防火墙、MPLS 专线和传统 VPN，并为员工提供全方位的上网与内网访问安全防护。 [3, 4, 5] </p>
+<h2 id="1-零信任网络访问-ZTNA-——-替代-VPN-与内网接入"><a href="#1-零信任网络访问-ZTNA-——-替代-VPN-与内网接入" class="headerlink" title="1. 零信任网络访问 (ZTNA) —— 替代 VPN 与内网接入"></a>1. 零信任网络访问 (ZTNA) —— 替代 VPN 与内网接入</h2><p>对应组件名为 Cloudflare Access。 [4, 6] </p>
+<ul>
+<li>无客户端&#x2F;有客户端双模式：对于紧急割接，可在内网服务器一键运行 <a target="_blank" rel="noopener" href="https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/">Cloudflare Tunnel</a>（轻量级隧道），直接将内网 Web 系统（如 OA、Git、Jira）映射到云端。员工无需安装任何客户端，在浏览器里通过企业 SSO（飞书、Okta、Azure AD 等）验证身份即可安全访问。</li>
+<li>持续身份验证：基于“身份+设备状态+地理位置”进行颗粒度极细的鉴权。即使员工在访问中途更换了网络或设备异常，访问权限会瞬间被掐断。 [7, 8, 9, 10, 11]</li>
+</ul>
+<h2 id="2-安全-Web-网关-SWG-——-满足您的-URL-白名单-上网行为管理需求"><a href="#2-安全-Web-网关-SWG-——-满足您的-URL-白名单-上网行为管理需求" class="headerlink" title="2. 安全 Web 网关 (SWG) —— 满足您的 URL 白名单&#x2F;上网行为管理需求"></a>2. 安全 Web 网关 (SWG) —— 满足您的 URL 白名单&#x2F;上网行为管理需求</h2><p>对应组件名为 Cloudflare Gateway。 [4, 6] </p>
+<ul>
+<li>DNS 与 HTTP&#x2F;HTTPS 级别过滤：完美满足您提及的 URL 白名单 刚需。可以通过配置策略，强制只允许终端访问白名单内的域名或特定 URL，并直接在云端边缘进行全流量审计与恶意网站拦截。 [1, 3, 12] </li>
+<li>后量子加密（PQ）支持：作为 2026 年最新的安全升级，其 SWG 平台已全面支持后量子加密标准，可防御面向未来的新型网络监听与解密威胁。 [13]</li>
+</ul>
+<h2 id="3-数据防泄漏-DLP-——-云端数据外发审计"><a href="#3-数据防泄漏-DLP-——-云端数据外发审计" class="headerlink" title="3. 数据防泄漏 (DLP) —— 云端数据外发审计"></a>3. 数据防泄漏 (DLP) —— 云端数据外发审计</h2><p>对应组件名为 Cloudflare DLP。 [1, 2] </p>
+<ul>
+<li>网络与 SaaS 层的敏感数据阻断：实时检测通过网络外发、上传的数据。例如：可以阻断员工在公有云网盘、外网 Git、甚至 ChatGPT 等 AI 工具中输入包含公司源代码、身份证号、银行卡号或自定义关键字的敏感行为。 [1, 9]</li>
+</ul>
+<h2 id="4-远程浏览器隔离-RBI-——-终极网页防毒"><a href="#4-远程浏览器隔离-RBI-——-终极网页防毒" class="headerlink" title="4. 远程浏览器隔离 (RBI) —— 终极网页防毒"></a>4. 远程浏览器隔离 (RBI) —— 终极网页防毒</h2><p>对应组件名为 Browser Isolation。 [1, 3] </p>
+<ul>
+<li>云端渲染浏览：当员工必须访问未知或高风险网站时，网站代码完全在 Cloudflare 的云端虚拟机中运行，只将安全的“像素画面”传回员工电脑。这能从根本上免疫任何针对员工浏览器的漏洞利用或挂马攻击。 [3, 12]</li>
+</ul>
+<h2 id="5-云访问安全代理-CASB-——-SaaS-资产盘点"><a href="#5-云访问安全代理-CASB-——-SaaS-资产盘点" class="headerlink" title="5. 云访问安全代理 (CASB) —— SaaS 资产盘点"></a>5. 云访问安全代理 (CASB) —— SaaS 资产盘点</h2><p>对应组件名为 Cloudflare CASB。 [1, 2] </p>
+<ul>
+<li>检测配置疏漏：自动扫描企业正在使用的 M365、Google Workspace、GitHub 等企业 SaaS 软件，揪出哪些文件被员工错误地设置成了“公开可见”，防止因配置疏忽导致的重大数据泄露。 [1]</li>
+</ul>
+<h2 id="6-基础设备姿态检查-轻量-NAC-替代"><a href="#6-基础设备姿态检查-轻量-NAC-替代" class="headerlink" title="6. 基础设备姿态检查 (轻量 NAC 替代)"></a>6. 基础设备姿态检查 (轻量 NAC 替代)</h2><p>对应组件名为 Device Posture。 [7, 14] </p>
+<ul>
+<li>合规性校验：配合其终端 Agent（Cloudflare WARP），可以读取员工电脑的系统状态（例如：是否启用了磁盘加密、是否安装了特定证书、防火墙是否开启）。如果不满足合规指标，直接拒绝其通过 ZTNA 访问公司内网。 [7, 8, 14]</li>
+</ul>
+<h2 id="cloudflare-vs-亿格云枢"><a href="#cloudflare-vs-亿格云枢" class="headerlink" title="cloudflare vs 亿格云枢"></a>cloudflare vs 亿格云枢</h2><p>如果用 Cloudflare One 承接原亿格云枢的业务，架构将从“重终端”转变为“轻终端、重云端”：</p>
+<ol>
+<li>网络速度提升：由于 Cloudflare 拥有全球最大的 Anycast 网络之一，其 DNS 过滤和流量转发几乎没有延迟，员工日常上网的卡顿感会明显减轻。 [6] </li>
+<li>需要补齐的功能真空：Cloudflare One 不提供诸如“禁止插 U 盘”、“本地屏幕加水印”、“静默下发杀毒软件”等纯终端桌面管理功能。这些缺失的终端控制，需要您用 Windows 组策略（GPO）或本地轻量 EDR 软件来共同配合完成。</li>
+</ol>
+<h1 id="Anycast-网络是什么意思"><a href="#Anycast-网络是什么意思" class="headerlink" title="Anycast 网络是什么意思"></a>Anycast 网络是什么意思</h1><p>Anycast 是一种网络寻址方式：多个地点公告同一个 IP 地址，用户的数据包会被路由到“网络距离最近”的那一台，而不是固定发到某一台服务器。</p>
+<h2 id="和常见寻址方式的区别"><a href="#和常见寻址方式的区别" class="headerlink" title="和常见寻址方式的区别"></a>和常见寻址方式的区别</h2><table>
+<thead>
+<tr>
+<th>方式</th>
+<th>一个地址对应什么</th>
+<th>数据包去哪</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Unicast</td>
+<td>一台主机</td>
+<td>固定那一台</td>
+</tr>
+<tr>
+<td>Broadcast</td>
+<td>一个网段里的所有主机</td>
+<td>全部都收到</td>
+</tr>
+<tr>
+<td>Multicast</td>
+<td>加入该组的主机</td>
+<td>组内成员都收到</td>
+</tr>
+<tr>
+<td>Anycast</td>
+<td>多台主机共用同一地址</td>
+<td>路由选出的“最近”一台</td>
+</tr>
+</tbody></table>
+<p>“最近”不是地理直线距离，而是路由协议（通常是 BGP）算出来的路径更短、优先级更高的那个节点。</p>
+<h2 id="它怎么工作"><a href="#它怎么工作" class="headerlink" title="它怎么工作"></a>它怎么工作</h2><p>运营商或 CDN 在世界各地放很多节点，每个节点都用 BGP 向互联网宣告同一个 IP 前缀，例如 <code>1.1.1.1/32</code>。</p>
+<p>你的电脑解析出这个地址后，数据包按正常路由转发。沿途的路由器只看“这条前缀从哪条路径学来更优”，于是流量自然落到离你当前网络位置最近的那个节点。你不需要选机房，应用层通常也看不出自己连的是哪一台。</p>
+<p>如果某个节点宕机或撤销宣告，路由会收敛到下一个可用节点，这就是 Anycast 常被用来做容灾的原因。</p>
+<h2 id="为什么常用"><a href="#为什么常用" class="headerlink" title="为什么常用"></a>为什么常用</h2><ul>
+<li>DNS：<code>1.1.1.1</code>、<code>8.8.8.8</code> 都是 Anycast，全球很多机器共用同一地址。</li>
+<li>CDN 和反向代理：Cloudflare 的边缘节点就是用 Anycast 接流量，用户就近进入其网络，再由内部网络转到源站。</li>
+<li>抗 DDoS：攻击流量被分散到离各个攻击源最近的节点，而不是全部打到同一台机器。</li>
+</ul>
+<p>限制也很明确：它适合无状态或可在任意节点独立处理的服务。带长连接、强会话状态的服务如果中途路由切换，可能断连，所以通常要配合会话保持、连接迁移，或只把 Anycast 用在入口、后面再转到固定后端。</p>
+<h1 id="zscaler是什么"><a href="#zscaler是什么" class="headerlink" title="zscaler是什么"></a>zscaler是什么</h1><p>Zscaler（纳斯达克代码：ZS）是一家美国云安全公司，总部在加州圣何塞。它的核心产品是云端交付的零信任安全平台，用来替代传统防火墙、代理和 VPN。</p>
+<p>公司由 Jay Chaudhry 和 K. Kailash 于 2007 年创立（前身为 SafeChannel），2018 年上市。官方把自己定位成面向 AI 时代的网络安全平台，主张“互联网就是新的企业网络，云就是新的数据中心”。全球客户约 1.1 万家，其中包含不少《福布斯》全球 2000 强企业。</p>
+<h3 id="它解决什么问题"><a href="#它解决什么问题" class="headerlink" title="它解决什么问题"></a>它解决什么问题</h3><p>传统做法是把流量先拉回公司数据中心，再用防火墙或 VPN 检查。远程办公、SaaS 和多云普及后，这种“先入网再访问”的模式又慢又不安全：VPN 一旦接通，用户往往能在内网横向移动。</p>
+<p>Zscaler 的做法相反：流量不进企业内网，而是就近进入它的全球安全云（Zero Trust Exchange，200 多个公有数据中心）。每次连接都按身份、设备状态和策略做最小权限校验，只把用户连到被授权的应用，而不是整张网络。</p>
+<h3 id="主要产品"><a href="#主要产品" class="headerlink" title="主要产品"></a>主要产品</h3><ul>
+<li><strong>Zscaler Internet Access（ZIA）</strong>：安全访问互联网和 SaaS，相当于云端安全 Web 网关（SWG），可检查加密流量、拦截威胁、做数据防泄漏。</li>
+<li><strong>Zscaler Private Access（ZPA）</strong>：安全访问内网或私有应用，用来替代 VPN。</li>
+<li><strong>Zero Trust SASE &#x2F; SSE</strong>：把网络与安全合在云上交付。Gartner 在安全服务边缘（SSE）领域长期把它列为领导者。</li>
+<li>其他能力还包括数字体验监测（ZDX）、工作负载保护、数据安全，以及近年扩展的 AI 应用与 AI 代理通信防护。</li>
+</ul>
+<p>公司称平台每天检查约 7500 亿笔以上交易。它不是杀毒软件，也不是装在机房里的硬件防火墙，而是一套按用户和流量订阅的云安全服务。</p>
+<h1 id="那这些产品满足ZTNA-DLP，NAC吗"><a href="#那这些产品满足ZTNA-DLP，NAC吗" class="headerlink" title="那这些产品满足ZTNA,DLP，NAC吗"></a>那这些产品满足ZTNA,DLP，NAC吗</h1><p>ZTNA 和 DLP 能覆盖，传统 NAC 不能直接替代。</p>
+<p><strong>ZTNA：满足。</strong> 对应产品是 Zscaler Private Access（ZPA）。用户不接入整张内网，而是经 Zero Trust Exchange 按身份、设备状态和策略，只连到被授权的私有应用。这就是用来替换 VPN 的零信任网络访问。浏览器无客户端访问也属于这条产品线，但无客户端时通常做不了设备状态检查。</p>
+<p><strong>DLP：满足。</strong> Zscaler 有统一数据防泄漏，覆盖范围包括：</p>
+<ul>
+<li>上网和 SaaS 流量的 inline DLP（在 ZIA 里）</li>
+<li>私有应用流量的 DLP（可和 ZPA 结合）</li>
+<li>终端 DLP（经 Client Connector，管 U 盘、打印、网络共享、个人云盘上传）</li>
+<li>邮件、SaaS 和部分公有云数据</li>
+</ul>
+<p>策略可以集中配，引擎有预置和自定义。它是 SSE 里的数据安全能力，不是单独的硬件 DLP 盒子。</p>
+<p><strong>NAC：不满足。</strong> 传统 NAC（如 Cisco ISE、Aruba ClearPass）管的是园区网准入：802.1X、交换机端口、无线 AP、RADIUS、VLAN 或 ACL，决定设备能不能上局域网。Zscaler 没有这个产品。</p>
+<p>它有的是设备状态检查（Device Posture）：证书、域加入、磁盘加密、操作系统版本、防火墙、EDR 分数等，用来决定能不能走 ZIA&#x2F;ZPA。这只约束“能不能访问应用”，不管“能不能插上网线或连上公司 Wi-Fi”。打印机、摄像头、IoT 这类不能装客户端的设备，仍要靠 NAC 或网络分段。</p>
+<p>实际部署通常是：园区有线&#x2F;无线继续用 NAC，远程和私有应用用 ZPA，上网和数据外泄用 ZIA 加 DLP。三者互补，不是同一套产品全包。</p>
+<h1 id="palo-alto有ZTNA吗"><a href="#palo-alto有ZTNA吗" class="headerlink" title="palo alto有ZTNA吗"></a>palo alto有ZTNA吗</h1><p>有。Palo Alto 的 ZTNA 做在 Prisma Access 里，不单独叫一个产品名，核心组件是 ZTNA Connector。</p>
+<p>它的做法和 Zscaler ZPA 同类：在应用侧放一台虚拟机 Connector，由它向外连到 Prisma Access，应用不必暴露公网端口。用户（远程或分支）只按身份、应用和设备被允许访问指定私有应用，默认拒绝。策略用的是 Palo Alto 的 User-ID、App-ID、Device-ID。</p>
+<p>许可上，Prisma Access Base（ZTNA 或 Enterprise）含 10 个 Connector；私有应用访问加购最多到 200 个。从 Prisma Access 5.0 起支持该功能；6.1.1 还可以把现有 Palo Alto 下一代防火墙当作 NGFW Connector 用。</p>
+<p>和 Zscaler 的差别主要是形态：ZPA 是独立 ZTNA 云服务；Palo Alto 把它放在 SASE 平台里，常和上网安全、分支接入一起卖。已有防火墙和 Panorama 的客户，续到 Prisma Access 通常更顺。</p>
+<h2 id="ZTNA-Connector多少钱"><a href="#ZTNA-Connector多少钱" class="headerlink" title="ZTNA Connector多少钱"></a>ZTNA Connector多少钱</h2><p>ZTNA Connector 不单独按台卖，包含在 Prisma Access 的用户许可里。官网没有标价，英国 G-Cloud 15 上合作伙伴备案的目录价（每人每年）是：</p>
+<table>
+<thead>
+<tr>
+<th>许可</th>
+<th>目录价</th>
+<th>含多少 Connector</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Prisma Access ZTNA（只做私有应用）</td>
+<td>$120</td>
+<td>5 个 Service Connection + 10 个 ZTNA Connector</td>
+</tr>
+<tr>
+<td>Prisma Access Enterprise（上网 + 私有应用）</td>
+<td>$175</td>
+<td>同样 10 个 Connector</td>
+</tr>
+<tr>
+<td>Private App Access 加购</td>
+<td>另计，公开目录未单列单价</td>
+<td>最多约 200 个 Connector</td>
+</tr>
+</tbody></table>
+<p>只买上网安全（SWG，约 $110&#x2F;人&#x2F;年）不含私有应用，也就没有 Connector。</p>
+<p>实际计费按移动用户数，不是按 Connector 台数。基础许可带 10 台，用来试部署通常够；应用多、机房多才需要加购。Connector 虚拟机的 CPU、内存和带宽自己出，软件隧道含在订阅里。</p>
+<p>成交价一般低于目录价，人数多、签 3 年、已有防火墙续约时更明显。中国区走 400 991 1194 或合作伙伴询价，和 Zscaler ZPA Platform 的公开目录价（约 $120&#x2F;人&#x2F;年）几乎同一档。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/jargon/">jargon</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/10/19/782089943.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">我为什么建议你生男孩（二）</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/09/29/2738906154.html">
+                        <span class="hidden-mobile">cissp-2026-2</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "一些缩写7"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

@@ -1,0 +1,830 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>50 CISSP Practice Questions - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="50 CISSP Practice Questions">
+                      
+                        50 CISSP Practice Questions
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-09-28 06:44" pubdate>
+        2026年9月28日 早上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      5.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      61
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">50 CISSP Practice Questions</h1>
+            
+            <div class="markdown-body">
+              <h1 id="18-least-computationally-efficient"><a href="#18-least-computationally-efficient" class="headerlink" title="18. least computationally efficient"></a>18. least computationally efficient</h1><p>least computationally efficient<br><strong>翻译：计算效率最低 &#x2F; 算力开销最大</strong></p>
+<blockquote>
+<p>CISSP密码学选择题短语，拆解：</p>
+<ul>
+<li>computationally：计算上的</li>
+<li>efficient：高效的</li>
+<li>least：最低、最差</li>
+</ul>
+</blockquote>
+<p><strong>含义：完成同样任务，它消耗最多CPU&#x2F;算力，速度最慢。</strong></p>
+<h2 id="密码学场景核心对比"><a href="#密码学场景核心对比" class="headerlink" title="密码学场景核心对比"></a>密码学场景核心对比</h2><ul>
+<li><strong>对称加密 symmetric encryption（AES）</strong>：computationally efficient 计算高效，快、算力消耗小，适合加密大文件、磁盘。</li>
+<li><strong>非对称加密 asymmetric encryption（RSA&#x2F;ECC）</strong>：<strong>least computationally efficient</strong>，运算非常耗CPU，很慢。<blockquote>
+<p>✅ 考点结论：<strong>非对称加密是计算效率最低的</strong>。</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="为什么"><a href="#为什么" class="headerlink" title="为什么"></a>为什么</h3><p>非对称是基于大数分解&#x2F;椭圆曲线复杂数学难题；<br>对称只是简单位运算，速度快很多。<br>工程上：不用RSA直接加密大文件，只用它加密<strong>对称密钥DEK</strong>（密钥封装key wrapping）。</p>
+<h2 id="CISSP一句话背诵"><a href="#CISSP一句话背诵" class="headerlink" title="CISSP一句话背诵"></a>CISSP一句话背诵</h2><blockquote>
+<p>Asymmetric cryptography is the least computationally efficient, compared with symmetric encryption and hashing. It is slow and resource-intensive, so it is not used to encrypt large volumes of data.</p>
+</blockquote>
+<h2 id="考题坑"><a href="#考题坑" class="headerlink" title="考题坑"></a>考题坑</h2><p>题干问：<br>Which is <strong>least computationally efficient</strong>?<br>👉 答案选 <strong>asymmetric encryption</strong></p>
+<p>补充：</p>
+<ul>
+<li>Hashing（哈希）：计算效率很高</li>
+<li>Symmetric：高效</li>
+<li>Asymmetric：<strong>least computationally efficient</strong></li>
+</ul>
+<p>要不要我整理密码学算法算力速度排序（从最快到最慢）？</p>
+<p>计算效率排序（从<strong>最快 → 最慢</strong>，CISSP标准）</p>
+<blockquote>
+<p>越快 &#x3D; computationally efficient；最慢 &#x3D; least computationally efficient<br><strong>Blowfish &gt; AES &gt; ECC &gt; RSA</strong></p>
+</blockquote>
+<h2 id="逐个说明"><a href="#逐个说明" class="headerlink" title="逐个说明"></a>逐个说明</h2><ol>
+<li><p><strong>Blowfish</strong>（最快）<br>对称分组密码，轻量、运算简单；适合嵌入式，速度非常快。</p>
+<blockquote>
+<p>注：CISSP里它属于经典对称算法，无专利。缺点：块大小64bit，现代很多场景不再推荐。</p>
+</blockquote>
+</li>
+<li><p><strong>AES</strong><br>对称加密，硬件AES-NI加速加持，现代系统主流。略慢于Blowfish，但安全性更强。</p>
+<blockquote>
+<p>AES、Blowfish 都是<strong>symmetric 对称加密</strong>，整体远快于非对称。</p>
+</blockquote>
+</li>
+<li><p><strong>ECC 椭圆曲线（非对称）</strong><br>非对称加密，<strong>比RSA快很多</strong>，同等安全强度下密钥短、算力消耗更低。</p>
+</li>
+<li><p><strong>RSA（最慢｜least computationally efficient）</strong><br>非对称，大数模幂运算，CPU开销巨大。</p>
+<blockquote>
+<p>这就是考题里常说的：asymmetric crypto least computationally efficient。</p>
+</blockquote>
+</li>
+</ol>
+<h2 id="一句话速记口诀"><a href="#一句话速记口诀" class="headerlink" title="一句话速记口诀"></a>一句话速记口诀</h2><p><strong>Blowfish &gt; AES（对称快） &gt;&gt; ECC &gt; RSA（非对称慢）</strong></p>
+<h2 id="CISSP选择题考点"><a href="#CISSP选择题考点" class="headerlink" title="CISSP选择题考点"></a>CISSP选择题考点</h2><ol>
+<li>对称算法（AES&#x2F;Blowfish）全部快于非对称（ECC&#x2F;RSA）</li>
+<li>同安全强度：ECC 远快于 RSA</li>
+<li>如果题目问：<strong>least computationally efficient</strong> → RSA</li>
+<li>如果问哪个非对称效率更高：ECC</li>
+</ol>
+<h2 id="补充考点提醒"><a href="#补充考点提醒" class="headerlink" title="补充考点提醒"></a>补充考点提醒</h2><ul>
+<li>对称加密用来加密<strong>大量业务数据</strong></li>
+<li>非对称（RSA&#x2F;ECC）只用来加密<strong>短小的DEK密钥、数字签名</strong>，不会加密大文件</li>
+</ul>
+<blockquote>
+<p>背诵短句：<br>Symmetric ciphers (Blowfish, AES) are much more computationally efficient than asymmetric algorithms. ECC outperforms RSA for equivalent security strength, and RSA is the least computationally efficient among these four.</p>
+</blockquote>
+<p>要不要顺便整理这4个算法的用途、密钥长度、优缺点的极简对照表？</p>
+<h1 id="19-SOC-2-type-II-report"><a href="#19-SOC-2-type-II-report" class="headerlink" title="19. SOC 2 type II report"></a>19. SOC 2 type II report</h1><p>SOC 2 Type II Report<br>全称：<strong>System and Organization Controls Type 2 Report</strong><br>中文：<strong>SOC2 第二类鉴证报告</strong>（AICPA美国注册会计师协会，SSAE18标准，CISSP第三方服务商风险章节必考）</p>
+<h2 id="✅-一句话定义"><a href="#✅-一句话定义" class="headerlink" title="✅ 一句话定义"></a>✅ 一句话定义</h2><p>由独立CPA会计师事务所出具，<strong>评估服务供应商（如云&#x2F;SaaS厂商）的安全控制：不仅检查控制设计是否合理，还要验证在一段持续周期（通常6–12个月）内，这些控制持续有效运行</strong>。</p>
+<blockquote>
+<p>Type I：<strong>快照</strong>，只评估<strong>某一个时间点</strong>，控制设计好不好（只看文档、制度设计）<br>Type II：<strong>一段期间</strong>，评估 <strong>design（设计） + operating effectiveness（运行有效性）</strong>，审计师会抽样日志、记录，验证日常确实在执行安全管控，<strong>可信度更高</strong>，企业客户采购外包服务优先要求Type II报告</p>
+</blockquote>
+<h2 id="SOC2-的5大信任服务准则-Trust-Services-Criteria（TSC）"><a href="#SOC2-的5大信任服务准则-Trust-Services-Criteria（TSC）" class="headerlink" title="SOC2 的5大信任服务准则 Trust Services Criteria（TSC）"></a>SOC2 的5大信任服务准则 Trust Services Criteria（TSC）</h2><ol>
+<li><strong>Security（安全，必选）</strong>：防止未授权访问</li>
+<li>Availability（可用性）：系统按承诺可用</li>
+<li>Processing Integrity（处理完整性）：处理准确、完整、及时</li>
+<li>Confidentiality（保密性）：保护机密信息</li>
+<li>Privacy（隐私）：个人信息合规采集使用<blockquote>
+<p>Security强制，其余四项按需选择</p>
+</blockquote>
+</li>
+</ol>
+<h2 id="SOC1-SOC2-SOC3-快速区分（选择题高频）"><a href="#SOC1-SOC2-SOC3-快速区分（选择题高频）" class="headerlink" title="SOC1 &#x2F; SOC2 &#x2F; SOC3 快速区分（选择题高频）"></a>SOC1 &#x2F; SOC2 &#x2F; SOC3 快速区分（选择题高频）</h2><ul>
+<li><strong>SOC1</strong>：针对<strong>财务内控</strong>，评估外包服务对客户财务报表的影响</li>
+<li><strong>SOC2</strong>：<strong>安全、可用性、隐私</strong>，评估云&#x2F;SaaS服务商的安全控制；Type II是长期运行有效性；<strong>受限分发，一般签NDA才提供</strong>，报告细节多</li>
+<li><strong>SOC3</strong>：<strong>和SOC2同一套标准，但删减内部敏感细节</strong>，可以对外公开、放在官网宣传</li>
+</ul>
+<h2 id="CISSP背诵短句"><a href="#CISSP背诵短句" class="headerlink" title="CISSP背诵短句"></a>CISSP背诵短句</h2><blockquote>
+<p>A SOC 2 Type II report is an independent auditor’s assessment of a service provider’s controls. It evaluates both the design and operating effectiveness of controls over a period (typically 6–12 months) against AICPA Trust Services Criteria. It provides higher assurance than Type I, which only reviews control design at a single point in time.</p>
+</blockquote>
+<h2 id="考题坑-1"><a href="#考题坑-1" class="headerlink" title="考题坑"></a>考题坑</h2><ol>
+<li>Type I ≠ Type II：<strong>Type I只看设计；Type II看长期实际落地执行</strong>，风险评估优先采信Type II</li>
+<li>SOC2不是证书，是<strong>审计鉴证报告</strong>，不是永久有效，需要每年重新审计</li>
+<li>属于**第三方供应商风险管理（third-party risk）**场景，用来评估云厂商、外包服务商安全风险</li>
+</ol>
+<p>要不要把SOC1&#x2F;2&#x2F;3 TypeI&#x2F;TypeII浓缩成一行对比表刷题用？</p>
+<h1 id="20-安全策略的主要目的是什么？"><a href="#20-安全策略的主要目的是什么？" class="headerlink" title="20. 安全策略的主要目的是什么？"></a>20. 安全策略的主要目的是什么？</h1><p>C. to provide high-level guidance and direction for security efforts.</p>
+<h1 id="21-安全应急响应计划，post-incident-review的主要目的是什么？"><a href="#21-安全应急响应计划，post-incident-review的主要目的是什么？" class="headerlink" title="21. 安全应急响应计划，post-incident review的主要目的是什么？"></a>21. 安全应急响应计划，post-incident review的主要目的是什么？</h1><p>B. Assessing the effectiveness of the response and identifying areas for improvement.</p>
+<h1 id="post-incident-review（事件后复盘-事后审查，也叫-lessons-learned）"><a href="#post-incident-review（事件后复盘-事后审查，也叫-lessons-learned）" class="headerlink" title="post-incident review（事件后复盘 &#x2F; 事后审查，也叫 lessons learned）"></a>post-incident review（事件后复盘 &#x2F; 事后审查，也叫 lessons learned）</h1><p>✅ 答案：<strong>Assessing the effectiveness of the response and identifying areas for improvement.</strong><br>评估本次响应的有效性，识别可改进之处。</p>
+<h2 id="核心定义（CISSP-事件响应章节）"><a href="#核心定义（CISSP-事件响应章节）" class="headerlink" title="核心定义（CISSP 事件响应章节）"></a>核心定义（CISSP 事件响应章节）</h2><p>事件解决、业务恢复之后，召开<strong>事后复盘会</strong>。<br><strong>目标不是追责，而是总结经验教训，优化安全体系、应急流程、控制措施。</strong></p>
+<h3 id="复盘会重点讨论内容"><a href="#复盘会重点讨论内容" class="headerlink" title="复盘会重点讨论内容"></a>复盘会重点讨论内容</h3><ol>
+<li>本次告警、检测是否及时准确</li>
+<li>应急响应流程执行是否顺畅（遏制、根除、恢复）</li>
+<li>现有安全控制是否生效，哪里失效</li>
+<li>团队资源、沟通、权限存在什么短板</li>
+<li>更新预案、安全策略、安全控制，<strong>防止同类事件再次发生</strong></li>
+</ol>
+<h2 id="NIST-IR-事件响应生命周期对照"><a href="#NIST-IR-事件响应生命周期对照" class="headerlink" title="NIST IR 事件响应生命周期对照"></a>NIST IR 事件响应生命周期对照</h2><ol>
+<li>Prepare 准备</li>
+<li>Detect &amp; Analyze 检测与分析</li>
+<li>Contain, Eradicate, Recover 遏制、根除、恢复</li>
+<li><strong>Post-incident activity 事后活动（就是post-incident review）</strong></li>
+</ol>
+<h2 id="❌-常见干扰选项辨析"><a href="#❌-常见干扰选项辨析" class="headerlink" title="❌ 常见干扰选项辨析"></a>❌ 常见干扰选项辨析</h2><ul>
+<li>Identify the attacker &#x2F; collect forensic evidence：取证、溯源属于<strong>遏制根除阶段</strong>，不是复盘目的</li>
+<li>Determine who is to blame（追责）：<strong>CISSP明确不主张追责</strong>，复盘聚焦流程改进，不是惩罚个人</li>
+<li>Update incident logs：只是复盘的产出物，不是<strong>主要目的</strong></li>
+</ul>
+<h2 id="CISSP背诵短句-1"><a href="#CISSP背诵短句-1" class="headerlink" title="CISSP背诵短句"></a>CISSP背诵短句</h2><blockquote>
+<p>The post-incident review (lessons learned) occurs after an incident is resolved. Its primary purpose is to evaluate how well the incident response worked and identify improvements to controls, procedures and training to prevent recurrence of similar incidents.</p>
+</blockquote>
+<h3 id="一句话速记"><a href="#一句话速记" class="headerlink" title="一句话速记"></a>一句话速记</h3><p><strong>Post-incident review &#x3D; lessons learned，复盘响应效果，找改进点，避免下次再踩坑。</strong></p>
+<p>要不要把NIST事件响应6步（有的教材是4步）整理成速记清单？</p>
+<h1 id="22-防止email附件恶意感染的方法是？"><a href="#22-防止email附件恶意感染的方法是？" class="headerlink" title="22. 防止email附件恶意感染的方法是？"></a>22. 防止email附件恶意感染的方法是？</h1><p>B email content filtering</p>
+<h1 id="23-防止sql和xss的最重要的是什么？"><a href="#23-防止sql和xss的最重要的是什么？" class="headerlink" title="23. 防止sql和xss的最重要的是什么？"></a>23. 防止sql和xss的最重要的是什么？</h1><p>A 输入验证和输出编码</p>
+<h1 id="24-安全事件响应计划，在检测安全事件之后，最严重的一步是什么？"><a href="#24-安全事件响应计划，在检测安全事件之后，最严重的一步是什么？" class="headerlink" title="24. 安全事件响应计划，在检测安全事件之后，最严重的一步是什么？"></a>24. 安全事件响应计划，在检测安全事件之后，最严重的一步是什么？</h1><p>C. implementing containment and mitigation measures</p>
+<p>解析：Detect 检测到事件之后，首要&#x2F;最重要步骤：<strong>implementing containment and mitigation measures（实施遏制与缓解措施）</strong></p>
+<blockquote>
+<p>对应NIST事件响应4阶段：Prepare → Detect &amp; Analyze → <strong>Contain, Eradicate, Recover</strong> → Post-Incident Activity</p>
+</blockquote>
+<h2 id="核心逻辑"><a href="#核心逻辑" class="headerlink" title="核心逻辑"></a>核心逻辑</h2><p>一旦确认这是真实安全事件（不是误报），<strong>第一优先级：限制攻击范围，阻止事态继续扩大</strong>。</p>
+<ul>
+<li>Contain 遏制：把攻击锁在当前受害范围，防止横向扩散、攻击者继续窃取&#x2F;破坏更多资产。</li>
+<li>Mitigation 缓解：降低当下攻击带来的损失。</li>
+</ul>
+<blockquote>
+<p>举例：隔离被攻陷服务器、封禁恶意IP、禁用被盗账号，都是containment。<br>目标：<strong>不让情况变得更糟</strong>。</p>
+</blockquote>
+<h2 id="各阶段顺序（考试必背）"><a href="#各阶段顺序（考试必背）" class="headerlink" title="各阶段顺序（考试必背）"></a>各阶段顺序（考试必背）</h2><ol>
+<li>Detect &amp; Analyze：检测告警，<strong>确认是不是真事件、评估影响范围</strong></li>
+<li>✅ Contain（遏制）【检测后的<strong>第一步重大动作</strong>】</li>
+<li>Eradicate（根除）：清除恶意代码、后门，移除攻击者驻留</li>
+<li>Recover（恢复）：把系统恢复到正常状态，上线业务</li>
+<li>Post-incident review：事后复盘</li>
+</ol>
+<h2 id="❌-常见干扰选项为什么不对"><a href="#❌-常见干扰选项为什么不对" class="headerlink" title="❌ 常见干扰选项为什么不对"></a>❌ 常见干扰选项为什么不对</h2><ul>
+<li>Collect forensic evidence（取证）：<strong>在遏制之后</strong>。业务环境还在被攻击的时候，优先遏制；取证可以在隔离遏制后做，不能优先取证耽误止损。</li>
+<li>Notify management &#x2F; inform stakeholders（上报管理层）：<strong>同步并行动作，但不是首要操作</strong>。一边遏制一边上报；不能等上报完再去控制攻击。</li>
+<li>Eradicate the threat（根除威胁）：在contain之后。<strong>必须先锁住攻击者，再清除</strong>，否则清除过程攻击者还会继续入侵别的机器。</li>
+</ul>
+<h2 id="CISSP背诵短句-2"><a href="#CISSP背诵短句-2" class="headerlink" title="CISSP背诵短句"></a>CISSP背诵短句</h2><blockquote>
+<p>After detecting and verifying a security incident, containment is the priority. Containment and mitigation limit the spread of the attack and reduce immediate damage. Forensic collection, eradication and recovery happen after containment.</p>
+</blockquote>
+<h2 id="一句话速记-1"><a href="#一句话速记-1" class="headerlink" title="一句话速记"></a>一句话速记</h2><p><strong>检测确认事件 → 先遏制，防止扩散；再根除，再恢复，最后复盘。取证、上报都排在遏制之后。</strong></p>
+<p>要不要我整理事件响应的常考顺序选择题陷阱？很多考题喜欢把取证、上报、根除放在选项里混淆。</p>
+<h1 id="25-应用存储密码，存储这些密码最佳实践是什么？"><a href="#25-应用存储密码，存储这些密码最佳实践是什么？" class="headerlink" title="25. 应用存储密码，存储这些密码最佳实践是什么？"></a>25. 应用存储密码，存储这些密码最佳实践是什么？</h1><p>C using salted hashes for password storage.</p>
+<h1 id="26-物理安全防止未授权物理访问的最佳实践是什么？"><a href="#26-物理安全防止未授权物理访问的最佳实践是什么？" class="headerlink" title="26. 物理安全防止未授权物理访问的最佳实践是什么？"></a>26. 物理安全防止未授权物理访问的最佳实践是什么？</h1><p>C. mantrap access control at the data center entrance</p>
+<p>解析：C. mantrap access control at the data center entrance<br><strong>mantrap &#x3D; 防尾随门 &#x2F; 陷阱门（缓冲门禁、气闸室）</strong></p>
+<h2 id="什么是-Mantrap"><a href="#什么是-Mantrap" class="headerlink" title="什么是 Mantrap"></a>什么是 Mantrap</h2><p>由两道门禁门组成的隔离小隔间，<strong>两道门不能同时解锁</strong>。</p>
+<ol>
+<li>进入时：打开外门 → 进入隔间 → 外门自动上锁</li>
+<li>身份核验（刷卡&#x2F;生物识别）通过后，<strong>内门才解锁</strong><blockquote>
+<p>核心作用：<strong>防止尾随（tailgating）</strong>，这是机房物理访问最常见的威胁。<br>同一时间隔间内只允许一个人。</p>
+</blockquote>
+</li>
+</ol>
+<h2 id="为什么它是数据中心入口防未授权访问的最佳实践"><a href="#为什么它是数据中心入口防未授权访问的最佳实践" class="headerlink" title="为什么它是数据中心入口防未授权访问的最佳实践"></a>为什么它是数据中心入口防未授权访问的最佳实践</h2><p>Tailgating（尾随）：授权人员进门时，陌生人紧跟在后面蹭进去。普通门禁（单门刷卡）很难阻止尾随。<br>Mantrap强制一次一人，从物理架构上杜绝尾随。</p>
+<h2 id="❌-常见干扰选项辨析-1"><a href="#❌-常见干扰选项辨析-1" class="headerlink" title="❌ 常见干扰选项辨析"></a>❌ 常见干扰选项辨析</h2><ul>
+<li>Security guard alone（单纯保安）：人会疲劳、分心、被社会工程欺骗，不是最佳</li>
+<li>CCTV 监控摄像头：<strong>事后取证</strong>，不能阻止实时未授权进入（detect，不是prevent）</li>
+<li>简单门禁卡（badge reader）：可以被尾随，无法单独阻止tailgating</li>
+</ul>
+<h2 id="CISSP背诵短句-3"><a href="#CISSP背诵短句-3" class="headerlink" title="CISSP背诵短句"></a>CISSP背诵短句</h2><blockquote>
+<p>A mantrap is a physical access control consisting of two interlocking doors. It prevents tailgating, because only one person may enter the vestibule at a time, and the second door unlocks only after successful authentication. It is an effective control to stop unauthorized physical access at datacenter entrances.</p>
+</blockquote>
+<h2 id="考点关键词"><a href="#考点关键词" class="headerlink" title="考点关键词"></a>考点关键词</h2><p><strong>tailgating（尾随） ↔ mantrap（防尾随陷阱门）</strong><br>看到题干关键词：prevent tailgating &#x2F; datacenter entrance → 优先 mantrap。</p>
+<h3 id="补充小知识点"><a href="#补充小知识点" class="headerlink" title="补充小知识点"></a>补充小知识点</h3><ul>
+<li>Mantrap 属于<strong>预防性物理控制（preventative control）</strong></li>
+<li>CCTV 是侦测控制（detective control）</li>
+<li>保安属于补偿控制（compensating control）</li>
+</ul>
+<p>要不要我把物理安全的控制类型（preventative&#x2F;detective&#x2F;deterrent&#x2F;compensating&#x2F;corrective）快速过一遍？CISSP经常考这个分类。</p>
+<h1 id="27-在SDLC里面，包含安全控制，最重要的安全理由是什么？"><a href="#27-在SDLC里面，包含安全控制，最重要的安全理由是什么？" class="headerlink" title="27. 在SDLC里面，包含安全控制，最重要的安全理由是什么？"></a>27. 在SDLC里面，包含安全控制，最重要的安全理由是什么？</h1><p>B to ensure secure coding practices are followed.</p>
+<p>解析：B. to ensure secure coding practices are followed</p>
+<blockquote>
+<p>翻译：<strong>确保遵循安全编码实践</strong></p>
+</blockquote>
+<h2 id="题干背景"><a href="#题干背景" class="headerlink" title="题干背景"></a>题干背景</h2><p>SDLC 中<strong>纳入安全控制（integrate security controls into SDLC）</strong>，核心目的就是在开发全过程落实安全编码，从源头减少代码层漏洞（SQL 注入、XSS、缓冲区溢出等）。</p>
+<h3 id="核心逻辑-1"><a href="#核心逻辑-1" class="headerlink" title="核心逻辑"></a>核心逻辑</h3><ol>
+<li>如果 SDLC 流程里没有嵌入安全控制（SAST、代码评审、安全需求、威胁建模、安全编码规范），开发人员很容易写出存在漏洞的代码。</li>
+<li>安全控制嵌入 SDLC ≠ 上线之后再扫描；<strong>把安全嵌入开发流程，强制团队遵守安全编码</strong>，在编码阶段发现缺陷，修复成本远低于上线后。</li>
+</ol>
+<h1 id="28-这道题太简单了，跳过"><a href="#28-这道题太简单了，跳过" class="headerlink" title="28. 这道题太简单了，跳过"></a>28. 这道题太简单了，跳过</h1><h1 id="29-在移动设备中，防止未授权访问最有效的手段？"><a href="#29-在移动设备中，防止未授权访问最有效的手段？" class="headerlink" title="29. 在移动设备中，防止未授权访问最有效的手段？"></a>29. 在移动设备中，防止未授权访问最有效的手段？</h1><p>A strong encryption of the data</p>
+<h1 id="30-哪个安全策略强调，不要依赖对设计和实施的保密？"><a href="#30-哪个安全策略强调，不要依赖对设计和实施的保密？" class="headerlink" title="30. 哪个安全策略强调，不要依赖对设计和实施的保密？"></a>30. 哪个安全策略强调，不要依赖对设计和实施的保密？</h1><p>C open design</p>
+<p>答案：<strong>Open Design（开放设计原则）</strong><br>✅ 题干描述正是 <strong>Open Design 开放设计</strong> 的核心定义：</p>
+<blockquote>
+<p>安全不依赖系统设计、算法、实现细节的保密；即使攻击者知晓全部方案，安全依然成立。密钥&#x2F;凭证才是保密对象，架构本身可以公开。</p>
+</blockquote>
+<h3 id="几个容易混淆的安全原则对照"><a href="#几个容易混淆的安全原则对照" class="headerlink" title="几个容易混淆的安全原则对照"></a>几个容易混淆的安全原则对照</h3><table>
+<thead>
+<tr>
+<th>原则</th>
+<th>核心要点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Open Design</strong></td>
+<td>安全不靠设计保密，算法、架构公开，秘密只在密钥</td>
+</tr>
+<tr>
+<td>最小权限（Least privilege）</td>
+<td>主体只拥有完成任务必需的最小权限</td>
+</tr>
+<tr>
+<td>纵深防御（Defense in depth）</td>
+<td>多层防护，一层失守还有其他防线</td>
+</tr>
+<tr>
+<td>安全默认（Secure by default）</td>
+<td>默认配置就是安全，需要用户主动开启才放开权限</td>
+</tr>
+<tr>
+<td>完全仲裁（Complete mediation）</td>
+<td>每次访问都要校验权限，不缓存放行结果</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>来源：经典盐与胡椒（Saltzer &amp; Schroeder）8大安全设计原则。</p>
+</blockquote>
+<p>要不要我一次性把这8条安全原则整理成速记版，方便刷题？</p>
+<h1 id="31-privacy-by-design最严重的部分是什么？"><a href="#31-privacy-by-design最严重的部分是什么？" class="headerlink" title="31. privacy by design最严重的部分是什么？"></a>31. privacy by design最严重的部分是什么？</h1><p>c involving privacy experts from the inception of a project.</p>
+<p><strong>Privacy by Design（隐私设计 &#x2F; 设计时隐私）</strong></p>
+<blockquote>
+<p>7 大基础原则，<strong>最核心 &#x2F; 最重要的一条：从项目立项之初就引入隐私专家，把隐私嵌入早期设计阶段（involving privacy experts from the inception of a project）</strong> ✅ 选 C</p>
+</blockquote>
+<h2 id="简要理解"><a href="#简要理解" class="headerlink" title="简要理解"></a>简要理解</h2><p>Privacy by Design 核心思想：<strong>隐私不是事后打补丁，不是上线后再加</strong>，必须在项目起源、需求、架构设计阶段就考虑隐私。</p>
+<ul>
+<li>inception &#x3D; 项目<strong>最初开端、立项阶段</strong></li>
+<li>错误思路：产品开发完、快要上线才做隐私评估（事后补救）</li>
+</ul>
+<h1 id="32-评估工业控制系统，红队engagement的主要focus是什么？"><a href="#32-评估工业控制系统，红队engagement的主要focus是什么？" class="headerlink" title="32 评估工业控制系统，红队engagement的主要focus是什么？"></a>32 评估工业控制系统，红队engagement的主要focus是什么？</h1><p>C simulating realistic cyberattacks to test ICS defenses</p>
+<h1 id="✅-答案：C-simulating-realistic-cyberattacks-to-test-ICS-defenses"><a href="#✅-答案：C-simulating-realistic-cyberattacks-to-test-ICS-defenses" class="headerlink" title="✅ 答案：C simulating realistic cyberattacks to test ICS defenses"></a>✅ 答案：C simulating realistic cyberattacks to test ICS defenses</h1><blockquote>
+<p>翻译：<strong>模拟真实网络攻击，来测试 ICS 防御体系</strong></p>
+</blockquote>
+<h1 id="33-数字签名验证的时候，哪个步骤对验证签证真实性是最重要的？"><a href="#33-数字签名验证的时候，哪个步骤对验证签证真实性是最重要的？" class="headerlink" title="33 数字签名验证的时候，哪个步骤对验证签证真实性是最重要的？"></a>33 数字签名验证的时候，哪个步骤对验证签证真实性是最重要的？</h1><p>D. comparing the hash value of the received data with the decrypted hash in the signature.</p>
+<blockquote>
+<p>翻译：<strong>把收到数据重新计算出的哈希，和从签名里解密得到的哈希值做比对</strong></p>
+</blockquote>
+<h2 id="完整数字签名流程（CISSP-考点）"><a href="#完整数字签名流程（CISSP-考点）" class="headerlink" title="完整数字签名流程（CISSP 考点）"></a>完整数字签名流程（CISSP 考点）</h2><h3 id="签名方（发送者，用私钥签名）"><a href="#签名方（发送者，用私钥签名）" class="headerlink" title="签名方（发送者，用私钥签名）"></a>签名方（发送者，用私钥签名）</h3><ol>
+<li>对原始消息计算哈希</li>
+<li>使用<strong>发送方私钥</strong>加密这个哈希值 → 生成数字签名，附在消息一起发送</li>
+</ol>
+<h3 id="验证方（接收者，用公钥验签）"><a href="#验证方（接收者，用公钥验签）" class="headerlink" title="验证方（接收者，用公钥验签）"></a>验证方（接收者，用公钥验签）</h3><ol>
+<li>收到消息 + 签名</li>
+<li>使用<strong>发送方公钥</strong>解密签名，取出里面的原始哈希值</li>
+<li><strong>对收到的消息，本地重新计算一遍哈希</strong></li>
+<li>✅ <strong>比对两个哈希是否相等</strong><ul>
+<li>相等：消息未篡改 + 签名是对应私钥生成（身份可信）</li>
+<li>不等：数据被改动 &#x2F; 签名伪造</li>
+</ul>
+</li>
+</ol>
+<h1 id="34-题干：在信息安全场景下，选择供应商时最关键的考量因素是什么？"><a href="#34-题干：在信息安全场景下，选择供应商时最关键的考量因素是什么？" class="headerlink" title="34 题干：在信息安全场景下，选择供应商时最关键的考量因素是什么？"></a>34 <strong>题干：在信息安全场景下，选择供应商时最关键的考量因素是什么？</strong></h1><p>A) Vendor reputation 供应商声誉<br>B) Geographic location 地理位置<br>✅ <strong>C) Data classification 数据分级</strong><br>D) Business continuity 业务连续性</p>
+<h2 id="解析（CISSP-外包-第三方风险管理考点）"><a href="#解析（CISSP-外包-第三方风险管理考点）" class="headerlink" title="解析（CISSP 外包 &#x2F; 第三方风险管理考点）"></a>解析（CISSP 外包 &#x2F; 第三方风险管理考点）</h2><blockquote>
+<p>Explanation 原文：虽然所有选项在选供应商时都重要，但<strong>数据分级是最关键因素</strong>。数据分级帮助组织识别、划分敏感信息，从而匹配对应的安全管控。不同等级的数据需要不同强度的保护；清楚数据分级，才能做出合理的外包决策。</p>
+</blockquote>
+<h3 id="逻辑拆解"><a href="#逻辑拆解" class="headerlink" title="逻辑拆解"></a>逻辑拆解</h3><ol>
+<li>核心底层逻辑：<strong>你要交给供应商处理的数据是什么级别，决定了你对供应商的安全要求</strong><ul>
+<li>如果只是公开数据：供应商安全要求很低；</li>
+<li>如果是最高机密 &#x2F; 个人敏感数据：你就必须强制供应商满足严苛控制、加密、审计、留存、泄露上报等条款。<br>→ <strong>先确定数据分级，才知道这个供应商能不能承接，要加什么安全约束</strong></li>
+</ul>
+</li>
+<li>其他选项为什么不是 “most critical”<ul>
+<li>A 声誉：是参考指标，但声誉好≠能保护你这一类敏感数据；</li>
+<li>B 地理位置：影响司法管辖、数据出境，属于由数据分级衍生出来的考量；</li>
+<li>D 业务连续性：是供应商能力之一，同样取决于你数据 &#x2F; 业务的重要等级。</li>
+</ul>
+</li>
+</ol>
+<h3 id="一句话速记-2"><a href="#一句话速记-2" class="headerlink" title="一句话速记"></a>一句话速记</h3><p><strong>第三方外包评估：先看要托管的数据分级，以此设定供应商安全基线。</strong></p>
+<h1 id="35-安全治理框架的主要目标是什么？"><a href="#35-安全治理框架的主要目标是什么？" class="headerlink" title="35 安全治理框架的主要目标是什么？"></a>35 安全治理框架的主要目标是什么？</h1><p><strong>D. aligning security with business objectives</strong></p>
+<h2 id="中文原题"><a href="#中文原题" class="headerlink" title="中文原题"></a>中文原题</h2><p><strong>安全治理框架的主要目标是什么？</strong><br>✅ 核心：<strong>使安全工作与业务目标保持一致</strong>（CISSP Domain1 经典考点）</p>
+<h1 id="36-due-care在安全治理的最佳代表是什么"><a href="#36-due-care在安全治理的最佳代表是什么" class="headerlink" title="36. due care在安全治理的最佳代表是什么"></a>36. due care在安全治理的最佳代表是什么</h1><p>✅ <strong>B. exercising reasonable security measures to protect assets</strong></p>
+<blockquote>
+<p>笔误修正：<code>resonable</code> → <strong>reasonable</strong></p>
+</blockquote>
+<h2 id="术语"><a href="#术语" class="headerlink" title="术语"></a>术语</h2><p><strong>Due care 应尽注意义务（审慎责任）</strong><br>CISSP 考点区分：</p>
+<ol>
+<li><strong>Due care（应尽注意）</strong>：管理层<strong>主动采取合理保护措施</strong>来保护资产，做该做的事。</li>
+</ol>
+<blockquote>
+<p>对应选项释义：采取合理安全措施保护资产</p>
+</blockquote>
+<h1 id="37-跳过"><a href="#37-跳过" class="headerlink" title="37. 跳过"></a>37. 跳过</h1><h1 id="38-security-posture是什么？"><a href="#38-security-posture是什么？" class="headerlink" title="38. security posture是什么？"></a>38. security posture是什么？</h1><p>Security posture &#x3D; 组织<strong>整体安全状态 &#x2F; 安全面貌</strong>，包含现有防护、漏洞、风险、管控措施等全部要素，用来描述当前安全强弱水平。</p>
+<h1 id="39-GDPR的主要意图是什么？"><a href="#39-GDPR的主要意图是什么？" class="headerlink" title="39. GDPR的主要意图是什么？"></a>39. GDPR的主要意图是什么？</h1><p>B. protecting the fundamental right to data privacy of EU residents.</p>
+<p>GDPR（General Data Protection Regulation，通用数据保护条例）</p>
+<h2 id="CISSP-考试标准答案"><a href="#CISSP-考试标准答案" class="headerlink" title="CISSP 考试标准答案"></a>CISSP 考试标准答案</h2><p><strong>Main intent: Strengthen and unify EU citizens’ rights over their personal data; protect individuals’ privacy while enabling free flow of personal data within EU.</strong><br>中文：<strong>强化并统一欧盟公民对个人数据的控制权，保护自然人隐私，同时保障个人数据可在欧盟境内自由流转</strong>EUR-Lex</p>
+<blockquote>
+<p>单选题最常见正确选项句式：<br><strong>Protect the privacy rights of individuals (data subjects) and give them greater control over their personal data.</strong><br>保护数据主体的隐私权利，赋予个人对自身个人数据更大控制权</p>
+</blockquote>
+<h2 id="考点拆解"><a href="#考点拆解" class="headerlink" title="考点拆解"></a>考点拆解</h2><ol>
+<li>适用范围：<strong>不限于欧盟本土公司</strong>，任何组织（全球）只要处理欧盟居民个人数据就要遵守 GDPR</li>
+<li>两大核心目标（官方原文）<br>✅ 保护自然人在个人数据处理上的基本权利与隐私<br>✅ 保障个人数据在欧盟内部自由流动（不是禁止数据流动，是<strong>合规前提下自由流动</strong>）EUR-Lex</li>
+<li>数据主体权利（选择题常考）<ul>
+<li>访问权、被遗忘权（删除权）、数据可携带权、反对画像等</li>
+</ul>
+</li>
+</ol>
+<h1 id="40-太难了而且不实用，跳过"><a href="#40-太难了而且不实用，跳过" class="headerlink" title="40. 太难了而且不实用，跳过"></a>40. 太难了而且不实用，跳过</h1><h1 id="41-在云环境中评估PHI的风险，哪个是主要的担忧？"><a href="#41-在云环境中评估PHI的风险，哪个是主要的担忧？" class="headerlink" title="41. 在云环境中评估PHI的风险，哪个是主要的担忧？"></a>41. 在云环境中评估PHI的风险，哪个是主要的担忧？</h1><p><strong>题干</strong>：在云环境下评估 PHI（受保护健康信息，HIPAA 体系）的风险时，哪一项是首要关注点？<br>A) Location of data centers. 数据中心位置<br>B) Type of encryption used in data storage. 存储所用加密类型<br>C) SLA uptime guarantees by the cloud provider. 云服务商 SLA 正常运行时间保证<br>✅ <strong>D) Data access and control agreements with the cloud provider. 与云服务商之间的数据访问与管控协议</strong></p>
+<h2 id="术语-1"><a href="#术语-1" class="headerlink" title="术语"></a>术语</h2><p><strong>PHI &#x3D; Protected Health Information</strong>，美国 HIPAA 法案里的受保护健康数据。</p>
+<blockquote>
+<p>HIPAA 核心：数据<strong>责任划分</strong>，即使外包给云厂商，<strong>数据所有者仍然承担 PHI 保护责任</strong>。</p>
+</blockquote>
+<h2 id="CISSP-考点解析"><a href="#CISSP-考点解析" class="headerlink" title="CISSP 考点解析"></a>CISSP 考点解析</h2><ol>
+<li>四个选项<strong>全都相关</strong>，但题目问 primary concern（首要关注点）<ul>
+<li>A 数据中心位置：会影响司法管辖权，重要但不是首要</li>
+<li>B 加密算法：是技术控制手段，属于落地实现</li>
+<li>C SLA 可用性：关乎业务连续性，和 PHI 隐私保护不是同一维度</li>
+<li>✅ D 访问控制协议：<strong>明确双方权责边界</strong>。HIPAA 要求和云服务商签订 BAA（业务伙伴协议 Business Associate Agreement），本质就是定义数据访问权限、管控责任。在 CISSP 理念中：<strong>法律 &#x2F; 责任协议 &gt; 单纯技术</strong>。</li>
+</ul>
+</li>
+</ol>
+<blockquote>
+<p>Explanation 原文要点：<br>All options relevant, but clear data access &amp; control agreements define PHI responsibilities, paramount for sensitive health data.<br>所有选项都有相关性，但清晰的数据访问和管控协议可以明确界定 PHI 相关责任，对保护敏感健康数据至关重要。</p>
+</blockquote>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/CISSP/">CISSP</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/09/29/2738906154.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">cissp-2026-2</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/09/28/3171167267.html">
+                        <span class="hidden-mobile">50 CISSP Practice Questions. Master the CISSP Mindset</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "50 CISSP Practice Questions"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

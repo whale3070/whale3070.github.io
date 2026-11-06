@@ -1,0 +1,588 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>cissp-2026-2 - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="cissp-2026-2">
+                      
+                        cissp-2026-2
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-09-29 06:42" pubdate>
+        2026年9月29日 早上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.8k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      20
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">cissp-2026-2</h1>
+            
+            <div class="markdown-body">
+              <h1 id="42-data-remanence是什么？"><a href="#42-data-remanence是什么？" class="headerlink" title="42. data remanence是什么？"></a>42. data remanence是什么？</h1><p>data remanence</p>
+<p><strong>中文：数据残留 &#x2F; 数据余迹</strong>（CISSP、信息安全取证标准术语）</p>
+<blockquote>
+<p>定义：<strong>尝试删除、擦除数据之后，仍然残留在存储介质上的数据痕迹</strong>，可以被取证工具或特殊物理手段恢复读取。</p>
+</blockquote>
+<p>一句话通俗理解：<br>你点删除、格式化，<strong>只是删掉文件目录索引，原始比特还留在盘上</strong>；就算多次覆写，硬件物理层面依然可能留下微弱痕迹，这就叫 data remanence。</p>
+<h1 id="43-未授权数据窃取"><a href="#43-未授权数据窃取" class="headerlink" title="43. 未授权数据窃取"></a>43. 未授权数据窃取</h1><blockquote>
+<p>题干：安全分析师观察到数据库服务器上多次<strong>未授权数据窃取</strong>行为。调查后发现所有窃取行为都溯源到同一个用户账号。分析师<strong>立刻应当采取</strong>哪一项操作？</p>
+<p>A) Delete the user account. 删除该用户账号<br>B) Notify the user about the suspicious activity. 通知这名用户存在可疑活动<br>C) Isolate or disable the account and initiate an incident response. <strong>隔离 &#x2F; 禁用账号并启动事件响应</strong> ✅<br>D) Implement stricter access controls on the database server. 在数据库服务器部署更严格的访问控制</p>
+</blockquote>
+<h2 id="逐项拆解"><a href="#逐项拆解" class="headerlink" title="逐项拆解"></a>逐项拆解</h2><ol>
+<li><strong>A 错</strong><br>直接<strong>删除账号</strong>会销毁账号日志、审计记录，破坏取证证据。事件遏制阶段，只能<strong>禁用 (disable)</strong>，不能删除 (delete)。</li>
+<li><strong>B 错</strong><br>通知用户属于打草惊蛇。如果账号已经被攻击者劫持，攻击者收到提醒会立刻销毁痕迹、横向渗透，扩大损失。</li>
+<li><strong>C 对（Containment 遏制阶段）</strong><br>IR 流程第一步核心目标：<strong>停止正在发生的损害</strong></li>
+</ol>
+<ul>
+<li>disable&#x2F;isolate account：堵住攻击入口，阻止继续偷数据（遏制）</li>
+<li>initiate incident response：正式启动事件响应流程，后续评估影响、取证、根除威胁</li>
+</ul>
+<ol start="4">
+<li><strong>D 错</strong><br>给数据库全局加固访问控制，属于<strong>根除 Eradicate &#x2F; 恢复 Recover</strong>阶段的长期修复措施，不是**immediate（立即）**动作。此时攻击正在进行，优先封堵这个正在作恶的账号，而不是大范围修改服务器策略。</li>
+</ol>
+<h1 id="44-哪一种安全评估方法是最有效的，可以识别未知的漏洞，而且还不会公开？"><a href="#44-哪一种安全评估方法是最有效的，可以识别未知的漏洞，而且还不会公开？" class="headerlink" title="44. 哪一种安全评估方法是最有效的，可以识别未知的漏洞，而且还不会公开？"></a>44. 哪一种安全评估方法是最有效的，可以识别未知的漏洞，而且还不会公开？</h1><p>B penetration testing</p>
+<h1 id="45-在取证调查场景中，以下哪一项最准确描述-chain-of-custody（保管链-证据链）-的主要目的？"><a href="#45-在取证调查场景中，以下哪一项最准确描述-chain-of-custody（保管链-证据链）-的主要目的？" class="headerlink" title="45. 在取证调查场景中，以下哪一项最准确描述 chain of custody（保管链 &#x2F; 证据链） 的主要目的？"></a>45. 在取证调查场景中，以下哪一项最准确描述 <strong>chain of custody（保管链 &#x2F; 证据链）</strong> 的主要目的？</h1><p>A) To ensure evidence is properly catalogued.<br>确保证据被正确编目登记。</p>
+<p>B) To demonstrate the integrity and authenticity of the evidence.<br><strong>证明证据的完整性与真实性。</strong> ✅ 正确答案</p>
+<p>C) To ensure that only authorized personnel handle the evidence.<br>保证只有授权人员可以接触证据。</p>
+<p>D) To protect the investigator from allegations of tampering.<br>保护调查人员，使其免于被指控篡改证据。</p>
+<h1 id="46-以下哪一项，能够最好地长期保障应用程序的安全状态（security-posture-over-time）？"><a href="#46-以下哪一项，能够最好地长期保障应用程序的安全状态（security-posture-over-time）？" class="headerlink" title="46. 以下哪一项，能够最好地长期保障应用程序的安全状态（security posture over time）？"></a>46. 以下哪一项，能够<strong>最好地</strong>长期保障应用程序的安全状态（security posture over time）？</h1><p>A) Conducting annual penetration tests.<br>每年执行一次渗透测试。<br>B) Implementing strict password policies.<br>实施严格的密码策略。<br>C) Continuous integration with security testing.<br><strong>集成安全测试的持续集成（CI + 安全测试，DevSecOps）</strong> ✅正确答案<br>D) Quarterly vulnerability assessments.<br>每季度漏洞评估。</p>
+<h1 id="47-太简单。考察confidentiality的定义"><a href="#47-太简单。考察confidentiality的定义" class="headerlink" title="47 太简单。考察confidentiality的定义"></a>47 太简单。考察confidentiality的定义</h1><h1 id="48-在移动应用开发的场景中，保证应用组件不会暴露给同一设备上的其他应用，是指："><a href="#48-在移动应用开发的场景中，保证应用组件不会暴露给同一设备上的其他应用，是指：" class="headerlink" title="48. 在移动应用开发的场景中，保证应用组件不会暴露给同一设备上的其他应用，是指："></a>48. 在移动应用开发的场景中，保证应用组件不会暴露给同一设备上的其他应用，是指：</h1><p>A) Data In Transit protection<br>传输中数据保护（传输加密，比如 HTTPS）</p>
+<p>B) Application sandboxing<br><strong>应用沙箱 ✅正确答案</strong></p>
+<p>C) Data At Rest encryption<br>静态数据加密（本地存储文件加密）</p>
+<p>D) Code obfuscation<br>代码混淆（把代码变得难阅读，防逆向）</p>
+<h1 id="49-security-governance-program是什么"><a href="#49-security-governance-program是什么" class="headerlink" title="49. security governance program是什么"></a>49. security governance program是什么</h1><p>Security Governance Program 安全治理项目 &#x2F; 安全治理体系（Security+ &#x2F; CISSP 高频术语）</p>
+<p><strong>中文：安全治理方案 &#x2F; 安全治理项目</strong></p>
+<blockquote>
+<p>一句话定义：由高层发起、用来<strong>把信息安全和业务目标对齐</strong>的整套制度、组织、流程、考核框架，用来确保安全工作不是零散的技术补丁，而是企业顶层管控。</p>
+</blockquote>
+<h2 id="核心目的"><a href="#核心目的" class="headerlink" title="核心目的"></a>核心目的</h2><ol>
+<li>确保安全策略符合<strong>业务目标</strong>（安全不能脱离业务乱做）</li>
+<li>明确权责：董事会、管理层、安全团队、业务部门各自的安全责任</li>
+<li>风险管理：识别业务风险、接受 &#x2F; 转移 &#x2F; 规避风险</li>
+<li>合规：满足法律法规、行业标准（ISO27001、等保、隐私法规）</li>
+<li>监督审计：持续监控安全状态、上报给高层，保证安全措施被落地执行</li>
+</ol>
+<blockquote>
+<p>简单区分：</p>
+<ul>
+<li><strong>Security Management（安全管理）</strong>：偏执行层，做漏洞修复、配置、日常运维。</li>
+<li><strong>Security Governance（安全治理）</strong>：偏<strong>顶层决策、问责、方向</strong>，由董事会 &#x2F; 高管负责，决定 “我们要做到什么安全水平”。</li>
+</ul>
+</blockquote>
+<h2 id="安全治理项目里一般包含这些组件"><a href="#安全治理项目里一般包含这些组件" class="headerlink" title="安全治理项目里一般包含这些组件"></a>安全治理项目里一般包含这些组件</h2><ul>
+<li>信息安全政策（Security Policy）</li>
+<li>安全组织架构、角色权责划分（RACI）</li>
+<li>风险管理框架</li>
+<li>合规与审计计划</li>
+<li>安全意识培训</li>
+<li>安全指标 KPI、上报机制（给高管的汇报）</li>
+<li>风险评审、事件上报机制</li>
+</ul>
+<h2 id="考试做题关键点（Security-选择题）"><a href="#考试做题关键点（Security-选择题）" class="headerlink" title="考试做题关键点（Security + 选择题）"></a>考试做题关键点（Security + 选择题）</h2><p>只要题干出现下面关键词，大概率选 <strong>security governance</strong></p>
+<ul>
+<li>board of directors &#x2F;senior management 董事会、高管层</li>
+<li>align security with business objectives 安全对齐业务目标</li>
+<li>accountability 问责、责任归属</li>
+<li>oversight 监督</li>
+<li>risk appetite 风险偏好</li>
+</ul>
+<p>要保证安全治理项目取得成功，下面哪一项是<strong>最关键</strong>的因素？</p>
+<p>A) Advanced technology solutions<br>先进的技术方案<br>B) Comprehensive security policies<br>完备的安全策略<br>C) Strong executive support<br><strong>强有力的高层 &#x2F; 管理层支持 ✅正确答案</strong><br>D) Experienced security staff<br>经验丰富的安全人员</p>
+<h1 id="50-在令牌化（tokenization）系统中，令牌（token）和它所代表的原始敏感数据最主要区别是什么？"><a href="#50-在令牌化（tokenization）系统中，令牌（token）和它所代表的原始敏感数据最主要区别是什么？" class="headerlink" title="50. 在令牌化（tokenization）系统中，令牌（token）和它所代表的原始敏感数据最主要区别是什么？"></a>50. 在令牌化（tokenization）系统中，令牌（token）和它所代表的原始敏感数据最主要区别是什么？</h1><p>A) The token is always longer than the original data.<br>令牌一定比原始数据更长。</p>
+<p>B) The token contains encrypted segments of the original data.<br>令牌包含原始数据的加密片段。</p>
+<p>C) The token, on its own, has no meaningful value or information.<br><strong>令牌本身，不具备有意义的值或信息 ✅正确答案</strong></p>
+<p>D) The token must be reversible to the original data without any additional information.<br>不需要任何额外信息，令牌就可以还原成原始数据。</p>
+<p><strong>令牌化</strong>：将<strong>敏感原始数据</strong>（信用卡号、手机号、身份证号）替换成一串无意义的随机字符串，这个随机串就叫 <strong>token（令牌）</strong>。</p>
+<blockquote>
+<p>⚠️最重要区分：<strong>令牌化 ≠ 加密</strong>（考试最容易挖坑）</p>
+<ul>
+<li>加密：原始数据经过数学变换变成密文，<strong>密文本身携带原始信息</strong>，有密钥就能解密还原。</li>
+<li>令牌化：token 只是<strong>索引编号</strong>，token 里面<strong>不包含任何原始敏感数据</strong>。</li>
+</ul>
+</blockquote>
+<h2 id="工作流程（信用卡举例）"><a href="#工作流程（信用卡举例）" class="headerlink" title="工作流程（信用卡举例）"></a>工作流程（信用卡举例）</h2><ol>
+<li>用户提交真实信用卡号（原始敏感数据）</li>
+<li>令牌系统接收卡号，<strong>把真实卡号存入独立安全数据库（令牌库）</strong></li>
+<li>系统生成随机字符串作为 token（例如：<code>7294-XXXX-XXXX-1856</code>）</li>
+<li>业务系统<strong>只保存 token，不再保存真实卡号</strong></li>
+<li>后续业务需要原始卡号时，拿着 token 去令牌库查表，换回原始数据</li>
+<li>如果黑客拖库拿到 token：<strong>只拿到一串随机字符，单独拿 token 推不出真实卡号</strong></li>
+</ol>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/10/05/401316443.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">一些缩写7</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/09/28/977876368.html">
+                        <span class="hidden-mobile">50 CISSP Practice Questions</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "cissp-2026-2"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>

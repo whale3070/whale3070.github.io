@@ -1,0 +1,716 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>我为什么建议你生男孩（二） - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="我为什么建议你生男孩（二）">
+                      
+                        我为什么建议你生男孩（二）
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-10-19 10:11" pubdate>
+        2026年10月19日 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.1k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      21
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">我为什么建议你生男孩（二）</h1>
+            
+            <div class="markdown-body">
+              <p>上一篇： <a href="https://whale3070.github.io/2022/06/21/42893.html">我为什么建议你生男孩</a></p>
+<h1 id="幼儿园里的男孩们"><a href="#幼儿园里的男孩们" class="headerlink" title="幼儿园里的男孩们"></a>幼儿园里的男孩们</h1><h2 id="引子"><a href="#引子" class="headerlink" title="引子"></a>引子</h2><p>2026年秋天，江西某幼儿园小班开学。</p>
+<p>33个孩子，7个女孩，26个男孩。</p>
+<p>更极端的案例在湖北：16个孩子，只有1个女孩。</p>
+<p>家长群里有人开玩笑：”这是罗汉班啊。”那个唯一女孩的家长，当天就办了转学。</p>
+<p>这不是某个幼儿园的特例，而是全国范围的普遍现象。</p>
+<p>没人意识到，这26个天真的男孩，会在20年后集体面对一个残酷的数学题：</p>
+<p><strong>26个人，只有7个女孩的位置。</strong></p>
+<p><strong>19个人，注定单身。</strong></p>
+<h2 id="一个简单的数学题"><a href="#一个简单的数学题" class="headerlink" title="一个简单的数学题"></a>一个简单的数学题</h2><h3 id="数据不会骗人"><a href="#数据不会骗人" class="headerlink" title="数据不会骗人"></a>数据不会骗人</h3><p>2024年全国出生人口性别比：111.7</p>
+<p>意味着每出生100个女孩，就有111.7个男孩。一年下来，男孩比女孩多出约40万。</p>
+<p>更触目惊心的是分胎次数据：</p>
+<ul>
+<li>一孩性别比：113.17</li>
+<li>二孩性别比：106.78（接近正常）</li>
+<li><strong>三孩性别比：132.93</strong>（严重失衡）</li>
+<li>部分地区三孩性别比逼近150</li>
+</ul>
+<p><strong>这意味着什么？</strong></p>
+<p>生了两个女儿的家庭，拼命要生儿子。最终这些”拼来的儿子”，在婚配市场上竞争最激烈。</p>
+<h3 id="幼儿园里的预言"><a href="#幼儿园里的预言" class="headerlink" title="幼儿园里的预言"></a>幼儿园里的预言</h3><p>回到那个26个男孩的班级。</p>
+<p>26个男孩，7个女孩，这就是这个社区出生人口的真实写照。</p>
+<p>20年后，他们25岁：</p>
+<p>最简单的数学：</p>
+<p>26个男孩，7个女孩<br>19个男孩注定找不到对象<br>单身率：73%<br>但现实更残酷：</p>
+<p>这7个女孩，不会只在本地找对象：</p>
+<p>考上大学，去大城市工作<br>嫁到其他省份<br>或者选择不婚不育<br>可能留在本地婚配的，只有3-4人。</p>
+<p>这26个男孩，可以去外地找对象吗？</p>
+<p>可以。但外地也是同样的情况：男多女少。</p>
+<p>最终结果：</p>
+<p>乐观估计：14个男孩找不到对象（54%）<br>现实估计：21个男孩找不到对象（81%）<br>全国层面：<br>每年多出40万男孩，20年累积800万。</p>
+<p>这800万男性，在婚配市场上没有对应的女性。</p>
+<p>加上女性外流、不婚不育，实际找不到对象的男性可能超过1500万。</p>
+<p>占同龄男性的30-40%。</p>
+<h2 id="父母的算盘-vs-儿子的命运"><a href="#父母的算盘-vs-儿子的命运" class="headerlink" title="父母的算盘 vs 儿子的命运"></a>父母的算盘 vs 儿子的命运</h2><h3 id="他们为什么都生男孩？"><a href="#他们为什么都生男孩？" class="headerlink" title="他们为什么都生男孩？"></a>他们为什么都生男孩？</h3><p>回顾我上一篇文章的逻辑：</p>
+<ul>
+<li>男孩就业容易（没有母职惩罚）</li>
+<li>男孩收入高（职场优势）</li>
+<li>男孩能养老（养儿防老）</li>
+</ul>
+<p><strong>父母的目标很明确：养儿防老。</strong></p>
+<p>至于儿子能不能找到对象？那是20年后的事。</p>
+<p>至于儿子会不会孤独终老？不在父母的计算范围内。</p>
+<p>至于儿子老了谁养他？”社保会养你的。”</p>
+<h3 id="幼儿园里26个男孩的父母"><a href="#幼儿园里26个男孩的父母" class="headerlink" title="幼儿园里26个男孩的父母"></a>幼儿园里26个男孩的父母</h3><p>他们都在想同样的事：</p>
+<ul>
+<li>“儿子好找工作”</li>
+<li>“儿子能养我们”</li>
+<li>“找不到对象？那是他不够努力”</li>
+</ul>
+<p><strong>但他们没想到的是：</strong></p>
+<p>26个家庭都这么想。</p>
+<p>都选择生男孩。</p>
+<p>结果26个男孩要竞争7个女孩的位置。</p>
+<p><strong>这是一个典型的”囚徒困境”：</strong></p>
+<ul>
+<li>每个家庭的选择都是”理性”的</li>
+<li>但所有家庭加起来，结果是灾难性的</li>
+</ul>
+<h3 id="三孩性别比132-93的残酷含义"><a href="#三孩性别比132-93的残酷含义" class="headerlink" title="三孩性别比132.93的残酷含义"></a>三孩性别比132.93的残酷含义</h3><p><strong>这些数据背后是真实的家庭：</strong></p>
+<ul>
+<li>第一胎：女儿</li>
+<li>第二胎：女儿</li>
+<li>第三胎：拼命要儿子(把女婴堕胎，影响了性别比)</li>
+</ul>
+<p><strong>最终结果：</strong></p>
+<ul>
+<li>这些”拼来的儿子”</li>
+<li>面对最严重的性别比失衡</li>
+<li>在最激烈的婚配市场竞争</li>
+</ul>
+<p><strong>讽刺的是：</strong><br>父母拼了三胎好不容易生了儿子，以为可以养儿防老。</p>
+<p>20年后发现：儿子找不到对象，躺平不工作，养老计划全盘破产。</p>
+<h2 id="2044年的”罗汉班”同学会"><a href="#2044年的”罗汉班”同学会" class="headerlink" title="2044年的”罗汉班”同学会"></a>2044年的”罗汉班”同学会</h2><p><strong>场景：2044年，那26个男孩，现在25岁。</strong></p>
+<h3 id="7个找到对象的人："><a href="#7个找到对象的人：" class="headerlink" title="7个找到对象的人："></a>7个找到对象的人：</h3><ul>
+<li>付出巨额彩礼（80-150万）</li>
+<li>背上30年房贷</li>
+<li>工作压力巨大（养家+养父母）</li>
+<li>不敢生孩子（负担太重）</li>
+</ul>
+<h3 id="10个还在找对象的人："><a href="#10个还在找对象的人：" class="headerlink" title="10个还在找对象的人："></a>10个还在找对象的人：</h3><ul>
+<li>焦虑、内卷</li>
+<li>父母天天催婚</li>
+<li>相亲屡屡被拒</li>
+<li>自我怀疑：”是我不够好吗？”</li>
+</ul>
+<h3 id="9个放弃的人："><a href="#9个放弃的人：" class="headerlink" title="9个放弃的人："></a>9个放弃的人：</h3><ul>
+<li>躺平、啃老</li>
+<li>沉迷游戏、短视频</li>
+<li>拒绝工作</li>
+<li>对父母说：”你们当年为什么要生我？”</li>
+</ul>
+<p><strong>父母的反应：</strong></p>
+<ul>
+<li>“都是女人要求太高！”</li>
+<li>“你要努力工作！”</li>
+<li>“我们养你不容易！”</li>
+</ul>
+<p><strong>儿子的反问：</strong></p>
+<ul>
+<li>我们班26个男孩，7个女孩</li>
+<li>隔壁班也是这样</li>
+<li>整个社区都是男多女少</li>
+<li><strong>是女人太挑，还是你们那代人都生男孩？</strong></li>
+</ul>
+<p><strong>父母哑口无言。</strong></p>
+<h2 id="当骗局被拆穿"><a href="#当骗局被拆穿" class="headerlink" title="当骗局被拆穿"></a>当骗局被拆穿</h2><h3 id="“社保会养你”的承诺破产了"><a href="#“社保会养你”的承诺破产了" class="headerlink" title="“社保会养你”的承诺破产了"></a>“社保会养你”的承诺破产了</h3><p><strong>父母说：你交社保，国家会养你。</strong></p>
+<p><strong>2044年的现实：</strong></p>
+<ul>
+<li>老龄化高峰，2个年轻人养1个老人</li>
+<li>养老金缺口巨大</li>
+<li>延迟退休到70岁</li>
+<li>退休金替代率从80%降到30%</li>
+</ul>
+<p><strong>父母那代：退休金 &#x3D; 退休前工资的80%</strong></p>
+<p><strong>儿子这代：退休金 &#x3D; 退休前工资的30%</strong></p>
+<p><strong>儿子质问：你们骗我？</strong></p>
+<h3 id="代际战争爆发"><a href="#代际战争爆发" class="headerlink" title="代际战争爆发"></a>代际战争爆发</h3><p>**父母：**你要养我们。</p>
+<p>**儿子：**我自己都活不下去，凭什么养你们？</p>
+<p>**父母：**我们养你不容易。</p>
+<p>**儿子：**那你为什么要生我？就是为了让我当养老工具？</p>
+<p>**父母：**你不孝顺！</p>
+<p>**儿子：**你把我当工具，现在工具罢工了。</p>
+<hr>
+<p><strong>这不是科幻，这是正在日本、韩国发生的现实：</strong></p>
+<ul>
+<li>日本茧居族：超过100万</li>
+<li>韩国首尔生育率：0.55</li>
+<li>终生未婚率：男性28%</li>
+</ul>
+<p><strong>中国正在重复这条路。</strong></p>
+<h2 id="没有赢家的游戏"><a href="#没有赢家的游戏" class="headerlink" title="没有赢家的游戏"></a>没有赢家的游戏</h2><h3 id="儿子输了："><a href="#儿子输了：" class="headerlink" title="儿子输了："></a>儿子输了：</h3><ul>
+<li>找不到对象（40%单身率）</li>
+<li>工作养父母，压力巨大</li>
+<li>老了没人养（养老金不够）</li>
+</ul>
+<h3 id="父母输了："><a href="#父母输了：" class="headerlink" title="父母输了："></a>父母输了：</h3><ul>
+<li>前半生被养老（暂时成功）</li>
+<li>后半生儿子躺平（最终失败）</li>
+<li>眼睁睁看着儿子孤独终老</li>
+</ul>
+<h3 id="女性输了："><a href="#女性输了：" class="headerlink" title="女性输了："></a>女性输了：</h3><ul>
+<li>被当成稀缺资源争夺</li>
+<li>彩礼压力、婚姻风险</li>
+<li>但又面临母职惩罚</li>
+<li>进退两难</li>
+</ul>
+<h3 id="社会输了："><a href="#社会输了：" class="headerlink" title="社会输了："></a>社会输了：</h3><ul>
+<li>人口断崖</li>
+<li>养老金崩溃</li>
+<li>经济萎缩</li>
+<li>代际撕裂</li>
+</ul>
+<p><strong>谁赢了？没有人。</strong></p>
+<p>这是一个<strong>所有人都输的博弈</strong>。</p>
+<h2 id="所以，我为什么”建议”你生男孩？"><a href="#所以，我为什么”建议”你生男孩？" class="headerlink" title="所以，我为什么”建议”你生男孩？"></a>所以，我为什么”建议”你生男孩？</h2><h3 id="不是因为这样好"><a href="#不是因为这样好" class="headerlink" title="不是因为这样好"></a>不是因为这样好</h3><p>而是因为你会这样做。</p>
+<h3 id="不是因为我支持"><a href="#不是因为我支持" class="headerlink" title="不是因为我支持"></a>不是因为我支持</h3><p>而是因为我知道你不会改变。</p>
+<h3 id="不是因为没有代价"><a href="#不是因为没有代价" class="headerlink" title="不是因为没有代价"></a>不是因为没有代价</h3><p>而是因为代价由下一代承担。</p>
+<p><strong>如果你想避免这个结局：</strong></p>
+<ul>
+<li>放弃性别选择</li>
+<li>放弃”养儿防老”</li>
+<li>不把孩子当工具</li>
+<li>建立其他养老方式</li>
+</ul>
+<p><strong>但这意味着：</strong></p>
+<ul>
+<li>承认过去的错误</li>
+<li>改变根深蒂固的观念</li>
+<li>面对养老的不确定性</li>
+</ul>
+<p><strong>大部分人做不到。</strong></p>
+<p><strong>所以，20年后：</strong></p>
+<ul>
+<li>那26个男孩会长大</li>
+<li>其中19个找不到对象</li>
+<li>他们会问父母：”你们当年为什么要生我？”</li>
+<li>父母会说：”都是女人太挑。”</li>
+</ul>
+<p><strong>但他们都心知肚明：</strong></p>
+<p><strong>不是女人太挑，是父母那代人都生男孩。</strong></p>
+<p><strong>不是社保会养老，是父母骗了他们。</strong></p>
+<p><strong>不是他们不够努力，是这个系统从一开始就是个骗局。</strong></p>
+<h2 id="写给2044年"><a href="#写给2044年" class="headerlink" title="写给2044年"></a>写给2044年</h2><p>如果你是2024年幼儿园”罗汉班”里的26个男孩之一，</p>
+<p>20年后读到这篇文章，</p>
+<p>你会怎么想？</p>
+<p>你会怪父母吗？</p>
+<p>你会怪社会吗？</p>
+<p>你会怪女性吗？</p>
+<p><strong>还是你会发现：</strong></p>
+<p><strong>这是一个所有人都在追求个体理性，最后集体走向崩溃的故事。</strong></p>
+<p><strong>而你，只是这个故事里的一个数字：</strong></p>
+<p><strong>26个男孩中，找不到对象的那19个。</strong></p>
+<hr>
+<p>这篇文章写于2026年，</p>
+<p>那时候你还在幼儿园，</p>
+<p>那时候还有人试图警告，</p>
+<p>那时候没有人听。</p>
+<p>2044年，你25岁，</p>
+<p>希望那时的你，不会恨当年的父母。</p>
+<p>但我猜，你会。</p>
+<hr>
+<p><em>说明：本文使用真实数据和合理推演，不针对具体个人。如果你是年轻父母，希望这篇文章能让你重新思考。如果你是那26个男孩之一，希望20年后的世界，比我预言的更好。</em></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E7%A4%BE%E4%BC%9A%E8%A7%82%E5%AF%9F/">社会观察</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E6%88%91%E7%9A%84%E7%94%9F%E5%B9%B3/">我的生平</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%A5%B3%E6%80%A7%E8%A7%86%E8%A7%92/">女性视角</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E8%80%81%E9%BE%84%E5%8C%96%E7%A4%BE%E4%BC%9A/">老龄化社会</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E6%AF%8D%E8%81%8C%E6%83%A9%E7%BD%9A/">母职惩罚</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/10/19/3678349165.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">通过网站自定义键盘的使用</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/10/05/401316443.html">
+                        <span class="hidden-mobile">一些缩写7</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "我为什么建议你生男孩（二）"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>
