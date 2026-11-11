@@ -1,0 +1,719 @@
+
+
+  <!DOCTYPE html>
+  <html lang="zh-CN" data-default-color-scheme=&#34;dark&#34; >
+  <style>
+    .text1
+    {
+    text-shadow: 0px 0px 2px #f2f3f2;
+    }
+    </style>
+
+  <script>
+    // 强制内网 IP 识别为安全上下文
+    if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
+        // 尝试手动映射 crypto 属性
+        if (!window.crypto.subtle && window.crypto.webkitSubtle) {
+            window.crypto.subtle = window.crypto.webkitSubtle;
+        }
+    }
+    
+    // 终极补丁：如果还是没有 subtle，则创建一个占位符避免报错
+    // 提示：这通常能解决加载报错，但如果插件强依赖原生加密，建议执行下面的“降级”预判
+    if (!window.isSecureContext) {
+        console.warn('当前环境非安全上下文，正在尝试兼容内网加密解密...');
+    }
+</script>
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/null">
+  <link rel="icon" type="image/png" href="/null">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  <title>cissp - whale3070&#39;s blog</title>
+
+  <link  rel="stylesheet" href="/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="/css/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="/js/styles/github-gist.min.css" />
+    
+  
+
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"whale3070.github.io","root":"/","version":"1.8.7","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":false,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":false},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":false,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<!-- SCRIPTS -->
+
+
+<script  src="/js/jquery.min.js" ></script>
+<script  src="/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+
+
+  
+
+
+
+  <script  src="/js/tocbot.min.js" ></script>
+
+
+
+
+
+  <script  src="/js/anchor.min.js" ></script>
+
+
+
+  <script defer src="/js/clipboard.min.js" ></script>
+
+
+
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+
+<div id="search" class="pagefind-search"></div>
+
+<script src="/pagefind/pagefind-ui.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PagefindUI) {
+      console.error("PagefindUI not found. Check /pagefind/pagefind-ui.js");
+      return;
+    }
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true
+    });
+  });
+</script>
+
+
+
+    <body>
+      <header style="height: 70vh;">
+        <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>InfoSec learning</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+		<li class="nav-item">
+          <a class="nav-link" href="/nav/">
+            <i class="iconfont icon-category-fill"></i>
+            <span>导航</span>
+          </a>
+        </li>
+		<li class="nav-item">
+          <a class="nav-link" href="/thought-map/">
+            <i class="iconfont icon-planet"></i>
+            <span>思想星系</span>
+          </a>
+        </li>
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+          <div class="banner" id="banner" false
+            style="background: url('/img/default.png') no-repeat center center;
+              background-size: cover;">
+              <div class="full-bg-img">
+                <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+                  <div class="page-header text-center fade-in-up">
+                    <span class="h2 text1" id="subtitle" title="cissp">
+                      
+                        cissp
+                      
+                    </span>
+        
+                    
+                      <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2026-11-11 14:15" pubdate>
+        2026年11月11日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.3k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      36
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+                    
+                  </div>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </header>
+
+      <main>
+        
+          
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" data-pagefind-body>
+            <h1 style="display: none">cissp</h1>
+            
+            <div class="markdown-body">
+              <h1 id="他们使用活动目录来提供AAA服务。什么是AAA服务？"><a href="#他们使用活动目录来提供AAA服务。什么是AAA服务？" class="headerlink" title="他们使用活动目录来提供AAA服务。什么是AAA服务？"></a>他们使用活动目录来提供AAA服务。什么是AAA服务？</h1><p>AAA 是 <strong>Authentication（认证）、Authorization（授权）、Accounting（计费&#x2F;审计）</strong> 的缩写，是一套访问控制框架，很多时候用在网络接入、设备登录场景（比如 RADIUS、TACACS+ 就是典型AAA协议）。</p>
+<blockquote>
+<p>你这句话里：<strong>活动目录 AD 本身不是标准AAA协议，但AD可以作为后端身份源，给AAA系统提供账号信息，支撑AAA能力</strong>。</p>
+</blockquote>
+<p>拆开三个A：</p>
+<ol>
+<li><strong>Authentication 认证</strong>：你是谁？<br> 校验身份，核对账号密码、证书、MFA，确认这个用户&#x2F;设备是不是它声称的身份。<br> 例：输入域账号密码，AD核对密码是否正确。</li>
+<li><strong>Authorization 授权</strong>：你能干什么？<br> 认证通过之后，分配权限，规定这个身份允许访问哪些资源、能执行什么操作。<br> 例：AD组策略，这个用户只能登录某几台服务器，不能进管理员组。</li>
+<li><strong>Accounting 计费&#x2F;审计</strong>：你做了什么、用了多久？<br> 记录会话日志：登录时间、下线时间、访问流量、操作记录，用于审计、溯源、流量计费。<br> 例：记录谁什么时候接入VPN、什么时候断开。</li>
+</ol>
+<h2 id="简单一句话区分"><a href="#简单一句话区分" class="headerlink" title="简单一句话区分"></a>简单一句话区分</h2><ul>
+<li><strong>认证：验身份（能不能进大门）</strong></li>
+<li><strong>授权：定权限（进门之后能去哪几个房间）</strong></li>
+<li><strong>审计：记流水（全程录像+台账）</strong></li>
+</ul>
+<h2 id="和AD的关系补充"><a href="#和AD的关系补充" class="headerlink" title="和AD的关系补充"></a>和AD的关系补充</h2><p>Active Directory（活动目录）主要是<strong>身份目录</strong>，存账号、组、属性；它本身没有完整AAA会话记账能力。<br>典型架构：</p>
+<blockquote>
+<p>接入设备（交换机&#x2F;VPN）→ RADIUS（AAA服务器）→ 查询AD做身份校验<br>也就是<strong>RADIUS做AAA，AD当账号库</strong>，所以会说成“用活动目录来提供AAA服务”（简化说法）。</p>
+</blockquote>
+<h2 id="常见AAA协议"><a href="#常见AAA协议" class="headerlink" title="常见AAA协议"></a>常见AAA协议</h2><ul>
+<li>RADIUS：最常用，VPN、WiFi、802.1X</li>
+<li>TACACS+：思科系，偏向网络设备命令授权、运维审计</li>
+</ul>
+<p>考点： 最常用的AAA协议是TACACS+</p>
+<h1 id="硬件安全模块HSM是什么？"><a href="#硬件安全模块HSM是什么？" class="headerlink" title="硬件安全模块HSM是什么？"></a>硬件安全模块HSM是什么？</h1><h1 id="HSM（Hardware-Security-Module，硬件安全模块）"><a href="#HSM（Hardware-Security-Module，硬件安全模块）" class="headerlink" title="HSM（Hardware Security Module，硬件安全模块）"></a>HSM（Hardware Security Module，硬件安全模块）</h1><p>一句话：<strong>防篡改的专用密码硬件，密钥明文永远不跑出HSM内部，所有加解密、签名运算都在里面完成</strong>，是系统的信任根。</p>
+<blockquote>
+<p>核心特点：私钥不能被导出明文；物理拆壳、探针探测会自动擦除密钥（防篡改触发归零），主流认证标准 <strong>FIPS 140-2 &#x2F; 140-3</strong>，金融、政务、CA根证书大多要求Level 3。</p>
+</blockquote>
+<h2 id="✅-主要能力"><a href="#✅-主要能力" class="headerlink" title="✅ 主要能力"></a>✅ 主要能力</h2><ol>
+<li>真随机数生成、密钥全生命周期管理（生成、轮换、备份、销毁）</li>
+<li>加解密、哈希、数字签名、验签、TLS证书私钥运算</li>
+<li>访问审计、多角色权限管控、操作日志留存</li>
+</ol>
+<h2 id="✅-常见形态"><a href="#✅-常见形态" class="headerlink" title="✅ 常见形态"></a>✅ 常见形态</h2><ul>
+<li>机架式网络HSM（最经典，Thales Luna等，服务器集群远程调用，PKCS#11接口）</li>
+<li>PCIe加密卡HSM，插在服务器内部</li>
+<li>芯片内置HSM（MCU&#x2F;车规芯片里的安全子模块，汽车ECU常用）</li>
+<li>云HSM服务（Azure&#x2F;阿里云专用HSM，租户独占硬件）</li>
+</ul>
+<h2 id="✅-典型场景"><a href="#✅-典型场景" class="headerlink" title="✅ 典型场景"></a>✅ 典型场景</h2><ul>
+<li>CA证书中心，存放根CA私钥</li>
+<li>银行支付：银行卡PIN加密、交易签名、PCI DSS合规</li>
+<li>代码签名、固件签名</li>
+<li>数据库TDE透明加密、SSL&#x2F;TLS密钥保护</li>
+<li>区块链&#x2F;数字资产托管、密钥托管</li>
+</ul>
+<h2 id="✅-容易混淆：HSM-vs-TPM"><a href="#✅-容易混淆：HSM-vs-TPM" class="headerlink" title="✅ 容易混淆：HSM vs TPM"></a>✅ 容易混淆：HSM vs TPM</h2><ul>
+<li><strong>HSM</strong>：独立密码设备，给多台服务器&#x2F;业务提供密码服务，面向后台业务、密钥托管</li>
+<li><strong>TPM</strong>：主板内置安全芯片，绑定单台主机，主要用于本机磁盘加密、安全启动、设备身份</li>
+</ul>
+<h2 id="✅-考试精简背诵版"><a href="#✅-考试精简背诵版" class="headerlink" title="✅ 考试精简背诵版"></a>✅ 考试精简背诵版</h2><blockquote>
+<p>HSM是防篡改的专用密码硬件模块，安全生成、存储密钥并执行密码运算；密钥明文不离开HSM，支持密钥生命周期管理，满足金融等行业合规，作为信任锚保护签名、加密、证书体系。</p>
+</blockquote>
+<p>要不要我顺带把 PKCS#11 也简单讲一下？HSM几乎都走这个标准接口。</p>
+<h1 id="NAC的状态评估能力是什么意思？"><a href="#NAC的状态评估能力是什么意思？" class="headerlink" title="NAC的状态评估能力是什么意思？"></a>NAC的状态评估能力是什么意思？</h1><p>NAC 状态评估（Posture Assessment &#x2F; 终端健康评估）<br>一句话：<strong>NAC不光校验你是谁（AAA身份认证），还要检查这台终端本身安不安全，这个终端安全健康检查能力，就是状态评估</strong>。</p>
+<blockquote>
+<p>重点区分：<br>AAA &#x2F; 802.1X：<strong>认人、认账号</strong>（用户身份）<br>NAC状态评估：<strong>认设备健康状态</strong>（终端合规性）</p>
+</blockquote>
+<h2 id="✅-一般检查哪些项"><a href="#✅-一般检查哪些项" class="headerlink" title="✅ 一般检查哪些项"></a>✅ 一般检查哪些项</h2><ul>
+<li>杀毒软件&#x2F;EDR 是否安装、是否开启、病毒库是否最新</li>
+<li>操作系统补丁、高危漏洞补丁有没有打</li>
+<li>主机防火墙是否启用</li>
+<li>是否开启磁盘加密（BitLocker等）</li>
+<li>有没有禁止运行的软件、恶意进程</li>
+<li>系统版本、注册表、安全配置基线</li>
+</ul>
+<h2 id="✅-三种结果和动作"><a href="#✅-三种结果和动作" class="headerlink" title="✅ 三种结果和动作"></a>✅ 三种结果和动作</h2><ol>
+<li><strong>合规（健康）</strong>：放行，正常接入内网业务</li>
+<li><strong>不合规</strong>：隔离到<strong>修复区（隔离VLAN）</strong>，只能访问补丁服务器、杀毒升级服务器，不能访问业务；修好后重新评估</li>
+<li><strong>严重风险</strong>：直接拒绝入网</li>
+</ol>
+<blockquote>
+<p>而且不是只上线查一次，支持<strong>在线持续评估</strong>，连上之后防火墙被关掉、病毒库过期，会动态收紧权限。</p>
+</blockquote>
+<h2 id="✅-两种评估方式"><a href="#✅-两种评估方式" class="headerlink" title="✅ 两种评估方式"></a>✅ 两种评估方式</h2><ul>
+<li><strong>有客户端Agent</strong>：终端装NAC代理，主动上报本机状态（检查最全）</li>
+<li><strong>无客户端评估</strong>：靠WMI&#x2F;SNMP&#x2F;SSH远程采集，BYOD访客常用，检查项少一些</li>
+</ul>
+<h2 id="✅-和前面知识点串起来（考试高频组合）"><a href="#✅-和前面知识点串起来（考试高频组合）" class="headerlink" title="✅ 和前面知识点串起来（考试高频组合）"></a>✅ 和前面知识点串起来（考试高频组合）</h2><p>NAC完整准入 &#x3D; <strong>AAA身份认证 + 状态评估</strong></p>
+<ul>
+<li>先通过RADIUS&#x2F;Kerberos做身份认证</li>
+<li>再做Posture状态评估</li>
+<li>两个条件一起作为授权依据，再下发权限给交换机&#x2F;AP（PEP策略执行点）</li>
+</ul>
+<h2 id="✅-背诵精简版"><a href="#✅-背诵精简版" class="headerlink" title="✅ 背诵精简版"></a>✅ 背诵精简版</h2><blockquote>
+<p>NAC状态评估是对入网终端进行安全合规检查的能力，采集终端杀毒、补丁、防火墙等安全状态，对照安全策略判定终端是否可信；结合身份认证结果共同决定网络访问权限，不合规设备可隔离修复或拒绝接入。</p>
+</blockquote>
+<p>要不要我把 <strong>802.1X、RADIUS、AAA、NAC、Posture、隔离VLAN</strong> 串成一条完整准入流程？</p>
+<h1 id="FRR-FAR是什么"><a href="#FRR-FAR是什么" class="headerlink" title="FRR, FAR是什么"></a>FRR, FAR是什么</h1><p>FAR &#x2F; FRR（生物识别、身份认证核心指标，你前面学的AAA、NAC、Windows Hello都会碰到）</p>
+<ul>
+<li><p><strong>FAR &#x3D; False Accept Rate，错误接受率 &#x2F; 认假率</strong><br>坏人&#x2F;冒充者，被系统错误放行、当成合法用户的比例</p>
+<blockquote>
+<p>安全指标：<strong>FAR越低越安全</strong>。金融场景一般要求 FAR 极低，例如 0.001%</p>
+</blockquote>
+</li>
+<li><p><strong>FRR &#x3D; False Reject Rate，错误拒绝率 &#x2F; 拒真率</strong><br>本人、合法用户，被系统错误拦下来、判定为冒充者的比例</p>
+<blockquote>
+<p>体验指标：<strong>FRR越低越好用</strong>，不会反复刷脸刷指纹失败</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="✅-一句话通俗版"><a href="#✅-一句话通俗版" class="headerlink" title="✅ 一句话通俗版"></a>✅ 一句话通俗版</h2><ul>
+<li>FAR：<strong>放错人</strong>（风险）</li>
+<li>FRR：<strong>拦对的人</strong>（麻烦）</li>
+</ul>
+<h2 id="✅-关键特性（考试高频）"><a href="#✅-关键特性（考试高频）" class="headerlink" title="✅ 关键特性（考试高频）"></a>✅ 关键特性（考试高频）</h2><p><strong>二者是跷跷板关系</strong>：调严阈值 → FAR下降（更安全），FRR上升（合法用户更容易被拒）；调松阈值 → FRR下降（好登录），FAR上升（更容易被冒充）</p>
+<p><strong>EER（Equal Error Rate，等错误率）</strong>：当 FAR &#x3D; FRR 时的阈值点，用来横向对比不同算法；EER越小，算法整体越强</p>
+<h2 id="✅-背诵精简版-1"><a href="#✅-背诵精简版-1" class="headerlink" title="✅ 背诵精简版"></a>✅ 背诵精简版</h2><blockquote>
+<p>FAR（错误接受率）：冒充者被误放行的概率；FRR（错误拒绝率）：合法用户被误拒绝的概率；二者相互制衡，EER是FAR&#x3D;FRR的平衡点，用于评估生物识别认证性能。</p>
+</blockquote>
+<h2 id="✅-补充区分（ISO标准细区分，面试加分）"><a href="#✅-补充区分（ISO标准细区分，面试加分）" class="headerlink" title="✅ 补充区分（ISO标准细区分，面试加分）"></a>✅ 补充区分（ISO标准细区分，面试加分）</h2><ul>
+<li>FMR（False Match Rate）：模板比对层面的误匹配率</li>
+<li>FNMR（False Non-Match Rate）：模板比对层面的不匹配率<br>日常工程、考题里经常直接拿FAR≈FMR，FRR≈FNMR混用</li>
+</ul>
+<p>要不要顺带把 DET 曲线（检测误差权衡曲线）也一句话讲清楚？</p>
+<h1 id="SAML和SPML有什么区别"><a href="#SAML和SPML有什么区别" class="headerlink" title="SAML和SPML有什么区别"></a>SAML和SPML有什么区别</h1><p>SAML vs SPML（OASIS的两套XML IAM标准，<strong>分工完全不一样，互为互补</strong>）</p>
+<blockquote>
+<p>SAML：Security Assertion Markup Language，<strong>安全断言标记语言</strong><br>SPML：Service Provisioning Markup Language，<strong>服务配置&#x2F;账号开通标记语言</strong></p>
+</blockquote>
+<p>一句话总结：<br>✅ <strong>SAML：登录的时候，验身份、传断言，做单点登录（认证+授权断言）</strong><br>✅ <strong>SPML：事前&#x2F;后台，增删改账号、开通权限（账号生命周期供给Provisioning）</strong></p>
+<h2 id="1-核心用途对比"><a href="#1-核心用途对比" class="headerlink" title="1. 核心用途对比"></a>1. 核心用途对比</h2><p><strong>SAML</strong></p>
+<ul>
+<li>场景：用户访问应用那一刻（运行时、登录阶段）</li>
+<li>能力：跨域传递身份断言（Assertion），实现SAML SSO单点登录；告诉SP：这个人是谁、属于哪个组、有什么属性</li>
+<li>主体：IDP ↔ SP，浏览器重定向、SOAP令牌交换</li>
+<li>典型动作：认证、返回身份声明、授权判断</li>
+<li>现在地位：广泛在用（Azure AD&#x2F;Entra ID、Okta都支持SAML2.0）</li>
+</ul>
+<p><strong>SPML</strong></p>
+<ul>
+<li>场景：账号生命周期管理（事前后台，还没登录）</li>
+<li>能力：账号供给（provisioning）：新建账号、禁用、解锁、改密码、改组、删除账号</li>
+<li>主体：身份管理系统（IdM） ↔ 业务系统&#x2F;目录</li>
+<li>典型动作：add、modify、delete、suspend、resume账号</li>
+<li>现状：<strong>老旧标准，现在工业界换成SCIM 2.0</strong>，考题里经常拿SPML代表供给协议，和SAML配对考</li>
+</ul>
+<h2 id="2-通俗例子（同一个员工入职全流程）"><a href="#2-通俗例子（同一个员工入职全流程）" class="headerlink" title="2. 通俗例子（同一个员工入职全流程）"></a>2. 通俗例子（同一个员工入职全流程）</h2><ol>
+<li>HR录入新人 → IdM系统下发 <strong>SPML 请求</strong>给OA、邮箱、ERP：新建账号、分配角色（供给，SPML干的活）</li>
+<li>员工打开OA网页，触发SSO → 走 <strong>SAML</strong>，IDP校验身份，返回断言，OA放行登录（登录认证，SAML干的活）</li>
+</ol>
+<h2 id="3-表格速记（适合考试）"><a href="#3-表格速记（适合考试）" class="headerlink" title="3. 表格速记（适合考试）"></a>3. 表格速记（适合考试）</h2><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>SAML</th>
+<th>SPML</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>全称</td>
+<td>Security Assertion Markup Language</td>
+<td>Service Provisioning Markup Language</td>
+</tr>
+<tr>
+<td>核心目标</td>
+<td>身份联合、单点登录、传递身份断言</td>
+<td>账号供给、身份生命周期自动管理</td>
+</tr>
+<tr>
+<td>时机</td>
+<td>用户登录访问资源时（运行时）</td>
+<td>入职&#x2F;调岗&#x2F;离职，提前创建、变更、销毁账号</td>
+</tr>
+<tr>
+<td>消息内容</td>
+<td>身份断言、属性、认证结果</td>
+<td>账号CRUD、权限开通、挂起、恢复指令</td>
+</tr>
+<tr>
+<td>替代&#x2F;同类</td>
+<td>SAML2.0依然主流</td>
+<td>已经被SCIM取代</td>
+</tr>
+</tbody></table>
+<h2 id="4-背诵精简版"><a href="#4-背诵精简版" class="headerlink" title="4. 背诵精简版"></a>4. 背诵精简版</h2><blockquote>
+<p>SAML用于跨安全域交换认证授权断言，实现SSO单点登录；SPML是账号供给协议，用于自动创建、修改、删除远端系统账号权限；SAML管登录那一刻的身份核验，SPML管账号生命周期开通。二者互补，不是竞争关系。</p>
+</blockquote>
+<h2 id="5-面试容易踩坑点"><a href="#5-面试容易踩坑点" class="headerlink" title="5. 面试容易踩坑点"></a>5. 面试容易踩坑点</h2><p>很多人混淆：</p>
+<ul>
+<li>SAML <strong>不负责建账号</strong>；账号必须预先存在（或者SCIM&#x2F;SPML预先供给），SAML只是校验身份</li>
+<li>SPML <strong>不做登录认证</strong>，只管后台账号开通</li>
+<li>现代IAM：SCIM替代SPML，SAML&#x2F;OIDC负责SSO</li>
+</ul>
+<p>要不要我顺带把SCIM也一句话对比进来，形成 IAM三件套：SAML&#x2F;OIDC + SCIM？</p>
+<h1 id="策略实施点-policy-enforcement-point在零信任解决方案里面，是什么意思"><a href="#策略实施点-policy-enforcement-point在零信任解决方案里面，是什么意思" class="headerlink" title="策略实施点 policy enforcement point在零信任解决方案里面，是什么意思"></a>策略实施点 policy enforcement point在零信任解决方案里面，是什么意思</h1><p>PEP（Policy Enforcement Point，策略实施点 &#x2F; 策略执行点）<br>零信任里的核心组件，一句话：<br><strong>PEP 就是拦在资源前面、负责拦截流量、执行访问控制策略的“网关”，所有访问请求都要经过它，由它落地放行&#x2F;拒绝。</strong></p>
+<blockquote>
+<p>配套对照（零信任标准 NIST SP 800-207 经典三角）</p>
+<ul>
+<li><strong>PAP Policy Administration Point 策略管理点</strong>：管理员在这里写策略（比如：只有合规设备+特定组用户，才能访问ERP）</li>
+<li><strong>PDP Policy Decision Point 策略决策点</strong>：收到访问请求，调取策略、身份、设备健康状态，<strong>做判断：允许还是拒绝</strong></li>
+<li><strong>PEP Policy Enforcement Point 策略执行点</strong>：拿到PDP返回的决策结果，<strong>真正阻断或者放行流量</strong></li>
+</ul>
+</blockquote>
+<h2 id="流程串起来（非常好记）"><a href="#流程串起来（非常好记）" class="headerlink" title="流程串起来（非常好记）"></a>流程串起来（非常好记）</h2><ol>
+<li>用户发起访问资源的请求 → 请求先到 <strong>PEP</strong></li>
+<li>PEP把请求上下文（用户身份、设备状态、位置、应用、风险分数）发给 <strong>PDP</strong></li>
+<li>PDP去PAP拉取策略，评估后给出决策：Allow &#x2F; Deny &#x2F; 条件放行</li>
+<li><strong>PEP 负责执行这个决定</strong>：放通连接、拒绝、强制MFA、会话限流</li>
+</ol>
+<blockquote>
+<p>重点：<strong>PDP只做判断，不碰流量；PEP才是真正挡流量的地方</strong></p>
+</blockquote>
+<h2 id="零信任里PEP常见形态"><a href="#零信任里PEP常见形态" class="headerlink" title="零信任里PEP常见形态"></a>零信任里PEP常见形态</h2><ul>
+<li>零信任网关（ZTA Gateway）、ZTNA代理</li>
+<li>云访问安全代理 CASB</li>
+<li>防火墙、WAF</li>
+<li>应用侧SDK、服务端Sidecar（服务网格里的PEP）</li>
+<li>802.1X交换机、NAC（你前面学的NAC，交换机端口就是PEP）</li>
+</ul>
+<h2 id="和你之前知识点联动"><a href="#和你之前知识点联动" class="headerlink" title="和你之前知识点联动"></a>和你之前知识点联动</h2><p>NAC场景：交换机&#x3D;PEP；NAC控制器&#x3D;PDP<br>AAA&#x2F;NAC：PEP（交换机端口）根据PDP判定结果，把端口划到合规VLAN&#x2F;隔离VLAN</p>
+<h2 id="背诵精简版（面试-考试）"><a href="#背诵精简版（面试-考试）" class="headerlink" title="背诵精简版（面试&#x2F;考试）"></a>背诵精简版（面试&#x2F;考试）</h2><blockquote>
+<p>PEP（策略执行点）是零信任架构中位于资源访问路径上的组件，接收PDP的访问决策，对访问请求实施放行、阻断、二次认证等控制动作，是策略落地的控制点。</p>
+</blockquote>
+<h2 id="容易踩坑"><a href="#容易踩坑" class="headerlink" title="容易踩坑"></a>容易踩坑</h2><p>❌ 误区：PDP和PEP是同一个东西<br>✅ 区分：PDP &#x3D; 大脑（判断）；PEP &#x3D; 门卫（动手拦&#x2F;放行）</p>
+<p>要不要我把 NIST 800-207 全套5个组件（PAP&#x2F;PDP&#x2F;PEP&#x2F;PIP&#x2F;PRP）一次性整理给你？</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/12/30/22151.html">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">2027年学习计划</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/11/11/3544843437.html">
+                        <span class="hidden-mobile">网络安全的劣币驱逐良币：当"便宜"成为唯一标准</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+
+            <div id="custom-recommendations" style="margin-top: 4rem; border-top: 1px dashed var(--sec-text-color); padding-top: 2rem; display: none;">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #00ffcc; font-weight: bold;"><i class="iconfont icon-link-fill"></i> 同题延伸</h5>
+                  <ul id="reco-similar" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <h5 style="color: #ff9900; font-weight: bold;"><i class="iconfont icon-process"></i> 反直觉跳转</h5>
+                  <ul id="reco-divergent" style="font-size: 0.9rem; list-style: none; padding-left: 0; margin-top: 1rem;"></ul>
+                </div>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+
+
+<script>
+  (function() {
+    const currentTitle = "cissp"; 
+    fetch('/recommendations.json')
+      .then(res => res.json())
+      .then(data => {
+        const recos = data[currentTitle];
+        if (recos && (recos.similar.length > 0 || recos.divergent.length > 0)) {
+          document.getElementById('custom-recommendations').style.display = 'block';
+          
+          const renderList = (id, list, hoverColor) => {
+            const el = document.getElementById(id);
+            list.forEach(item => {
+              const li = document.createElement('li');
+              li.style.marginBottom = '12px';
+              li.innerHTML = `<a href="${item.url}" style="color: var(--text-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s;">
+                 · ${item.title}
+              </a>`;
+              const a = li.querySelector('a');
+              a.onmouseover = () => { a.style.color = hoverColor; a.style.borderBottom = `1px solid ${hoverColor}`; };
+              a.onmouseout = () => { a.style.color = 'var(--text-color)'; a.style.borderBottom = '1px solid transparent'; };
+              el.appendChild(li);
+            });
+          };
+
+          renderList('reco-similar', recos.similar, '#00ffcc');
+          renderList('reco-divergent', recos.divergent, '#ff9900');
+        }
+      })
+      .catch(err => {
+        console.log('Recommendation system skipped or file not found.');
+      });
+  })();
+</script>
+            
+
+                
+                  <a id="scroll-top-button" href="#" role="button">
+                    <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+                  </a>
+                  
+
+                    
+                      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+                        
+
+                          
+      </main>
+
+      <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://whale3070.github.io/" target="_blank" rel="nofollow noopener"><span>Whale3070</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+  </div>
+
+
+  
+
+  
+</footer>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <style>
+    /* 搜索框配色适配 */
+    #search { margin-top: 2rem; }
+    [data-user-color-scheme='dark'] .pagefind-ui {
+      --pagefind-ui-primary: #eeeeee;
+      --pagefind-ui-text: #eeeeee;
+      --pagefind-ui-background: #151515;
+      --pagefind-ui-border: #333;
+    }
+  </style>
+  <!-- 引入自定义字体CSS，覆盖Base64内联字体 -->
+  <link rel="stylesheet" href="/css/custom-font.css" type="text/css">
+    </body>
+
+ </html>
