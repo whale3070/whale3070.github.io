@@ -288,7 +288,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      3.3k 字
+      5.4k 字
     </span>
   
 
@@ -298,7 +298,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      36
+      58
        分钟
     </span>
   
@@ -546,6 +546,111 @@
 </blockquote>
 <h2 id="容易踩坑"><a href="#容易踩坑" class="headerlink" title="容易踩坑"></a>容易踩坑</h2><p>❌ 误区：PDP和PEP是同一个东西<br>✅ 区分：PDP &#x3D; 大脑（判断）；PEP &#x3D; 门卫（动手拦&#x2F;放行）</p>
 <p>要不要我把 NIST 800-207 全套5个组件（PAP&#x2F;PDP&#x2F;PEP&#x2F;PIP&#x2F;PRP）一次性整理给你？</p>
+<h1 id="Read-through（通读检查）"><a href="#Read-through（通读检查）" class="headerlink" title="Read-through（通读检查）"></a>Read-through（通读检查）</h1><p>✅ 这句话在 <strong>CISSP &#x2F; BCDR 体系</strong> 里是对的：<br><strong>Read-through（通读检查）是破坏性最小的灾难恢复测试</strong></p>
+<h2 id="Read-through（通读检查）-1"><a href="#Read-through（通读检查）-1" class="headerlink" title="Read-through（通读检查）"></a>Read-through（通读检查）</h2><ul>
+<li>做法：团队单纯阅读、核对DR预案文档，检查联系人、步骤、RTO&#x2F;RPO、权限等书面信息，<strong>不碰任何系统、不启动灾备机、不做故障转移</strong></li>
+<li>风险：0，完全不影响生产，最低成本、最低破坏性</li>
+<li>能测出：文档过时、责任人缺失、步骤写漏、联系方式失效这类<strong>流程&#x2F;文档问题</strong></li>
+<li>局限：<strong>不能验证备份能不能真的恢复、灾备系统能不能跑起来</strong>，只审纸面计划</li>
+</ul>
+<h2 id="Parallel-test（并行测试）"><a href="#Parallel-test（并行测试）" class="headerlink" title="Parallel test（并行测试）"></a>Parallel test（并行测试）</h2><ul>
+<li>做法：<strong>把灾备站点&#x2F;灾备系统真正拉起来，和生产同时跑</strong>，生产继续对外服务；灾备侧跑相同业务，对比结果，但是不切流量过去</li>
+<li>风险：依然不中断生产，但要启动整套灾备硬件、备份恢复、同步数据，有资源开销、配置冲突风险，破坏性 &gt; read-through</li>
+<li>优势：可以真实验证系统能不能恢复、数据一致性、灾备站点性能，是技术层面有效验证</li>
+</ul>
+<h2 id="DR测试风险从小到大排序（考试标准顺序）"><a href="#DR测试风险从小到大排序（考试标准顺序）" class="headerlink" title="DR测试风险从小到大排序（考试标准顺序）"></a>DR测试风险从小到大排序（考试标准顺序）</h2><ol>
+<li><strong>Read-through（通读）</strong>：只读文档，破坏性最小</li>
+<li>Walkthrough &#x2F; Tabletop（桌面推演）：场景讨论，口头走流程</li>
+<li>Simulation（模拟测试）：部分模拟操作</li>
+<li><strong>Parallel test（并行测试）</strong>：灾备系统上线，和生产并行</li>
+<li>Full-interruption &#x2F; Cutover（完全中断&#x2F;切换测试）：停生产、切到灾备，风险最高</li>
+</ol>
+<h3 id="一句话区分考点（CISSP常考）"><a href="#一句话区分考点（CISSP常考）" class="headerlink" title="一句话区分考点（CISSP常考）"></a>一句话区分考点（CISSP常考）</h3><ul>
+<li>Read-through：<strong>读文档，只看计划，不动系统 → 破坏性最小</strong></li>
+<li>Parallel test：<strong>灾备系统真实启动，和生产并排跑</strong></li>
+</ul>
+<p>如果你需要，我给你整理成一句选择题速记口诀。</p>
+<h1 id="Qos技术是什么"><a href="#Qos技术是什么" class="headerlink" title="Qos技术是什么"></a>Qos技术是什么</h1><p>QoS（Quality of Service，服务质量）<br>一句话：<strong>QoS 就是在带宽不够、网络拥堵的时候，给不同流量分优先级、分配带宽资源，保障关键业务优先转发的一套流量管控技术</strong>。</p>
+<p>默认IP网络是<strong>尽力而为（Best-Effort）</strong>：所有数据包平等排队，卡的时候一起卡、随机丢包。<br>QoS打破平等：识别流量 → 打标记 → 分队列 → 优先转发语音&#x2F;视频会议这类对延迟敏感的包；下载、网盘这类大流量可以限速、延后转发。</p>
+<h2 id="核心衡量指标"><a href="#核心衡量指标" class="headerlink" title="核心衡量指标"></a>核心衡量指标</h2><ol>
+<li><strong>带宽</strong>：能跑多少流量</li>
+<li><strong>时延（Latency）</strong>：数据包从发出去到收到的时间</li>
+<li><strong>抖动（Jitter）</strong>：时延忽快忽慢的波动（语音、视频最怕抖动）</li>
+<li><strong>丢包率</strong>：数据包丢失比例</li>
+</ol>
+<h2 id="常用的QoS核心动作"><a href="#常用的QoS核心动作" class="headerlink" title="常用的QoS核心动作"></a>常用的QoS核心动作</h2><ul>
+<li><strong>分类+标记</strong>：根据端口、IP、应用识别流量，打上DSCP&#x2F;CoS标记，沿路设备统一识别优先级</li>
+<li><strong>拥塞管理（队列调度）</strong>：比如PQ严格优先队列、CBWFQ加权公平队列，拥堵时按规则选包发送</li>
+<li><strong>拥塞避免</strong>：提前随机丢包，防止队列彻底堵死（WRED）</li>
+<li><strong>流量监管（Policing）</strong>：超出限速直接丢包</li>
+<li><strong>流量整形（Shaping）</strong>：超出速率先缓存、平缓发送，避免下游拥塞</li>
+</ul>
+<h2 id="哪些业务必须靠QoS保障"><a href="#哪些业务必须靠QoS保障" class="headerlink" title="哪些业务必须靠QoS保障"></a>哪些业务必须靠QoS保障</h2><p>VoIP电话、视频会议、直播、游戏、工业控制、安防摄像头；<br>网盘下载、系统备份、文件传输对延迟不敏感，可以压低优先级。</p>
+<h2 id="简单例子"><a href="#简单例子" class="headerlink" title="简单例子"></a>简单例子</h2><p>公司宽带跑满的时候：</p>
+<ul>
+<li>开了QoS：视频会议优先，下载限速，会议不卡顿</li>
+<li>没开QoS：有人在下载，开会画面卡顿、声音断断续续</li>
+</ul>
+<h2 id="补充区分（和你刚才问的信号屏蔽器对比）"><a href="#补充区分（和你刚才问的信号屏蔽器对比）" class="headerlink" title="补充区分（和你刚才问的信号屏蔽器对比）"></a>补充区分（和你刚才问的信号屏蔽器对比）</h2><ul>
+<li>信号屏蔽器：<strong>主动发射干扰，直接阻断无线信号</strong>（大多私自使用违法）</li>
+<li>QoS：<strong>正常路由器&#x2F;交换机内部调度</strong>，不发射干扰，只是管理网络里数据包的先后顺序，合法网络优化手段</li>
+</ul>
+<h1 id="使用写屏蔽设备，这个装置的功能是什么？什么意思"><a href="#使用写屏蔽设备，这个装置的功能是什么？什么意思" class="headerlink" title="使用写屏蔽设备，这个装置的功能是什么？什么意思"></a>使用写屏蔽设备，这个装置的功能是什么？什么意思</h1><p>屏蔽设备（一般指<strong>信号屏蔽器 &#x2F; 无线电干扰器</strong>）</p>
+<h2 id="是什么、功能原理"><a href="#是什么、功能原理" class="headerlink" title="是什么、功能原理"></a>是什么、功能原理</h2><p>原理：它主动发射和手机、WiFi、GPS等一样频段的干扰电磁波，<strong>在一定范围内把无线信号“盖住”</strong>，让这个区域里的手机、无线设备收不到正常信号，显示无服务、连不上WiFi、GPS定位失效。</p>
+<p>可以屏蔽的常见信号：</p>
+<ul>
+<li>2G&#x2F;4G&#x2F;5G手机信号（打电话、短信、流量）</li>
+<li>WiFi、蓝牙</li>
+<li>GPS&#x2F;北斗定位信号</li>
+<li>无线窃听器、无线针孔摄像头、隐形耳机等无线信号</li>
+</ul>
+<p>✅ 合法用途（<strong>必须经过无线电管理部门审批</strong>，仅限特定单位）：<br>考场、保密会议室、监狱、看守所等，用来防止作弊、泄密、违规对外通信。</p>
+<p>⚠️ 重点法律提醒（非常关键）<br><strong>个人、普通商家私自购买、安装、使用屏蔽设备，属于违法行为</strong>：</p>
+<ol>
+<li>私自使用会干扰周边所有人手机、甚至 110&#x2F;120 应急通信、航空、铁路信号；</li>
+<li>依据《无线电管理条例》，可以没收设备、罚款；情节严重（干扰通信秩序）会触犯刑法；</li>
+<li>网上卖的屏蔽器绝大多数都是不合规非法设备，买卖也违法。</li>
+</ol>
+<blockquote>
+<p>举个常见踩坑例子：有人想装在车上屏蔽GPS，防止抵押车被定位；或者开店屏蔽隔壁WiFi，全部都是违法。</p>
+</blockquote>
+<p>如果你说的不是信号屏蔽器（比如屏蔽房、电磁屏蔽箱，是被动金属屏蔽，不主动发射干扰），我可以分开给你解释。</p>
+<h1 id="备份磁带循环方案是什么意思"><a href="#备份磁带循环方案是什么意思" class="headerlink" title="备份磁带循环方案是什么意思"></a>备份磁带循环方案是什么意思</h1><p>一句话：<strong>备份磁带循环方案（磁带轮换策略），就是规定一批磁带什么时候写、什么时候封存、什么时候拿回来重复覆盖，用来控制能恢复到哪一天的数据、同时少买磁带</strong>。</p>
+<p>磁带是可以反复擦写的介质，但不能无限保存，所以要定一套轮换规则：</p>
+<blockquote>
+<p>不是一直买新磁带，而是循环复用；同时保留一部分磁带长期归档，不覆盖。</p>
+</blockquote>
+<h3 id="最主流：GFS-祖父-父-子（考试-运维最常考）"><a href="#最主流：GFS-祖父-父-子（考试-运维最常考）" class="headerlink" title="最主流：GFS 祖父-父-子（考试&#x2F;运维最常考）"></a>最主流：GFS 祖父-父-子（考试&#x2F;运维最常考）</h3><ul>
+<li><strong>Son（子，每日备份）</strong>：周一～周四，短周期，一周后可以循环覆盖</li>
+<li><strong>Father（父，每周备份）</strong>：周五全量备份，保留几周，再进入循环</li>
+<li><strong>Grandfather（祖父，每月备份）</strong>：月底的全量备份，<strong>抽出来离线异地存放，一般保留1年，不轻易覆盖</strong><br>还可以再加年度磁带，永久归档，满足审计、合规要求</li>
+</ul>
+<p>好处：</p>
+<ul>
+<li>最近几天：可以恢复到任意一天</li>
+<li>几个月前：还有每周版本</li>
+<li>去年的数据：有每月快照</li>
+<li>磁带数量可控，不会爆炸式增加</li>
+</ul>
+<h3 id="其他简单方案"><a href="#其他简单方案" class="headerlink" title="其他简单方案"></a>其他简单方案</h3><ol>
+<li><strong>轮循 Round Robin（简单循环）</strong><br>比如5盘磁带，周一A、周二B、周三C、周四D、周五E；下周一再回头覆盖A。只能保留最近5天备份，旧的直接被冲掉，适合要求低的场景</li>
+<li><strong>汉诺塔（Tower of Hanoi）</strong><br>用很少磁带，越老的备份间隔越大，优点是磁带省；缺点是规则复杂，不好理解、不好排查故障</li>
+</ol>
+<h3 id="核心目的（为什么要做循环方案）"><a href="#核心目的（为什么要做循环方案）" class="headerlink" title="核心目的（为什么要做循环方案）"></a>核心目的（为什么要做循环方案）</h3><ol>
+<li>控制磁带采购成本，重复利用介质</li>
+<li>控制<strong>恢复点RPO</strong>：明确你最多能找回多久之前的数据</li>
+<li>满足合规（很多金融、保密单位要求保留月度&#x2F;年度备份，不能全部循环覆盖）</li>
+<li>分散风险：月度磁带一般要<strong>异地存放</strong>，防止机房火灾、勒索病毒一锅端</li>
+</ol>
+<h3 id="举个极简例子（GFS）"><a href="#举个极简例子（GFS）" class="headerlink" title="举个极简例子（GFS）"></a>举个极简例子（GFS）</h3><ul>
+<li>4盘日常日磁带（子）：每周循环覆盖</li>
+<li>4盘周磁带（父）：每月轮换</li>
+<li>12盘月磁带（祖父）：一年12个月，用完之后要么归档，要么次年再循环<br>月底那一盘直接送异地库房，不参与日常擦写</li>
+</ul>
+<blockquote>
+<p>区分两点：<br>✅ 循环磁带 &#x3D; 到期会被覆盖<br>✅ 归档磁带 &#x3D; 退出循环，长期保存，不覆盖</p>
+</blockquote>
+<p>如果你需要，我可以给你一个可直接写进方案文档里的GFS轮换表。</p>
 
             </div>
             <hr>
@@ -560,9 +665,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2026/12/30/22151.html">
+                      <a href="/2026/11/12/1933386182.html">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">2027年学习计划</span>
+                        <span class="hidden-mobile">cissp-2</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
